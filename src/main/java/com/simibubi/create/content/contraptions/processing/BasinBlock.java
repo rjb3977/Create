@@ -16,11 +16,10 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.lib.extensions.EntitySelectionContextExtensions;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+import com.simibubi.create.lib.lba.fluid.FluidVolume;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.utility.TransferUtil;
 
 import alexiil.mc.lib.attributes.Simulation;
 import net.minecraft.block.Block;
@@ -108,8 +107,8 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 				if (heldItem.getItem()
 					.equals(Items.SPONGE)
 					&& !TransferUtil.getFluidHandler(te)
-						.map(iFluidHandler -> iFluidHandler.drain(Integer.MAX_VALUE, Simulation.ACTION))
-						.orElse(FluidStack.EMPTY)
+						.map(FixedFluidInv -> FixedFluidInv.drain(Integer.MAX_VALUE, Simulation.ACTION))
+						.orElse(FluidVolume.EMPTY)
 						.isEmpty()) {
 					return ActionResultType.SUCCESS;
 

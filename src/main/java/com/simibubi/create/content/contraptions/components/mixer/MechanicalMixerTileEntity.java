@@ -19,7 +19,6 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.utility.TransferUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

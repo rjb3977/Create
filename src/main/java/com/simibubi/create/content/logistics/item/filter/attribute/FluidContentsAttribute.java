@@ -64,7 +64,7 @@ public class FluidContentsAttribute implements ItemAttribute {
     private List<Fluid> extractFluids(ItemStack stack) {
         List<Fluid> fluids = new ArrayList<>();
 
-//        LazyOptional<IFluidHandlerItem> capability =
+//        LazyOptional<FixedFluidInvItem> capability =
 //                stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
 //
 //        capability.ifPresent((cap) -> {

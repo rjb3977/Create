@@ -16,9 +16,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.simibubi.create.content.contraptions.fluids.tank.CreativeFluidTankTileEntity.CreativeSmartFluidTank;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
 
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
@@ -134,7 +136,7 @@ public class FluidTankConnectivityHandler {
 			}
 
 			te.setWindows(te.window);
-			te.onFluidStackChanged(te.tankInventory.getInvFluid(0));
+			te.onFluidVolumeChanged(te.tankInventory.getInvFluid(0));
 			te.markDirty();
 		}
 
@@ -148,7 +150,7 @@ public class FluidTankConnectivityHandler {
 		TileEntityType<?> type = te.getType();
 		World world = te.getWorld();
 		BlockPos origin = te.getPos();
-//		LazyOptional<IFluidHandler> capability = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY);
+//		LazyOptional<FixedFluidInv> capability = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY);
 //		FluidTank teTank = (FluidTank) capability.orElse(null);
 //		FluidStack fluid = capability.map(ifh -> ifh.getFluidInTank(0))
 //			.orElse(FluidStack.EMPTY);
@@ -181,8 +183,8 @@ public class FluidTankConnectivityHandler {
 							break Search;
 					}
 
-					FluidStack otherFluid = controller.getTankInventory()
-						.getFluid();
+					FluidVolume otherFluid = controller.getTankInventory()
+						.getInvFluid(0);
 //					if (!fluid.isEmpty() && !otherFluid.isEmpty() && !fluid.isFluidEqual(otherFluid))
 						break Search;
 
@@ -207,14 +209,14 @@ public class FluidTankConnectivityHandler {
 						continue;
 
 					opaque |= !tank.window;
-					SimpleFluidTank tankTank = tank.tankInventory;
-					FluidStack fluidInTank = tankTank.getFluid();
+					FixedFluidInv tankTank = tank.tankInventory;
+					FluidVolume fluidInTank = tankTank.getInvFluid(0);
 					if (!fluidInTank.isEmpty()) {
 //						if (teTank.isEmpty() && teTank instanceof CreativeSmartFluidTank)
 //							((CreativeSmartFluidTank) teTank).setContainedFluid(fluidInTank);
 //						teTank.fill(fluidInTank, FluidAction.EXECUTE);
 					}
-					tankTank.setFluid(FluidStack.EMPTY);
+					tankTank.forceSetInvFluid(0, FluidVolumeUtil.EMPTY);
 
 					splitTankAndInvalidate(tank, cache, false);
 					tank.setController(origin);
@@ -252,9 +254,9 @@ public class FluidTankConnectivityHandler {
 		World world = te.getWorld();
 		BlockPos origin = te.getPos();
 		List<FluidTankTileEntity> frontier = new ArrayList<>();
-		FluidStack toDistribute = (FluidStack) te.tankInventory.getFluid()
+		FluidVolume toDistribute = (FluidVolume) te.tankInventory.getInvFluid(0)
 			.copy();
-		int maxCapacity = FluidTankTileEntity.getCapacityMultiplier();
+		FluidAmount maxCapacity = FluidTankTileEntity.getCapacityMultiplier();
 //		if (!toDistribute.isEmpty() && !te.isRemoved())
 //			toDistribute.shrink(maxCapacity);
 		te.applyFluidTankSize(1);
@@ -275,13 +277,13 @@ public class FluidTankConnectivityHandler {
 					tankAt.removeController(true);
 
 					if (!toDistribute.isEmpty() && tankAt != te) {
-						FluidStack copy = (FluidStack) toDistribute.copy();
-						SimpleFluidTank tankInventory = tankAt.tankInventory;
+						FluidVolume copy = (FluidVolume) toDistribute.copy();
+						FixedFluidInv tankInventory = tankAt.tankInventory;
 						if (/*tankInventory.isEmpty() &&*/ tankInventory instanceof CreativeSmartFluidTank)
 							((CreativeSmartFluidTank) tankInventory).setContainedFluid(toDistribute);
 						else {
-							int split = Math.min(maxCapacity, toDistribute.getAmount());
-							copy.setAmount(split);
+							FluidAmount split = maxCapacity.min(toDistribute.amount());
+							copy.withAmount(split);
 //							toDistribute.shrink(split);
 //							tankInventory.fill(copy, FluidAction.EXECUTE);
 						}

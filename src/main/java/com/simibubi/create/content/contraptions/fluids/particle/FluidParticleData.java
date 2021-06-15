@@ -1,20 +1,26 @@
 package com.simibubi.create.content.contraptions.fluids.particle;
 
+import java.io.IOException;
 import java.util.Optional;
+import java.util.stream.LongStream;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllParticleTypes;
+import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.particle.ICustomParticleData;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
-import alexiil.mc.lib.attributes.fluid.volume.FluidKey;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.particles.IParticleData;
@@ -23,13 +29,34 @@ import net.minecraft.util.registry.Registry;
 
 public class FluidParticleData implements IParticleData, ICustomParticleData<FluidParticleData> {
 
+	// oh god
+	public static PrimitiveCodec<FluidAmount> FLUID_AMOUNT = new PrimitiveCodec<FluidAmount>() {
+		@Override
+		public <T> DataResult<FluidAmount> read(final DynamicOps<T> ops, final T input) {
+			DataResult<LongStream> stream = ops.getLongStream(input);
+			long[] longArray = stream.get().left().get().toArray();
+			FluidAmount result = FluidAmount.of(longArray[0], longArray[1], longArray[2]);
+			return DataResult.success(result);
+		}
+
+		@Override
+		public <T> T write(final DynamicOps<T> ops, final FluidAmount value) {
+			return ops.createLongList(LongStream.of(value.whole, value.numerator, value.denominator));
+		}
+
+		@Override
+		public String toString() {
+			return "FluidAmount";
+		}
+	};
+
 	private ParticleType<FluidParticleData> type;
-	private FluidStack fluid;
+	private FluidVolume fluid;
 
 	public FluidParticleData() {}
 
 	@SuppressWarnings("unchecked")
-	public FluidParticleData(ParticleType<?> type, FluidStack fluid) {
+	public FluidParticleData(ParticleType<?> type, FluidVolume fluid) {
 		this.type = (ParticleType<FluidParticleData>) type;
 		this.fluid = fluid;
 	}
@@ -53,19 +80,19 @@ public class FluidParticleData implements IParticleData, ICustomParticleData<Flu
 
 	@Override
 	public String getParameters() {
-		return Registry.PARTICLE_TYPE.getKey(type) + " " + Registry.FLUID.getKey(fluid.getFluid());
+		return Registry.PARTICLE_TYPE.getKey(type) + " " + Registry.FLUID.getKey(fluid.getRawFluid());
 	}
 
-	public static final Codec<FluidStack> FLUID_CODEC = RecordCodecBuilder.create(i -> i.group(
+	public static final Codec<FluidVolume> FLUID_CODEC = RecordCodecBuilder.create(i -> i.group(
 		Registry.FLUID.fieldOf("FluidName")
-			.forGetter(FluidStack::getFluid),
-		Codec.INT.fieldOf("Amount")
-			.forGetter(FluidStack::getAmount),
+			.forGetter(FluidVolume::getRawFluid),
+		FLUID_AMOUNT.fieldOf("Amount")
+			.forGetter(FluidVolume::getAmount_F),
 		CompoundNBT.CODEC.optionalFieldOf("tag")
 			.forGetter((fs) -> {
-				return Optional.ofNullable(/*fs.getTag()*/null);
+				return Optional.ofNullable(fs.toTag());
 			}))
-		.apply(i, (f, a, t) -> new FluidStack(f, a/*, t.orElse(null)*/)));
+		.apply(i, (f, a, t) -> t.isPresent() ? FluidKeys.get(f).withAmount(a).fromTag(t.get()) : FluidKeys.get(f).withAmount(a)));
 
 	public static final Codec<FluidParticleData> CODEC = RecordCodecBuilder.create(i -> i
 		.group(FLUID_CODEC.fieldOf("fluid")
@@ -88,11 +115,17 @@ public class FluidParticleData implements IParticleData, ICustomParticleData<Flu
 			// TODO Fluid particles on command
 			public FluidParticleData deserialize(ParticleType<FluidParticleData> particleTypeIn, StringReader reader)
 				throws CommandSyntaxException {
-				return new FluidParticleData(particleTypeIn, new FluidStack(Fluids.WATER, 1));
+				return new FluidParticleData(particleTypeIn, FluidKeys.WATER.withAmount(FluidAmount.ZERO));
 			}
 
 			public FluidParticleData read(ParticleType<FluidParticleData> particleTypeIn, PacketBuffer buffer) {
-				return new FluidParticleData(particleTypeIn, /*buffer.readFluidStack()*/new FluidStack((FluidKey) null, 0));
+				FluidVolume volume = null;
+				try {
+					FluidVolume.fromMcBuffer(buffer);
+				} catch (IOException e) {
+					Create.LOGGER.fatal("Failed to read FluidVolume from packet!", e);
+				}
+				return new FluidParticleData(particleTypeIn, volume);
 			}
 		};
 

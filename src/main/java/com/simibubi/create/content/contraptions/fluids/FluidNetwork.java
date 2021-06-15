@@ -18,12 +18,15 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.BlockFace;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Pair;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
+import com.simibubi.create.lib.utility.FluidUtil;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 
 import alexiil.mc.lib.attributes.Simulation;
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -35,24 +38,24 @@ public class FluidNetwork {
 	World world;
 	BlockFace start;
 
-	Supplier<LazyOptional<IFluidHandler>> sourceSupplier;
-	LazyOptional<IFluidHandler> source;
-	int transferSpeed;
+	Supplier<LazyOptional<FixedFluidInv>> sourceSupplier;
+	LazyOptional<FixedFluidInv> source;
+	FluidAmount transferSpeed;
 
 	int pauseBeforePropagation;
 	List<BlockFace> queued;
 	Set<Pair<BlockFace, PipeConnection>> frontier;
 	Set<BlockPos> visited;
-	FluidStack fluid;
-	List<Pair<BlockFace, IFluidHandler>> targets;
+	FluidVolume fluid;
+	List<Pair<BlockFace, FixedFluidInv>> targets;
 	Map<BlockPos, WeakReference<FluidTransportBehaviour>> cache;
 
-	public FluidNetwork(World world, BlockFace location, Supplier<LazyOptional<IFluidHandler>> sourceSupplier) {
+	public FluidNetwork(World world, BlockFace location, Supplier<LazyOptional<FixedFluidInv>> sourceSupplier) {
 		this.world = world;
 		this.start = location;
 		this.sourceSupplier = sourceSupplier;
 		this.source = LazyOptional.empty();
-		this.fluid = FluidStack.EMPTY;
+		this.fluid = FluidVolumeUtil.EMPTY;
 		this.frontier = new HashSet<>();
 		this.visited = new HashSet<>();
 		this.targets = new ArrayList<>();
@@ -76,7 +79,8 @@ public class FluidNetwork {
 				PipeConnection pipeConnection = get(blockFace);
 				if (pipeConnection != null) {
 					if (blockFace.equals(start))
-						transferSpeed = (int) Math.max(1, pipeConnection.pressure.get(true) / 2f);
+						transferSpeed = FluidUtil.max(1, pipeConnection.pressure.get(true).div(2));
+
 					frontier.add(Pair.of(blockFace, pipeConnection));
 				}
 				iterator.remove();
@@ -93,12 +97,12 @@ public class FluidNetwork {
 					continue;
 
 				Flow flow = pipeConnection.flow.get();
-				if (!fluid.isEmpty() && !flow.fluid.isFluidEqual(fluid)) {
+				if (!fluid.isEmpty() && !(flow.fluid.getRawFluid() == fluid.getRawFluid())) {
 					iterator.remove();
 					continue;
 				}
 				if (!flow.inbound) {
-					if (pipeConnection.comparePressure() >= 0)
+					if (pipeConnection.comparePressure().asInexactDouble() >= 0)
 						iterator.remove();
 					continue;
 				}
@@ -118,13 +122,13 @@ public class FluidNetwork {
 						continue;
 					if (!adjacent.hasFlow()) {
 						// Branch could potentially still appear
-						if (adjacent.hasPressure() && adjacent.pressure.getSecond() > 0)
+						if (adjacent.hasPressure() && adjacent.pressure.getSecond().asInexactDouble() > 0)
 							canRemove = false;
 						continue;
 					}
 					Flow outFlow = adjacent.flow.get();
 					if (outFlow.inbound) {
-						if (adjacent.comparePressure() > 0)
+						if (adjacent.comparePressure().asInexactDouble() > 0)
 							canRemove = false;
 						continue;
 					}
@@ -160,7 +164,7 @@ public class FluidNetwork {
 			return;
 		if (targets.isEmpty())
 			return;
-		for (Pair<BlockFace, IFluidHandler> pair : targets) {
+		for (Pair<BlockFace, FixedFluidInv> pair : targets) {
 			if (pair.getSecond()
 				!= null)
 				continue;
@@ -173,69 +177,69 @@ public class FluidNetwork {
 			});
 		}
 
-		int flowSpeed = transferSpeed;
+		FluidAmount flowSpeed = transferSpeed;
 		for (boolean simulate : Iterate.trueAndFalse) {
 			Simulation action = simulate ? Simulation.SIMULATE : Simulation.ACTION;
 
-			IFluidHandler handler = source.orElse(null);
+			FixedFluidInv handler = source.orElse(null) != null ? source.orElse(null).convertTo(FixedFluidInv.class) : null;
 			if (handler == null)
 				return;
 
-			FluidStack transfer = FluidStack.EMPTY;
-			for (int i = 0; i < handler.getTanks(); i++) {
-				FluidStack contained = handler.getFluidInTank(i);
+			FluidVolume transfer = FluidVolumeUtil.EMPTY;
+			for (int i = 0; i < handler.getTankCount(); i++) {
+				FluidVolume contained = handler.getInvFluid(i);
 				if (contained.isEmpty())
 					continue;
-				if (!contained.isFluidEqual(fluid))
+				if (!(contained.getRawFluid() == fluid.getRawFluid()))
 					continue;
-				FluidStack toExtract = FluidHelper.copyStackWithAmount(contained, flowSpeed);
-				transfer = handler.drain(toExtract, action);
+				FluidVolume toExtract = FluidHelper.copyStackWithAmount(contained, flowSpeed);
+				transfer = handler.extractFluid(0, null, null, toExtract.amount(), action);
 			}
 
 			if (transfer.isEmpty()) {
-				FluidStack genericExtract = handler.drain(flowSpeed, action);
-				if (!genericExtract.isEmpty() && genericExtract.isFluidEqual(fluid))
+				FluidVolume genericExtract = handler.extractFluid(0, null, null, flowSpeed, action);
+				if (!genericExtract.isEmpty() && genericExtract.getRawFluid() == fluid.getRawFluid())
 					transfer = genericExtract;
 			}
 
 			if (transfer.isEmpty())
 				return;
 
-			List<Pair<BlockFace, IFluidHandler>> availableOutputs = new ArrayList<>(targets);
+			List<Pair<BlockFace, FixedFluidInv>> availableOutputs = new ArrayList<>(targets);
 			while (!availableOutputs.isEmpty() && transfer.getAmount() > 0) {
-				int dividedTransfer = transfer.getAmount() / availableOutputs.size();
-				int remainder = transfer.getAmount() % availableOutputs.size();
+				FluidAmount dividedTransfer = transfer.getAmount_F().div(availableOutputs.size());
+//				FluidAmount remainder = FluidUtil.modulo(transfer.getAmount_F(), availableOutputs.size());
 
-				for (Iterator<Pair<BlockFace, IFluidHandler>> iterator =
+				for (Iterator<Pair<BlockFace, FixedFluidInv>> iterator =
 					availableOutputs.iterator(); iterator.hasNext();) {
-					Pair<BlockFace, IFluidHandler> pair = iterator.next();
-					int toTransfer = dividedTransfer;
-					if (remainder > 0) {
-						toTransfer++;
-						remainder--;
-					}
+					Pair<BlockFace, FixedFluidInv> pair = iterator.next();
+					FluidAmount toTransfer = dividedTransfer;
+//					if (remainder.asInexactDouble() > 0) {
+//						toTransfer = FluidUtil.plusPlus(toTransfer);
+//						remainder--;
+//					}
 
 					if (transfer.isEmpty())
 						break;
-					IFluidHandler targetHandler = pair.getSecond()
+					FixedFluidInv targetHandler = pair.getSecond()
 							;
 					if (targetHandler == null) {
 						iterator.remove();
 						continue;
 					}
 
-					FluidStack divided = (FluidStack) transfer.copy();
-					divided.setAmount(toTransfer);
-					int fill = targetHandler.fill(divided, action);
-					transfer.setAmount(transfer.getAmount() - fill);
-					if (fill < toTransfer)
+					FluidVolume divided = transfer.copy();
+					divided.withAmount(toTransfer);
+					FluidVolume fill = targetHandler.insertFluid(0, divided, action);
+					transfer.withAmount(transfer.getAmount_F().sub(fill.amount()));
+					if (fill.amount().compareTo(toTransfer) < 0)
 						iterator.remove();
 				}
 
 			}
 
-			flowSpeed -= transfer.getAmount();
-			transfer = FluidStack.EMPTY;
+			flowSpeed = flowSpeed.sub(transfer.amount());
+			transfer = FluidVolumeUtil.EMPTY;
 		}
 	}
 
@@ -243,7 +247,7 @@ public class FluidNetwork {
 //		FluidPropagator.showBlockFace(start)
 //			.lineWidth(1 / 8f)
 //			.colored(0xff0000);
-//		for (Pair<BlockFace, LazyOptional<IFluidHandler>> pair : targets)
+//		for (Pair<BlockFace, LazyOptional<FixedFluidInv>> pair : targets)
 //			FluidPropagator.showBlockFace(pair.getFirst())
 //				.lineWidth(1 / 8f)
 //				.colored(0x00ff00);
@@ -258,7 +262,7 @@ public class FluidNetwork {
 		visited.clear();
 		targets.clear();
 		queued.clear();
-		fluid = FluidStack.EMPTY;
+		fluid = FluidVolumeUtil.EMPTY;
 		queued.add(start);
 		pauseBeforePropagation = 2;
 	}

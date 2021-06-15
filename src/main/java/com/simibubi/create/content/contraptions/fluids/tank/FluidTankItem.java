@@ -1,9 +1,8 @@
 package com.simibubi.create.content.contraptions.fluids.tank;
 
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -46,10 +45,10 @@ public class FluidTankItem extends BlockItem {
 			nbt.remove("Controller");
 			nbt.remove("LastKnownPos");
 			if (nbt.contains("TankContent")) {
-				FluidStack fluid = FluidStack.loadFluidStackFromNBT(nbt.getCompound("TankContent"));
+				FluidVolume fluid = FluidVolume.fromTag(nbt.getCompound("TankContent"));
 				if (!fluid.isEmpty()) {
-					fluid.setAmount(Math.min(FluidTankTileEntity.getCapacityMultiplier(), fluid.getAmount()));
-					nbt.put("TankContent", fluid.writeToNBT(new CompoundNBT()));
+					fluid.withAmount(FluidTankTileEntity.getCapacityMultiplier().min(fluid.getAmount_F()));
+					nbt.put("TankContent", fluid.toTag(new CompoundNBT()));
 				}
 			}
 		}

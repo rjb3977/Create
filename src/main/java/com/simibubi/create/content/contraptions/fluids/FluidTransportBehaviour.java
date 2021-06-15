@@ -13,8 +13,9 @@ import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -40,7 +41,7 @@ public abstract class FluidTransportBehaviour extends TileEntityBehaviour {
 		phase = UpdatePhase.WAIT_FOR_PUMPS;
 	}
 
-	public boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction) {
+	public boolean canPullFluidFrom(FluidVolume fluid, BlockState state, Direction direction) {
 		return true;
 	}
 
@@ -94,11 +95,11 @@ public abstract class FluidTransportBehaviour extends TileEntityBehaviour {
 		}
 
 		if (!onClient) {
-			FluidStack availableFlow = FluidStack.EMPTY;
-			FluidStack collidingFlow = FluidStack.EMPTY;
+			FluidVolume availableFlow = FluidVolumeUtil.EMPTY;
+			FluidVolume collidingFlow = FluidVolumeUtil.EMPTY;
 
 			for (PipeConnection connection : connections) {
-				FluidStack fluidInFlow = connection.getProvidedFluid();
+				FluidVolume fluidInFlow = connection.getProvidedFluid();
 				if (fluidInFlow.isEmpty())
 					continue;
 				if (availableFlow.isEmpty()) {
@@ -106,7 +107,7 @@ public abstract class FluidTransportBehaviour extends TileEntityBehaviour {
 					availableFlow = fluidInFlow;
 					continue;
 				}
-				if (availableFlow.isFluidEqual(fluidInFlow)) {
+				if (availableFlow.getRawFluid() == fluidInFlow.getRawFluid()) {
 					singleSource = null;
 					availableFlow = fluidInFlow;
 					continue;
@@ -122,8 +123,8 @@ public abstract class FluidTransportBehaviour extends TileEntityBehaviour {
 
 			boolean sendUpdate = false;
 			for (PipeConnection connection : connections) {
-				FluidStack internalFluid = singleSource != connection ? availableFlow : FluidStack.EMPTY;
-				Predicate<FluidStack> extractionPredicate =
+				FluidVolume internalFluid = singleSource != connection ? availableFlow : FluidVolumeUtil.EMPTY;
+				Predicate<FluidVolume> extractionPredicate =
 					extracted -> canPullFluidFrom(extracted, tileEntity.getBlockState(), connection.side);
 				sendUpdate |= connection.manageFlows(world, pos, internalFluid, extractionPredicate);
 			}
@@ -167,10 +168,10 @@ public abstract class FluidTransportBehaviour extends TileEntityBehaviour {
 			.forEach(connection -> connection.serializeNBT(nbt, clientPacket));
 	}
 
-	public FluidStack getProvidedOutwardFluid(Direction side) {
+	public FluidVolume getProvidedOutwardFluid(Direction side) {
 		createConnectionData();
 		if (!interfaces.containsKey(side))
-			return FluidStack.EMPTY;
+			return FluidVolumeUtil.EMPTY;
 		return interfaces.get(side)
 			.provideOutboundFlow();
 	}

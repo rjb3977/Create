@@ -8,10 +8,11 @@ import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.ServerSpeedProvider;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -26,7 +27,7 @@ public class HosePulleyTileEntity extends KineticTileEntity {
 	boolean isMoving;
 
 	private SmartFluidTank internalTank;
-	private LazyOptional<IFluidHandler> capability;
+	private LazyOptional<FixedFluidInv> capability;
 	private FluidDrainingBehaviour drainer;
 	private FluidFillingBehaviour filler;
 	private HosePulleyFluidHandler handler;
@@ -37,7 +38,7 @@ public class HosePulleyTileEntity extends KineticTileEntity {
 		offset = LerpedFloat.linear()
 			.startWithValue(0);
 		isMoving = true;
-		internalTank = new SmartFluidTank(1500, this::onTankContentsChanged);
+		internalTank = new SmartFluidTank(FluidAmount.of(1, 2), this::onTankContentsChanged);
 		handler = new HosePulleyFluidHandler(internalTank, filler, drainer,
 			() -> pos.down((int) Math.ceil(offset.getValue())), () -> !this.isMoving);
 		capability = LazyOptional.of(() -> handler);
@@ -66,7 +67,7 @@ public class HosePulleyTileEntity extends KineticTileEntity {
 		super.addBehaviours(behaviours);
 	}
 
-	protected void onTankContentsChanged(FluidStack contents) {}
+	protected void onTankContentsChanged(FluidVolume contents) {}
 
 	@Override
 	public void onSpeedChanged(float previousSpeed) {
@@ -151,7 +152,7 @@ public class HosePulleyTileEntity extends KineticTileEntity {
 	@Override
 	protected void write(CompoundNBT compound, boolean clientPacket) {
 		compound.put("Offset", offset.writeNBT());
-		compound.put("Tank", internalTank.writeToNBT(new CompoundNBT()));
+		compound.put("Tank", internalTank.toTag(new CompoundNBT()));
 		super.write(compound, clientPacket);
 		if (clientPacket)
 			compound.putBoolean("Infinite", infinite);
@@ -160,7 +161,7 @@ public class HosePulleyTileEntity extends KineticTileEntity {
 	@Override
 	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
 		offset.readNBT(compound.getCompound("Offset"), clientPacket);
-		internalTank.readFromNBT(compound.getCompound("Tank"));
+		internalTank.fromTag(compound.getCompound("Tank"));
 		super.fromTag(state, compound, clientPacket);
 		if (clientPacket)
 			infinite = compound.getBoolean("Infinite");

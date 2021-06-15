@@ -18,7 +18,7 @@ package com.simibubi.create.compat.jei.category;
 //import com.simibubi.create.foundation.fluid.FluidIngredient;
 //import com.simibubi.create.foundation.gui.AllGuiTextures;
 //import com.simibubi.create.lib.lba.fluid.FluidStack;
-//import com.simibubi.create.lib.lba.fluid.IFluidHandlerItem;
+//import com.simibubi.create.lib.lba.fluid.FixedFluidInvItem;
 //import com.simibubi.create.lib.utility.LazyOptional;
 //
 //import mezz.jei.api.constants.VanillaTypes;
@@ -59,7 +59,7 @@ package com.simibubi.create.compat.jei.category;
 //					return;
 //				}
 //
-//				LazyOptional<IFluidHandlerItem> capability =
+//				LazyOptional<FixedFluidInvItem> capability =
 //					stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
 //				if (!capability.isPresent())
 //					return;

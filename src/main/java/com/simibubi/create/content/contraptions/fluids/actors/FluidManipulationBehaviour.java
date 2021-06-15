@@ -13,8 +13,9 @@ import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.CompoundNBT;
@@ -195,7 +196,7 @@ public abstract class FluidManipulationBehaviour extends TileEntityBehaviour {
 
 		world.playSound(null, splooshPos, soundevent, SoundCategory.BLOCKS, 0.3F, 1.0F);
 		if (world instanceof ServerWorld)
-			AllPackets.sendToNear((ServerWorld) world, splooshPos, 10, new FluidSplashPacket(splooshPos, new FluidStack(fluid, 1)));
+			AllPackets.sendToNear((ServerWorld) world, splooshPos, 10, new FluidSplashPacket(splooshPos, FluidKeys.get(fluid).withAmount(FluidAmount.ZERO)));
 	}
 
 	protected boolean canDrainInfinitely(Fluid fluid) {

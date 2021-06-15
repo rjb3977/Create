@@ -1,38 +1,13 @@
 package com.simibubi.create.lib.utility;
 
 import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.impl.SimpleFixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
 import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.nbt.CompoundNBT;
 
 public class FluidUtil {
-	public static FluidAmount millibucketsToFluidAmount(int millibuckets) {
-		double buckets = millibuckets / 1000f;
-		int wholeBuckets = 0;
-		for (int i = 0; i < buckets; i++) {
-			if (buckets >= 1) {
-				buckets--;
-				wholeBuckets++;
-			}
-		}
-		return FluidAmount.of(wholeBuckets, (long) buckets * 1000, 1000);
-	}
-
-	public static int fluidAmountToMillibuckets(FluidAmount amount) {
-		return ((int) ((amount.numerator / amount.denominator) * 1000) + (int) (amount.whole * 1000));
-	}
-
-	public static FluidAmount divideFluidAmounts(FluidAmount one, FluidAmount two) {
-		FluidAmount simplifiedTwo = simplify(two);
-		FluidAmount reciprocal = FluidAmount.of(simplifiedTwo.denominator, simplifiedTwo.numerator);
-		return multiplyFluidAmounts(one, reciprocal);
-	}
-
-	public static FluidAmount multiplyFluidAmounts(FluidAmount one, FluidAmount two) {
-		FluidAmount newOne = simplify(one);
-		FluidAmount newTwo = simplify(two);
-		return unsimplify(FluidAmount.of(newOne.numerator * newTwo.numerator, newOne.denominator * newTwo.denominator));
-	}
-
 	public static FluidAmount simplify(FluidAmount amount) {
 		long numerator = (amount.whole * amount.denominator) + amount.numerator;
 		return FluidAmount.of(numerator, amount.denominator);
@@ -48,11 +23,58 @@ public class FluidUtil {
 	}
 
 	public static boolean isLighterThanAir(FluidVolume volume) {
-		return fluidAmountToMillibuckets(volume.fluidKey.density) <= fluidAmountToMillibuckets(FluidAmount.ZERO);
+		return volume.fluidKey.density.compareTo(FluidAmount.ZERO) < 0;
 	}
 
 	public static boolean isLighterThanAir(Fluid fluid) {
-		FluidVolume volume = FluidVolume.create(fluid, 0);
-		return fluidAmountToMillibuckets(volume.getAmount_F()) <= fluidAmountToMillibuckets(FluidAmount.ZERO);
+		return isLighterThanAir(FluidKeys.get(fluid).withAmount(FluidAmount.ZERO));
+	}
+
+	public static String toFractionString(FluidAmount amount) {
+		FluidAmount newAmount = simplify(amount);
+		return newAmount.numerator + "/" + newAmount.denominator;
+	}
+
+	public static SimpleFixedFluidInv updateCapacity(SimpleFixedFluidInv input, FluidAmount newCapacity) {
+		CompoundNBT nbt = input.toTag();
+		SimpleFixedFluidInv newInv = new SimpleFixedFluidInv(input.getTankCount(), newCapacity);
+		newInv.fromTag(nbt);
+		return newInv;
+	}
+
+	public static FluidAmount max(FluidAmount max, FluidAmount amount) {
+		return max.compareTo(amount) < 0 ? max : amount;
+	}
+
+	public static FluidAmount max(int max, FluidAmount amount) {
+		return max(FluidAmount.ofWhole(max), amount);
+	}
+
+	public static FluidAmount min(FluidAmount max, FluidAmount amount) {
+		return max.compareTo(amount) < 0 ? max : amount;
+	}
+
+	public static FluidAmount min(int max, FluidAmount amount) {
+		return min(FluidAmount.ofWhole(max), amount);
+	}
+
+	public static FluidVolume plusPlus(FluidVolume volume) {
+		return volume.withAmount(plusPlus(volume.amount()));
+	}
+
+	public static FluidAmount plusPlus(FluidAmount amount) {
+		FluidAmount simpleAmount = simplify(amount);
+		FluidAmount part = FluidAmount.of(1, simpleAmount.denominator);
+		return unsimplify(simpleAmount.add(part));
+	}
+
+	public static FluidVolume minusMinus(FluidVolume volume) {
+		return volume.withAmount(plusPlus(volume.amount()));
+	}
+
+	public static FluidAmount minusMinus(FluidAmount amount) {
+		FluidAmount simpleAmount = simplify(amount);
+		FluidAmount part = FluidAmount.of(1, simpleAmount.denominator);
+		return unsimplify(simpleAmount.sub(part));
 	}
 }

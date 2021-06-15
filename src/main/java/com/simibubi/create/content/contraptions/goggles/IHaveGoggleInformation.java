@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.MinecraftClientUtil;
 
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -35,34 +38,34 @@ public interface IHaveGoggleInformation {
 		return false;
 	}
 
-	static String format(double d) {
+	static String format(FluidAmount d) {
 		return numberFormat.get()
 			.format(d).replace("\u00A0", " ");
 	}
 
-	default boolean containedFluidTooltip(List<ITextComponent> tooltip, boolean isPlayerSneaking, IFluidHandler handler) {
+	default boolean containedFluidTooltip(List<ITextComponent> tooltip, boolean isPlayerSneaking, @Nullable FixedFluidInv handler) {
 		tooltip.add(componentSpacing.copy().append(Lang.translate("gui.goggles.fluid_container")));
 		TranslationTextComponent mb = Lang.translate("generic.unit.millibuckets");
-		Optional<IFluidHandler> resolve = Optional.ofNullable(handler);
+		Optional<FixedFluidInv> resolve = Optional.ofNullable(handler);
 		if (!resolve.isPresent())
 			return false;
 
-		IFluidHandler tank = resolve.get();
-		if (tank.getTanks() == 0)
+		FixedFluidInv tank = resolve.get();
+		if (tank.getTankCount() == 0)
 			return false;
 
 		ITextComponent indent = new StringTextComponent(spacing + " ");
 
 		boolean isEmpty = true;
-		for (int i = 0; i < tank.getTanks(); i++) {
-			FluidStack fluidStack = tank.getFluidInTank(i);
-			if (fluidStack.isEmpty())
+		for (int i = 0; i < tank.getTankCount(); i++) {
+			FluidVolume FluidVolume = tank.getInvFluid(i);
+			if (FluidVolume.isEmpty())
 				continue;
 
-			ITextComponent fluidName = new TranslationTextComponent(fluidStack.getTranslationKey()).formatted(TextFormatting.GRAY);
-			ITextComponent contained = new StringTextComponent(format(fluidStack.getAmount())).append(mb).formatted(TextFormatting.GOLD);
+			ITextComponent fluidName = new TranslationTextComponent(FluidVolume.getRawFluid().toString()).formatted(TextFormatting.GRAY);
+			ITextComponent contained = new StringTextComponent(format(FluidVolume.getAmount_F())).append(mb).formatted(TextFormatting.GOLD);
 			ITextComponent slash = new StringTextComponent(" / ").formatted(TextFormatting.GRAY);
-			ITextComponent capacity = new StringTextComponent(format(tank.getTankCapacity(i))).append(mb).formatted(TextFormatting.DARK_GRAY);
+			ITextComponent capacity = new StringTextComponent(format(tank.getMaxAmount_F(i))).append(mb).formatted(TextFormatting.DARK_GRAY);
 
 			tooltip.add(indent.copy()
 					.append(fluidName));
@@ -74,7 +77,7 @@ public interface IHaveGoggleInformation {
 			isEmpty = false;
 		}
 
-		if (tank.getTanks() > 1) {
+		if (tank.getTankCount() > 1) {
 			if (isEmpty)
 				tooltip.remove(tooltip.size() - 1);
 			return true;
@@ -84,7 +87,7 @@ public interface IHaveGoggleInformation {
 			return true;
 
 		ITextComponent capacity = Lang.translate("gui.goggles.fluid_container.capacity").formatted(TextFormatting.GRAY);
-		ITextComponent amount = new StringTextComponent(format(tank.getTankCapacity(0))).append(mb).formatted(TextFormatting.GOLD);
+		ITextComponent amount = new StringTextComponent(format(tank.getMaxAmount_F(0))).append(mb).formatted(TextFormatting.GOLD);
 
 		tooltip.add(indent.copy()
 			.append(capacity)

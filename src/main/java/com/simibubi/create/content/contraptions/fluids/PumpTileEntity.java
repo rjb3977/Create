@@ -281,7 +281,7 @@ public class PumpTileEntity extends KineticTileEntity {
 
 		// fluid handler endpoint
 		if (tileEntity != null) {
-//			LazyOptional<IFluidHandler> capability =
+//			LazyOptional<FixedFluidInv> capability =
 //				tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, face.getOpposite());
 //			if (capability.isPresent())
 				return true;

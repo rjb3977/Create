@@ -8,8 +8,8 @@ import com.simibubi.create.foundation.render.backend.core.PartialModel;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -34,17 +34,17 @@ public class SpoutRenderer extends SafeTileEntityRenderer<SpoutTileEntity> {
 			return;
 
 		TankSegment primaryTank = tank.getPrimaryTank();
-		FluidStack fluidStack = primaryTank.getRenderedFluid();
+		FluidVolume FluidVolume = primaryTank.getRenderedFluid();
 		float level = primaryTank.getFluidLevel()
 			.getValue(partialTicks);
 
-		if (!fluidStack.isEmpty() && level != 0) {
+		if (!FluidVolume.isEmpty() && level != 0) {
 			float min = 2.5f / 16f;
 			float max = min + (11 / 16f);
 			float yOffset = (11 / 16f) * level;
 			ms.push();
 			ms.translate(0, yOffset, 0);
-			FluidRenderer.renderTiledFluidBB(fluidStack, min, min - yOffset, min, max, min, max, buffer, ms, light,
+			FluidRenderer.renderTiledFluidBB(FluidVolume, min, min - yOffset, min, max, min, max, buffer, ms, light,
 				false);
 			ms.pop();
 		}
@@ -58,7 +58,7 @@ public class SpoutRenderer extends SafeTileEntityRenderer<SpoutTileEntity> {
 		if (processingTicks != -1) {
 			radius = (float) (Math.pow(((2 * processingProgress) - 1), 2) - 1);
 			AxisAlignedBB bb = new AxisAlignedBB(0.5, .5, 0.5, 0.5, -1.2, 0.5).grow(radius / 32f);
-			FluidRenderer.renderTiledFluidBB(fluidStack, (float) bb.minX, (float) bb.minY, (float) bb.minZ,
+			FluidRenderer.renderTiledFluidBB(FluidVolume, (float) bb.minX, (float) bb.minY, (float) bb.minZ,
 				(float) bb.maxX, (float) bb.maxY, (float) bb.maxZ, buffer, ms, light, true);
 		}
 

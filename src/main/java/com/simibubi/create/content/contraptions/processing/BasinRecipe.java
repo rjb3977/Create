@@ -17,11 +17,9 @@ import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBe
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
+import com.simibubi.create.lib.lba.fluid.FluidVolume;
+import com.simibubi.create.lib.lba.fluid.FixedFluidInv;
 import com.simibubi.create.lib.lba.item.IItemHandler;
-
-import com.simibubi.create.lib.utility.TransferUtil;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -61,7 +59,7 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 		IItemHandler availableItems = TransferUtil.getItemHandler(basin)
 			.orElse(null);
 
-		IFluidHandler availableFluids = TransferUtil.getFluidHandler(basin)
+		FixedFluidInv availableFluids = TransferUtil.getFluidHandler(basin)
 			.orElse(null);
 
 		if (availableItems == null || availableFluids == null)
@@ -75,7 +73,7 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 			return false;
 
 		List<ItemStack> recipeOutputItems = new ArrayList<>();
-		List<FluidStack> recipeOutputFluids = new ArrayList<>();
+		List<FluidVolume> recipeOutputFluids = new ArrayList<>();
 
 		List<Ingredient> ingredients = new LinkedList<>(recipe.getIngredients());
 		ingredients.sort(Comparator.comparingInt(i -> i.getMatchingStacks().length));
@@ -122,14 +120,14 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 				int amountRequired = fluidIngredient.getRequiredAmount();
 
 				for (int tank = 0; tank < availableFluids.getTanks(); tank++) {
-					FluidStack fluidStack = availableFluids.getFluidInTank(tank);
-					if (simulate && fluidStack.getAmount() <= extractedFluidsFromTank[tank])
+					FluidVolume FluidVolume = availableFluids.getFluidInTank(tank);
+					if (simulate && FluidVolume.getAmount() <= extractedFluidsFromTank[tank])
 						continue;
-					if (!fluidIngredient.test(fluidStack))
+					if (!fluidIngredient.test(FluidVolume))
 						continue;
-					int drainedAmount = Math.min(amountRequired, fluidStack.getAmount());
+					int drainedAmount = Math.min(amountRequired, FluidVolume.getAmount());
 					if (!simulate) {
-						fluidStack.shrink(drainedAmount);
+						FluidVolume.shrink(drainedAmount);
 						fluidsAffected = true;
 					}
 					amountRequired -= drainedAmount;
@@ -145,9 +143,9 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 
 			if (fluidsAffected) {
 				basin.getBehaviour(SmartFluidTankBehaviour.INPUT)
-					.foreach(TankSegment::onFluidStackChanged);
+					.foreach(TankSegment::onFluidVolumeChanged);
 				basin.getBehaviour(SmartFluidTankBehaviour.OUTPUT)
-					.foreach(TankSegment::onFluidStackChanged);
+					.foreach(TankSegment::onFluidVolumeChanged);
 			}
 
 			if (simulate) {

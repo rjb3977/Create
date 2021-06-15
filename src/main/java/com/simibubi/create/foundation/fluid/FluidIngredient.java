@@ -14,8 +14,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
@@ -26,40 +28,40 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 
-public abstract class FluidIngredient implements Predicate<FluidStack> {
+public abstract class FluidIngredient implements Predicate<FluidVolume> {
 
-	public static final FluidIngredient EMPTY = new FluidStackIngredient();
+	public static final FluidIngredient EMPTY = new FluidVolumeIngredient();
 
-	public List<FluidStack> matchingFluidStacks;
+	public List<FluidVolume> matchingFluidVolumes;
 
-	public static FluidIngredient fromTag(ITag.INamedTag<Fluid> tag, int amount) {
+	public static FluidIngredient fromTag(ITag.INamedTag<Fluid> tag, FluidAmount amount) {
 		FluidTagIngredient ingredient = new FluidTagIngredient();
 		ingredient.tag = tag;
 		ingredient.amountRequired = amount;
 		return ingredient;
 	}
 
-	public static FluidIngredient fromFluid(Fluid fluid, int amount) {
-		FluidStackIngredient ingredient = new FluidStackIngredient();
+	public static FluidIngredient fromFluid(Fluid fluid, FluidAmount amount) {
+		FluidVolumeIngredient ingredient = new FluidVolumeIngredient();
 		ingredient.fluid = fluid;
 		ingredient.amountRequired = amount;
 		ingredient.fixFlowing();
 		return ingredient;
 	}
 
-	public static FluidIngredient fromFluidStack(FluidStack fluidStack) {
-		FluidStackIngredient ingredient = new FluidStackIngredient();
-		ingredient.fluid = fluidStack.getFluid();
-		ingredient.amountRequired = fluidStack.getAmount();
+	public static FluidIngredient fromFluidVolume(FluidVolume FluidVolume) {
+		FluidVolumeIngredient ingredient = new FluidVolumeIngredient();
+		ingredient.fluid = FluidVolume.getRawFluid();
+		ingredient.amountRequired = FluidVolume.getAmount_F();
 		ingredient.fixFlowing();
 //		if (fluidStack.hasTag())
 //			ingredient.tagToMatch = fluidStack.getTag();
 		return ingredient;
 	}
 
-	protected int amountRequired;
+	protected FluidAmount amountRequired;
 
-	protected abstract boolean testInternal(FluidStack t);
+	protected abstract boolean testInternal(FluidVolume t);
 
 	protected abstract void readInternal(PacketBuffer buffer);
 
@@ -69,20 +71,20 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 	protected abstract void writeInternal(JsonObject json);
 
-	protected abstract List<FluidStack> determineMatchingFluidStacks();
+	protected abstract List<FluidVolume> determineMatchingFluidVolumes();
 
-	public int getRequiredAmount() {
+	public FluidAmount getRequiredAmount() {
 		return amountRequired;
 	}
 
-	public List<FluidStack> getMatchingFluidStacks() {
-		if (matchingFluidStacks != null)
-			return matchingFluidStacks;
-		return matchingFluidStacks = determineMatchingFluidStacks();
+	public List<FluidVolume> getMatchingFluidVolumes() {
+		if (matchingFluidVolumes != null)
+			return matchingFluidVolumes;
+		return matchingFluidVolumes = determineMatchingFluidVolumes();
 	}
 
 	@Override
-	public boolean test(FluidStack t) {
+	public boolean test(FluidVolume t) {
 		if (t == null)
 			throw new IllegalArgumentException("FluidStack cannot be null");
 		return testInternal(t);
@@ -90,14 +92,16 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 	public void write(PacketBuffer buffer) {
 		buffer.writeBoolean(this instanceof FluidTagIngredient);
-		buffer.writeVarInt(amountRequired);
+		buffer.writeVarLong(amountRequired.whole);
+		buffer.writeVarLong(amountRequired.numerator);
+		buffer.writeVarLong(amountRequired.denominator);
 		writeInternal(buffer);
 	}
 
 	public static FluidIngredient read(PacketBuffer buffer) {
 		boolean isTagIngredient = buffer.readBoolean();
-		FluidIngredient ingredient = isTagIngredient ? new FluidTagIngredient() : new FluidStackIngredient();
-		ingredient.amountRequired = buffer.readVarInt();
+		FluidIngredient ingredient = isTagIngredient ? new FluidTagIngredient() : new FluidVolumeIngredient();
+		ingredient.amountRequired = FluidAmount.of(buffer.readVarLong(), buffer.readVarLong(), buffer.readVarLong());
 		ingredient.readInternal(buffer);
 		return ingredient;
 	}
@@ -105,7 +109,9 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 	public JsonObject serialize() {
 		JsonObject json = new JsonObject();
 		writeInternal(json);
-		json.addProperty("amount", amountRequired);
+		json.addProperty("amountWhole", amountRequired.whole);
+		json.addProperty("amountNum", amountRequired.numerator);
+		json.addProperty("amountDen", amountRequired.denominator);
 		return json;
 	}
 
@@ -127,21 +133,21 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 			throw new JsonSyntaxException("Invalid fluid ingredient: " + Objects.toString(je));
 
 		JsonObject json = je.getAsJsonObject();
-		FluidIngredient ingredient = json.has("fluidTag") ? new FluidTagIngredient() : new FluidStackIngredient();
+		FluidIngredient ingredient = json.has("fluidTag") ? new FluidTagIngredient() : new FluidVolumeIngredient();
 		ingredient.readInternal(json);
 
 		if (!json.has("amount"))
 			throw new JsonSyntaxException("Fluid ingredient has to define an amount");
-		ingredient.amountRequired = JSONUtils.getInt(json, "amount");
+		ingredient.amountRequired = FluidAmount.of(JSONUtils.getLong(json, "amountWhole"), JSONUtils.getLong(json, "amountNum"), JSONUtils.getLong(json, "amountDen"));
 		return ingredient;
 	}
 
-	public static class FluidStackIngredient extends FluidIngredient {
+	public static class FluidVolumeIngredient extends FluidIngredient {
 
 		protected Fluid fluid;
 		protected CompoundNBT tagToMatch;
 
-		public FluidStackIngredient() {
+		public FluidVolumeIngredient() {
 			tagToMatch = new CompoundNBT();
 		}
 
@@ -151,8 +157,8 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		}
 
 		@Override
-		protected boolean testInternal(FluidStack t) {
-			if (!t.getFluid()
+		protected boolean testInternal(FluidVolume t) {
+			if (!t.getRawFluid()
 				.isEquivalentTo(fluid))
 				return false;
 			if (tagToMatch.isEmpty())
@@ -177,8 +183,8 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 		@Override
 		protected void readInternal(JsonObject json) {
-			FluidStack stack = FluidHelper.deserializeFluidStack(json);
-			fluid = stack.getFluid();
+			FluidVolume stack = FluidHelper.deserializeFluidVolume(json);
+			fluid = stack.getRawFluid();
 //			tagToMatch = stack.getOrCreateTag();
 		}
 
@@ -190,9 +196,9 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		}
 
 		@Override
-		protected List<FluidStack> determineMatchingFluidStacks() {
-			return ImmutableList.of(tagToMatch.isEmpty() ? new FluidStack(fluid, amountRequired)
-				: new FluidStack(fluid, amountRequired/*, tagToMatch*/));
+		protected List<FluidVolume> determineMatchingFluidVolumes() {
+			return ImmutableList.of(tagToMatch.isEmpty() ? FluidKeys.get(fluid).withAmount(amountRequired)
+				: FluidVolume.fromTag(tagToMatch));
 		}
 
 	}
@@ -202,20 +208,20 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		protected ITag.INamedTag<Fluid> tag;
 
 		@Override
-		protected boolean testInternal(FluidStack t) {
+		protected boolean testInternal(FluidVolume t) {
 			if (tag == null)
-				for (FluidStack accepted : getMatchingFluidStacks())
-					if (accepted.getFluid()
-						.isEquivalentTo(t.getFluid()))
+				for (FluidVolume accepted : getMatchingFluidVolumes())
+					if (accepted.getRawFluid()
+						.isEquivalentTo(t.getRawFluid()))
 						return true;
-			return t.getFluid()
+			return t.getRawFluid()
 				.isIn(tag);
 		}
 
 		@Override
 		protected void readInternal(PacketBuffer buffer) {
 			int size = buffer.readVarInt();
-			matchingFluidStacks = new ArrayList<>(size);
+			matchingFluidVolumes = new ArrayList<>(size);
 //			for (int i = 0; i < size; i++)
 //				matchingFluidStacks.add(((PacketBufferExtensions) buffer).readFluidStack());
 		}
@@ -223,8 +229,8 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		@Override
 		protected void writeInternal(PacketBuffer buffer) {
 			// Tag has to be resolved on the server before sending
-			List<FluidStack> matchingFluidStacks = getMatchingFluidStacks();
-			buffer.writeVarInt(matchingFluidStacks.size());
+			List<FluidVolume> matchingFluidVolumes = getMatchingFluidVolumes();
+			buffer.writeVarInt(matchingFluidVolumes.size());
 //			matchingFluidStacks.stream()
 //				.forEach(((PacketBufferExtensions) buffer)::writeFluidStack);
 		}
@@ -249,7 +255,7 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		}
 
 		@Override
-		protected List<FluidStack> determineMatchingFluidStacks() {
+		protected List<FluidVolume> determineMatchingFluidVolumes() {
 			return tag.values()
 				.stream()
 				.map(f -> {
@@ -258,7 +264,7 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 					return f;
 				})
 				.distinct()
-				.map(f -> new FluidStack(f, amountRequired))
+				.map(f -> FluidKeys.get(f).withAmount(amountRequired))
 				.collect(Collectors.toList());
 		}
 

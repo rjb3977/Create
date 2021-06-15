@@ -14,8 +14,11 @@ import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.lib.condition.ModLoadedCondition;
 import com.simibubi.create.lib.condition.NotCondition;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.client.renderer.model.multipart.ICondition;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.fluid.Fluid;
@@ -71,11 +74,11 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		return this;
 	}
 
-	public ProcessingRecipeBuilder<T> withFluidOutputs(FluidStack... outputs) {
-		return withFluidOutputs(NonNullList.from(FluidStack.EMPTY, outputs));
+	public ProcessingRecipeBuilder<T> withFluidOutputs(FluidVolume... outputs) {
+		return withFluidOutputs(NonNullList.from(FluidVolumeUtil.EMPTY, outputs));
 	}
 
-	public ProcessingRecipeBuilder<T> withFluidOutputs(NonNullList<FluidStack> outputs) {
+	public ProcessingRecipeBuilder<T> withFluidOutputs(NonNullList<FluidVolume> outputs) {
 		params.fluidResults = outputs;
 		return this;
 	}
@@ -117,11 +120,11 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		return this;
 	}
 
-	public ProcessingRecipeBuilder<T> require(Fluid fluid, int amount) {
+	public ProcessingRecipeBuilder<T> require(Fluid fluid, FluidAmount amount) {
 		return require(FluidIngredient.fromFluid(fluid, amount));
 	}
 
-	public ProcessingRecipeBuilder<T> require(ITag.INamedTag<Fluid> fluidTag, int amount) {
+	public ProcessingRecipeBuilder<T> require(ITag.INamedTag<Fluid> fluidTag, FluidAmount amount) {
 		return require(FluidIngredient.fromTag(fluidTag, amount));
 	}
 
@@ -160,13 +163,13 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		return this;
 	}
 
-	public ProcessingRecipeBuilder<T> output(Fluid fluid, int amount) {
+	public ProcessingRecipeBuilder<T> output(Fluid fluid, FluidAmount amount) {
 		fluid = FluidHelper.convertToStill(fluid);
-		return output(new FluidStack(fluid, amount));
+		return output(FluidKeys.get(fluid).withAmount(amount));
 	}
 
-	public ProcessingRecipeBuilder<T> output(FluidStack fluidStack) {
-		params.fluidResults.add(fluidStack);
+	public ProcessingRecipeBuilder<T> output(FluidVolume FluidVolume) {
+		params.fluidResults.add(FluidVolume);
 		return this;
 	}
 
@@ -196,7 +199,7 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		NonNullList<Ingredient> ingredients;
 		NonNullList<ProcessingOutput> results;
 		NonNullList<FluidIngredient> fluidIngredients;
-		NonNullList<FluidStack> fluidResults;
+		NonNullList<FluidVolume> fluidResults;
 		int processingDuration;
 		HeatCondition requiredHeat;
 

@@ -2,12 +2,12 @@ package com.simibubi.create.content.contraptions.fluids.actors;
 
 import java.util.List;
 
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.world.World;
@@ -23,7 +23,7 @@ public class FillingBySpout {
 		return GenericItemFilling.canItemBeFilled(world, stack);
 	}
 
-	public static int getRequiredAmountForItem(World world, ItemStack stack, FluidStack availableFluid) {
+	public static FluidAmount getRequiredAmountForItem(World world, ItemStack stack, FluidVolume availableFluid) {
 		wrapper.setInventorySlotContents(0, stack);
 		for (IRecipe<RecipeWrapper> recipe : world.getRecipeManager()
 			.getRecipes(AllRecipeTypes.FILLING.getType(), wrapper, world)) {
@@ -35,9 +35,9 @@ public class FillingBySpout {
 		return GenericItemFilling.getRequiredAmountForItem(world, stack, availableFluid);
 	}
 
-	public static ItemStack fillItem(World world, int requiredAmount, ItemStack stack, FluidStack availableFluid) {
-		FluidStack toFill = (FluidStack) availableFluid.copy();
-		toFill.setAmount(requiredAmount);
+	public static ItemStack fillItem(World world, FluidAmount requiredAmount, ItemStack stack, FluidVolume availableFluid) {
+		FluidVolume toFill = availableFluid.copy();
+		toFill.withAmount(requiredAmount);
 
 		wrapper.setInventorySlotContents(0, stack);
 		for (IRecipe<RecipeWrapper> recipe : world.getRecipeManager()

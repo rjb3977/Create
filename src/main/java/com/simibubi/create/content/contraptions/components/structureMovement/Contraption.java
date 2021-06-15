@@ -67,8 +67,8 @@ import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.NBTProcessors;
 import com.simibubi.create.foundation.utility.UniqueLinkedList;
 import com.simibubi.create.foundation.utility.worldWrappers.WrappedWorld;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
+import com.simibubi.create.lib.lba.fluid.FluidVolume;
+import com.simibubi.create.lib.lba.fluid.FixedFluidInv;
 import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
 import com.simibubi.create.lib.lba.item.CombinedInvWrapper;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
@@ -255,12 +255,12 @@ public abstract class Contraption {
 			.collect(Collectors.toList());
 		inventory = new ContraptionInvWrapper(Arrays.copyOf(list.toArray(), list.size(), IItemHandlerModifiable[].class));
 
-		List<IFluidHandler> fluidHandlers = fluidStorage.values()
+		List<FixedFluidInv> fluidHandlers = fluidStorage.values()
 			.stream()
 			.map(MountedFluidStorage::getFluidHandler)
 			.collect(Collectors.toList());
 		fluidInventory = new CombinedTankWrapper(
-			Arrays.copyOf(fluidHandlers.toArray(), fluidHandlers.size(), IFluidHandler[].class));
+			Arrays.copyOf(fluidHandlers.toArray(), fluidHandlers.size(), FixedFluidInv[].class));
 		gatherBBsOffThread();
 	}
 
@@ -735,7 +735,7 @@ public abstract class Contraption {
 		for (MountedStorage mountedStorage : storage.values())
 			handlers[index++] = mountedStorage.getItemHandler();
 
-		IFluidHandler[] fluidHandlers = new IFluidHandler[fluidStorage.size()];
+		FixedFluidInv[] fluidHandlers = new FixedFluidInv[fluidStorage.size()];
 		index = 0;
 		for (MountedFluidStorage mountedStorage : fluidStorage.values())
 			fluidHandlers[index++] = mountedStorage.getFluidHandler();
@@ -1180,7 +1180,7 @@ public abstract class Contraption {
 		return actors;
 	}
 
-	public void updateContainedFluid(BlockPos localPos, FluidStack containedFluid) {
+	public void updateContainedFluid(BlockPos localPos, FluidVolume containedFluid) {
 		MountedFluidStorage mountedFluidStorage = fluidStorage.get(localPos);
 		if (mountedFluidStorage != null)
 			mountedFluidStorage.updateFluid(containedFluid);

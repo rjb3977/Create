@@ -15,8 +15,8 @@ import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuild
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -35,7 +35,7 @@ public abstract class ProcessingRecipe<T extends IInventory> implements IRecipe<
 	protected NonNullList<Ingredient> ingredients;
 	protected NonNullList<ProcessingOutput> results;
 	protected NonNullList<FluidIngredient> fluidIngredients;
-	protected NonNullList<FluidStack> fluidResults;
+	protected NonNullList<FluidVolume> fluidResults;
 	protected int processingDuration;
 	protected HeatCondition requiredHeat;
 
@@ -129,7 +129,7 @@ public abstract class ProcessingRecipe<T extends IInventory> implements IRecipe<
 		return results;
 	}
 
-	public NonNullList<FluidStack> getFluidResults() {
+	public NonNullList<FluidVolume> getFluidResults() {
 		return fluidResults;
 	}
 

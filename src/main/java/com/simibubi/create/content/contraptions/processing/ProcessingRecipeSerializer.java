@@ -9,7 +9,7 @@ import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuild
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+import com.simibubi.create.lib.lba.fluid.FluidVolume;
 
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
@@ -41,7 +41,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		recipe.getRollableResults()
 			.forEach(o -> jsonOutputs.add(o.serialize()));
 		recipe.getFluidResults()
-			.forEach(o -> jsonOutputs.add(FluidHelper.serializeFluidStack(o)));
+			.forEach(o -> jsonOutputs.add(FluidHelper.serializeFluidVolume(o)));
 
 		json.add("ingredients", jsonIngredients);
 		json.add("results", jsonOutputs);
@@ -62,7 +62,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		NonNullList<Ingredient> ingredients = NonNullList.create();
 		NonNullList<FluidIngredient> fluidIngredients = NonNullList.create();
 		NonNullList<ProcessingOutput> results = NonNullList.create();
-		NonNullList<FluidStack> fluidResults = NonNullList.create();
+		NonNullList<FluidVolume> fluidResults = NonNullList.create();
 
 		for (JsonElement je : JSONUtils.getJsonArray(json, "ingredients")) {
 			if (FluidIngredient.isFluidIngredient(je))
@@ -74,7 +74,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		for (JsonElement je : JSONUtils.getJsonArray(json, "results")) {
 			JsonObject jsonObject = je.getAsJsonObject();
 			if (JSONUtils.hasField(jsonObject, "fluid"))
-				fluidResults.add(FluidHelper.deserializeFluidStack(jsonObject));
+				fluidResults.add(FluidHelper.deserializeFluidVolume(jsonObject));
 			else
 				results.add(ProcessingOutput.deserialize(je));
 		}
@@ -96,7 +96,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		NonNullList<Ingredient> ingredients = recipe.getIngredients();
 		NonNullList<FluidIngredient> fluidIngredients = recipe.getFluidIngredients();
 		NonNullList<ProcessingOutput> outputs = recipe.getRollableResults();
-		NonNullList<FluidStack> fluidOutputs = recipe.getFluidResults();
+		NonNullList<FluidVolume> fluidOutputs = recipe.getFluidResults();
 
 		buffer.writeVarInt(ingredients.size());
 		ingredients.forEach(i -> i.write(buffer));
@@ -117,7 +117,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		NonNullList<Ingredient> ingredients = NonNullList.create();
 		NonNullList<FluidIngredient> fluidIngredients = NonNullList.create();
 		NonNullList<ProcessingOutput> results = NonNullList.create();
-		NonNullList<FluidStack> fluidResults = NonNullList.create();
+		NonNullList<FluidVolume> fluidResults = NonNullList.create();
 
 		int size = buffer.readVarInt();
 		for (int i = 0; i < size; i++)

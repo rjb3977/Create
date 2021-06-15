@@ -4,9 +4,10 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.simibubi.create.foundation.fluid.FluidRenderer;
 import com.simibubi.create.foundation.gui.widgets.InterpolatedChasingValue;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
+import com.simibubi.create.lib.utility.FluidUtil;
 
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.math.MathHelper;
@@ -39,15 +40,13 @@ public class FluidTankRenderer extends SafeTileEntityRenderer<FluidTankTileEntit
 			return;
 		float clampedLevel = MathHelper.clamp(level * totalHeight, 0, totalHeight);
 
-		SimpleFluidTank tank = te.tankInventory;
-		FluidStack fluidStack = (FluidStack) tank.getInvFluid();
+		FixedFluidInv tank = te.tankInventory;
+		FluidVolume FluidVolume = tank.getInvFluid(0);
 
-		if (fluidStack.isEmpty())
+		if (FluidVolume.isEmpty())
 			return;
 
-		boolean top = fluidStack//.getFluid()
-//			.getAttributes()
-			.isLighterThanAir();
+		boolean top = FluidUtil.isLighterThanAir(FluidVolume);
 
 		float xMin = tankHullWidth;
 		float xMax = xMin + te.width - 2 * tankHullWidth;
@@ -64,7 +63,7 @@ public class FluidTankRenderer extends SafeTileEntityRenderer<FluidTankTileEntit
 
 		ms.push();
 		ms.translate(0, clampedLevel - totalHeight, 0);
-		FluidRenderer.renderTiledFluidBB(fluidStack, xMin, yMin, zMin, xMax, yMax, zMax, buffer, ms, light, false);
+		FluidRenderer.renderTiledFluidBB(FluidVolume, xMin, yMin, zMin, xMax, yMax, zMax, buffer, ms, light, false);
 		ms.pop();
 	}
 

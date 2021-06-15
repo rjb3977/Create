@@ -2,9 +2,9 @@ package com.simibubi.create.content.contraptions.processing;
 
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.world.World;
 
 public class EmptyingRecipe extends ProcessingRecipe<RecipeWrapper> {
@@ -33,7 +33,7 @@ public class EmptyingRecipe extends ProcessingRecipe<RecipeWrapper> {
 		return 1;
 	}
 
-	public FluidStack getResultingFluid() {
+	public FluidVolume getResultingFluid() {
 		if (fluidResults.isEmpty())
 			throw new IllegalStateException("Emptying Recipe: " + id.toString() + " has no fluid output!");
 		return fluidResults.get(0);

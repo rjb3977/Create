@@ -16,11 +16,10 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import alexiil.mc.lib.attributes.Simulation;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -211,13 +210,13 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 		if (!EmptyingByBasin.canItemBeEmptied(world, heldItem.stack))
 			return false;
 
-		Pair<FluidStack, ItemStack> emptyItem = EmptyingByBasin.emptyItem(world, heldItem.stack, true);
-		FluidStack fluidFromItem = emptyItem.getFirst();
+		Pair<FluidVolume, ItemStack> emptyItem = EmptyingByBasin.emptyItem(world, heldItem.stack, true);
+		FluidVolume fluidFromItem = emptyItem.getFirst();
 
 		if (processingTicks > 5) {
 			internalTank.allowInsertion();
-			if (internalTank.getPrimaryHandler()
-				.fill(fluidFromItem, Simulation.SIMULATE) != fluidFromItem.getAmount()) {
+			if (!internalTank.getPrimaryHandler()
+				.attemptInsertion(fluidFromItem, Simulation.SIMULATE).amount().equals(fluidFromItem.getAmount_F())) {
 				internalTank.forbidInsertion();
 				processingTicks = FILLING_TIME;
 				return true;
@@ -237,7 +236,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 			heldItem = null;
 		internalTank.allowInsertion();
 		internalTank.getPrimaryHandler()
-			.fill(fluidFromItem, Simulation.ACTION);
+			.attemptInsertion(fluidFromItem, Simulation.ACTION);
 		internalTank.forbidInsertion();
 		notifyUpdate();
 		return true;

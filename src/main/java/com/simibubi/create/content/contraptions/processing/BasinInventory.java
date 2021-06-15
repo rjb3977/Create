@@ -1,7 +1,6 @@
 package com.simibubi.create.content.contraptions.processing;
 
 import com.simibubi.create.foundation.item.SmartInventory;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
 import net.minecraft.item.ItemStack;
 

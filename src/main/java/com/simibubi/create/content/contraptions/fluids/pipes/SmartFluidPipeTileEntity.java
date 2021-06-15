@@ -12,8 +12,8 @@ import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBe
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.properties.AttachFace;
@@ -50,7 +50,7 @@ public class SmartFluidPipeTileEntity extends SmartTileEntity {
 		}
 
 		@Override
-		public boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction) {
+		public boolean canPullFluidFrom(FluidVolume fluid, BlockState state, Direction direction) {
 			if (fluid.isEmpty() || filter != null && filter.test(fluid))
 				return super.canPullFluidFrom(fluid, state, direction);
 			return false;

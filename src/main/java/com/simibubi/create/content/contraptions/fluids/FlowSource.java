@@ -5,17 +5,19 @@ import java.util.function.Predicate;
 
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.BlockFace;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import alexiil.mc.lib.attributes.Simulation;
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 public abstract class FlowSource {
 
-	private static final LazyOptional<IFluidHandler> EMPTY = LazyOptional.empty();
+	private static final LazyOptional<FixedFluidInv> EMPTY = LazyOptional.empty();
 
 	BlockFace location;
 
@@ -23,26 +25,26 @@ public abstract class FlowSource {
 		this.location = location;
 	}
 
-	public FluidStack provideFluid(Predicate<FluidStack> extractionPredicate) {
-		IFluidHandler tank = provideHandler();
+	public FluidVolume provideFluid(Predicate<FluidVolume> extractionPredicate) {
+		FixedFluidInv tank = provideHandler().convertTo(FixedFluidInv.class);
 		if (tank == null)
-			return FluidStack.EMPTY;
-		FluidStack immediateFluid = tank.drain(1, Simulation.SIMULATE);
+			return FluidVolumeUtil.EMPTY;
+		FluidVolume immediateFluid = tank.extractFluid(1, null, null, FluidAmount.ABSOLUTE_MAXIMUM, Simulation.SIMULATE);
 		if (extractionPredicate.test(immediateFluid))
 			return immediateFluid;
 
-		for (int i = 0; i < tank.getTanks(); i++) {
-			FluidStack contained = tank.getFluidInTank(i);
+		for (int i = 0; i < tank.getTankCount(); i++) {
+			FluidVolume contained = tank.getInvFluid(i);
 			if (contained.isEmpty())
 				continue;
 			if (!extractionPredicate.test(contained))
 				continue;
-			FluidStack toExtract = (FluidStack) contained.copy();
-			toExtract.setAmount(1);
-			return tank.drain(toExtract, Simulation.SIMULATE);
+			FluidVolume toExtract = contained.copy();
+			toExtract.withAmount(FluidAmount.of(1, 1000));
+			return tank.extractFluid(0, null, null, toExtract.amount(), Simulation.SIMULATE);
 		}
 
-		return FluidStack.EMPTY;
+		return FluidVolumeUtil.EMPTY;
 	}
 
 	// Layer III. PFIs need active attention to prevent them from disengaging early
@@ -54,12 +56,12 @@ public abstract class FlowSource {
 
 	public void whileFlowPresent(World world, boolean pulling) {}
 
-	public IFluidHandler provideHandler() {
+	public FixedFluidInv provideHandler() {
 		return null;
 	}
 
 	public static class FluidHandler extends FlowSource {
-		IFluidHandler fluidHandler;
+		FixedFluidInv fluidHandler;
 
 		public FluidHandler(BlockFace location) {
 			super(location);
@@ -71,14 +73,14 @@ public abstract class FlowSource {
 				return;
 			TileEntity tileEntity = world.getTileEntity(location.getConnectedPos());
 			if (tileEntity != null)
-				if (tileEntity instanceof IFluidHandler)
-					fluidHandler = (IFluidHandler) tileEntity;
+				if (tileEntity instanceof FixedFluidInv)
+					fluidHandler = (FixedFluidInv) tileEntity;
 				else
 					fluidHandler = null;
 		}
 
 		@Override
-		public IFluidHandler provideHandler() {
+		public FixedFluidInv provideHandler() {
 			return fluidHandler;
 		}
 
@@ -107,12 +109,12 @@ public abstract class FlowSource {
 		}
 
 		@Override
-		public FluidStack provideFluid(Predicate<FluidStack> extractionPredicate) {
+		public FluidVolume provideFluid(Predicate<FluidVolume> extractionPredicate) {
 			if (cached == null || cached.get() == null)
-				return FluidStack.EMPTY;
+				return FluidVolumeUtil.EMPTY;
 			FluidTransportBehaviour behaviour = cached.get();
-			FluidStack providedOutwardFluid = behaviour.getProvidedOutwardFluid(location.getOppositeFace());
-			return extractionPredicate.test(providedOutwardFluid) ? providedOutwardFluid : FluidStack.EMPTY;
+			FluidVolume providedOutwardFluid = behaviour.getProvidedOutwardFluid(location.getOppositeFace());
+			return extractionPredicate.test(providedOutwardFluid) ? providedOutwardFluid : FluidVolumeUtil.EMPTY;
 		}
 
 		@Override

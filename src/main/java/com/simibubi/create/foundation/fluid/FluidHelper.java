@@ -2,6 +2,9 @@ package com.simibubi.create.foundation.fluid;
 
 import javax.annotation.Nullable;
 
+import alexiil.mc.lib.attributes.fluid.FluidAttributes;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -11,15 +14,15 @@ import com.simibubi.create.content.contraptions.fluids.actors.GenericItemFilling
 import com.simibubi.create.content.contraptions.processing.EmptyingByBasin;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.utility.Pair;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
-import com.simibubi.create.lib.lba.fluid.IFluidHandlerItem;
 import com.simibubi.create.lib.utility.FluidUtil;
 import com.simibubi.create.lib.utility.LazyOptional;
-import com.simibubi.create.lib.utility.TransferUtil;
 
 import alexiil.mc.lib.attributes.SearchOptions;
 import alexiil.mc.lib.attributes.Simulation;
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
@@ -54,11 +57,10 @@ public class FluidHelper {
 		return blockState != null && blockState != Blocks.AIR.getDefaultState();
 	}
 
-	public static FluidStack copyStackWithAmount(FluidStack fs, int amount) {
+	public static FluidVolume copyStackWithAmount(FluidVolume fs, FluidAmount amount) {
 		if (fs.isEmpty())
-			return FluidStack.EMPTY;
-		return (FluidStack) fs.withAmount(FluidUtil.millibucketsToFluidAmount(amount));
-
+			return FluidVolumeUtil.EMPTY;
+		return fs.withAmount(amount);
 	}
 
 	public static Fluid convertToFlowing(Fluid fluid) {
@@ -81,24 +83,26 @@ public class FluidHelper {
 		return fluid;
 	}
 
-	public static JsonElement serializeFluidStack(FluidStack stack) {
+	public static JsonElement serializeFluidVolume(FluidVolume stack) {
 		JsonObject json = new JsonObject();
 		json.addProperty("fluid", Registry.FLUID.getKey(stack.getRawFluid())
 			.toString());
-		json.addProperty("amount", stack.getAmount());
+		json.addProperty("amountWhole", stack.getAmount_F().whole);
+		json.addProperty("amountNum", stack.getAmount_F().numerator);
+		json.addProperty("amountDen", stack.getAmount_F().denominator);
 //		if (stack.hasTag())
 			json.addProperty("nbt", stack.toTag()
 				.toString());
 		return json;
 	}
 
-	public static FluidStack deserializeFluidStack(JsonObject json) {
+	public static FluidVolume deserializeFluidVolume(JsonObject json) {
 		ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "fluid"));
 		Fluid fluid = Registry.FLUID.getOrDefault(id);
 		if (fluid == Fluids.WATER)
 			throw new JsonSyntaxException("Unknown fluid '" + id + "'");
-		int amount = JSONUtils.getInt(json, "amount");
-		FluidStack stack = new FluidStack(fluid, amount);
+		FluidAmount amount = FluidAmount.of(JSONUtils.getLong(json, "amountWhole"), JSONUtils.getLong(json, "amountNum"), JSONUtils.getLong(json, "amountDen"));
+		FluidVolume stack = FluidKeys.get(fluid).withAmount(amount);
 
 		if (!json.has("nbt"))
 			return stack;
@@ -120,19 +124,19 @@ public class FluidHelper {
 		if (!EmptyingByBasin.canItemBeEmptied(worldIn, heldItem))
 			return false;
 
-		Pair<FluidStack, ItemStack> emptyingResult = EmptyingByBasin.emptyItem(worldIn, heldItem, true);
-		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te.getWorld(), te.getPos(), SearchOptions.ALL);
-		IFluidHandler tank = capability.orElse(null);
-		FluidStack fluidStack = emptyingResult.getFirst();
+		Pair<FluidVolume, ItemStack> emptyingResult = EmptyingByBasin.emptyItem(worldIn, heldItem, true);
+		LazyOptional<FixedFluidInv> capability = LazyOptional.ofObject(FluidAttributes.FIXED_INV.get(te.getWorld(), te.getPos()));
+		FixedFluidInv tank = capability.orElse(null);
+		FluidVolume FluidVolume = emptyingResult.getFirst();
 
-		if (tank == null || fluidStack.getAmount() != tank.fill(fluidStack, Simulation.SIMULATE))
+		if (tank == null || !FluidVolume.getAmount_F().equals(tank.insertFluid(0, FluidVolume, Simulation.SIMULATE).amount()))
 			return false;
 		if (worldIn.isRemote)
 			return true;
 
 		ItemStack copyOfHeld = heldItem.copy();
 		emptyingResult = EmptyingByBasin.emptyItem(worldIn, copyOfHeld, false);
-		tank.fill(fluidStack, Simulation.ACTION);
+		tank.insertFluid(0, FluidVolume, Simulation.ACTION);
 
 		if (!player.isCreative()) {
 			if (copyOfHeld.isEmpty())
@@ -150,20 +154,20 @@ public class FluidHelper {
 		if (!GenericItemFilling.canItemBeFilled(world, heldItem))
 			return false;
 
-		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te.getWorld(), te.getPos(), SearchOptions.ALL);
-		IFluidHandler tank = capability.orElse(null);
+		LazyOptional<FixedFluidInv> capability = LazyOptional.ofObject(FluidAttributes.FIXED_INV.get(te.getWorld(), te.getPos()));
+		FixedFluidInv tank = capability.orElse(null);
 
 		if (tank == null)
 			return false;
 
-		for (int i = 0; i < tank.getTanks(); i++) {
-			FluidStack fluid = tank.getFluidInTank(i);
+		for (int i = 0; i < tank.getTankCount(); i++) {
+			FluidVolume fluid = tank.getInvFluid(i);
 			if (fluid.isEmpty())
 				continue;
-			int requiredAmountForItem = GenericItemFilling.getRequiredAmountForItem(world, heldItem, (FluidStack) fluid.copy());
-			if (requiredAmountForItem == -1)
+			FluidAmount requiredAmountForItem = GenericItemFilling.getRequiredAmountForItem(world, heldItem, (FluidVolume) fluid.copy());
+			if (requiredAmountForItem.equals(FluidAmount.ONE.negate()))
 				continue;
-			if (requiredAmountForItem > fluid.getAmount())
+			if (requiredAmountForItem.compareTo(fluid.getAmount_F()) > 0)
 				continue;
 
 			if (world.isRemote)
@@ -171,10 +175,10 @@ public class FluidHelper {
 
 			if (player.isCreative())
 				heldItem = heldItem.copy();
-			ItemStack out = GenericItemFilling.fillItem(world, requiredAmountForItem, heldItem, (FluidStack) fluid.copy());
+			ItemStack out = GenericItemFilling.fillItem(world, requiredAmountForItem, heldItem, (FluidVolume) fluid.copy());
 
-			FluidStack copy = (FluidStack) fluid.withAmount(FluidUtil.millibucketsToFluidAmount(requiredAmountForItem));
-			tank.drain(copy, Simulation.ACTION);
+			FluidVolume copy = fluid.withAmount(requiredAmountForItem);
+			tank.extractFluid(0, null, null, copy.getAmount_F(), Simulation.ACTION);
 
 			if (!player.isCreative())
 				player.inventory.placeItemBackInInventory(world, out);
@@ -186,19 +190,19 @@ public class FluidHelper {
 	}
 
 	@Nullable
-	public static FluidExchange exchange(IFluidHandler fluidTank, IFluidHandlerItem fluidItem, FluidExchange preferred,
+	public static FluidExchange exchange(FixedFluidInv fluidTank, FixedFluidInvItem fluidItem, FluidExchange preferred,
 										 int maxAmount) {
 		return exchange(fluidTank, fluidItem, preferred, true, maxAmount);
 	}
 
 	@Nullable
-	public static FluidExchange exchangeAll(IFluidHandler fluidTank, IFluidHandlerItem fluidItem,
+	public static FluidExchange exchangeAll(FixedFluidInv fluidTank, FixedFluidInvItem fluidItem,
 		FluidExchange preferred) {
 		return exchange(fluidTank, fluidItem, preferred, false, Integer.MAX_VALUE);
 	}
 
 	@Nullable
-	private static FluidExchange exchange(IFluidHandler fluidTank, IFluidHandlerItem fluidItem, FluidExchange preferred,
+	private static FluidExchange exchange(FixedFluidInv fluidTank, FixedFluidInvItem fluidItem, FluidExchange preferred,
 		boolean singleOp, int maxTransferAmountPerTank) {
 
 		// Locks in the transfer direction of this operation
@@ -207,11 +211,11 @@ public class FluidHelper {
 		for (int tankSlot = 0; tankSlot < fluidTank.getTanks(); tankSlot++) {
 			for (int slot = 0; slot < fluidItem.getTanks(); slot++) {
 
-				FluidStack fluidInTank = fluidTank.getFluidInTank(tankSlot);
+				FluidVolume fluidInTank = fluidTank.getFluidInTank(tankSlot);
 				int tankCapacity = fluidTank.getTankCapacity(tankSlot) - fluidInTank.getAmount();
 				boolean tankEmpty = fluidInTank.isEmpty();
 
-				FluidStack fluidInItem = fluidItem.getFluidInTank(tankSlot);
+				FluidVolume fluidInItem = fluidItem.getFluidInTank(tankSlot);
 				int itemCapacity = fluidItem.getTankCapacity(tankSlot) - fluidInItem.getAmount();
 				boolean itemEmpty = fluidInItem.isEmpty();
 

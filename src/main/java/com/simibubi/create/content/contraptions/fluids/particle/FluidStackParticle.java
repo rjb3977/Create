@@ -2,8 +2,8 @@ package com.simibubi.create.content.contraptions.fluids.particle;
 
 import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.content.contraptions.fluids.potion.PotionFluid;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.client.particle.IParticleRenderType;
 import net.minecraft.client.particle.SpriteTexturedParticle;
 import net.minecraft.client.world.ClientWorld;
@@ -12,16 +12,16 @@ import net.minecraft.particles.ParticleType;
 public class FluidStackParticle extends SpriteTexturedParticle {
 	private final float field_217587_G;
 	private final float field_217588_H;
-	private FluidStack fluid;
+	private FluidVolume fluid;
 
-	public static FluidStackParticle create(ParticleType<FluidParticleData> type, ClientWorld world, FluidStack fluid, double x,
+	public static FluidStackParticle create(ParticleType<FluidParticleData> type, ClientWorld world, FluidVolume fluid, double x,
 		double y, double z, double vx, double vy, double vz) {
 		if (type == AllParticleTypes.BASIN_FLUID.get())
 			return new BasinFluidParticle(world, fluid, x, y, z, vx, vy, vz);
 		return new FluidStackParticle(world, fluid, x, y, z, vx, vy, vz);
 	}
 
-	public FluidStackParticle(ClientWorld world, FluidStack fluid, double x, double y, double z, double vx, double vy,
+	public FluidStackParticle(ClientWorld world, FluidVolume fluid, double x, double y, double z, double vx, double vy,
 							  double vz) {
 		super(world, x, y, z, vx, vy, vz);
 		this.fluid = fluid;
@@ -100,7 +100,7 @@ public class FluidStackParticle extends SpriteTexturedParticle {
 	}
 
 	protected boolean canEvaporate() {
-		return fluid.getFluid() instanceof PotionFluid;
+		return fluid.getRawFluid() instanceof PotionFluid;
 	}
 
 	@Override

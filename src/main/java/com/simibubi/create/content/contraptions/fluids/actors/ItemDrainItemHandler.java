@@ -2,8 +2,6 @@ package com.simibubi.create.content.contraptions.fluids.actors;
 
 import com.simibubi.create.content.contraptions.processing.EmptyingByBasin;
 import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;

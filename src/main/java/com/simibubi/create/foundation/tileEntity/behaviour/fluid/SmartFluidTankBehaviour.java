@@ -2,6 +2,10 @@ package com.simibubi.create.foundation.tileEntity.behaviour.fluid;
 
 import java.util.function.Consumer;
 
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.impl.SimpleFixedFluidInv;
+
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.simibubi.create.foundation.fluid.CombinedTankWrapper;
@@ -12,12 +16,11 @@ import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import alexiil.mc.lib.attributes.Simulation;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 
@@ -32,7 +35,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 	protected int syncCooldown;
 	protected boolean queuedSync;
 	protected TankSegment[] tanks;
-	protected LazyOptional<? extends IFluidHandler> capability;
+	protected LazyOptional<? extends SimpleFixedFluidInv> capability;
 	protected boolean extractionAllowed;
 	protected boolean insertionAllowed;
 	protected Runnable fluidUpdateCallback;
@@ -50,7 +53,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 		extractionAllowed = true;
 		behaviourType = type;
 		this.tanks = new TankSegment[tanks];
-		IFluidHandler[] handlers = new IFluidHandler[tanks];
+		SimpleFixedFluidInv[] handlers = new SimpleFixedFluidInv[tanks];
 		for (int i = 0; i < tanks; i++) {
 			TankSegment tankSegment = new TankSegment(tankCapacity);
 			this.tanks[i] = tankSegment;
@@ -93,7 +96,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 			return;
 		foreach(ts -> {
 			ts.fluidLevel.forceNextSync();
-			ts.onFluidStackChanged();
+			ts.onFluidVolumeChanged();
 		});
 	}
 
@@ -166,7 +169,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 			action.accept(tankSegment);
 	}
 
-	public LazyOptional<? extends IFluidHandler> getCapability() {
+	public LazyOptional<? extends FixedFluidInv> getCapability() {
 		return capability;
 	}
 
@@ -192,34 +195,34 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 
 	public class InternalFluidHandler extends CombinedTankWrapper {
 
-		public InternalFluidHandler(IFluidHandler[] handlers, boolean enforceVariety) {
+		public InternalFluidHandler(SimpleFixedFluidInv[] handlers, boolean enforceVariety) {
 			super(handlers);
 			if (enforceVariety)
 				enforceVariety();
 		}
 
 		@Override
-		public int fill(FluidStack resource, Simulation action) {
+		public int fill(FluidVolume resource, Simulation action) {
 			if (!insertionAllowed)
 				return 0;
 			return super.fill(resource, action);
 		}
 
-		public int forceFill(FluidStack resource, Simulation action) {
+		public FluidAmount forceFill(FluidVolume resource, Simulation action) {
 			return super.fill(resource, action);
 		}
 
 		@Override
-		public FluidStack drain(FluidStack resource, Simulation action) {
+		public FluidVolume drain(FluidVolume resource, Simulation action) {
 			if (!extractionAllowed)
-				return FluidStack.EMPTY;
+				return FluidVolume.EMPTY;
 			return super.drain(resource, action);
 		}
 
 		@Override
-		public FluidStack drain(int maxDrain, Simulation action) {
+		public FluidVolume drain(int maxDrain, Simulation action) {
 			if (!extractionAllowed)
-				return FluidStack.EMPTY;
+				return FluidVolume.EMPTY;
 			return super.drain(maxDrain, action);
 		}
 
@@ -229,17 +232,17 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 
 		protected SmartFluidTank tank;
 		protected LerpedFloat fluidLevel;
-		protected FluidStack renderedFluid;
+		protected FluidVolume renderedFluid;
 
 		public TankSegment(int capacity) {
-			tank = new SmartFluidTank(capacity, f -> onFluidStackChanged());
+			tank = new SmartFluidTank(capacity, f -> onFluidVolumeChanged());
 			fluidLevel = LerpedFloat.linear()
 				.startWithValue(0)
 				.chase(0, .25, Chaser.EXP);
-			renderedFluid = FluidStack.EMPTY;
+			renderedFluid = FluidVolume.EMPTY;
 		}
 
-		public void onFluidStackChanged() {
+		public void onFluidVolumeChanged() {
 			if (!tileEntity.hasWorld())
 				return;
 			fluidLevel.chase(tank.getFluidAmount() / (float) tank.getCapacity(), .25, Chaser.EXP);
@@ -247,7 +250,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 				sendDataLazily();
 		}
 
-		public FluidStack getRenderedFluid() {
+		public FluidVolume getRenderedFluid() {
 			return renderedFluid;
 		}
 
@@ -275,7 +278,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 		}
 
 		public boolean isEmpty(float partialTicks) {
-			FluidStack renderedFluid = getRenderedFluid();
+			FluidVolume renderedFluid = getRenderedFluid();
 			if (renderedFluid.isEmpty())
 				return true;
 			float units = getTotalUnits(partialTicks);

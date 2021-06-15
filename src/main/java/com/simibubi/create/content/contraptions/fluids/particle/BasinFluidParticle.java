@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.processing.BasinTileEntity;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.tileentity.TileEntity;
@@ -21,7 +21,7 @@ public class BasinFluidParticle extends FluidStackParticle {
 	Vector3d centerOfBasin;
 	float yOffset;
 
-	public BasinFluidParticle(ClientWorld world, FluidStack fluid, double x, double y, double z, double vx, double vy,
+	public BasinFluidParticle(ClientWorld world, FluidVolume fluid, double x, double y, double z, double vx, double vy,
 							  double vz) {
 		super(world, fluid, x, y, z, vx, vy, vz);
 		particleGravity = 0;

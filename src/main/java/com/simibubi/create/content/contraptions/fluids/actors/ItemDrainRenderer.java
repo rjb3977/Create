@@ -12,7 +12,7 @@ import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankB
 import com.simibubi.create.foundation.tileEntity.renderer.SmartTileEntityRenderer;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+import com.simibubi.create.lib.lba.fluid.FluidVolume;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -138,18 +138,18 @@ public class ItemDrainRenderer extends SmartTileEntityRenderer<ItemDrainTileEnti
 			return;
 
 		TankSegment primaryTank = tank.getPrimaryTank();
-		FluidStack fluidStack = primaryTank.getRenderedFluid();
+		FluidVolume FluidVolume = primaryTank.getRenderedFluid();
 		float level = primaryTank.getFluidLevel()
 			.getValue(partialTicks);
 
-		if (!fluidStack.isEmpty() && level != 0) {
+		if (!FluidVolume.isEmpty() && level != 0) {
 			float yMin = 5f / 16f;
 			float min = 2f / 16f;
 			float max = min + (12 / 16f);
 			float yOffset = (7 / 16f) * level;
 			ms.push();
 			ms.translate(0, yOffset, 0);
-			FluidRenderer.renderTiledFluidBB(fluidStack, min, yMin - yOffset, min, max, yMin, max, buffer, ms, light,
+			FluidRenderer.renderTiledFluidBB(FluidVolume, min, yMin - yOffset, min, max, yMin, max, buffer, ms, light,
 				false);
 			ms.pop();
 		}
@@ -157,12 +157,12 @@ public class ItemDrainRenderer extends SmartTileEntityRenderer<ItemDrainTileEnti
 		ItemStack heldItemStack = te.getHeldItemStack();
 		if (heldItemStack.isEmpty())
 			return;
-		FluidStack fluidStack2 = EmptyingByBasin.emptyItem(te.getWorld(), heldItemStack, true)
+		FluidVolume FluidVolume2 = EmptyingByBasin.emptyItem(te.getWorld(), heldItemStack, true)
 			.getFirst();
-		if (fluidStack2.isEmpty()) {
-			if (fluidStack.isEmpty())
+		if (FluidVolume2.isEmpty()) {
+			if (FluidVolume.isEmpty())
 				return;
-			fluidStack2 = fluidStack;
+			FluidVolume2 = FluidVolume;
 		}
 
 		int processingTicks = te.processingTicks;
@@ -174,7 +174,7 @@ public class ItemDrainRenderer extends SmartTileEntityRenderer<ItemDrainTileEnti
 		if (processingTicks != -1) {
 			radius = (float) (Math.pow(((2 * processingProgress) - 1), 2) - 1);
 			AxisAlignedBB bb = new AxisAlignedBB(0.5, 1.0, 0.5, 0.5, 0.25, 0.5).grow(radius / 32f);
-			FluidRenderer.renderTiledFluidBB(fluidStack2, (float) bb.minX, (float) bb.minY, (float) bb.minZ,
+			FluidRenderer.renderTiledFluidBB(FluidVolume2, (float) bb.minX, (float) bb.minY, (float) bb.minZ,
 				(float) bb.maxX, (float) bb.maxY, (float) bb.maxZ, buffer, ms, light, true);
 		}
 

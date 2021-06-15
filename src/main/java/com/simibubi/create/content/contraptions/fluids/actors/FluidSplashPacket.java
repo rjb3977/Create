@@ -1,8 +1,11 @@
 package com.simibubi.create.content.contraptions.fluids.actors;
 
-import com.simibubi.create.content.contraptions.fluids.FluidFX;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+import java.io.IOException;
 
+import com.simibubi.create.Create;
+import com.simibubi.create.content.contraptions.fluids.FluidFX;
+
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.minecraft.client.Minecraft;
@@ -14,23 +17,27 @@ import net.minecraft.util.math.vector.Vector3d;
 public class FluidSplashPacket implements S2CPacket {
 
 	private BlockPos pos;
-	private FluidStack fluid;
+	private FluidVolume fluid;
 
 	protected FluidSplashPacket() {}
 
-	public FluidSplashPacket(BlockPos pos, FluidStack fluid) {
+	public FluidSplashPacket(BlockPos pos, FluidVolume fluid) {
 		this.pos = pos;
 		this.fluid = fluid;
 	}
 
 	public void read(PacketBuffer buffer) {
 		pos = buffer.readBlockPos();
-//		fluid = buffer.readFluidStack();
+		try {
+			fluid = FluidVolume.fromMcBuffer(buffer);
+		} catch (IOException e) {
+			Create.LOGGER.fatal("Failed to read FluidVolume from buffer!", e);
+		}
 	}
 
 	public void write(PacketBuffer buffer) {
 		buffer.writeBlockPos(pos);
-//		buffer.writeFluidStack(fluid);
+		fluid.toMcBuffer(buffer);
 	}
 
 	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {

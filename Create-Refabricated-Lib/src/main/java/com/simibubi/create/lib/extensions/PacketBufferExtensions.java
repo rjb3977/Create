@@ -1,9 +1,9 @@
 package com.simibubi.create.lib.extensions;
 
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 
 public interface PacketBufferExtensions {
-	void writeFluidStack(FluidStack stack);
+	void writeFluidVolume(FluidVolume stack);
 
-	FluidStack readFluidStack();
+	FluidVolume readFluidVolume();
 }

@@ -8,8 +8,8 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.Direction;
@@ -32,8 +32,8 @@ public class TransparentStraightPipeRenderer extends SafeTileEntityRenderer<Stra
 			Flow flow = pipe.getFlow(side);
 			if (flow == null)
 				continue;
-			FluidStack fluidStack = flow.fluid;
-			if (fluidStack.isEmpty())
+			FluidVolume FluidVolume = flow.fluid;
+			if (FluidVolume.isEmpty())
 				continue;
 			LerpedFloat progress = flow.progress;
 			if (progress == null)
@@ -59,7 +59,7 @@ public class TransparentStraightPipeRenderer extends SafeTileEntityRenderer<Stra
 				}
 			}
 
-			FluidRenderer.renderFluidStream(fluidStack, side, 3 / 16f, value, inbound, buffer, ms, light);
+			FluidRenderer.renderFluidStream(FluidVolume, side, 3 / 16f, value, inbound, buffer, ms, light);
 		}
 
 	}

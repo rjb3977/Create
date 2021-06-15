@@ -12,13 +12,14 @@ import com.simibubi.create.foundation.fluid.FluidHelper.FluidExchange;
 import com.simibubi.create.foundation.tileEntity.ComparatorUtil;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.extensions.BlockExtensions;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 import com.simibubi.create.lib.utility.FluidUtil;
 import com.simibubi.create.lib.utility.LazyOptional;
-import com.simibubi.create.lib.utility.TransferUtil;
 
+import alexiil.mc.lib.attributes.fluid.FixedFluidInv;
+import alexiil.mc.lib.attributes.fluid.FluidAttributes;
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ITileEntityProvider;
@@ -126,11 +127,11 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 		if (te == null)
 			return ActionResultType.FAIL;
 
-		LazyOptional<IFluidHandler> tankCapability = TransferUtil.getFluidHandler(te);
+		LazyOptional<FixedFluidInv> tankCapability = LazyOptional.ofObject(FluidAttributes.FIXED_INV.getFirstOrNull(te.getWorld(), te.getPos()));
 		if (!tankCapability.isPresent())
 			return ActionResultType.PASS;
-		IFluidHandler fluidTank = tankCapability.orElse(null);
-		FluidStack prevFluidInTank = (FluidStack) fluidTank.getFluidInTank(0)
+		FixedFluidInv fluidTank = tankCapability.orElse(null);
+		FluidVolume prevFluidInTank = (FluidVolume) fluidTank.getInvFluid(0)
 				.copy();
 
 		if (FluidHelper.tryEmptyItemIntoTE(world, player, hand, heldItem, te))
@@ -147,18 +148,18 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 
 		SoundEvent soundevent = null;
 		BlockState fluidState = null;
-		FluidStack fluidInTank = tankCapability.map(fh -> fh.getFluidInTank(0))
-				.orElse(FluidStack.EMPTY);
+		FluidVolume fluidInTank = tankCapability.map(fh -> fh.getInvFluid(0))
+				.orElse(FluidVolumeUtil.EMPTY);
 
 		if (exchange == FluidExchange.ITEM_TO_TANK) {
 			if (creative && !onClient) {
-				FluidStack fluidInItem = EmptyingByBasin.emptyItem(world, heldItem, true)
+				FluidVolume fluidInItem = EmptyingByBasin.emptyItem(world, heldItem, true)
 						.getFirst();
 				if (!fluidInItem.isEmpty() && fluidTank instanceof CreativeSmartFluidTank)
 					((CreativeSmartFluidTank) fluidTank).setContainedFluid(fluidInItem);
 			}
 
-			Fluid fluid = fluidInTank.getFluid();
+			Fluid fluid = fluidInTank.getRawFluid();
 			fluidState = fluid.getDefaultState()
 					.getBlockState();
 //			FluidAttributes attributes = fluid.getAttributes();
@@ -170,9 +171,9 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 		if (exchange == FluidExchange.TANK_TO_ITEM) {
 			if (creative && !onClient)
 				if (fluidTank instanceof CreativeSmartFluidTank)
-					((CreativeSmartFluidTank) fluidTank).setContainedFluid(FluidStack.EMPTY);
+					((CreativeSmartFluidTank) fluidTank).setContainedFluid(FluidVolumeUtil.EMPTY);
 
-			Fluid fluid = prevFluidInTank.getFluid();
+			Fluid fluid = prevFluidInTank.getRawFluid();
 			fluidState = fluid.getDefaultState()
 					.getBlockState();
 //			soundevent = fluid.getAttributes()
@@ -183,23 +184,23 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 		}
 
 		if (soundevent != null && !onClient) {
-			float pitch = MathHelper
-					.clamp(1 - (1f * fluidInTank.getAmount() / (FluidTankTileEntity.getCapacityMultiplier() * 16)), 0, 1);
+			float pitch = (float) MathHelper
+					.clamp(1 - (fluidInTank.getAmount_F().div(FluidTankTileEntity.getCapacityMultiplier().mul(16))).asInexactDouble(), 0, 1);
 			pitch /= 1.5f;
 			pitch += .5f;
 			pitch += (world.rand.nextFloat() - .5f) / 4f;
 			world.playSound(null, pos, soundevent, SoundCategory.BLOCKS, .5f, pitch);
 		}
 
-		if (!fluidInTank.isFluidStackIdentical(prevFluidInTank)) {
+		if (fluidInTank != prevFluidInTank) {
 			if (te instanceof FluidTankTileEntity) {
 				FluidTankTileEntity controllerTE = ((FluidTankTileEntity) te).getControllerTE();
 				if (controllerTE != null) {
 					if (fluidState != null && onClient) {
 						BlockParticleData blockParticleData = new BlockParticleData(ParticleTypes.BLOCK, fluidState);
-						float level = (float) fluidInTank.getAmount() / fluidTank.getTankCapacity(0);
+						float level = (float) fluidInTank.getAmount_F().div(fluidTank.getMaxAmount_F(0)).asInexactDouble();
 
-						boolean reversed = FluidUtil.isLighterThanAir(fluidInTank.getFluid());
+						boolean reversed = FluidUtil.isLighterThanAir(fluidInTank.getRawFluid());
 
 						if (reversed)
 							level = 1 - level;

@@ -11,7 +11,6 @@ import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
-import com.simibubi.create.lib.utility.TransferUtil;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -99,10 +98,10 @@ public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEnt
 			return;
 
 		MillstoneTileEntity millstone = null;
-		for (BlockPos pos : Iterate.hereAndBelow(entityIn.getBlockPos())) 
+		for (BlockPos pos : Iterate.hereAndBelow(entityIn.getBlockPos()))
 			if (millstone == null)
 				millstone = getTileEntity(worldIn, pos);
-		
+
 		if (millstone == null)
 			return;
 

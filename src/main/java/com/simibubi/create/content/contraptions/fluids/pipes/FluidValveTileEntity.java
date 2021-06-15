@@ -8,8 +8,8 @@ import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
@@ -96,7 +96,7 @@ public class FluidValveTileEntity extends KineticTileEntity {
 		}
 
 		@Override
-		public boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction) {
+		public boolean canPullFluidFrom(FluidVolume fluid, BlockState state, Direction direction) {
 			if (state.contains(FluidValveBlock.ENABLED) && state.get(FluidValveBlock.ENABLED))
 				return super.canPullFluidFrom(fluid, state, direction);
 			return false;

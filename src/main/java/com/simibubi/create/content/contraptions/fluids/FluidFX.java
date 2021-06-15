@@ -6,8 +6,8 @@ import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.content.contraptions.fluids.particle.FluidParticleData;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.client.Minecraft;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -24,8 +24,8 @@ public class FluidFX {
 
 	static Random r = new Random();
 
-	public static void splash(BlockPos pos, FluidStack fluidStack) {
-		Fluid fluid = fluidStack.getFluid();
+	public static void splash(BlockPos pos, FluidVolume fluidVolume) {
+		Fluid fluid = fluidVolume.fluidKey.getRawFluid();
 		if (fluid == Fluids.EMPTY)
 			return;
 
@@ -44,15 +44,15 @@ public class FluidFX {
 
 	}
 
-	public static IParticleData getFluidParticle(FluidStack fluid) {
+	public static IParticleData getFluidParticle(FluidVolume fluid) {
 		return new FluidParticleData(AllParticleTypes.FLUID_PARTICLE.get(), fluid);
 	}
 
-	public static IParticleData getDrippingParticle(FluidStack fluid) {
+	public static IParticleData getDrippingParticle(FluidVolume fluid) {
 		IParticleData particle = null;
-		if (FluidHelper.isWater(fluid.getFluid()))
+		if (FluidHelper.isWater(fluid.fluidKey.getRawFluid()))
 			particle = ParticleTypes.DRIPPING_WATER;
-		if (FluidHelper.isLava(fluid.getFluid()))
+		if (FluidHelper.isLava(fluid.fluidKey.getRawFluid()))
 			particle = ParticleTypes.DRIPPING_LAVA;
 		if (particle == null)
 			particle = new FluidParticleData(AllParticleTypes.FLUID_DRIP.get(), fluid);

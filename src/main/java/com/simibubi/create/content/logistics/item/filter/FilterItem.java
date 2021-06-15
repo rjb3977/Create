@@ -12,13 +12,12 @@ import com.simibubi.create.content.contraptions.processing.EmptyingByBasin;
 import com.simibubi.create.content.logistics.item.filter.AttributeFilterContainer.WhitelistMode;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
-
 import com.simibubi.create.lib.utility.NetworkUtil;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.ITooltipFlag;
@@ -182,7 +181,7 @@ public class FilterItem extends Item implements INamedContainerProvider {
 		return test(world, stack, filter, false);
 	}
 
-	public static boolean test(World world, FluidStack stack, ItemStack filter) {
+	public static boolean test(World world, FluidVolume stack, ItemStack filter) {
 		return test(world, stack, filter, true);
 	}
 
@@ -255,7 +254,7 @@ public class FilterItem extends Item implements INamedContainerProvider {
 		return false;
 	}
 
-	private static boolean test(World world, FluidStack stack, ItemStack filter, boolean matchNBT) {
+	private static boolean test(World world, FluidVolume stack, ItemStack filter, boolean matchNBT) {
 		if (filter.isEmpty())
 			return true;
 		if (stack.isEmpty())
@@ -264,7 +263,7 @@ public class FilterItem extends Item implements INamedContainerProvider {
 		if (!(filter.getItem() instanceof FilterItem)) {
 			if (!EmptyingByBasin.canItemBeEmptied(world, filter))
 				return false;
-			FluidStack fluidInFilter = EmptyingByBasin.emptyItem(world, filter, true)
+			FluidVolume fluidInFilter = EmptyingByBasin.emptyItem(world, filter, true)
 				.getFirst();
 			if (fluidInFilter == null)
 				return false;

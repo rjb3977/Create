@@ -12,17 +12,18 @@ import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.FloatNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.util.Direction;
@@ -36,7 +37,7 @@ public class PipeConnection {
 	Direction side;
 
 	// Layer I
-	Couple<Float> pressure; // [inbound, outward]
+	Couple<FluidAmount> pressure; // [inbound, outward]
 	Optional<FlowSource> source;
 	Optional<FlowSource> previousSource;
 
@@ -49,7 +50,7 @@ public class PipeConnection {
 
 	public PipeConnection(Direction side) {
 		this.side = side;
-		pressure = Couple.create(() -> 0f);
+		pressure = Couple.create(() -> FluidAmount.ZERO);
 		flow = Optional.empty();
 		previousSource = Optional.empty();
 		source = Optional.empty();
@@ -57,24 +58,23 @@ public class PipeConnection {
 		particleSplashNextTick = false;
 	}
 
-	public FluidStack getProvidedFluid() {
-		FluidStack empty = FluidStack.EMPTY;
+	public FluidVolume getProvidedFluid() {
 		if (!hasFlow())
-			return empty;
+			return FluidVolumeUtil.EMPTY;
 		Flow flow = this.flow.get();
 		if (!flow.inbound)
-			return empty;
+			return FluidVolumeUtil.EMPTY;
 		if (!flow.complete)
-			return empty;
+			return FluidVolumeUtil.EMPTY;
 		return flow.fluid;
 	}
 
 	public boolean flipFlowsIfPressureReversed() {
 		if (!hasFlow())
 			return false;
-		boolean singlePressure = comparePressure() != 0 && (getInboundPressure() == 0 || getOutwardPressure() == 0);
+		boolean singlePressure = comparePressure() != FluidAmount.ZERO && (getInboundPressure() == FluidAmount.ZERO || getOutwardPressure() == FluidAmount.ZERO);
 		Flow flow = this.flow.get();
-		if (!singlePressure || comparePressure() < 0 == flow.inbound)
+		if (!singlePressure || comparePressure().isNegative() == flow.inbound)
 			return false;
 		flow.inbound = !flow.inbound;
 		if (!flow.complete)
@@ -89,8 +89,8 @@ public class PipeConnection {
 		flowSource.manageSource(world);
 	}
 
-	public boolean manageFlows(World world, BlockPos pos, FluidStack internalFluid,
-		Predicate<FluidStack> extractionPredicate) {
+	public boolean manageFlows(World world, BlockPos pos, FluidVolume internalFluid,
+		Predicate<FluidVolume> extractionPredicate) {
 
 		// Only keep network if still valid
 		Optional<FluidNetwork> retainedNetwork = network;
@@ -106,10 +106,10 @@ public class PipeConnection {
 				return false;
 
 			// Try starting a new flow
-			boolean prioritizeInbound = comparePressure() < 0;
+			boolean prioritizeInbound = comparePressure().isNegative();
 			for (boolean trueFalse : Iterate.trueAndFalse) {
 				boolean inbound = prioritizeInbound == trueFalse;
-				if (pressure.get(inbound) == 0)
+				if (pressure.get(inbound) == FluidAmount.ZERO)
 					continue;
 				if (tryStartingNewFlow(inbound, inbound ? flowSource.provideFluid(extractionPredicate) : internalFluid))
 					return true;
@@ -119,14 +119,14 @@ public class PipeConnection {
 
 		// Manage existing flow
 		Flow flow = this.flow.get();
-		FluidStack provided = flow.inbound ? flowSource.provideFluid(extractionPredicate) : internalFluid;
-		if (!hasPressure() || provided.isEmpty() || !provided.isFluidEqual(flow.fluid)) {
+		FluidVolume provided = flow.inbound ? flowSource.provideFluid(extractionPredicate) : internalFluid;
+		if (!hasPressure() || provided.isEmpty() || !(provided.getRawFluid() == flow.fluid.getRawFluid())) {
 			this.flow = Optional.empty();
 			return true;
 		}
 
 		// Overwrite existing flow
-		if (flow.inbound != comparePressure() < 0) {
+		if (flow.inbound != comparePressure().isNegative()) {
 			boolean inbound = !flow.inbound;
 			if (inbound && !provided.isEmpty() || !inbound && !internalFluid.isEmpty()) {
 				FluidPropagator.resetAffectedFluidNetworks(world, pos, side);
@@ -152,7 +152,7 @@ public class PipeConnection {
 		return false;
 	}
 
-	private boolean tryStartingNewFlow(boolean inbound, FluidStack providedFluid) {
+	private boolean tryStartingNewFlow(boolean inbound, FluidVolume providedFluid) {
 		if (providedFluid.isEmpty())
 			return false;
 		Flow flow = new Flow(inbound, providedFluid);
@@ -201,7 +201,7 @@ public class PipeConnection {
 			particleSplashNextTick = false;
 		}
 
-		float flowSpeed = 1 / 32f + MathHelper.clamp(pressure.get(flow.inbound) / 512f, 0, 1) * 31 / 32f;
+		float flowSpeed = (float) (1 / 32f + MathHelper.clamp(pressure.get(flow.inbound).div(512).asInexactDouble(), 0, 1) * 31 / 32f);
 		flow.progress.setValue(Math.min(flow.progress.getValue() + flowSpeed, 1));
 		if (flow.progress.getValue() >= 1) {
 			flow.complete = true;
@@ -216,8 +216,8 @@ public class PipeConnection {
 
 		if (hasPressure()) {
 			ListNBT pressureData = new ListNBT();
-			pressureData.add(FloatNBT.of(getInboundPressure()));
-			pressureData.add(FloatNBT.of(getOutwardPressure()));
+			pressureData.add(getInboundPressure().toNbt());
+			pressureData.add(getOutwardPressure().toNbt());
 			connectionData.put("Pressure", pressureData);
 		}
 
@@ -227,7 +227,7 @@ public class PipeConnection {
 		if (hasFlow()) {
 			CompoundNBT flowData = new CompoundNBT();
 			Flow flow = this.flow.get();
-			flow.fluid.writeToNBT(flowData);
+			flow.fluid.toTag(flowData);
 			flowData.putBoolean("In", flow.inbound);
 			if (!flow.complete)
 				flowData.put("Progress", flow.progress.writeNBT());
@@ -245,9 +245,9 @@ public class PipeConnection {
 
 		if (connectionData.contains("Pressure")) {
 			ListNBT pressureData = connectionData.getList("Pressure", NBT.TAG_FLOAT);
-			pressure = Couple.create(pressureData.getFloat(0), pressureData.getFloat(1));
+			pressure = Couple.create(FluidAmount.fromNbt(pressureData.getCompound(0)), FluidAmount.fromNbt(pressureData.getCompound(1)));
 		} else
-			pressure.replace(f -> 0f);
+			pressure.replace(f -> FluidAmount.ZERO);
 
 		source = Optional.empty();
 		if (connectionData.contains("OpenEnd"))
@@ -255,7 +255,7 @@ public class PipeConnection {
 
 		if (connectionData.contains("Flow")) {
 			CompoundNBT flowData = connectionData.getCompound("Flow");
-			FluidStack fluid = FluidStack.loadFluidStackFromNBT(flowData);
+			FluidVolume fluid = FluidVolume.fromTag(flowData);
 			boolean inbound = flowData.getBoolean("In");
 			if (!flow.isPresent()) {
 				flow = Optional.of(new Flow(inbound, fluid));
@@ -286,40 +286,40 @@ public class PipeConnection {
 	 *         positive if outward > inbound <br>
 	 *         negative if outward < inbound
 	 */
-	public float comparePressure() {
-		return getOutwardPressure() - getInboundPressure();
+	public FluidAmount comparePressure() {
+		return getOutwardPressure().sub(getInboundPressure());
 	}
 
 	public void wipePressure() {
-		this.pressure.replace(f -> 0f);
+		this.pressure.replace(f -> FluidAmount.ZERO);
 		if (this.source.isPresent())
 			this.previousSource = this.source;
 		this.source = Optional.empty();
 		resetNetwork();
 	}
 
-	public FluidStack provideOutboundFlow() {
+	public FluidVolume provideOutboundFlow() {
 		if (!hasFlow())
-			return FluidStack.EMPTY;
+			return FluidVolumeUtil.EMPTY;
 		Flow flow = this.flow.get();
 		if (!flow.complete || flow.inbound)
-			return FluidStack.EMPTY;
+			return FluidVolumeUtil.EMPTY;
 		return flow.fluid;
 	}
 
 	public void addPressure(boolean inbound, float pressure) {
-		this.pressure = this.pressure.mapWithContext((f, in) -> in == inbound ? f + pressure : f);
+		this.pressure = this.pressure.mapWithContext((f, in) -> in == inbound ? f.add((long) pressure) : f);
 	}
 
 	public boolean hasPressure() {
-		return getInboundPressure() != 0 || getOutwardPressure() != 0;
+		return getInboundPressure() != FluidAmount.ZERO || getOutwardPressure() != FluidAmount.ZERO;
 	}
 
-	private float getOutwardPressure() {
+	private FluidAmount getOutwardPressure() {
 		return pressure.getSecond();
 	}
 
-	private float getInboundPressure() {
+	private FluidAmount getInboundPressure() {
 		return pressure.getFirst();
 	}
 
@@ -340,9 +340,9 @@ public class PipeConnection {
 		public boolean complete;
 		public boolean inbound;
 		public LerpedFloat progress;
-		public FluidStack fluid;
+		public FluidVolume fluid;
 
-		public Flow(boolean inbound, FluidStack fluid) {
+		public Flow(boolean inbound, FluidVolume fluid) {
 			this.inbound = inbound;
 			this.fluid = fluid;
 			this.progress = LerpedFloat.linear()
@@ -358,16 +358,16 @@ public class PipeConnection {
 	public static final float RIM_RADIUS = 1 / 4f + 1 / 64f;
 	public static final Random r = new Random();
 
-	public void spawnSplashOnRim(World world, BlockPos pos, FluidStack fluid) {
+	public void spawnSplashOnRim(World world, BlockPos pos, FluidVolume fluid) {
 		EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> spawnSplashOnRimInner(world, pos, fluid));
 	}
 
-	public void spawnParticles(World world, BlockPos pos, FluidStack fluid) {
+	public void spawnParticles(World world, BlockPos pos, FluidVolume fluid) {
 		EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> spawnParticlesInner(world, pos, fluid));
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void spawnParticlesInner(World world, BlockPos pos, FluidStack fluid) {
+	private void spawnParticlesInner(World world, BlockPos pos, FluidVolume fluid) {
 		if (!isRenderEntityWithinDistance(pos))
 			return;
 		if (hasOpenEnd())
@@ -377,14 +377,14 @@ public class PipeConnection {
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void spawnSplashOnRimInner(World world, BlockPos pos, FluidStack fluid) {
+	private void spawnSplashOnRimInner(World world, BlockPos pos, FluidVolume fluid) {
 		if (!isRenderEntityWithinDistance(pos))
 			return;
 		spawnRimParticles(world, pos, fluid, SPLASH_PARTICLE_AMOUNT);
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void spawnRimParticles(World world, BlockPos pos, FluidStack fluid, int amount) {
+	private void spawnRimParticles(World world, BlockPos pos, FluidVolume fluid, int amount) {
 		if (hasOpenEnd()) {
 			spawnPouringLiquid(world, pos, fluid, amount);
 			return;
@@ -395,7 +395,7 @@ public class PipeConnection {
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void spawnPouringLiquid(World world, BlockPos pos, FluidStack fluid, int amount) {
+	private void spawnPouringLiquid(World world, BlockPos pos, FluidVolume fluid, int amount) {
 		IParticleData particle = FluidFX.getFluidParticle(fluid);
 		Vector3d directionVec = Vector3d.of(side.getDirectionVec());
 		if (!hasFlow())

@@ -1,14 +1,14 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
+import com.simibubi.create.lib.lba.fluid.FixedFluidInv;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import net.minecraft.tileentity.TileEntityType;
 
 public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTileEntity {
 
-	protected LazyOptional<IFluidHandler> capability;
+	protected LazyOptional<FixedFluidInv> capability;
 
 	public PortableFluidInterfaceTileEntity(TileEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
@@ -17,7 +17,7 @@ public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTi
 
 	@Override
 	public void startTransferringTo(Contraption contraption, float distance) {
-		LazyOptional<IFluidHandler> oldcap = capability;
+		LazyOptional<FixedFluidInv> oldcap = capability;
 //		capability = LazyOptional.of(() -> new InterfaceFluidHandler(contraption.fluidInventory));
 		capability = LazyOptional.empty();
 		oldcap.invalidate();
@@ -31,13 +31,13 @@ public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTi
 
 	@Override
 	protected void stopTransferring() {
-		LazyOptional<IFluidHandler> oldcap = capability;
+		LazyOptional<FixedFluidInv> oldcap = capability;
 		capability = createEmptyHandler();
 		oldcap.invalidate();
 		super.stopTransferring();
 	}
 
-	private LazyOptional<IFluidHandler> createEmptyHandler() {
+	private LazyOptional<FixedFluidInv> createEmptyHandler() {
 //		return LazyOptional.of(() -> new InterfaceFluidHandler(new FluidTank(0)));
 		return LazyOptional.empty();
 	}
@@ -50,11 +50,11 @@ public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTi
 //		return LazyOptional.empty();
 //	}
 
-//	class InterfaceFluidHandler implements IFluidHandler {
+//	class InterfaceFluidHandler implements FixedFluidInv {
 //
-//		private IFluidHandler wrapped;
+//		private FixedFluidInv wrapped;
 //
-//		public InterfaceFluidHandler(IFluidHandler wrapped) {
+//		public InterfaceFluidHandler(FixedFluidInv wrapped) {
 //			this.wrapped = wrapped;
 //		}
 //

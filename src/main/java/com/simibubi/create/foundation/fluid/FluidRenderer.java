@@ -9,8 +9,8 @@ import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.client.Minecraft;
@@ -29,16 +29,16 @@ import net.minecraft.util.math.vector.Vector3i;
 
 public class FluidRenderer {
 
-	public static void renderFluidStream(FluidStack fluidStack, Direction direction, float radius, float progress,
+	public static void renderFluidStream(FluidVolume FluidVolume, Direction direction, float radius, float progress,
 										 boolean inbound, IRenderTypeBuffer buffer, MatrixStack ms, int light) {
-		Fluid fluid = fluidStack.getFluid();
+		Fluid fluid = FluidVolume.getRawFluid();
 		FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluid);
 		Function<ResourceLocation, TextureAtlasSprite> spriteAtlas = Minecraft.getInstance()
 			.getSpriteAtlas(PlayerContainer.BLOCK_ATLAS_TEXTURE);
-		TextureAtlasSprite flowTexture = spriteAtlas.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().getDefaultState())[1].getName());
-		TextureAtlasSprite stillTexture = spriteAtlas.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().getDefaultState())[0].getName());
+		TextureAtlasSprite flowTexture = spriteAtlas.apply(handler.getFluidSprites(null, null, FluidVolume.getRawFluid().getDefaultState())[1].getName());
+		TextureAtlasSprite stillTexture = spriteAtlas.apply(handler.getFluidSprites(null, null, FluidVolume.getRawFluid().getDefaultState())[0].getName());
 
-		int color = handler.getFluidColor(null, null, fluidStack.getFluid().getDefaultState());
+		int color = handler.getFluidColor(null, null, FluidVolume.getRawFluid().getDefaultState());
 		IVertexBuilder builder = buffer.getBuffer(RenderType.getTranslucent());
 		MatrixStacker msr = MatrixStacker.of(ms);
 		int blockLightIn = (light >> 4) & 0xf;
@@ -78,15 +78,15 @@ public class FluidRenderer {
 
 	}
 
-	public static void renderTiledFluidBB(FluidStack fluidStack, float xMin, float yMin, float zMin, float xMax,
+	public static void renderTiledFluidBB(FluidVolume FluidVolume, float xMin, float yMin, float zMin, float xMax,
 		float yMax, float zMax, IRenderTypeBuffer buffer, MatrixStack ms, int light, boolean renderBottom) {
-		Fluid fluid = fluidStack.getFluid();
+		Fluid fluid = FluidVolume.getRawFluid();
 		FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluid);
 		TextureAtlasSprite fluidTexture = Minecraft.getInstance()
 			.getSpriteAtlas(PlayerContainer.BLOCK_ATLAS_TEXTURE)
-			.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().getDefaultState())[0].getName());
+			.apply(handler.getFluidSprites(null, null, FluidVolume.getRawFluid().getDefaultState())[0].getName());
 
-		int color = handler.getFluidColor(null, null, fluidStack.getFluid().getDefaultState());
+		int color = handler.getFluidColor(null, null, FluidVolume.getRawFluid().getDefaultState());
 		IVertexBuilder builder = buffer.getBuffer(RenderType.getTranslucent());
 		MatrixStacker msr = MatrixStacker.of(ms);
 		Vector3d center = new Vector3d(xMin + (xMax - xMin) / 2, yMin + (yMax - yMin) / 2, zMin + (zMax - zMin) / 2);

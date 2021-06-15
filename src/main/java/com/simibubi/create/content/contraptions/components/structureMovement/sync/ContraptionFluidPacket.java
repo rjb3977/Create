@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.sync;
 
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+import com.simibubi.create.lib.lba.fluid.FluidVolume;
 
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
@@ -15,11 +15,11 @@ public class ContraptionFluidPacket implements S2CPacket {
 
 	private int entityId;
 	private BlockPos localPos;
-	private FluidStack containedFluid;
+	private FluidVolume containedFluid;
 
 	protected ContraptionFluidPacket() {}
 
-	public ContraptionFluidPacket(int entityId, BlockPos localPos, FluidStack containedFluid) {
+	public ContraptionFluidPacket(int entityId, BlockPos localPos, FluidVolume containedFluid) {
 		this.entityId = entityId;
 		this.localPos = localPos;
 		this.containedFluid = containedFluid;
@@ -29,7 +29,7 @@ public class ContraptionFluidPacket implements S2CPacket {
 	public void read(PacketBuffer buffer) {
 		entityId = buffer.readInt();
 		localPos = buffer.readBlockPos();
-		containedFluid = FluidStack.readFromPacket(buffer);
+		containedFluid = FluidVolume.readFromPacket(buffer);
 	}
 
 	@Override

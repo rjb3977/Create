@@ -53,14 +53,14 @@ package com.simibubi.create.compat.jei.category;
 //					return;
 //				}
 //
-//				LazyOptional<IFluidHandlerItem> capability =
+//				LazyOptional<FixedFluidInvItem> capability =
 //					stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
 //				if (!capability.isPresent())
 //					return;
 //
 //				ItemStack copy = stack.copy();
 //				capability = copy.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
-//				IFluidHandlerItem handler = capability.orElse(null);
+//				FixedFluidInvItem handler = capability.orElse(null);
 //				FluidStack extracted = handler.drain(1000, FluidAction.EXECUTE);
 //				ItemStack result = handler.getContainer();
 //				if (extracted.isEmpty())

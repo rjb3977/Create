@@ -8,12 +8,10 @@ import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.foundation.gui.widgets.InterpolatedChasingValue;
 import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.utility.NBTHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
+import com.simibubi.create.lib.lba.fluid.FluidVolume;
+import com.simibubi.create.lib.lba.fluid.FixedFluidInv;
 import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
 import com.simibubi.create.lib.utility.LazyOptional;
-
-import com.simibubi.create.lib.utility.TransferUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
@@ -52,7 +50,7 @@ public class MountedFluidStorage {
 		if (te instanceof FluidTankTileEntity)
 			return new SmartFluidTank(
 				((FluidTankTileEntity) te).getTotalTankSize() * FluidTankTileEntity.getCapacityMultiplier(),
-				this::onFluidStackChanged);
+				this::onFluidVolumeChanged);
 		return null;
 	}
 
@@ -76,7 +74,7 @@ public class MountedFluidStorage {
 			.tick();
 	}
 
-	public void updateFluid(FluidStack fluid) {
+	public void updateFluid(FluidVolume fluid) {
 		tank.setFluid(fluid);
 		if (!(te instanceof FluidTankTileEntity))
 			return;
@@ -96,7 +94,7 @@ public class MountedFluidStorage {
 		if (te == null)
 			return;
 
-		IFluidHandler teHandler = TransferUtil.getFluidHandler(te)
+		FixedFluidInv teHandler = TransferUtil.getFluidHandler(te)
 			.orElse(null);
 		if (!(teHandler instanceof SmartFluidTank))
 			return;
@@ -106,7 +104,7 @@ public class MountedFluidStorage {
 		valid = true;
 	}
 
-	private void onFluidStackChanged(FluidStack fs) {
+	private void onFluidVolumeChanged(FluidVolume fs) {
 		sendPacket = true;
 	}
 
@@ -114,17 +112,17 @@ public class MountedFluidStorage {
 		if (tank instanceof CreativeSmartFluidTank)
 			return;
 
-		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te);
-		IFluidHandler teHandler = capability.orElse(null);
+		LazyOptional<FixedFluidInv> capability = TransferUtil.getFluidHandler(te);
+		FixedFluidInv teHandler = capability.orElse(null);
 		if (!(teHandler instanceof SmartFluidTank))
 			return;
 
 		SmartFluidTank inv = (SmartFluidTank) teHandler;
-		inv.setFluid((FluidStack) tank.getFluid().copy());
+		inv.setFluid((FluidVolume) tank.getFluid().copy());
 	}
 
-	public IFluidHandler getFluidHandler() {
-		return (IFluidHandler) tank;
+	public FixedFluidInv getFluidHandler() {
+		return (FixedFluidInv) tank;
 	}
 
 	public CompoundNBT serialize() {
@@ -147,11 +145,11 @@ public class MountedFluidStorage {
 			return storage;
 
 		int capacity = nbt.getInt("Capacity");
-		storage.tank = new SmartFluidTank(capacity, storage::onFluidStackChanged);
+		storage.tank = new SmartFluidTank(capacity, storage::onFluidVolumeChanged);
 		storage.valid = true;
 
 		if (nbt.contains("Bottomless")) {
-			FluidStack providedStack = FluidStack.loadFluidStackFromNBT(nbt.getCompound("ProvidedStack"));
+			FluidVolume providedStack = FluidVolume.loadFluidVolumeFromNBT(nbt.getCompound("ProvidedStack"));
 			CreativeSmartFluidTank creativeSmartFluidTank = new CreativeSmartFluidTank(capacity, $ -> {
 			});
 			creativeSmartFluidTank.setContainedFluid(providedStack);

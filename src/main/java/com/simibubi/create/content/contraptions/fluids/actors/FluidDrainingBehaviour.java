@@ -12,8 +12,11 @@ import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.FluidVolumeUtil;
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import net.minecraft.block.BlockState;
@@ -331,9 +334,9 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 		return !frontier.isEmpty();
 	}
 
-	public FluidStack getDrainableFluid(BlockPos rootPos) {
-		return fluid == null || isSearching() || !pullNext(rootPos, true) ? FluidStack.EMPTY
-			: new FluidStack(fluid, 1000);
+	public FluidVolume getDrainableFluid(BlockPos rootPos) {
+		return fluid == null || isSearching() || !pullNext(rootPos, true) ? FluidVolumeUtil.EMPTY
+			: FluidKeys.get(fluid).withAmount(FluidAmount.BUCKET);
 	}
 
 }

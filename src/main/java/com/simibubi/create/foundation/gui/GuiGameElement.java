@@ -13,7 +13,7 @@ import com.simibubi.create.foundation.render.backend.core.PartialModel;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.helper.ItemRendererHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+import com.simibubi.create.lib.lba.fluid.FluidVolume;
 
 import com.simibubi.create.lib.render.VirtualRenderingStateManager;
 
@@ -249,7 +249,7 @@ public class GuiGameElement {
 
 			ms.push();
 			RenderHelper.disableStandardItemLighting();
-			FluidRenderer.renderTiledFluidBB(new FluidStack(blockState.getFluidState()
+			FluidRenderer.renderTiledFluidBB(new FluidVolume(blockState.getFluidState()
 				.getFluid(), 1000), 0, 0, 0, 1.0001f, 1.0001f, 1.0001f, buffer, ms, 0xf000f0, true);
 			buffer.draw(RenderType.getTranslucent());
 			RenderHelper.enable();

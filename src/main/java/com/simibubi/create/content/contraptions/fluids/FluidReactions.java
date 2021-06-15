@@ -4,8 +4,8 @@ import com.simibubi.create.AllFluids;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.BlockHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.fluid.Fluid;
@@ -17,9 +17,9 @@ import net.minecraft.world.World;
 
 public class FluidReactions {
 
-	public static void handlePipeFlowCollision(World world, BlockPos pos, FluidStack fluid, FluidStack fluid2) {
-		Fluid f1 = fluid.getFluid();
-		Fluid f2 = fluid2.getFluid();
+	public static void handlePipeFlowCollision(World world, BlockPos pos, FluidVolume fluid, FluidVolume fluid2) {
+		Fluid f1 = fluid.getRawFluid();
+		Fluid f2 = fluid2.getRawFluid();
 		BlockHelper.destroyBlock(world, pos, 1);
 		AllTriggers.triggerForNearbyPlayers(AllTriggers.PIPE_COLLISION, world, pos, 5);
 

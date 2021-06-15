@@ -5,8 +5,10 @@ import java.util.List;
 
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.content.contraptions.fluids.VirtualFluid;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.potion.EffectInstance;
@@ -25,12 +27,11 @@ public class PotionFluid extends VirtualFluid {
 		super(properties);
 	}
 
-	public static FluidStack withEffects(int amount, Potion potion, List<EffectInstance> customEffects) {
-		FluidStack fluidStack = new FluidStack(AllFluids.POTION.get()
-			.getStillFluid(), amount);
-		addPotionToFluidStack(fluidStack, potion);
-		appendEffects(fluidStack, customEffects);
-		return fluidStack;
+	public static FluidVolume withEffects(FluidAmount amount, Potion potion, List<EffectInstance> customEffects) {
+		FluidVolume FluidVolume = FluidKeys.get(AllFluids.POTION.get()).withAmount(amount);
+		addPotionToFluidVolume(FluidVolume, potion);
+		appendEffects(FluidVolume, customEffects);
+		return FluidVolume;
 	}
 
 //	public static class PotionFluidAttributes extends FluidAttributes {
@@ -62,7 +63,7 @@ public class PotionFluid extends VirtualFluid {
 //
 //	}
 
-	public static FluidStack addPotionToFluidStack(FluidStack fs, Potion potion) {
+	public static FluidVolume addPotionToFluidVolume(FluidVolume fs, Potion potion) {
 		ResourceLocation resourcelocation = Registry.POTION.getKey(potion);
 		if (potion == Potions.EMPTY) {
 //			fs.removeChildTag("Potion");
@@ -73,7 +74,7 @@ public class PotionFluid extends VirtualFluid {
 		return fs;
 	}
 
-	public static FluidStack appendEffects(FluidStack fs, Collection<EffectInstance> customEffects) {
+	public static FluidVolume appendEffects(FluidVolume fs, Collection<EffectInstance> customEffects) {
 		if (customEffects.isEmpty())
 			return fs;
 		CompoundNBT compoundnbt = fs.toTag();//.getOrCreateTag();

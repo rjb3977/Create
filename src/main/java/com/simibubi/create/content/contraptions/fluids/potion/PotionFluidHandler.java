@@ -10,8 +10,10 @@ import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.Pair;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
+import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
+import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
+import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -36,25 +38,25 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class PotionFluidHandler {
 
-	public static Pair<FluidStack, ItemStack> emptyPotion(ItemStack stack, boolean simulate) {
-		FluidStack fluid = getFluidFromPotionItem(stack);
+	public static Pair<FluidVolume, ItemStack> emptyPotion(ItemStack stack, boolean simulate) {
+		FluidVolume fluid = getFluidFromPotionItem(stack);
 		if (!simulate)
 			stack.shrink(1);
 		return Pair.of(fluid, new ItemStack(Items.GLASS_BOTTLE));
 	}
 
-	public static FluidIngredient potionIngredient(Potion potion, int amount) {
-		return FluidIngredient.fromFluidStack(FluidHelper.copyStackWithAmount(PotionFluidHandler
+	public static FluidIngredient potionIngredient(Potion potion, FluidAmount amount) {
+		return FluidIngredient.fromFluidVolume(FluidHelper.copyStackWithAmount(PotionFluidHandler
 			.getFluidFromPotionItem(PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), potion)), amount));
 	}
 
-	public static FluidStack getFluidFromPotionItem(ItemStack stack) {
+	public static FluidVolume getFluidFromPotionItem(ItemStack stack) {
 		Potion potion = PotionUtils.getPotionFromItem(stack);
 		List<EffectInstance> list = PotionUtils.getFullEffectsFromItem(stack);
-		FluidStack fluid = PotionFluid.withEffects(250, potion, list);
+		FluidVolume fluid = PotionFluid.withEffects(FluidAmount.of(1, 4), potion, list);
 		BottleType bottleTypeFromItem = bottleTypeFromItem(stack);
 		if (potion == Potions.WATER && list.isEmpty() && bottleTypeFromItem == BottleType.REGULAR)
-			return new FluidStack(Fluids.WATER, fluid.getAmount());
+			return FluidKeys.get(Fluids.WATER).withAmount(fluid.getAmount_F());
 		NBTHelper.writeEnum(fluid.toTag()/*.getOrCreateTag()*/, "Bottle", bottleTypeFromItem);
 		return fluid;
 	}
@@ -80,11 +82,11 @@ public class PotionFluidHandler {
 		}
 	}
 
-	public static int getRequiredAmountForFilledBottle(ItemStack stack, FluidStack availableFluid) {
-		return 250;
+	public static FluidAmount getRequiredAmountForFilledBottle(ItemStack stack, FluidVolume availableFluid) {
+		return FluidAmount.BOTTLE;
 	}
 
-	public static ItemStack fillBottle(ItemStack stack, FluidStack availableFluid) {
+	public static ItemStack fillBottle(ItemStack stack, FluidVolume availableFluid) {
 		CompoundNBT tag = availableFluid.toTag();//.getOrCreateTag();
 		ItemStack potionStack = new ItemStack(itemFromBottleType(NBTHelper.readEnum(tag, "Bottle", BottleType.class)));
 		PotionUtils.addPotionToItemStack(potionStack, PotionUtils.getPotionTypeFromNBT(tag));
@@ -94,7 +96,7 @@ public class PotionFluidHandler {
 
 	// Modified version of PotionUtils#addPotionTooltip
 	@Environment(EnvType.CLIENT)
-	public static void addPotionTooltip(FluidStack fs, List<ITextComponent> tooltip, float p_185182_2_) {
+	public static void addPotionTooltip(FluidVolume fs, List<ITextComponent> tooltip, float p_185182_2_) {
 		List<EffectInstance> list = PotionUtils.getEffectsFromTag(fs.toTag() );//.getOrCreateTag());
 		List<Tuple<String, AttributeModifier>> list1 = Lists.newArrayList();
 		if (list.isEmpty()) {
