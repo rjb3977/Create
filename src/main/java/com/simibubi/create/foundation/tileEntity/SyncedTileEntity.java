@@ -38,7 +38,7 @@ public abstract class SyncedTileEntity extends BlockEntity implements TileEntity
 	}
 
 	public void sendData() {
-		if (level != null)
+		if (level != null && !level.isClientSide)
 			level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2 | 4 | 16);
 	}
 

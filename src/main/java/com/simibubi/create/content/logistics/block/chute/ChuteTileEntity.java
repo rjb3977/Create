@@ -137,12 +137,13 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		if (!level.isClientSide)
 			canPickUpItems = canDirectlyInsert();
 
+		boolean clientSide = level != null && level.isClientSide && !isVirtual();
 		float itemMotion = getItemMotion();
 		if (itemMotion != 0 && level != null && level.isClientSide)
 			spawnParticles(itemMotion);
 		tickAirStreams(itemMotion);
 
-		if (item.isEmpty()) {
+		if (item.isEmpty() && !clientSide) {
 			if (itemMotion < 0)
 				handleInputFromAbove();
 			if (itemMotion > 0)
@@ -151,13 +152,13 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		}
 
 		float nextOffset = itemPosition.value + itemMotion;
-
+		
 		if (itemMotion < 0) {
 			if (nextOffset < .5f) {
 				if (!handleDownwardOutput(true))
 					nextOffset = .5f;
 				else if (nextOffset < 0) {
-					handleDownwardOutput(level.isClientSide && !isVirtual());
+					handleDownwardOutput(clientSide);
 					nextOffset = itemPosition.value;
 				}
 			}
@@ -166,7 +167,7 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 				if (!handleUpwardOutput(true))
 					nextOffset = .5f;
 				else if (nextOffset > 1) {
-					handleUpwardOutput(level.isClientSide && !isVirtual());
+					handleUpwardOutput(clientSide);
 					nextOffset = itemPosition.value;
 				}
 			}
@@ -340,7 +341,8 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		if (mode == ExtractionCountMode.UPTO || !ItemHelper.extract(inv, canAccept, mode, count, true)
 			.isEmpty()) {
 			ItemStack extracted = ItemHelper.extract(inv, canAccept, mode, count, false);
-			setItem(extracted, startLocation);
+			if (!extracted.isEmpty())
+				setItem(extracted, startLocation);
 		}
 	}
 
@@ -495,8 +497,8 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	public void setItem(ItemStack stack, float insertionPos) {
 		item = stack;
 		itemPosition.lastValue = itemPosition.value = insertionPos;
-		setChanged();
-		sendData();
+		if (!level.isClientSide)
+			notifyUpdate();
 	}
 
 	@Override

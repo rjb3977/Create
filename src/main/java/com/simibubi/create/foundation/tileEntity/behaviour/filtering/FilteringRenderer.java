@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllSpecialTextures;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.logistics.item.filter.FilterItem;
+import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBox;
@@ -17,6 +18,7 @@ import com.simibubi.create.foundation.utility.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.entity.Entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -85,12 +87,19 @@ public class FilteringRenderer {
 				.highlightFace(result.getDirection());
 	}
 
-	public static void renderOnTileEntity(SmartTileEntity tileEntityIn, float partialTicks, PoseStack ms,
+	public static void renderOnTileEntity(SmartTileEntity te, float partialTicks, PoseStack ms,
 		MultiBufferSource buffer, int light, int overlay) {
 
-		if (tileEntityIn == null || tileEntityIn.isRemoved())
+		if (te == null || te.isRemoved())
 			return;
-		FilteringBehaviour behaviour = tileEntityIn.getBehaviour(FilteringBehaviour.TYPE);
+
+		Entity cameraEntity = Minecraft.getInstance().cameraEntity;
+		float max = AllConfigs.CLIENT.filterItemRenderDistance.getF();
+		if (!te.isVirtual() && cameraEntity != null && cameraEntity.position()
+			.distanceToSqr(VecHelper.getCenterOf(te.getBlockPos())) > (max * max))
+			return;
+
+		FilteringBehaviour behaviour = te.getBehaviour(FilteringBehaviour.TYPE);
 		if (behaviour == null)
 			return;
 		if (!behaviour.isActive())
@@ -100,7 +109,7 @@ public class FilteringRenderer {
 			return;
 
 		ValueBoxTransform slotPositioning = behaviour.slotPositioning;
-		BlockState blockState = tileEntityIn.getBlockState();
+		BlockState blockState = te.getBlockState();
 
 		if (slotPositioning instanceof ValueBoxTransform.Sided) {
 			ValueBoxTransform.Sided sided = (ValueBoxTransform.Sided) slotPositioning;
