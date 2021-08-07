@@ -25,7 +25,9 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -37,7 +39,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
 
-	public CopperBacktankArmorLayer(IEntityRenderer<T, M> renderer) {
+	public CopperBacktankArmorLayer(RenderLayerParent<T, M> renderer) {
 		super(renderer);
 	}
 
@@ -51,11 +53,11 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 			return;
 
 		M entityModel = getParentModel();
-		if (!(entityModel instanceof BipedModel))
+		if (!(entityModel instanceof HumanoidModel))
 			return;
 
-		BipedModel<?> model = (BipedModel<?>) entityModel;
-		RenderType renderType = Atlases.cutoutBlockSheet();
+		HumanoidModel<?> model = (HumanoidModel<?>) entityModel;
+		RenderType renderType = Sheets.cutoutBlockSheet();
 		BlockState renderedState = AllBlocks.COPPER_BACKTANK.getDefaultState()
 				.setValue(CopperBacktankBlock.HORIZONTAL_FACING, Direction.SOUTH);
 		SuperByteBuffer backtank = CreateClient.BUFFER_CACHE.renderBlock(renderedState);
@@ -87,7 +89,7 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 		ms.popPose();
 	}
 
-	public static void registerOnAll(EntityRendererManager renderManager) {
+	public static void registerOnAll(EntityRenderDispatcher renderManager) {
 		for (PlayerRenderer renderer : renderManager.getSkinMap().values())
 			registerOn(renderer);
 		for (EntityRenderer<?> renderer : renderManager.renderers.values())
@@ -98,8 +100,8 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 	public static void registerOn(EntityRenderer<?> entityRenderer) {
 		if (!(entityRenderer instanceof LivingEntityRenderer))
 			return;
-		LivingRenderer<?, ?> livingRenderer = (LivingRenderer<?, ?>) entityRenderer;
-		if (!(livingRenderer.getModel() instanceof BipedModel))
+		LivingEntityRenderer<?, ?> livingRenderer = (LivingEntityRenderer<?, ?>) entityRenderer;
+		if (!(livingRenderer.getModel() instanceof HumanoidModel))
 			return;
 		CopperBacktankArmorLayer<?, ?> layer = new CopperBacktankArmorLayer<>(livingRenderer);
 		livingRenderer.addLayer((CopperBacktankArmorLayer) layer);

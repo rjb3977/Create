@@ -28,8 +28,8 @@ allprojects {
 	apply(plugin = "java")
 
 	java {
-		sourceCompatibility = JavaVersion.VERSION_1_8
-		targetCompatibility = JavaVersion.VERSION_1_8
+		sourceCompatibility = JavaVersion.VERSION_16
+		targetCompatibility = JavaVersion.VERSION_16
 
 		withSourcesJar()
 	}
@@ -37,7 +37,7 @@ allprojects {
 	tasks.withType<JavaCompile> {
 		options.encoding = "UTF-8"
 		if (JavaVersion.current().isJava9Compatible) {
-			options.release.set(8)
+			options.release.set(16)
 		}
 	}
 }
@@ -121,6 +121,8 @@ repositories {
 		name = "Shedaniel"
 	}
 
+	maven("https://maven.waffle.coffee/")
+
 	maven("https://jitpack.io/") {
 		name = "Jitpack"
 
@@ -137,6 +139,7 @@ repositories {
 			includeGroup("com.jamieswhiteshirt")
 		}
 	}
+	mavenLocal()
 }
 
 dependencies {
@@ -147,6 +150,7 @@ dependencies {
 	val modmenu_version: String by project
 	val rei_version: String by project
 	val databreaker_version: String by project
+	val flywheel_version: String by project
 
 	implementation(project(":Create-Refabricated-Lib"))
 	include(project(":Create-Refabricated-Lib"))
@@ -154,9 +158,13 @@ dependencies {
 	// Javax Annotations
 	implementation("com.google.code.findbugs", "jsr305", "3.0.2")
 
-	// Registrate
-	modImplementation("com.github.PepperCode1", "Registrate-Fabric", registrate_version)
-	include("com.github.PepperCode1", "Registrate-Fabric", registrate_version)
+	// Registrate // currently using Jay's fork
+	modImplementation("com.tterrag", "registrarrp", registrate_version)
+	include("com.tterrag", "registrarrp", registrate_version)
+
+	// Flywheel // currently only available from mavenLocal, uses Jay's fork
+	modImplementation("com.jozufozu.flywheel", "Flywheel", flywheel_version)
+	include("com.jozufozu.flywheel", "Flywheel", flywheel_version)
 
 	// Reach Entity Attributes
 	modImplementation("com.jamieswhiteshirt", "reach-entity-attributes", reach_entity_attributes_version)

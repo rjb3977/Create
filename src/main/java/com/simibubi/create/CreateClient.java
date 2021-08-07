@@ -42,13 +42,12 @@ import com.simibubi.create.lib.utility.TextureStitchUtil;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.LivingEntityFeatureRendererRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderingRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.block.BlockModelShaper;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -135,7 +134,7 @@ public class CreateClient implements ClientModInitializer {
 
 			registerLayerRenderers(Minecraft.getInstance()
 				.getEntityRenderDispatcher());
-		});
+//		});
 		// Replaces ArmorItem#getArmorTexture from a Forge patch
 		ArmorRenderingRegistry.registerSimpleTexture(new ResourceLocation(Create.ID, "copper"),
 				AllItems.COPPER_BACKTANK.get(), AllItems.DIVING_HELMET.get(), AllItems.DIVING_BOOTS.get());
@@ -209,7 +208,7 @@ public class CreateClient implements ClientModInitializer {
 		modelRegistry.put(location, factory.apply(modelRegistry.get(location)));
 	}
 
-	protected static void registerLayerRenderers(EntityRendererManager renderManager) {
+	protected static void registerLayerRenderers(EntityRenderDispatcher renderManager) {
 		CopperBacktankArmorLayer.registerOnAll(renderManager);
 	}
 

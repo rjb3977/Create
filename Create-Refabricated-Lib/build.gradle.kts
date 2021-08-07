@@ -18,6 +18,8 @@ repositories {
 			includeGroup("com.github.PepperCode1")
 		}
 	}
+
+	maven("https://maven.waffle.coffee/")
 }
 
 dependencies {
@@ -33,9 +35,9 @@ dependencies {
     //modImplementation("alexiil.mc.lib", "libblockattributes-items", lba_version)
     //modImplementation("alexiil.mc.lib", "libblockattributes-fluids", lba_version)
 
-	// Registrate
-	modImplementation("com.github.PepperCode1", "Registrate-Fabric", registrate_version)
-	include("com.github.PepperCode1", "Registrate-Fabric", registrate_version)
+	// Registrate // currently using Jay's fork
+	modImplementation("com.tterrag", "registrarrp", registrate_version)
+	include("com.tterrag", "registrarrp", registrate_version)
 }
 
 loom.accessWidener("src/main/resources/create_lib.accesswidener")

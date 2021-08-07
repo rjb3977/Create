@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import me.shedaniel.mcptiny.MCPTiny;
+
 import org.gradle.api.Project;
 
 public class MappingsUtil {
