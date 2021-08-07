@@ -433,17 +433,17 @@ public class DebugScenes {
 
 		scene.world.modifyEntities(ItemEntity.class, Entity::remove);
 	}
-	
+
 	public static void pipeScene(SceneBuilder scene, SceneBuildingUtil util) {
 		scene.title("debug_pipes", "Manipulating Items");
 		scene.configureBasePlate(0, 0, 5);
 		scene.world.showSection(util.select.layer(0), Direction.UP);
 		scene.idle(10);
 		scene.world.showSection(util.select.layersFrom(1), Direction.DOWN);
-	
-		
-		
-		
+
+
+
+
 	}
 
 }

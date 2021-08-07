@@ -125,7 +125,7 @@ public class SchematicAndQuillHandler {
 		firstPos = selectedPos;
 		Lang.sendStatus(player, "schematicAndQuill.firstPos");
 	}
-	
+
 	public void discard() {
 		LocalPlayer player = Minecraft.getInstance().player;
 		firstPos = null;

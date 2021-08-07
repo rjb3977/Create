@@ -46,7 +46,7 @@ public class ScrollInput extends AbstractSimiWidget {
 		this.onScroll = onScroll;
 		return this;
 	}
-	
+
 	public ScrollInput removeCallback() {
 		this.onScroll = null;
 		return this;

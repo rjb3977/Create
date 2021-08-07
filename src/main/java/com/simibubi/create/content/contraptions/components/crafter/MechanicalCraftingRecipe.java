@@ -32,17 +32,17 @@ public class MechanicalCraftingRecipe extends ShapedRecipe {
 
 	@Override
 	public RecipeType<?> getType() {
-		return AllRecipeTypes.MECHANICAL_CRAFTING.type;
+		return AllRecipeTypes.MECHANICAL_CRAFTING.getType();
 	}
-	
+
 	@Override
 	public boolean isSpecial() {
 		return true;
 	}
-	
+
 	@Override
 	public RecipeSerializer<?> getSerializer() {
-		return AllRecipeTypes.MECHANICAL_CRAFTING.serializer;
+		return AllRecipeTypes.MECHANICAL_CRAFTING.getSerializer();
 	}
 
 	public static class Serializer extends ShapedRecipe.Serializer {
@@ -51,7 +51,7 @@ public class MechanicalCraftingRecipe extends ShapedRecipe {
 		public ShapedRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
 			return fromShaped(super.fromJson(recipeId, json));
 		}
-		
+
 		@Override
 		public ShapedRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
 			return fromShaped(super.fromNetwork(recipeId, buffer));

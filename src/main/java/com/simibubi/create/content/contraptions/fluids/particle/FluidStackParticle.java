@@ -9,8 +9,8 @@ import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.ParticleType;
 
 public class FluidStackParticle extends TextureSheetParticle {
-	private final float field_217587_G;
-	private final float field_217588_H;
+	private final float uo;
+	private final float vo;
 	private FluidStack fluid;
 
 	public static FluidStackParticle create(ParticleType<FluidParticleData> type, ClientLevel world, FluidStack fluid, double x,
@@ -25,7 +25,7 @@ public class FluidStackParticle extends TextureSheetParticle {
 		super(world, x, y, z, vx, vy, vz);
 		this.fluid = fluid;
 //		this.setSprite(Minecraft.getInstance()
-//			.getSpriteAtlas(PlayerContainer.BLOCK_ATLAS_TEXTURE)
+//			.getTextureAtlas(PlayerContainer.BLOCK_ATLAS)
 //			.apply(fluid.getFluid()
 //				.getAttributes()
 //				.getStillTexture()));
@@ -43,8 +43,8 @@ public class FluidStackParticle extends TextureSheetParticle {
 		this.zd = vz;
 
 		this.quadSize /= 2.0F;
-		this.field_217587_G = this.random.nextFloat() * 3.0F;
-		this.field_217588_H = this.random.nextFloat() * 3.0F;
+		this.uo = this.random.nextFloat() * 3.0F;
+		this.vo = this.random.nextFloat() * 3.0F;
 	}
 
 	@Override
@@ -65,19 +65,19 @@ public class FluidStackParticle extends TextureSheetParticle {
 	}
 
 	protected float getU0() {
-		return this.sprite.getU((double) ((this.field_217587_G + 1.0F) / 4.0F * 16.0F));
+		return this.sprite.getU((double) ((this.uo + 1.0F) / 4.0F * 16.0F));
 	}
 
 	protected float getU1() {
-		return this.sprite.getU((double) (this.field_217587_G / 4.0F * 16.0F));
+		return this.sprite.getU((double) (this.uo / 4.0F * 16.0F));
 	}
 
 	protected float getV0() {
-		return this.sprite.getV((double) (this.field_217588_H / 4.0F * 16.0F));
+		return this.sprite.getV((double) (this.vo / 4.0F * 16.0F));
 	}
 
 	protected float getV1() {
-		return this.sprite.getV((double) ((this.field_217588_H + 1.0F) / 4.0F * 16.0F));
+		return this.sprite.getV((double) ((this.vo + 1.0F) / 4.0F * 16.0F));
 	}
 
 	@Override

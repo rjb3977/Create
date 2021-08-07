@@ -1,13 +1,13 @@
 package com.simibubi.create.content.logistics.item;
 
 import java.util.Vector;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.logistics.item.LinkedControllerClientHandler.Mode;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
 
@@ -49,32 +49,49 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 		}
 	}
 
+	static void resetButtons() {
+		for (int i = 0; i < buttons.size(); i++) {
+			buttons.get(i).startWithValue(0);
+		}
+	}
+
 	@Override
 	protected void render(ItemStack stack, LinkedControllerModel model, PartialItemModelRenderer renderer,
 		ItemTransforms.TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light,
 		int overlay) {
-
-		renderLinkedController(stack, model, renderer, transformType, ms, light, null, null);
+		renderNormal(stack, model, renderer, transformType, ms, light);
 	}
 
-	public static void renderLinkedController(ItemStack stack, LinkedControllerModel model,
+	protected static void renderNormal(ItemStack stack, LinkedControllerModel model,
 	  	PartialItemModelRenderer renderer, ItemTransforms.TransformType transformType, PoseStack ms,
-  		int light, Boolean active, Boolean usedByMe) {
+  		int light) {
+		render(stack, model, renderer, transformType, ms, light, RenderType.NORMAL, false, false);
+	}
 
+	public static void renderInLectern(ItemStack stack, LinkedControllerModel model,
+	  	PartialItemModelRenderer renderer, ItemCameraTransforms.TransformType transformType, MatrixStack ms,
+  		int light, boolean active, boolean renderDepression) {
+		render(stack, model, renderer, transformType, ms, light, RenderType.LECTERN, active, renderDepression);
+	}
+
+	protected static void render(ItemStack stack, LinkedControllerModel model,
+	  	PartialItemModelRenderer renderer, ItemCameraTransforms.TransformType transformType, MatrixStack ms,
+  		int light, RenderType renderType, boolean active, boolean renderDepression) {
 		float pt = AnimationTickHolder.getPartialTicks();
-		MatrixStacker msr = MatrixStacker.of(ms);
+		MatrixTransformStack msr = MatrixTransformStack.of(ms);
 
 		ms.pushPose();
 
-		Minecraft mc = Minecraft.getInstance();
-		boolean rightHanded = mc.options.mainHand == HumanoidArm.RIGHT;
-		TransformType mainHand =
-				rightHanded ? TransformType.FIRST_PERSON_RIGHT_HAND : TransformType.FIRST_PERSON_LEFT_HAND;
-		TransformType offHand =
-				rightHanded ? TransformType.FIRST_PERSON_LEFT_HAND : TransformType.FIRST_PERSON_RIGHT_HAND;
+		if (renderType == RenderType.NORMAL) {
+			Minecraft mc = Minecraft.getInstance();
+			boolean rightHanded = mc.options.mainHand == HumanoidArm.RIGHT;
+			TransformType mainHand =
+					rightHanded ? TransformType.FIRST_PERSON_RIGHT_HAND : TransformType.FIRST_PERSON_LEFT_HAND;
+			TransformType offHand =
+					rightHanded ? TransformType.FIRST_PERSON_LEFT_HAND : TransformType.FIRST_PERSON_RIGHT_HAND;
 
-		if (active == null) {
 			active = false;
+			boolean noControllerInMain = !AllItems.LINKED_CONTROLLER.isIn(mc.player.getMainHandItem());
 
 			boolean noControllerInMain = !AllItems.LINKED_CONTROLLER.isIn(mc.player.getMainHandItem());
 			if (transformType == mainHand || (transformType == offHand && noControllerInMain)) {
@@ -94,12 +111,13 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 			}
 
 			active &= LinkedControllerClientHandler.MODE != Mode.IDLE;
-			usedByMe = active;
+
+			renderDepression = true;
 		}
 
 		renderer.render(active ? model.getPartial("powered") : model.getOriginalModel(), light);
 
-		if (!usedByMe) {
+		if (!active) {
 			ms.popPose();
 			return;
 		}
@@ -109,37 +127,45 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 		float b = s * -.75f;
 		int index = 0;
 
-		if (LinkedControllerClientHandler.MODE == Mode.BIND) {
-			int i = (int) Mth.lerp((Mth.sin(AnimationTickHolder.getRenderTime() / 4f) + 1) / 2, 5, 15);
-			light = i << 20;
+		if (renderType == RenderType.NORMAL) {
+			if (LinkedControllerClientHandler.MODE == Mode.BIND) {
+				int i = (int) Mth.lerp((Mth.sin(AnimationTickHolder.getRenderTime() / 4f) + 1) / 2, 5, 15);
+				light = i << 20;
+			}
 		}
 
 		ms.pushPose();
 		msr.translate(2 * s, 0, 8 * s);
-		button(renderer, ms, light, pt, button, b, index++);
+		renderButton(renderer, ms, light, pt, button, b, index++, renderDepression);
 		msr.translate(4 * s, 0, 0);
-		button(renderer, ms, light, pt, button, b, index++);
+		renderButton(renderer, ms, light, pt, button, b, index++, renderDepression);
 		msr.translate(-2 * s, 0, 2 * s);
-		button(renderer, ms, light, pt, button, b, index++);
+		renderButton(renderer, ms, light, pt, button, b, index++, renderDepression);
 		msr.translate(0, 0, -4 * s);
-		button(renderer, ms, light, pt, button, b, index++);
+		renderButton(renderer, ms, light, pt, button, b, index++, renderDepression);
 		ms.popPose();
 
 		msr.translate(3 * s, 0, 3 * s);
-		button(renderer, ms, light, pt, button, b, index++);
+		renderButton(renderer, ms, light, pt, button, b, index++, renderDepression);
 		msr.translate(2 * s, 0, 0);
-		button(renderer, ms, light, pt, button, b, index++);
+		renderButton(renderer, ms, light, pt, button, b, index++, renderDepression);
 
 		ms.popPose();
 	}
 
-	protected static void button(PartialItemModelRenderer renderer, PoseStack ms, int light, float pt, BakedModel button,
-		float b, int index) {
+	protected static void renderButton(PartialItemModelRenderer renderer, PoseStack ms, int light, float pt, BakedModel button,
+		float b, int index, boolean renderDepression) {
 		ms.pushPose();
-		ms.translate(0, b * buttons.get(index)
-			.getValue(pt), 0);
+		if (renderDepression) {
+			float depression = b * buttons.get(index).getValue(pt);
+			ms.translate(0, depression, 0);
+		}
 		renderer.renderSolid(button, light);
 		ms.popPose();
+	}
+
+	protected enum RenderType {
+		NORMAL, LECTERN;
 	}
 
 }

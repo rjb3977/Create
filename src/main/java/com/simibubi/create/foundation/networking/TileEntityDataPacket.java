@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * A server to client version of {@link TileEntityConfigurationPacket}
- * 
+ *
  * @param <TE>
  */
 public abstract class TileEntityDataPacket<TE extends SyncedTileEntity> implements S2CPacket {

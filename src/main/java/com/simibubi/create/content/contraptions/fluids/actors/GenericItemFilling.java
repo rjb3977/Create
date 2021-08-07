@@ -80,7 +80,7 @@ public class GenericItemFilling {
 //			return -1;
 //		if (tank instanceof FluidBucketWrapper) {
 			Item filledBucket = availableFluid.getFluid()
-				.getFilledBucket();
+				.getBucket();
 			if (filledBucket == null || filledBucket == Items.AIR)
 				return -1;
 //			if (!((FluidBucketWrapper) tank).getFluid()
@@ -95,14 +95,13 @@ public class GenericItemFilling {
 
 	private static boolean canFillGlassBottleInternally(FluidStack availableFluid) {
 		return availableFluid.getFluid()
-			.isEquivalentTo(Fluids.WATER)
+			.isSame(Fluids.WATER)
 			|| availableFluid.getFluid()
-				.isEquivalentTo(AllFluids.POTION.get());
+				.isSame(AllFluids.POTION.get());
 	}
 
 	private static boolean canFillBucketInternally(FluidStack availableFluid) {
-		return availableFluid.getFluid()
-			.isEquivalentTo(AllFluids.MILK.get().getFlowing());
+		return false;
 	}
 
 	public static ItemStack fillItem(Level world, int requiredAmount, ItemStack stack, FluidStack availableFluid) {
@@ -120,11 +119,6 @@ public class GenericItemFilling {
 			return fillBottle;
 		}
 
-		if (stack.getItem() == Items.BUCKET && canFillBucketInternally(toFill)) {
-			ItemStack filledBucket = new ItemStack(Items.MILK_BUCKET);
-			stack.shrink(1);
-			return filledBucket;
-		}
 
 		ItemStack split = stack.copy();
 		split.setCount(1);

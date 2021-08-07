@@ -36,6 +36,11 @@ public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainT
 		BlockHitResult hit) {
 		ItemStack heldItem = player.getItemInHand(handIn);
 
+		if (heldItem.getItem() instanceof BlockItem
+				&& !heldItem.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
+				.isPresent())
+			return InteractionResult.PASS;
+
 		return onTileEntityUse(worldIn, pos, te -> {
 			if (!heldItem.isEmpty()) {
 				te.internalTank.allowInsertion();

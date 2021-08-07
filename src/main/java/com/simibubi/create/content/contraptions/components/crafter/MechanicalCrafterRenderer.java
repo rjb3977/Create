@@ -5,6 +5,7 @@ import static com.simibubi.create.content.contraptions.base.KineticTileEntityRen
 
 import com.jozufozu.flywheel.backend.Backend;
 import com.jozufozu.flywheel.core.PartialModel;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
@@ -66,7 +67,7 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 	public void renderItems(MechanicalCrafterTileEntity te, float partialTicks, PoseStack ms,
 		MultiBufferSource buffer, int light, int overlay) {
 		if (te.phase == Phase.IDLE) {
-			ItemStack stack = te.getInventory().getStackInSlot(0);
+			ItemStack stack = te.getInventory().getItem(0);
 			if (!stack.isEmpty()) {
 				ms.pushPose();
 				ms.translate(0, 0, -1 / 256f);
@@ -111,7 +112,7 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 				Integer x = pair.getKey();
 				Integer y = pair.getValue();
 				ms.translate(x * spacing, y * spacing, 0);
-				MatrixStacker.of(ms)
+				MatrixTransformStack.of(ms)
 					.nudge(x * 13 + y + te.getBlockPos()
 						.hashCode());
 				Minecraft.getInstance()
@@ -168,34 +169,33 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 
 		if ((te.covered || te.phase != Phase.IDLE) && te.phase != Phase.CRAFTING && te.phase != Phase.INSERTING) {
 			SuperByteBuffer lidBuffer =
-				renderAndTransform(te, AllBlockPartials.MECHANICAL_CRAFTER_LID, blockState, pos);
-			lidBuffer.renderInto(ms, vb);
+				renderAndTransform(AllBlockPartials.MECHANICAL_CRAFTER_LID, blockState);
+			lidBuffer.light(light).renderInto(ms, vb);
 		}
 
 		if (MechanicalCrafterBlock.isValidTarget(te.getLevel(), pos.relative(targetDirection), blockState)) {
 			SuperByteBuffer beltBuffer =
-				renderAndTransform(te, AllBlockPartials.MECHANICAL_CRAFTER_BELT, blockState, pos);
+				renderAndTransform(AllBlockPartials.MECHANICAL_CRAFTER_BELT, blockState);
 			SuperByteBuffer beltFrameBuffer =
-				renderAndTransform(te, AllBlockPartials.MECHANICAL_CRAFTER_BELT_FRAME, blockState, pos);
+				renderAndTransform(AllBlockPartials.MECHANICAL_CRAFTER_BELT_FRAME, blockState);
 
 			if (te.phase == Phase.EXPORTING) {
 				int textureIndex = (int) ((te.getCountDownSpeed() / 128f * AnimationTickHolder.getTicks()));
 				beltBuffer.shiftUVtoSheet(AllSpriteShifts.CRAFTER_THINGIES, (textureIndex % 4) / 4f, 0, 1);
 			}
 
-			beltBuffer.renderInto(ms, vb);
-			beltFrameBuffer.renderInto(ms, vb);
+			beltBuffer.light(light).renderInto(ms, vb);
+			beltFrameBuffer.light(light).renderInto(ms, vb);
 
 		} else {
 			SuperByteBuffer arrowBuffer =
-				renderAndTransform(te, AllBlockPartials.MECHANICAL_CRAFTER_ARROW, blockState, pos);
-			arrowBuffer.renderInto(ms, vb);
+				renderAndTransform(AllBlockPartials.MECHANICAL_CRAFTER_ARROW, blockState);
+			arrowBuffer.light(light).renderInto(ms, vb);
 		}
 
 	}
 
-	private SuperByteBuffer renderAndTransform(MechanicalCrafterTileEntity te, PartialModel renderBlock,
-		BlockState crafterState, BlockPos pos) {
+	private SuperByteBuffer renderAndTransform(PartialModel renderBlock, BlockState crafterState) {
 		SuperByteBuffer buffer = PartialBufferer.get(renderBlock, crafterState);
 		float xRot = crafterState.getValue(MechanicalCrafterBlock.POINTING)
 				.getXRotation();

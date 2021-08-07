@@ -1,10 +1,10 @@
 package com.simibubi.create.foundation.config.ui.entries;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -26,15 +26,12 @@ import com.simibubi.create.lib.mixin.accessor.AbstractList$AbstractListEntryAcce
 
 public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 
-	protected static final MutableComponent modComponent = new TextComponent("* ").withStyle(ChatFormatting.BOLD, ChatFormatting.DARK_BLUE).append(TextComponent.EMPTY.plainCopy().withStyle(ChatFormatting.RESET));
 	protected static final int resetWidth = 28;//including 6px offset on either side
-	public static final Pattern unitPattern = Pattern.compile("\\[(in .*)]");
 
 	protected ConfigValue<T> value;
 //	protected ForgeConfigSpec.ValueSpec spec;
 	protected BoxWidget resetButton;
 	protected boolean editable = true;
-	protected String path;
 
 	public ValueEntry(String label, ConfigValue<T> value) {
 		super(label);
@@ -60,34 +57,32 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 		}
 		if (comment == null || comment.isEmpty())
 			return;
-		String[] commentLines = comment.split("\n");
-		//find unit in the comment
-		for (int i = 0; i < commentLines.length; i++) {
-			if (commentLines[i].isEmpty()) {
-				commentLines = ArrayUtils.remove(commentLines, i);
-				i--;
-				continue;
-			}
 
-			Matcher matcher = unitPattern.matcher(commentLines[i]);
-			if (!matcher.matches())
-				continue;
+		List<String> commentLines = new ArrayList<>(Arrays.asList(comment.split("\n")));
 
-			String u = matcher.group(1);
-			if (u.equals("in Revolutions per Minute"))
-				u = "in RPM";
-			if (u.equals("in Stress Units"))
-				u = "in SU";
-			unit = u;
+
+		Pair<String, Map<String, String>> metadata = ConfigHelper.readMetadataFromComment(commentLines);
+		if (metadata.getFirst() != null) {
+			unit = metadata.getFirst();
+		}
+		if (metadata.getSecond() != null && !metadata.getSecond().isEmpty()) {
+			annotations.putAll(metadata.getSecond());
 		}
 		// add comment to tooltip
-		labelTooltip.addAll(Arrays.stream(commentLines)
+		labelTooltip.addAll(commentLines.stream()
 				.filter(Predicates.not(s -> s.startsWith("Range")))
 				.map(TextComponent::new)
 				.flatMap(stc -> TooltipHelper.cutTextComponent(stc, ChatFormatting.GRAY, ChatFormatting.GRAY)
 						.stream())
 				.collect(Collectors.toList()));
-		labelTooltip.add(new TextComponent(ConfigScreen.modID + ":" + path.get(path.size() - 1)).withStyle(ChatFormatting.DARK_GRAY));
+
+		if (annotations.containsKey(ConfigAnnotations.RequiresRelog.TRUE.getName()))
+			labelTooltip.addAll(TooltipHelper.cutTextComponent(new StringTextComponent("Changing this value will require a _relog_ to take full effect"), TextFormatting.GRAY, TextFormatting.GOLD));
+
+		if (annotations.containsKey(ConfigAnnotations.RequiresRestart.CLIENT.getName()))
+			labelTooltip.addAll(TooltipHelper.cutTextComponent(new StringTextComponent("Changing this value will require a _restart_ to take full effect"), TextFormatting.GRAY, TextFormatting.RED));
+
+		labelTooltip.add(new StringTextComponent(ConfigScreen.modID + ":" + path.get(path.size() - 1)).withStyle(TextFormatting.DARK_GRAY));
 	}
 
 	@Override
@@ -104,16 +99,8 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 	}
 
 	@Override
-	public void render(PoseStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
-		if (isCurrentValueChanged()) {
-			MutableComponent original = label.getComponent();
-			MutableComponent changed = modComponent.plainCopy().append(original);
-			label.withText(changed);
-			super.render(ms, index, y, x, width, height, mouseX, mouseY, p_230432_9_, partialTicks);
-			label.withText(original);
-		} else {
-			super.render(ms, index, y, x, width, height, mouseX, mouseY, p_230432_9_, partialTicks);
-		}
+	public void render(MatrixStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
+		super.render(ms, index, y, x, width, height, mouseX, mouseY, p_230432_9_, partialTicks);
 
 		resetButton.x = x + width - resetWidth + 6;
 		resetButton.y = y + 10;
@@ -132,7 +119,7 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 			return;
 		}
 
-		ConfigScreen.changes.put(path, value);
+		ConfigScreen.changes.put(path, value, annotations);
 		onValueChange(value);
 	}
 
@@ -140,10 +127,6 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 	public T getValue() {
 		//noinspection unchecked
 		return (T) ConfigScreen.changes.getOrDefault(path, this.value.get());
-	}
-
-	protected boolean isCurrentValueChanged() {
-		return ConfigScreen.changes.containsKey(path);
 	}
 
 	protected boolean isCurrentValueDefault() {

@@ -248,7 +248,7 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 		boolean hasWater = EmptyingByBasin.emptyItem(world, heldItem, true)
 			.getFirst()
 			.getFluid()
-			.isEquivalentTo(Fluids.WATER);
+			.isSame(Fluids.WATER);
 		boolean isHand = heldItem.isEmpty() && handIn == InteractionHand.MAIN_HAND;
 
 		if (isDye || hasWater) {

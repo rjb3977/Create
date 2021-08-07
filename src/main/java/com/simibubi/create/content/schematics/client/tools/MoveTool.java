@@ -29,7 +29,7 @@ public class MoveTool extends PlacementToolBase {
 		vec = VecHelper.rotate(vec, transformation.getRotationTarget(), Axis.Y);
 		transformation.move((float) vec.x, 0, (float) vec.z);
 		schematicHandler.markDirty();
-		
+
 		return true;
 	}
 

@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 
 public class SchematicHotbarSlotOverlay extends GuiComponent {
-	
+
 	public void renderOn(PoseStack matrixStack, int slot) {
 		Window mainWindow = Minecraft.getInstance().getWindow();
 		int x = mainWindow.getGuiScaledWidth() / 2 - 88;

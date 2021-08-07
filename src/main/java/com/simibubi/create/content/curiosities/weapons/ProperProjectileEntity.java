@@ -16,19 +16,19 @@ public abstract class ProperProjectileEntity extends Entity {
 	@Override
 	protected void defineSynchedData() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void readAdditionalSaveData(CompoundTag p_70037_1_) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void addAdditionalSaveData(CompoundTag p_213281_1_) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

@@ -91,7 +91,7 @@ public class BlueprintItem extends Item {
 	}
 
 	private static ItemStack convertIngredientToFilter(Ingredient ingredient) {
-		Ingredient.Value[] acceptedItems = ((IngredientAccessor) (Object) ingredient).getAcceptedItems();
+		Ingredient.Value[] acceptedItems = ((IngredientAccessor) (Object) ingredient).getAcceptedItems(); // values
 		if (acceptedItems == null || acceptedItems.length > 18)
 			return ItemStack.EMPTY;
 		if (acceptedItems.length == 0)

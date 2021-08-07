@@ -188,8 +188,8 @@ public class BeltTunnelTileEntity extends SmartTileEntity implements IInstanceRe
 //			return super.getCapability(capability, side);
 //
 //		if (!this.cap.isPresent()) {
-//			if (AllBlocks.BELT.has(world.getBlockState(pos.down()))) {
-//				TileEntity teBelow = world.getTileEntity(pos.down());
+//			if (AllBlocks.BELT.has(level.getBlockState(worldPosition.below()))) {
+//				TileEntity teBelow = level.getBlockEntity(worldPosition.below());
 //				if (teBelow != null) {
 //					T capBelow = teBelow.getCapability(capability, Direction.UP)
 //						.orElse(null);

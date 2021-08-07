@@ -92,7 +92,7 @@ public class PonderTagIndexScreen extends NavigatableSimiScreen {
 					hoveredItem = ((PonderButton) widget).getTag();
 		}
 	}
-	
+
 	@Override
 	protected String backTrackingLangKey() {
 		return EXIT;

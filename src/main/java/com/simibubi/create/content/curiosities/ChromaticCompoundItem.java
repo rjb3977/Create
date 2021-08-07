@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.CRecipes;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.helper.BeaconTileEntityHelper;
 import com.simibubi.create.lib.item.CustomDurabilityBarItem;
@@ -57,7 +57,7 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 
 	@Override
 	public int getRGBDurabilityForDisplay(ItemStack stack) {
-		return ColorHelper.mixColors(0x413c69, 0xFFFFFF, (float) (1 - getDurabilityForDisplay(stack)));
+		return Color.mixColors(0x413c69, 0xFFFFFF, (float) (1 - getDurabilityForDisplay(stack)));
 	}
 
 	@Override

@@ -1,14 +1,19 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.glue;
 
+import com.jozufozu.flywheel.backend.gl.attrib.VertexFormat;
 import com.jozufozu.flywheel.backend.gl.buffer.VecBuffer;
 import com.jozufozu.flywheel.backend.instancing.ITickableInstance;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.backend.instancing.entity.EntityInstance;
+import com.jozufozu.flywheel.backend.material.MaterialGroup;
 import com.jozufozu.flywheel.backend.model.BufferedModel;
+import com.jozufozu.flywheel.backend.model.ElementBuffer;
 import com.jozufozu.flywheel.backend.model.IndexedModel;
+import com.jozufozu.flywheel.backend.state.TextureRenderState;
 import com.jozufozu.flywheel.core.Formats;
 import com.jozufozu.flywheel.core.Materials;
+import com.jozufozu.flywheel.core.QuadConverter;
 import com.jozufozu.flywheel.core.instancing.ConditionalInstance;
 import com.jozufozu.flywheel.core.materials.OrientedData;
 import com.mojang.math.Quaternion;
@@ -29,6 +34,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITickableInstance {
 
+	private static final boolean USE_ATLAS = false;
 	private static final ResourceLocation TEXTURE = new ResourceLocation(Create.ID, "textures/entity/super_glue/slime.png");
 
 	private final Quaternion rotation;
@@ -37,8 +43,7 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 	public GlueInstance(MaterialManager<?> materialManager, SuperGlueEntity entity) {
 		super(materialManager, entity);
 
-		Instancer<OrientedData> instancer = materialManager.getMaterial(Materials.ORIENTED)
-				.get(entity.getType(), GlueInstance::supplyModel);
+		Instancer<OrientedData> instancer = getInstancer(materialManager, entity);
 
 		Direction face = entity.getFacingDirection();
 		rotation = new Quaternion(AngleHelper.verticalAngle(face), AngleHelper.horizontalAngleNew(face), 0, true);
@@ -47,6 +52,12 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 				.withCondition(this::shouldShow)
 				.withSetupFunc(this::positionModel)
 				.update();
+	}
+
+	private Instancer<OrientedData> getInstancer(MaterialManager<?> materialManager, SuperGlueEntity entity) {
+		MaterialGroup<?> group = USE_ATLAS ? materialManager.defaultCutout() : materialManager.cutout(TextureRenderState.get(TEXTURE));
+
+		return group.material(Materials.ORIENTED).model(entity.getType(), GlueModel::new);
 	}
 
 	@Override
@@ -75,8 +86,8 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 
 	private void updateLight(OrientedData model) {
 		BlockPos pos = entity.getHangingPosition();
-		model.setBlockLight(world.getLightLevel(LightLayer.BLOCK, pos))
-				.setSkyLight(world.getLightLevel(LightLayer.SKY, pos));
+		model.setBlockLight(world.getBrightness(LightLayer.BLOCK, pos))
+				.setSkyLight(world.getBrightness(LightLayer.SKY, pos));
 	}
 
 	private boolean shouldShow() {
@@ -87,34 +98,48 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 				|| AllItems.SUPER_GLUE.isIn(player.getOffhandItem());
 	}
 
-	public static BufferedModel supplyModel() {
-		Vec3 diff = Vec3.atLowerCornerOf(Direction.SOUTH.getNormal());
-		Vec3 extension = diff.normalize()
-				.scale(1 / 32f - 1 / 128f);
+	public static class GlueModel implements IModel {
+		@Override
+		public void buffer(VecBuffer buffer) {
+			Vector3d diff = Vector3d.atLowerCornerOf(Direction.SOUTH.getNormal());
+			Vector3d extension = diff.normalize()
+					.scale(1 / 32f - 1 / 128f);
 
-		Vec3 plane = VecHelper.axisAlingedPlaneOf(diff);
-		Direction.Axis axis = Direction.getNearest(diff.x, diff.y, diff.z)
-				.getAxis();
+			Vec3 plane = VecHelper.axisAlingedPlaneOf(diff);
+			Direction.Axis axis = Direction.getNearest(diff.x, diff.y, diff.z)
+					.getAxis();
 
-		Vec3 start = Vec3.ZERO.subtract(extension);
-		Vec3 end = Vec3.ZERO.add(extension);
+			Vec3 start = Vec3.ZERO.subtract(extension);
+			Vec3 end = Vec3.ZERO.add(extension);
 
-		plane = plane.scale(1 / 2f);
-		Vec3 a1 = plane.add(start);
-		Vec3 b1 = plane.add(end);
-		plane = VecHelper.rotate(plane, -90, axis);
-		Vec3 a2 = plane.add(start);
-		Vec3 b2 = plane.add(end);
-		plane = VecHelper.rotate(plane, -90, axis);
-		Vec3 a3 = plane.add(start);
-		Vec3 b3 = plane.add(end);
-		plane = VecHelper.rotate(plane, -90, axis);
-		Vec3 a4 = plane.add(start);
-		Vec3 b4 = plane.add(end);
+			plane = plane.scale(1 / 2f);
+			Vec3 a1 = plane.add(start);
+			Vec3 b1 = plane.add(end);
+			plane = VecHelper.rotate(plane, -90, axis);
+			Vec3 a2 = plane.add(start);
+			Vec3 b2 = plane.add(end);
+			plane = VecHelper.rotate(plane, -90, axis);
+			Vec3 a3 = plane.add(start);
+			Vec3 b3 = plane.add(end);
+			plane = VecHelper.rotate(plane, -90, axis);
+			Vec3 a4 = plane.add(start);
+			Vec3 b4 = plane.add(end);
 
-		VecBuffer buffer = VecBuffer.allocate(Formats.UNLIT_MODEL.getStride() * 8);
+			float minU;
+			float maxU;
+			float minV;
+			float maxV;
 
-		TextureAtlasSprite sprite = AllStitchedTextures.SUPER_GLUE.getSprite();
+			if (USE_ATLAS) {
+				TextureAtlasSprite sprite = AllStitchedTextures.SUPER_GLUE.getSprite();
+				minU = sprite.getU0();
+				maxU = sprite.getU1();
+				minV = sprite.getV0();
+				maxV = sprite.getV1();
+			} else {
+				minU = minV = 0;
+				maxU = maxV = 1;
+			}
 
 		//             pos                                               normal                                   uv
 		// inside quad
@@ -128,9 +153,14 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 		buffer.putVec3((float) b2.x, (float) b2.y, (float) b2.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU1(), sprite.getV1());
 		buffer.putVec3((float) b1.x, (float) b1.y, (float) b1.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU1(), sprite.getV0());
 
-		buffer.rewind();
+		@Override
+		public int vertexCount() {
+			return 8;
+		}
 
-
-		return IndexedModel.fromSequentialQuads(Formats.UNLIT_MODEL, buffer.unwrap(), 8);
+		@Override
+		public VertexFormat format() {
+			return Formats.UNLIT_MODEL;
+		}
 	}
 }

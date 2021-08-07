@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class SuperByteBufferCache {
 
-	Map<Compartment<?>, Cache<Object, SuperByteBuffer>> cache;
+	private Map<Compartment<?>, Cache<Object, SuperByteBuffer>> cache;
 
 	public SuperByteBufferCache() {
 		cache = new HashMap<>();
@@ -88,14 +88,18 @@ public class SuperByteBufferCache {
 	}
 
 	public void registerCompartment(Compartment<?> instance) {
-		cache.put(instance, CacheBuilder.newBuilder()
-			.build());
+		synchronized (cache) {
+			cache.put(instance, CacheBuilder.newBuilder()
+				.build());
+		}
 	}
 
 	public void registerCompartment(Compartment<?> instance, long ticksUntilExpired) {
-		cache.put(instance, CacheBuilder.newBuilder()
-			.expireAfterAccess(ticksUntilExpired * 50, TimeUnit.MILLISECONDS)
-			.build());
+		synchronized (cache) {
+			cache.put(instance, CacheBuilder.newBuilder()
+				.expireAfterAccess(ticksUntilExpired * 50, TimeUnit.MILLISECONDS)
+				.build());
+		}
 	}
 
 	private SuperByteBuffer standardBlockRender(BlockState renderedState) {

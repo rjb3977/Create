@@ -38,9 +38,8 @@ public class BellRenderer<TE extends AbstractBellTileEntity> extends SafeTileEnt
 			rY += 90;
 		bell.rotateCentered(Direction.UP, AngleHelper.rad(rY));
 
-		VertexConsumer vb = buffer.getBuffer(RenderType.cutout());
-		int lightCoords = LevelRenderer.getLightColor(te.getLevel(), state, te.getBlockPos());
-		bell.light(lightCoords).renderInto(ms, vb);
+		bell.light(light)
+			.renderInto(ms, buffer.getBuffer(RenderType.cutout()));
 	}
 
 	public static float getSwingAngle(float time) {

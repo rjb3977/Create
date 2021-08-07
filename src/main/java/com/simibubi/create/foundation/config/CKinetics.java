@@ -4,12 +4,14 @@ import com.simibubi.create.lib.config.Config;
 import com.simibubi.create.lib.config.ConfigGroup;
 import com.simibubi.create.lib.config.Configs;
 
+import com.simibubi.create.foundation.config.ui.ConfigAnnotations;
+
 public class CKinetics extends ConfigBase {
 	public ConfigGroup kinetics = group(0, "kinetics", CServer.Comments.kinetics);
 	public ConfigBool disableStress = b(false, "disableStress", Comments.disableStress);
 	public ConfigInt maxBeltLength = i(20, 5, "maxBeltLength", Comments.maxBeltLength);
 	public ConfigInt crushingDamage = i(4, 0, "crushingDamage", Comments.crushingDamage);
-	public ConfigInt maxMotorSpeed = i(256, 64, "maxMotorSpeed", Comments.rpm, Comments.maxMotorSpeed);
+	public ConfigInt maxMotorSpeed = i(256, 64, "maxMotorSpeed", Comments.rpm, Comments.maxMotorSpeed, ConfigAnnotations.RequiresRestart.BOTH.asComment());
 	public ConfigInt waterWheelBaseSpeed = i(4, 1, "waterWheelBaseSpeed", Comments.rpm, Comments.waterWheelBaseSpeed);
 	public ConfigInt waterWheelFlowSpeed = i(4, 1, "waterWheelFlowSpeed", Comments.rpm, Comments.waterWheelFlowSpeed);
 	public ConfigInt furnaceEngineSpeed = i(16, 1, "furnaceEngineSpeed", Comments.rpm, Comments.furnaceEngineSpeed);

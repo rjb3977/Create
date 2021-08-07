@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
 import com.simibubi.create.content.contraptions.relays.encased.CasingConnectivity;
@@ -49,6 +48,7 @@ import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.block.BlockModelShaper;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -96,7 +96,7 @@ public class CreateClient implements ClientModInitializer {
 //		modEventBus.addListener(ClientEvents::loadCompleted);
 		modEventBus.addListener(CreateContexts::flwInit);
 		modEventBus.addListener(AllMaterialSpecs::flwInit);
-		modEventBus.addListener(ContraptionRenderDispatcher::invalidateOnGatherContext);
+		modEventBus.addListener(ContraptionRenderDispatcher::gatherContext);
 
 		ZAPPER_RENDER_HANDLER.register();
 		POTATO_CANNON_RENDER_HANDLER.register();
@@ -133,6 +133,9 @@ public class CreateClient implements ClientModInitializer {
 		InputEvents.register();
 		AllPackets.clientInit();
 
+			registerLayerRenderers(Minecraft.getInstance()
+				.getEntityRenderDispatcher());
+		});
 		// Replaces ArmorItem#getArmorTexture from a Forge patch
 		ArmorRenderingRegistry.registerSimpleTexture(new ResourceLocation(Create.ID, "copper"),
 				AllItems.COPPER_BACKTANK.get(), AllItems.DIVING_HELMET.get(), AllItems.DIVING_BOOTS.get());
@@ -206,6 +209,10 @@ public class CreateClient implements ClientModInitializer {
 		modelRegistry.put(location, factory.apply(modelRegistry.get(location)));
 	}
 
+	protected static void registerLayerRenderers(EntityRendererManager renderManager) {
+		CopperBacktankArmorLayer.registerOnAll(renderManager);
+	}
+
 	public static CustomItemModels getCustomItemModels() {
 		if (customItemModels == null)
 			customItemModels = new CustomItemModels();
@@ -233,7 +240,7 @@ public class CreateClient implements ClientModInitializer {
 	public static void invalidateRenderers() {
 		BUFFER_CACHE.invalidate();
 
-		ContraptionRenderDispatcher.invalidateAll();
+		ContraptionRenderDispatcher.reset();
 	}
 
 	public static void checkGraphicsFanciness() {

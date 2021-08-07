@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import com.simibubi.create.content.contraptions.base.CutoutRotatingInstance;
 import com.simibubi.create.content.contraptions.base.HalfShaftInstance;
 import com.simibubi.create.content.contraptions.base.HorizontalHalfShaftInstance;
 import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
@@ -490,7 +491,7 @@ public class AllTileEntities {
 
 	public static final TileEntityEntry<CrushingWheelTileEntity> CRUSHING_WHEEL = Create.registrate()
 		.tileEntity("crushing_wheel", CrushingWheelTileEntity::new)
-		.instance(() -> SingleRotatingInstance::new)
+		.instance(() -> CutoutRotatingInstance::new)
 		.validBlocks(AllBlocks.CRUSHING_WHEEL)
 		.renderer(() -> KineticTileEntityRenderer::new)
 		.register();
@@ -504,7 +505,7 @@ public class AllTileEntities {
 
 	public static final TileEntityEntry<WaterWheelTileEntity> WATER_WHEEL = Create.registrate()
 		.tileEntity("water_wheel", WaterWheelTileEntity::new)
-		.instance(() -> SingleRotatingInstance::new)
+		.instance(() -> CutoutRotatingInstance::new)
 		.validBlocks(AllBlocks.WATER_WHEEL)
 		.renderer(() -> KineticTileEntityRenderer::new)
 		.register();
@@ -599,7 +600,8 @@ public class AllTileEntities {
 
 	public static final TileEntityEntry<NixieTubeTileEntity> NIXIE_TUBE = Create.registrate()
 		.tileEntity("nixie_tube", NixieTubeTileEntity::new)
-		.validBlocks(AllBlocks.NIXIE_TUBE)
+		.validBlocks(AllBlocks.ORANGE_NIXIE_TUBE)
+		.validBlocks(AllBlocks.NIXIE_TUBES.toArray())
 		.renderer(() -> NixieTubeRenderer::new)
 		.register();
 

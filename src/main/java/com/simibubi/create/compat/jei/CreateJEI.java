@@ -51,6 +51,7 @@ package com.simibubi.create.compat.jei;
 //import com.simibubi.create.foundation.config.AllConfigs;
 //import com.simibubi.create.foundation.config.CRecipes;
 //import com.simibubi.create.foundation.config.ConfigBase.ConfigBool;
+//import com.simibubi.create.foundation.utility.recipe.IRecipeTypeInfo;
 //
 //import mezz.jei.api.IModPlugin;
 //import mezz.jei.api.JeiPlugin;
@@ -78,12 +79,6 @@ package com.simibubi.create.compat.jei;
 //public class CreateJEI implements IModPlugin {
 //
 //	private static final ResourceLocation ID = new ResourceLocation(Create.ID, "jei_plugin");
-//
-//	@Override
-//	@Nonnull
-//	public ResourceLocation getPluginUid() {
-//		return ID;
-//	}
 //
 //	public IIngredientManager ingredientManager;
 //	private final List<CreateRecipeCategory<?>> allCategories = new ArrayList<>();
@@ -127,8 +122,8 @@ package com.simibubi.create.compat.jei;
 //			.build(),
 //
 //		autoShapeless = register("automatic_shapeless", MixingCategory::autoShapeless)
-//			.recipes(r -> r.getSerializer() == IRecipeSerializer.CRAFTING_SHAPELESS && r.getIngredients()
-//				.size() > 1 && !MechanicalPressTileEntity.canCompress(r.getIngredients()),
+//			.recipes(r -> r.getSerializer() == IRecipeSerializer.SHAPELESS_RECIPE && r.getIngredients()
+//				.size() > 1 && !MechanicalPressTileEntity.canCompress(r),
 //				BasinRecipe::convertShapeless)
 //			.catalyst(AllBlocks.MECHANICAL_MIXER::get)
 //			.catalyst(AllBlocks.BASIN::get)
@@ -153,7 +148,7 @@ package com.simibubi.create.compat.jei;
 //
 //		woodCutting = register("wood_cutting", () -> new BlockCuttingCategory(Items.OAK_STAIRS))
 //			.recipeList(() -> CondensedBlockCuttingRecipe
-//				.condenseRecipes(findRecipesByType(SawTileEntity.woodcuttingRecipeType.getValue())))
+//				.condenseRecipes(findRecipesByType(SawTileEntity.woodcuttingRecipeType.get())))
 //			.catalyst(AllBlocks.MECHANICAL_SAW::get)
 //			.enableWhenBool(c -> c.allowWoodcuttingOnSaw.get() && ModList.get()
 //				.isLoaded("druidcraft"))
@@ -165,7 +160,7 @@ package com.simibubi.create.compat.jei;
 //			.build(),
 //
 //		autoSquare = register("automatic_packing", PackingCategory::autoSquare)
-//			.recipes(r -> (r instanceof ICraftingRecipe) && MechanicalPressTileEntity.canCompress(r.getIngredients()),
+//			.recipes(r -> (r instanceof ICraftingRecipe) && MechanicalPressTileEntity.canCompress(r),
 //				BasinRecipe::convertShapeless)
 //			.catalyst(AllBlocks.MECHANICAL_PRESS::get)
 //			.catalyst(AllBlocks.BASIN::get)
@@ -179,7 +174,7 @@ package com.simibubi.create.compat.jei;
 //
 //		deploying = register("deploying", DeployingCategory::new)
 //			.recipeList(
-//				() -> DeployerApplicationRecipe.convert(findRecipesByType(AllRecipeTypes.SANDPAPER_POLISHING.type)))
+//				() -> DeployerApplicationRecipe.convert(findRecipesByType(AllRecipeTypes.SANDPAPER_POLISHING.getType())))
 //			.recipes(AllRecipeTypes.DEPLOYING)
 //			.catalyst(AllBlocks.DEPLOYER::get)
 //			.catalyst(AllBlocks.DEPOT::get)
@@ -202,10 +197,10 @@ package com.simibubi.create.compat.jei;
 //			.build(),
 //
 //		autoShaped = register("automatic_shaped", MechanicalCraftingCategory::new)
-//			.recipes(r -> r.getSerializer() == IRecipeSerializer.CRAFTING_SHAPELESS && r.getIngredients()
+//			.recipes(r -> r.getSerializer() == IRecipeSerializer.SHAPELESS_RECIPE && r.getIngredients()
 //				.size() == 1)
 //			.recipes(
-//				r -> (r.getType() == IRecipeType.CRAFTING && r.getType() != AllRecipeTypes.MECHANICAL_CRAFTING.type)
+//				r -> (r.getType() == IRecipeType.CRAFTING && r.getType() != AllRecipeTypes.MECHANICAL_CRAFTING.getType())
 //					&& (r instanceof ShapedRecipe))
 //			.catalyst(AllBlocks.MECHANICAL_CRAFTER::get)
 //			.enableWhen(c -> c.allowRegularCraftingInCrafter)
@@ -219,6 +214,12 @@ package com.simibubi.create.compat.jei;
 //	private <T extends IRecipe<?>> CategoryBuilder<T> register(String name,
 //		Supplier<CreateRecipeCategory<T>> supplier) {
 //		return new CategoryBuilder<T>(name, supplier);
+//	}
+//
+//	@Override
+//	@Nonnull
+//	public ResourceLocation getPluginUid() {
+//		return ID;
 //	}
 //
 //	@Override
@@ -269,7 +270,7 @@ package com.simibubi.create.compat.jei;
 //			pred = Predicates.alwaysTrue();
 //		}
 //
-//		public CategoryBuilder<T> recipes(AllRecipeTypes recipeTypeEntry) {
+//		public CategoryBuilder<T> recipes(IRecipeTypeInfo recipeTypeEntry) {
 //			return recipes(recipeTypeEntry::getType);
 //		}
 //
@@ -359,7 +360,7 @@ package com.simibubi.create.compat.jei;
 //	}
 //
 //	public static List<IRecipe<?>> findRecipes(Predicate<IRecipe<?>> predicate) {
-//		return Minecraft.getInstance().world.getRecipeManager()
+//		return Minecraft.getInstance().level.getRecipeManager()
 //			.getRecipes()
 //			.stream()
 //			.filter(predicate)
@@ -396,7 +397,7 @@ package com.simibubi.create.compat.jei;
 //	public static boolean doInputsMatch(IRecipe<?> recipe1, IRecipe<?> recipe2) {
 //		ItemStack[] matchingStacks = recipe1.getIngredients()
 //			.get(0)
-//			.getMatchingStacks();
+//			.getItems();
 //		if (matchingStacks.length == 0)
 //			return true;
 //		if (recipe2.getIngredients()

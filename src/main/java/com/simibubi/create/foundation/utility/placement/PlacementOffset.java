@@ -120,7 +120,7 @@ public class PlacementOffset {
 			state = state.setValue(BlockStateProperties.WATERLOGGED, fluidState.getType() == Fluids.WATER);
 		}
 
-//		BlockSnapshot snapshot = BlockSnapshot.create(world.getRegistryKey(), world, newPos);
+//		BlockSnapshot snapshot = BlockSnapshot.create(world.dimension(), world, newPos);
 		world.setBlockAndUpdate(newPos, state);
 
 //		BlockEvent.EntityPlaceEvent event = new BlockEvent.EntityPlaceEvent(snapshot, IPlacementHelper.ID, player);

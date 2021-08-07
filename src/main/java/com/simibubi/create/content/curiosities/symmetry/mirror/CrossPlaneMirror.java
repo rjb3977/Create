@@ -10,10 +10,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import com.google.common.collect.ImmutableList;
 import com.jozufozu.flywheel.core.PartialModel;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 
 public class CrossPlaneMirror extends SymmetryMirror {
 
@@ -92,7 +92,7 @@ public class CrossPlaneMirror extends SymmetryMirror {
 	@Override
 	public void applyModelTransform(PoseStack ms) {
 		super.applyModelTransform(ms);
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.centre()
 			.rotateY(((Align) orientation) == Align.Y ? 0 : 45)
 			.unCentre();

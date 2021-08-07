@@ -1,9 +1,11 @@
 package com.simibubi.create.content.logistics.block.chute;
 
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.logistics.block.chute.ChuteBlock.Shape;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
 import com.simibubi.create.foundation.utility.MatrixStacker;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
@@ -37,7 +39,7 @@ public class ChuteRenderer extends SafeTileEntityRenderer<ChuteTileEntity> {
 		int light, int overlay) {
 		ItemRenderer itemRenderer = Minecraft.getInstance()
 			.getItemRenderer();
-		MatrixStacker msr = MatrixStacker.of(ms);
+		MatrixTransformStack msr = MatrixTransformStack.of(ms);
 		ms.pushPose();
 		msr.centre();
 		float itemScale = .5f;

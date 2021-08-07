@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.Create;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -181,7 +181,7 @@ public class AllIcons implements IScreenRenderable {
 		int j = i >> 16 & '\uffff';
 		int k = i & '\uffff';
 		Pose peek = ms.last();
-		Vec3 rgb = ColorHelper.getRGB(color);
+		Vec3 rgb = Color.vectorFromRGB(color);
 
 		Vec3 vec4 = new Vec3(1, 1, 0);
 		Vec3 vec3 = new Vec3(0, 1, 0);

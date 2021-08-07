@@ -92,7 +92,7 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 			} else if (blockState.getBlock() instanceof LiquidBlock) {
 				LiquidBlock flowingFluid = (LiquidBlock) blockState.getBlock();
 				emptied = Blocks.AIR.defaultBlockState();
-//				if (blockState.get(FlowingFluidBlock.LEVEL) == 0)
+//				if (blockState.getValue(FlowingFluidBlock.LEVEL) == 0)
 //					fluid = flowingFluid.getFluid();
 //				else {
 					affectedArea.expand(new BoundingBox(currentPos, currentPos));

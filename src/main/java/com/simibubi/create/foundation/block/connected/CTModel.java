@@ -68,29 +68,43 @@ public class CTModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
-		CTData data = createCTData(blockView, pos, state);
-		context.pushTransform(quad -> {
-			TextureAtlasSprite original = SPRITE_FINDER.get().find(quad, 0);
-			CTSpriteShiftEntry spriteShift = behaviour.get(state, quad.lightFace());
+	public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand, IModelData extraData) {
+		List<BakedQuad> quads = super.getQuads(state, side, rand, extraData);
+		if (!extraData.hasProperty(CT_PROPERTY))
+			return quads;
+		CTData data = extraData.getData(CT_PROPERTY);
+		quads = new ArrayList<>(quads);
+
+		VertexFormat format = DefaultVertexFormats.BLOCK;
+
+		for (int i = 0; i < quads.size(); i++) {
+			BakedQuad quad = quads.get(i);
+
+			CTSpriteShiftEntry spriteShift = behaviour.get(state, quad.getDirection());
 			if (spriteShift == null)
-				return true;
-			if (original != spriteShift.getOriginal())
-				return true;
-			int index = data.get(quad.lightFace());
+				continue;
+			if (quad.getSprite() != spriteShift.getOriginal())
+				continue;
+			int index = data.get(quad.getDirection());
 			if (index == -1)
-				return true;
-			for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
-				float u = quad.spriteU(vertexIndex, 0);
-				float v = quad.spriteV(vertexIndex, 0);
-				u = spriteShift.getTargetU(u, index);
-				v = spriteShift.getTargetV(v, index);
-				quad.sprite(vertexIndex, 0, u, v);
+				continue;
+
+			BakedQuad newQuad = QuadHelper.clone(quad);
+			int[] vertexData = newQuad.getVertices();
+
+			for (int vertex = 0; vertex < vertexData.length; vertex += format.getIntegerSize()) {
+				int uvOffset = 16 / 4;
+				int uIndex = vertex + uvOffset;
+				int vIndex = vertex + uvOffset + 1;
+				float u = Float.intBitsToFloat(vertexData[uIndex]);
+				float v = Float.intBitsToFloat(vertexData[vIndex]);
+				vertexData[uIndex] = Float.floatToRawIntBits(spriteShift.getTargetU(u, index));
+				vertexData[vIndex] = Float.floatToRawIntBits(spriteShift.getTargetV(v, index));
 			}
-			return true;
-		});
-		super.emitBlockQuads(blockView, state, pos, randomSupplier, context);
-		context.popTransform();
+
+			quads.set(i, newQuad);
+		}
+		return quads;
 	}
 
 }

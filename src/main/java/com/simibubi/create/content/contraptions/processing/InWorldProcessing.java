@@ -17,7 +17,7 @@ import com.simibubi.create.content.contraptions.relays.belt.transport.Transporte
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour.TransportedResult;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
@@ -102,7 +102,7 @@ public class InWorldProcessing {
 			if (smeltingRecipe.isPresent())
 				return true;
 
-			WRAPPER.setInventorySlotContents(0, stack);
+			WRAPPER.setItem(0, stack);
 			Optional<BlastingRecipe> blastingRecipe = world.getRecipeManager()
 				.getRecipeFor(RecipeType.BLASTING, WRAPPER, world);
 
@@ -113,7 +113,7 @@ public class InWorldProcessing {
 		}
 
 		if (type == Type.SMOKING) {
-			WRAPPER.setInventorySlotContents(0, stack);
+			WRAPPER.setItem(0, stack);
 			Optional<SmokingRecipe> recipe = world.getRecipeManager()
 				.getRecipeFor(RecipeType.SMOKING, WRAPPER, world);
 			return recipe.isPresent();
@@ -126,7 +126,7 @@ public class InWorldProcessing {
 	}
 
 	public static boolean isWashable(ItemStack stack, Level world) {
-		SPLASHING_WRAPPER.setInventorySlotContents(0, stack);
+		SPLASHING_WRAPPER.setItem(0, stack);
 		Optional<SplashingRecipe> recipe = AllRecipeTypes.SPLASHING.find(SPLASHING_WRAPPER, world);
 		return recipe.isPresent();
 	}
@@ -181,14 +181,14 @@ public class InWorldProcessing {
 
 	private static List<ItemStack> process(ItemStack stack, Type type, Level world) {
 		if (type == Type.SPLASHING) {
-			SPLASHING_WRAPPER.setInventorySlotContents(0, stack);
+			SPLASHING_WRAPPER.setItem(0, stack);
 			Optional<SplashingRecipe> recipe = AllRecipeTypes.SPLASHING.find(SPLASHING_WRAPPER, world);
 			if (recipe.isPresent())
 				return applyRecipeOn(stack, recipe.get());
 			return null;
 		}
 
-		WRAPPER.setInventorySlotContents(0, stack);
+		WRAPPER.setItem(0, stack);
 		Optional<SmokingRecipe> smokingRecipe = world.getRecipeManager()
 			.getRecipeFor(RecipeType.SMOKING, WRAPPER, world);
 
@@ -201,7 +201,7 @@ public class InWorldProcessing {
 				if (smeltingRecipe.isPresent())
 					return applyRecipeOn(stack, smeltingRecipe.get());
 
-				WRAPPER.setInventorySlotContents(0, stack);
+				WRAPPER.setItem(0, stack);
 				Optional<BlastingRecipe> blastingRecipe = world.getRecipeManager()
 					.getRecipeFor(RecipeType.BLASTING, WRAPPER, world);
 
@@ -307,7 +307,7 @@ public class InWorldProcessing {
 			world.addParticle(ParticleTypes.POOF, vec.x, vec.y + .25f, vec.z, 0, 1 / 16f, 0);
 			break;
 		case SPLASHING:
-			Vec3 color = ColorHelper.getRGB(0x0055FF);
+			Vec3 color = Color.vectorFromRGB(0x0055FF);
 			world.addParticle(new DustParticleOptions((float) color.x, (float) color.y, (float) color.z, 1),
 				vec.x + (world.random.nextFloat() - .5f) * .5f, vec.y + .5f, vec.z + (world.random.nextFloat() - .5f) * .5f,
 				0, 1 / 8f, 0);

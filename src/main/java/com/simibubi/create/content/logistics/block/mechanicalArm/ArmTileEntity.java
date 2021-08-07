@@ -19,6 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
+import com.simibubi.create.content.contraptions.components.structureMovement.ITransformableTE;
+import com.simibubi.create.content.contraptions.components.structureMovement.StructureTransform;
 import com.simibubi.create.content.logistics.block.mechanicalArm.ArmInteractionPoint.Jukebox;
 import com.simibubi.create.content.logistics.block.mechanicalArm.ArmInteractionPoint.Mode;
 import com.simibubi.create.foundation.advancement.AllTriggers;
@@ -38,7 +40,7 @@ import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
-public class ArmTileEntity extends KineticTileEntity {
+public class ArmTileEntity extends KineticTileEntity implements ITransformableTE {
 
 	// Server
 	List<ArmInteractionPoint> inputs;
@@ -157,7 +159,7 @@ public class ArmTileEntity extends KineticTileEntity {
 //	@Override
 //	@Environment(EnvType.CLIENT)
 //	public AxisAlignedBB makeRenderBoundingBox() {
-//		return super.makeRenderBoundingBox().grow(3);
+//		return super.makeRenderBoundingBox().inflate(3);
 //	}
 
 	private boolean checkForMusicAmong(List<ArmInteractionPoint> list) {
@@ -379,6 +381,19 @@ public class ArmTileEntity extends KineticTileEntity {
 		sendData();
 		if (!redstoneLocked)
 			searchForItem();
+	}
+
+	@Override
+	public void transform(StructureTransform transform) {
+		if (interactionPointTag == null)
+			return;
+
+		for (INBT inbt : interactionPointTag) {
+			ArmInteractionPoint.transformPos(transform, (CompoundNBT) inbt);
+		}
+
+		sendData();
+		setChanged();
 	}
 
 	protected void initInteractionPoints() {

@@ -24,7 +24,7 @@ package com.simibubi.create.foundation.utility;
 //	}
 //
 //	@Override
-//	public ResourceLocation getId() {
+//	public ResourceLocation getName() {
 //		return id;
 //	}
 //
@@ -34,7 +34,7 @@ package com.simibubi.create.foundation.utility;
 //	}
 //
 //	@Override
-//	public List<T> values() {
+//	public List<T> getValues() {
 //		return Collections.emptyList();
 //	}
 //}

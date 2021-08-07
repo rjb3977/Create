@@ -152,7 +152,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 //		if (!isController())
 //			return super.makeRenderBoundingBox();
 //		else
-//			return super.makeRenderBoundingBox().grow(beltLength + 1);
+//			return super.makeRenderBoundingBox().inflate(beltLength + 1);
 //	}
 
 	protected void initializeItemHandler() {
@@ -183,6 +183,12 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	public void setRemoved() {
 		super.setRemoved();
 		itemHandler = null;
+	}
+
+	@Override
+	public void setRemoved() {
+		super.setRemoved();
+		itemHandler.invalidate();
 	}
 
 	@Override

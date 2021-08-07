@@ -19,8 +19,8 @@ public class BreakProgressMixin {
 	private LevelRenderer worldRenderer;
 	private final ClientLevel self = (ClientLevel) (Object) this;
 
-	@Inject(at = @At("HEAD"), method = "sendBlockBreakProgress")
+	@Inject(at = @At("HEAD"), method = "destroyBlockProgress")
 	private void onBreakProgress(int playerEntityId, BlockPos pos, int progress, CallbackInfo ci) {
-		BreakProgressHook.whenBreaking(self, this.worldRenderer, playerEntityId, pos, progress);
+		BreakProgressHook.whenBreaking(self, this.levelRenderer, playerEntityId, pos, progress);
 	}
 }

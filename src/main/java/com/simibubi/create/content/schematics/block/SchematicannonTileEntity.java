@@ -831,4 +831,6 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 	public boolean shouldRenderNormally() {
 		return true;
 	}
+
+
 }

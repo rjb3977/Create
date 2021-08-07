@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.base.Strings;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.simibubi.create.foundation.gui.ScreenOpener;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 
@@ -49,7 +49,7 @@ public class PonderTooltipHandler {
 		Minecraft instance = Minecraft.getInstance();
 		Screen currentScreen = instance.screen;
 		float value = holdWProgress.getValue();
-		int keyCode = KeyBindingHelper.getKeyCode(ponderKeybind()).getKeyCode();
+		int keyCode = KeyBindingHelper.getKeyCode(ponderKeybind()).getValue();
 		long window = instance.getWindow().getWindow();
 
 		if (!subject && InputConstants.isKeyDown(window, keyCode)) {
@@ -102,7 +102,7 @@ public class PonderTooltipHandler {
 
 		if (stack.isEmpty())
 			return;
-		if (!PonderRegistry.all.containsKey(Registry.ITEM.getKey(stack.getItem())))
+		if (!PonderRegistry.ALL.containsKey(Registry.ITEM.getKey(stack.getItem())))
 			return;
 
 		if (prevStack.isEmpty() || !prevStack.sameItem(stack))
@@ -131,8 +131,8 @@ public class PonderTooltipHandler {
 
 	private static int getSmoothColorForProgress(float progress) {
 		if (progress < .5f)
-			return ColorHelper.mixColors(0x5000FF, 5592575, progress * 2);
-		return ColorHelper.mixColors(5592575, 0xffffff, (progress - .5f) * 2);
+			return Color.mixColors(0x5000FF, 5592575, progress * 2);
+		return Color.mixColors(5592575, 0xffffff, (progress - .5f) * 2);
 	}
 
 	private static Component makeProgressBar(float progress) {

@@ -240,9 +240,12 @@ public class SymmetryWandItem extends Item {
 						continue;
 				}
 
-//				BlockSnapshot blocksnapshot = BlockSnapshot.create(world.getRegistryKey(), world, position);
+//				BlockSnapshot blocksnapshot = BlockSnapshot.create(world.dimension(), world, position);
 				BlockState cachedState = world.getBlockState(position);
 				FluidState ifluidstate = world.getFluidState(position);
+				world.setBlock(position, ifluidstate.createLegacyBlock(), BlockFlags.UPDATE_NEIGHBORS);
+				world.setBlockAndUpdate(position, blockState);
+
 				CompoundTag wandNbt = wand.getOrCreateTag();
 				wandNbt.putBoolean("Simulate", true);
 				boolean placeInterrupted = !world.isUnobstructed(cachedState, position, CollisionContext.empty());

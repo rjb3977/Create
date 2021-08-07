@@ -48,11 +48,15 @@ public class PonderTagRegistry {
 	}
 
 	public void add(PonderTag tag, ResourceLocation item) {
-		tags.put(item, tag);
+		synchronized (tags) {
+			tags.put(item, tag);
+		}
 	}
 
 	public void add(PonderTag tag, PonderChapter chapter) {
-		chapterTags.put(chapter, tag);
+		synchronized (chapterTags) {
+			chapterTags.put(chapter, tag);
+		}
 	}
 
 	public ItemBuilder forItems(ResourceLocation... items) {
@@ -72,7 +76,7 @@ public class PonderTagRegistry {
 		}
 
 		public ItemBuilder add(PonderTag tag) {
-			items.forEach(i -> PonderRegistry.tags.add(tag, i));
+			items.forEach(i -> PonderRegistry.TAGS.add(tag, i));
 			return this;
 		}
 
@@ -87,7 +91,7 @@ public class PonderTagRegistry {
 		}
 
 		public TagBuilder add(ResourceLocation item) {
-			PonderRegistry.tags.add(tag, item);
+			PonderRegistry.TAGS.add(tag, item);
 			return this;
 		}
 

@@ -18,7 +18,6 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.utility.AngleHelper;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
@@ -77,7 +76,7 @@ public class SmartFluidPipeTileEntity extends SmartTileEntity {
 		@Override
 		protected void rotate(BlockState state, PoseStack ms) {
 			AttachFace face = state.getValue(SmartFluidPipeBlock.FACE);
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.rotateY(angleY(state))
 				.rotateX(face == AttachFace.CEILING ? -45 : 45);
 		}

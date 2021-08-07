@@ -88,12 +88,12 @@ public class PartialItemModelRenderer {
 
 		for (Direction direction : Iterate.directions) {
 			random.setSeed(42L);
-			ItemRendererHelper.renderBakedItemQuads(ir, ms, p_229114_6_, model.getQuads(null, direction, random), stack, light,
+			ItemRendererHelper.renderQuadList(ir, ms, p_229114_6_, model.getQuads(null, direction, random), stack, light,
 				overlay);
 		}
 
 		random.setSeed(42L);
-		ItemRendererHelper.renderBakedItemQuads(ir, ms, p_229114_6_, model.getQuads(null, null, random), stack, light, overlay);
+		ItemRendererHelper.renderQuadList(ir, ms, p_229114_6_, model.getQuads(null, null, random), stack, light, overlay);
 	}
 
 }

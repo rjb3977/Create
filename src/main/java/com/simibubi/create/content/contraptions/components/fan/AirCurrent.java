@@ -48,7 +48,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class AirCurrent {
 
-	private static final DamageSource damageSourceFire = DamageSourceHelper.create$createDamageSource("create.fan_fire").setDifficultyScaled();
+	private static final DamageSource damageSourceFire = DamageSourceHelper.create$createFireDamageSource("create.fan_fire").setDifficultyScaled();
 	private static final DamageSource damageSourceLava = DamageSourceHelper.create$createFireDamageSource("create.fan_lava").setDifficultyScaled();
 
 	public final IAirCurrentSource source;
@@ -382,7 +382,7 @@ public class AirCurrent {
 	public static void tickClientPlayerSounds() {
 		if (!AirCurrent.isClientPlayerInAirCurrent && flyingSound != null)
 			if (flyingSound.isFaded())
-				flyingSound.stop();
+				flyingSound.stopSound();
 			else
 				flyingSound.fadeOut();
 		isClientPlayerInAirCurrent = false;

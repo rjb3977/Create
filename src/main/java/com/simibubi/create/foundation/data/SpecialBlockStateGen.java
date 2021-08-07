@@ -29,7 +29,7 @@ package com.simibubi.create.foundation.data;
 //		if (direction.getAxis()
 //			.isVertical())
 //			return 0;
-//		return (int) direction.getHorizontalAngle();
+//		return (int) direction.toYRot();
 //	}
 //
 //	protected abstract int getXRotation(BlockState state);

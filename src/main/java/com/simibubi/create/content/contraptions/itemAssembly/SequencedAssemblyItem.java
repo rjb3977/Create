@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.itemAssembly;
 
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 public class SequencedAssemblyItem extends Item {
 
 	public SequencedAssemblyItem(Properties p_i48487_1_) {
-		super(p_i48487_1_);
+		super(p_i48487_1_.stacksTo(1));
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class SequencedAssemblyItem extends Item {
 
 	@Override
 	public int getRGBDurabilityForDisplay(ItemStack stack) {
-		return ColorHelper.mixColors(0xFF_46FFE0, 0xFF_FFC074, (float) getDurabilityForDisplay(stack));
+		return Color.mixColors(0xFF_46FFE0, 0xFF_FFC074, (float) getDurabilityForDisplay(stack));
 	}
 
 }

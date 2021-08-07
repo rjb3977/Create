@@ -37,11 +37,11 @@ public class ChunkUtil {
 //			new ChunkStatus("full", ChunkStatus.HEIGHTMAPS, 0, POST_FEATURES, ChunkStatus.Type.LEVELCHUNK,
 //				(_0, _1, _2, _3, _4, future, _6, chunk) -> future.apply(chunk), (_0, _1, _2, _3, future, chunk) -> {
 //					if (markedChunks.contains(chunk.getPos()
-//						.asLong())) {
+//						.toLong())) {
 //						LOGGER.debug("trying to load unforced chunk " + chunk.getPos()
 //							.toString() + ", returning chunk loading error");
 //						// this.reloadChunk(world.getChunkProvider(), chunk.getPos());
-//						return ChunkHolder.MISSING_CHUNK_FUTURE;
+//						return ChunkHolder.UNLOADED_CHUNK_FUTURE;
 //					} else {
 //						// LOGGER.debug("regular, chunkStatus: " + chunk.getStatus().toString());
 //						return future.apply(chunk);

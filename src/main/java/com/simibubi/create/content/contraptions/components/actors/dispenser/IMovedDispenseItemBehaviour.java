@@ -157,7 +157,7 @@ public interface IMovedDispenseItemBehaviour {
 					BlockState state = context.world.getBlockState(interactAt);
 					Block block = state.getBlock();
 
-					if (block.is(BlockTags.BEEHIVES) && state.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) { 
+					if (block.is(BlockTags.BEEHIVES) && state.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
 						((BeehiveBlock) block).releaseBeesAndResetHoneyLevel(context.world, state, interactAt, null,
 							BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
 						this.successful = true;

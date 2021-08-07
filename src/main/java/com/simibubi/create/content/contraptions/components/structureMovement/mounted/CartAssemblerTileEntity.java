@@ -91,7 +91,7 @@ public class CartAssemblerTileEntity extends SmartTileEntity implements IDisplay
 						.isRedstoneConductor(level, worldPosition.relative(d)))
 						facing = d.getOpposite();
 
-				float speed = 0.4f;//block.getRailMaxSpeed(state, world, pos, cart);
+				float speed = 0.4f;//block.getRailMaxSpeed(state, level, worldPosition, cart);
 				cart.setDeltaMovement(facing.getStepX() * speed, facing.getStepY() * speed, facing.getStepZ() * speed);
 			}
 		}

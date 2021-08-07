@@ -1,8 +1,6 @@
 package com.simibubi.create.content.curiosities.armor;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.simibubi.create.content.curiosities.armor.CapacityEnchantment.ICapacityEnchantable;
 
 import com.google.common.collect.Streams;
 import com.simibubi.create.foundation.config.AllConfigs;
@@ -24,10 +22,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
-public class CopperBacktankItem extends CopperArmorItem implements CustomDurabilityBarItem {
+public class CopperBacktankItem extends CopperArmorItem implements ICapacityEnchantable, CustomDurabilityBarItem {
 
 	public static final int DURABILITY_BAR = 0xefefef;
-	public static final int RECHARGES_PER_TICK = 4;
 	private BlockItem blockItem;
 
 	public CopperBacktankItem(Properties p_i48534_3_, BlockItem blockItem) {
@@ -46,6 +43,11 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 	}
 
 	@Override
+	public boolean isEnchantable(ItemStack p_77616_1_) {
+		return true;
+	}
+
+	@Override
 	public int getRGBDurabilityForDisplay(ItemStack stack) {
 		return DURABILITY_BAR;
 	}
@@ -57,7 +59,7 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 
 		ItemStack stack = new ItemStack(this);
 		CompoundTag nbt = new CompoundTag();
-		nbt.putInt("Air", AllConfigs.SERVER.curiosities.maxAirInBacktank.get());
+		nbt.putInt("Air", BackTankUtil.maxAirWithoutEnchants());
 		stack.setTag(nbt);
 		p_150895_2_.add(stack);
 	}
@@ -65,7 +67,7 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack) {
 		return 1 - Mth
-			.clamp(getRemainingAir(stack) / ((float) AllConfigs.SERVER.curiosities.maxAirInBacktank.get()), 0, 1);
+			.clamp(getRemainingAir(stack) / ((float) BackTankUtil.maxAir(stack)), 0, 1);
 	}
 
 	@Override
@@ -78,39 +80,4 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 		return orCreateTag.getInt("Air");
 	}
 
-	@SubscribeEvent
-	public static void rechargePneumaticTools(TickEvent.PlayerTickEvent event) {
-		Player player = event.player;
-		if (event.phase != TickEvent.Phase.START)
-			return;
-		if (event.side != LogicalSide.SERVER)
-			return;
-		if (player.isSpectator())
-			return;
-		ItemStack tankStack = BackTankUtil.get(player);
-		if (tankStack.isEmpty())
-			return;
-
-		Inventory inv = player.inventory;
-
-		List<ItemStack> toCharge = Streams.concat(Stream.of(player.getMainHandItem()), inv.offhand.stream(),
-			inv.armor.stream(), inv.items.stream())
-			.filter(s -> s.getItem() instanceof IBackTankRechargeable && s.isDamaged())
-			.collect(Collectors.toList());
-
-		int charges = RECHARGES_PER_TICK;
-		for (ItemStack stack : toCharge) {
-			while (stack.isDamaged()) {
-				if (BackTankUtil.canAbsorbDamage(event.player, ((IBackTankRechargeable) stack.getItem()).maxUses())) {
-					stack.setDamageValue(stack.getDamageValue() - 1);
-					charges--;
-					if (charges <= 0)
-						return;
-				} else {
-					return;
-				}
-			}
-		}
-
-	}
 }

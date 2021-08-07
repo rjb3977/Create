@@ -6,7 +6,7 @@ import net.minecraft.world.level.LightLayer;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.AllBlockPartials;
@@ -27,11 +27,12 @@ public class FunnelInstance extends TileEntityInstance<FunnelTileEntity> impleme
 
 		PartialModel flapPartial = (blockState.getBlock() instanceof FunnelBlock ? AllBlockPartials.FUNNEL_FLAP
 				: AllBlockPartials.BELT_FUNNEL_FLAP);
-		Instancer<FlapData> model = modelManager.getMaterial(AllMaterialSpecs.FLAPS)
+        Instancer<FlapData> model = modelManager.defaultSolid()
+                .material(AllMaterialSpecs.FLAPS)
 				.getModel(flapPartial, blockState);
 
-        int blockLight = world.getLightLevel(LightLayer.BLOCK, pos);
-        int skyLight = world.getLightLevel(LightLayer.SKY, pos);
+        int blockLight = world.getBrightness(LightLayer.BLOCK, pos);
+        int skyLight = world.getBrightness(LightLayer.SKY, pos);
 
         Direction direction = FunnelBlock.getFunnelFacing(blockState);
 
@@ -44,7 +45,7 @@ public class FunnelInstance extends TileEntityInstance<FunnelTileEntity> impleme
 
             FlapData key = model.createInstance();
 
-            key.setPosition(pos)
+            key.setPosition(getInstancePosition())
                .setSegmentOffset(segmentOffset, 0, -tile.getFlapOffset())
                .setBlockLight(blockLight)
                .setSkyLight(skyLight)

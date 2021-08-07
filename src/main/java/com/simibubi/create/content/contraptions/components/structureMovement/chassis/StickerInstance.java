@@ -1,14 +1,14 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.chassis;
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.jozufozu.flywheel.core.materials.ModelData;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
@@ -29,8 +29,8 @@ public class StickerInstance extends TileEntityInstance<StickerTileEntity> imple
         head = getTransformMaterial().getModel(AllBlockPartials.STICKER_HEAD, blockState).createInstance();
 
         fakeWorld = tile.getLevel() != Minecraft.getInstance().level;
-        facing = blockState.get(StickerBlock.FACING);
-        offset = blockState.get(StickerBlock.EXTENDED) ? 1 : 0;
+        facing = blockState.getValue(StickerBlock.FACING);
+        offset = blockState.getValue(StickerBlock.EXTENDED) ? 1 : 0;
 
         animateHead(offset);
     }
@@ -52,7 +52,7 @@ public class StickerInstance extends TileEntityInstance<StickerTileEntity> imple
 
     private void animateHead(float offset) {
         PoseStack stack = new PoseStack();
-        MatrixStacker.of(stack)
+        MatrixTransformStack.of(stack)
                      .translate(getInstancePosition())
                      .nudge(tile.hashCode())
                      .centre()

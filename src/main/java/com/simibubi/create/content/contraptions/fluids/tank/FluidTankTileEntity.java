@@ -297,7 +297,7 @@ public class FluidTankTileEntity extends SmartTileEntity implements IHaveGoggleI
 
 	public void updateRenderBoundingBox() {
 		if (isController())
-			renderBoundingBox = super.getRenderBoundingBox().expand(width - 1, height - 1, width - 1);
+			renderBoundingBox = super.getRenderBoundingBox().expandTowards(width - 1, height - 1, width - 1);
 		else
 			renderBoundingBox = super.getRenderBoundingBox();
 	}

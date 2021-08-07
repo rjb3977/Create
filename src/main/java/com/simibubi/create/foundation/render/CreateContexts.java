@@ -9,7 +9,6 @@ import com.jozufozu.flywheel.backend.loading.ModelTemplate;
 import com.jozufozu.flywheel.core.WorldContext;
 import com.jozufozu.flywheel.event.GatherContextEvent;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionProgram;
-import com.simibubi.create.foundation.render.effects.EffectsContext;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -19,7 +18,6 @@ import net.minecraft.resources.ResourceLocation;
 public class CreateContexts {
 	private static final ResourceLocation CONTRAPTION = new ResourceLocation("create", "context/contraption");
 
-	public static EffectsContext EFFECTS;
 	public static WorldContext<ContraptionProgram> CWORLD;
 	public static WorldContext<ContraptionProgram> STRUCTURE;
 
@@ -28,7 +26,6 @@ public class CreateContexts {
 
 		SpecMetaRegistry.register(RainbowDebugStateProvider.INSTANCE);
 
-		EFFECTS = backend.register(new EffectsContext(backend));
 		CWORLD = backend.register(contraptionContext(backend));
 		STRUCTURE = backend.register(contraptionContext(backend)
 				.withSpecStream(() -> Stream.of(AllProgramSpecs.STRUCTURE))

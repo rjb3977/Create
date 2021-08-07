@@ -2,6 +2,7 @@ package com.simibubi.create.content.curiosities.bell;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.AllShapes;
 import com.simibubi.create.foundation.block.ITE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,18 +31,21 @@ public abstract class AbstractBellBlock<TE extends AbstractBellTileEntity> exten
 		return null;
 	}
 
-	protected VoxelShape getVoxelShape(BlockState state) {
-		return Shapes.block();
-	}
-
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext selection) {
-		return this.getVoxelShape(state);
-	}
-
-	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext selection) {
-		return this.getVoxelShape(state);
+	public VoxelShape getShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext selection) {
+		Direction facing = state.getValue(FACING);
+		switch (state.getValue(ATTACHMENT)) {
+		case CEILING:
+			return AllShapes.BELL_CEILING.get(facing);
+		case DOUBLE_WALL:
+			return AllShapes.BELL_DOUBLE_WALL.get(facing);
+		case FLOOR:
+			return AllShapes.BELL_FLOOR.get(facing);
+		case SINGLE_WALL:
+			return AllShapes.BELL_WALL.get(facing);
+		default:
+			return VoxelShapes.block();
+		}
 	}
 
 	@Override
@@ -49,7 +53,8 @@ public abstract class AbstractBellBlock<TE extends AbstractBellTileEntity> exten
 		BlockPos pos = hit.getBlockPos();
 		Direction direction = hit.getDirection();
 		if (direction == null)
-			direction = world.getBlockState(pos).getValue(FACING);
+			direction = world.getBlockState(pos)
+					.getValue(FACING);
 
 		if (!this.isProperHit(state, direction, hit.getLocation().y - pos.getY()))
 			return false;
@@ -75,7 +80,7 @@ public abstract class AbstractBellBlock<TE extends AbstractBellTileEntity> exten
 
 		Direction direction = state.getValue(FACING);
 		BellAttachType bellAttachment = state.getValue(ATTACHMENT);
-		switch(bellAttachment) {
+		switch (bellAttachment) {
 			case FLOOR:
 			case CEILING:
 				return direction.getAxis() == hitDir.getAxis();

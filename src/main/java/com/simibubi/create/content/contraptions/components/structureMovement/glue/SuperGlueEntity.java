@@ -33,6 +33,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.entity.MobEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -58,6 +59,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.AABB;
@@ -262,6 +264,12 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 	public boolean hurt(DamageSource source, float amount) {
 		if (this.isInvulnerableTo(source))
 			return false;
+
+		boolean mobGriefing = level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+		Entity trueSource = source.getEntity();
+		if (!mobGriefing && trueSource instanceof MobEntity)
+			return false;
+
 		Entity immediateSource = source.getDirectEntity();
 		if (!isVisible() && immediateSource instanceof Player) {
 			if (!AllItems.SUPER_GLUE.isIn(((Player) immediateSource).getMainHandItem()))

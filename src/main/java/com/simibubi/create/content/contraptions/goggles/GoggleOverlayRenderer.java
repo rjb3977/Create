@@ -1,8 +1,11 @@
 package com.simibubi.create.content.contraptions.goggles;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -11,8 +14,11 @@ import com.simibubi.create.content.contraptions.components.structureMovement.IDi
 import com.simibubi.create.content.contraptions.components.structureMovement.piston.MechanicalPistonBlock;
 import com.simibubi.create.content.contraptions.components.structureMovement.piston.PistonExtensionPoleBlock;
 import com.simibubi.create.foundation.config.AllConfigs;
+import com.simibubi.create.foundation.config.CClient;
 import com.simibubi.create.foundation.gui.GuiGameElement;
+import com.simibubi.create.foundation.gui.Theme;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBox;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.outliner.Outline;
@@ -28,22 +34,31 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.fabricmc.api.EnvType;
+import net.minecraftforge.fml.client.gui.GuiUtils;
 
 public class GoggleOverlayRenderer {
 
+	private static final List<Supplier<Boolean>> customGogglePredicates = new LinkedList<>();
 	private static final Map<Object, OutlineEntry> outlines = CreateClient.OUTLINER.getOutlines();
+
+	public static int hoverTicks = 0;
+	public static BlockPos lastHovered = null;
 
 	public static void renderOverlay(PoseStack ms, MultiBufferSource buffer, int light, int overlay,
 		float partialTicks) {
 		HitResult objectMouseOver = Minecraft.getInstance().hitResult;
 
-		if (!(objectMouseOver instanceof BlockHitResult))
+		if (!(objectMouseOver instanceof BlockHitResult)) {
+			lastHovered = null;
+			hoverTicks = 0;
 			return;
+		}
 
 		for (OutlineEntry entry : outlines.values()) {
 			if (!entry.isAlive())
@@ -60,7 +75,15 @@ public class GoggleOverlayRenderer {
 		ItemStack headSlot = mc.player.getItemBySlot(EquipmentSlot.HEAD);
 		BlockEntity te = world.getBlockEntity(pos);
 
+		if (lastHovered == null || lastHovered.equals(pos))
+			hoverTicks++;
+		else
+			hoverTicks = 0;
+		lastHovered = pos;
+
 		boolean wearingGoggles = AllItems.GOGGLES.isIn(headSlot);
+		for (Supplier<Boolean> supplier : customGogglePredicates)
+			wearingGoggles |= supplier.get();
 
 		boolean hasGoggleInformation = te instanceof IHaveGoggleInformation;
 		boolean hasHoveringInformation = te instanceof IHaveHoveringInformation;
@@ -147,19 +170,47 @@ public class GoggleOverlayRenderer {
 				tooltipHeight += 2; // gap between title lines and next lines
 		}
 
-		int posX = tooltipScreen.width / 2 + AllConfigs.CLIENT.overlayOffsetX.get();
-		int posY = tooltipScreen.height / 2 + AllConfigs.CLIENT.overlayOffsetY.get();
-
+		CClient cfg = AllConfigs.CLIENT;
+		int posX = tooltipScreen.width / 2 + cfg.overlayOffsetX.get();
+		int posY = tooltipScreen.height / 2 + cfg.overlayOffsetY.get();
 		posX = Math.min(posX, tooltipScreen.width - tooltipTextWidth - 20);
 		posY = Math.min(posY, tooltipScreen.height - tooltipHeight - 20);
 
-		tooltipScreen.renderComponentTooltip(ms, tooltip, posX, posY);
+		float fade = MathHelper.clamp((hoverTicks + partialTicks) / 12f, 0, 1);
+		Boolean useCustom = cfg.overlayCustomColor.get();
+		Color colorBackground = useCustom ?
+				new Color(cfg.overlayBackgroundColor.get()) :
+				Theme.c(Theme.Key.VANILLA_TOOLTIP_BACKGROUND).scaleAlpha(.75f);
+		Color colorBorderTop = useCustom ?
+				new Color(cfg.overlayBorderColorTop.get()) :
+				Theme.c(Theme.Key.VANILLA_TOOLTIP_BORDER, true).copy();
+		Color colorBorderBot = useCustom ?
+				new Color(cfg.overlayBorderColorBot.get()) :
+				Theme.c(Theme.Key.VANILLA_TOOLTIP_BORDER, false).copy();
+
+		if (fade < 1) {
+			ms.translate((1 - fade) * Math.signum(cfg.overlayOffsetX.get() + .5f) * 4, 0, 0);
+			colorBackground.scaleAlpha(fade);
+			colorBorderTop.scaleAlpha(fade);
+			colorBorderBot.scaleAlpha(fade);
+		}
+
+		GuiUtils.drawHoveringText(ms, tooltip, posX, posY, tooltipScreen.width, tooltipScreen.height, -1,
+			colorBackground.getRGB(), colorBorderTop.getRGB(), colorBorderBot.getRGB(), mc.font);
 
 		ItemStack item = AllItems.GOGGLES.asStack();
 		GuiGameElement.of(item)
 			.at(posX + 10, posY - 16, 450)
 			.render(ms);
 		ms.popPose();
+	}
+
+	/**
+	 * Use this method to add custom entry points to the goggle overay, e.g. custom
+	 * armor, handheld alternatives, etc.
+	 */
+	public static void registerCustomGoggleCondition(Supplier<Boolean> condition) {
+		customGogglePredicates.add(condition);
 	}
 
 	public static final class TooltipScreen extends Screen {

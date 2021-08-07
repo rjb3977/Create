@@ -41,7 +41,7 @@ package com.simibubi.create.compat.jei.category;
 //		itemStacks.init(0, true, 50, 2);
 //		itemStacks.set(0, Arrays.asList(recipe.getIngredients()
 //			.get(0)
-//			.getMatchingStacks()));
+//			.getItems()));
 //
 //		List<ProcessingOutput> results = recipe.getRollableResults();
 //		int size = results.size();

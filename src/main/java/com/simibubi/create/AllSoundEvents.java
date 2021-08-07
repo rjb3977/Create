@@ -10,7 +10,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simibubi.create.AllSoundEvents.CustomSoundEntry;
 import com.simibubi.create.AllSoundEvents.SoundEntryBuilder;
@@ -56,7 +55,7 @@ public class AllSoundEvents {
 			.category(SoundSource.BLOCKS)
 			.build(),
 
-		FUNNEL_FLAP = create("funnel_flap").subtitle("Funnel Flaps")
+		FUNNEL_FLAP = create("funnel_flap").subtitle("Funnel flaps")
 			.playExisting(SoundEvents.ITEM_FRAME_ROTATE_ITEM, .125f, 1.5f)
 			.playExisting(SoundEvents.WOOL_BREAK, .0425f, .75f)
 			.category(SoundSource.BLOCKS)
@@ -80,7 +79,7 @@ public class AllSoundEvents {
 				.category(SoundSource.BLOCKS)
 				.build(),
 
-		MIXING = create("mixing").subtitle("Mixing Noises")
+		MIXING = create("mixing").subtitle("Mixing noises")
 			.playExisting(SoundEvents.GILDED_BLACKSTONE_BREAK, .125f, .5f)
 			.playExisting(SoundEvents.NETHERRACK_BREAK, .125f, .5f)
 			.category(SoundSource.BLOCKS)
@@ -199,6 +198,21 @@ public class AllSoundEvents {
 			.category(SoundSource.BLOCKS)
 			.build(),
 
+		CRUSHING_1 = create("crushing_1").subtitle("Crushing noises")
+			.playExisting(SoundEvents.NETHERRACK_HIT)
+			.category(SoundSource.BLOCKS)
+			.build(),
+
+		CRUSHING_2 = create("crushing_2").noSubtitle()
+			.playExisting(SoundEvents.GRAVEL_PLACE)
+			.category(SoundSource.BLOCKS)
+			.build(),
+
+		CRUSHING_3 = create("crushing_3").noSubtitle()
+			.playExisting(SoundEvents.NETHERITE_BLOCK_BREAK)
+			.category(SoundSource.BLOCKS)
+			.build(),
+
 		PECULIAR_BELL_USE = create("peculiar_bell_use").subtitle("Peculiar Bell tolls")
 			.playExisting(SoundEvents.BELL_BLOCK)
 			.category(SoundSource.BLOCKS)
@@ -226,10 +240,11 @@ public class AllSoundEvents {
 			entry.prepare();
 	}
 
-	public static JsonElement provideLangEntries() {
+	public static JsonObject provideLangEntries() {
 		JsonObject object = new JsonObject();
 		for (SoundEntry entry : entries.values())
-			object.addProperty(entry.getSubtitleKey(), entry.getSubtitle());
+			if (entry.hasSubtitle())
+				object.addProperty(entry.getSubtitleKey(), entry.getSubtitle());
 		return object;
 	}
 
@@ -306,6 +321,11 @@ public class AllSoundEvents {
 			return this;
 		}
 
+		public SoundEntryBuilder noSubtitle() {
+			this.subtitle = null;
+			return this;
+		}
+
 		public SoundEntryBuilder category(SoundSource category) {
 			this.category = category;
 			return this;
@@ -359,6 +379,10 @@ public class AllSoundEvents {
 
 		public ResourceLocation getLocation() {
 			return Create.asResource(id);
+		}
+
+		public boolean hasSubtitle() {
+			return subtitle != null;
 		}
 
 		public String getSubtitle() {
@@ -459,7 +483,7 @@ public class AllSoundEvents {
 				s.addProperty("type", "event");
 				list.add(s);
 				entry.add("sounds", list);
-				if (i == 0)
+				if (i == 0 && hasSubtitle())
 					entry.addProperty("subtitle", getSubtitleKey());
 				json.add(getIdOf(i), entry);
 			}

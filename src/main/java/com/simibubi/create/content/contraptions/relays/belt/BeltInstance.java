@@ -7,8 +7,9 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.LightLayer;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.simibubi.create.AllBlockPartials;
@@ -18,7 +19,6 @@ import com.simibubi.create.content.contraptions.base.RotatingData;
 import com.simibubi.create.foundation.block.render.SpriteShiftEntry;
 import com.simibubi.create.foundation.render.AllMaterialSpecs;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 
 public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
 
@@ -41,8 +41,8 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
 
         keys = new ArrayList<>(2);
 
-        beltSlope = blockState.get(BeltBlock.SLOPE);
-        facing = blockState.get(BeltBlock.HORIZONTAL_FACING);
+        beltSlope = blockState.getValue(BeltBlock.SLOPE);
+        facing = blockState.getValue(BeltBlock.HORIZONTAL_FACING);
         upward = beltSlope == BeltSlope.UPWARD;
         diagonal = beltSlope.isDiagonal();
         sideways = beltSlope == BeltSlope.SIDEWAYS;
@@ -50,7 +50,7 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
         alongX = facing.getAxis() == Direction.Axis.X;
         alongZ = facing.getAxis() == Direction.Axis.Z;
 
-        BeltPart part = blockState.get(BeltBlock.PART);
+        BeltPart part = blockState.getValue(BeltBlock.PART);
         boolean start = part == BeltPart.START;
         boolean end = part == BeltPart.END;
         DyeColor color = tile.color.orElse(null);
@@ -59,7 +59,9 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
             PartialModel beltPartial = BeltRenderer.getBeltPartial(diagonal, start, end, bottom);
             SpriteShiftEntry spriteShift = BeltRenderer.getSpriteShiftEntry(color, diagonal, bottom);
 
-			Instancer<BeltData> beltModel = materialManager.getMaterial(AllMaterialSpecs.BELTS).getModel(beltPartial, blockState);
+            Instancer<BeltData> beltModel = materialManager.defaultSolid()
+                    .material(AllMaterialSpecs.BELTS)
+                    .getModel(beltPartial, blockState);
 
             keys.add(setup(beltModel.createInstance(), bottom, spriteShift));
 
@@ -126,7 +128,7 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
 
         Supplier<PoseStack> ms = () -> {
             PoseStack modelTransform = new PoseStack();
-            MatrixStacker msr = MatrixStacker.of(modelTransform);
+            MatrixTransformStack msr = MatrixTransformStack.of(modelTransform);
             msr.centre();
             if (axis == Direction.Axis.X)
                 msr.rotateY(90);
@@ -142,8 +144,8 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
     }
 
     private Direction getOrientation() {
-        Direction dir = blockState.get(BeltBlock.HORIZONTAL_FACING)
-                                  .rotateY();
+        Direction dir = blockState.getValue(BeltBlock.HORIZONTAL_FACING)
+                                  .getClockWise();
         if (beltSlope == BeltSlope.SIDEWAYS)
             dir = Direction.UP;
 
@@ -165,8 +167,8 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
 				.setRotationOffset(bottom ? 0.5f : 0f)
                 .setColor(tile)
                 .setPosition(getInstancePosition())
-                .setBlockLight(world.getLightLevel(LightLayer.BLOCK, pos))
-                .setSkyLight(world.getLightLevel(LightLayer.SKY, pos));
+                .setBlockLight(world.getBrightness(LightLayer.BLOCK, pos))
+                .setSkyLight(world.getBrightness(LightLayer.SKY, pos));
 
         return key;
     }

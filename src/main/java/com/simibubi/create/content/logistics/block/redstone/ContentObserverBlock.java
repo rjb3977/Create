@@ -66,6 +66,12 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 	}
 
 	@Override
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		builder.add(POWERED, FACING);
+		super.createBlockStateDefinition(builder);
+	}
+
+	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		BlockState state = defaultBlockState();
 

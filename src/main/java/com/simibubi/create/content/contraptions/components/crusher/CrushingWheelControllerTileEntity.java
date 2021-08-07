@@ -33,6 +33,8 @@ import com.simibubi.create.content.contraptions.processing.ProcessingInventory;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.item.ItemHelper;
+import com.simibubi.create.foundation.sound.SoundScapes;
+import com.simibubi.create.foundation.sound.SoundScapes.AmbienceGroup;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputBehaviour;
@@ -93,30 +95,34 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 				processingEntity = search.get(0);
 		}
 
-
-
 		if (!isOccupied())
 			return;
 		if (crushingspeed == 0)
 			return;
 
+		if (level.isClientSide)
+			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> this.tickAudio());
+
 		float speed = crushingspeed * 4;
 
 		Vec3 centerPos = VecHelper.getCenterOf(worldPosition);
 		Direction facing = getBlockState().getValue(FACING);
-		int offset = facing.getAxisDirection().getStep();
-		Vec3 outSpeed = new Vec3((facing.getAxis() == Axis.X ? 0.25D : 0.0D) * offset
-				, offset == 1 ? (facing.getAxis() == Axis.Y ? 0.5D : 0.0D) : 0.0D		//Increased upwards speed so upwards crushing wheels shoot out the item properly.
-				, (facing.getAxis() == Axis.Z ? 0.25D : 0.0D) * offset);		//No downwards speed, so downwards crushing wheels drop the items as before.
-		Vec3 outPos = centerPos.add((facing.getAxis() == Axis.X ? .55f * offset : 0f)
-				, (facing.getAxis() == Axis.Y ? .55f * offset : 0f)
-				, (facing.getAxis() == Axis.Z ? .55f * offset : 0f));
+		int offset = facing.getAxisDirection()
+			.getStep();
+		Vec3 outSpeed = new Vec3((facing.getAxis() == Axis.X ? 0.25D : 0.0D) * offset,
+			offset == 1 ? (facing.getAxis() == Axis.Y ? 0.5D : 0.0D) : 0.0D // Increased upwards speed so upwards
+																			// crushing wheels shoot out the item
+																			// properly.
+			, (facing.getAxis() == Axis.Z ? 0.25D : 0.0D) * offset); // No downwards speed, so downwards crushing wheels
+																		// drop the items as before.
+		Vec3 outPos = centerPos.add((facing.getAxis() == Axis.X ? .55f * offset : 0f),
+			(facing.getAxis() == Axis.Y ? .55f * offset : 0f), (facing.getAxis() == Axis.Z ? .55f * offset : 0f));
 
 		if (!hasEntity()) {
 
 			float processingSpeed =
-					Mth.clamp((speed) / (!inventory.appliedRecipe ? Mth.log2(inventory.getStackInSlot(0)
-							.getCount()) : 1), .25f, 20);
+				Mth.clamp((speed) / (!inventory.appliedRecipe ? Mth.log2(inventory.getStackInSlot(0)
+					.getCount()) : 1), .25f, 20);
 			inventory.remainingTime -= processingSpeed;
 			spawnParticles(inventory.getStackInSlot(0));
 
@@ -135,12 +141,13 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 			}
 			inventory.remainingTime = 0;
 
-			//Output Items
-			if (facing.getAxis().isHorizontal() || facing == Direction.DOWN) {
-				BlockPos nextPos = worldPosition.offset(facing.getAxis() == Axis.X ? 1f * offset : 0f
-						, (-1f)
-						, facing.getAxis() == Axis.Z ? 1f * offset : 0f);
-				DirectBeltInputBehaviour behaviour = TileEntityBehaviour.get(level, nextPos, DirectBeltInputBehaviour.TYPE);
+			// Output Items
+			if (facing.getAxis()
+				.isHorizontal() || facing == Direction.DOWN) {
+				BlockPos nextPos = worldPosition.offset(facing.getAxis() == Axis.X ? 1f * offset : 0f, (-1f),
+					facing.getAxis() == Axis.Z ? 1f * offset : 0f);
+				DirectBeltInputBehaviour behaviour =
+					TileEntityBehaviour.get(level, nextPos, DirectBeltInputBehaviour.TYPE);
 				if (behaviour != null) {
 					boolean changed = false;
 					if (!behaviour.canInsertFromSide(facing))
@@ -163,7 +170,7 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 				}
 			}
 
-			//Eject Items
+			// Eject Items
 			for (int slot = 0; slot < inventory.getSlots(); slot++) {
 				ItemStack stack = inventory.getStackInSlot(slot);
 				if (stack.isEmpty())
@@ -171,13 +178,11 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 				ItemEntity entityIn = new ItemEntity(level, outPos.x, outPos.y, outPos.z, stack);
 				entityIn.setDeltaMovement(outSpeed);
 				EntityHelper.getExtraCustomData(entityIn)
-						.put("BypassCrushingWheel", NbtUtils.writeBlockPos(worldPosition));
+					.put("BypassCrushingWheel", NbtUtils.writeBlockPos(worldPosition));
 				level.addFreshEntity(entityIn);
-
 			}
 			inventory.clear();
 			level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2 | 16);
-
 
 			return;
 		}
@@ -193,33 +198,40 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 		if (processingEntity.isShiftKeyDown())
 			xMotion = zMotion = 0;
 		double movement = Math.max(-speed / 4f, -.5f) * -offset;
-		processingEntity.setDeltaMovement(new Vec3(facing.getAxis() == Axis.X ? movement : xMotion
-				, facing.getAxis() == Axis.Y ? movement : 0f							//Do not move entities upwards or downwards for horizontal crushers,
-				, facing.getAxis() == Axis.Z ? movement : zMotion));					//Or they'll only get their feet crushed.
+		processingEntity.setDeltaMovement(
+			new Vec3(facing.getAxis() == Axis.X ? movement : xMotion, facing.getAxis() == Axis.Y ? movement : 0f // Do
+																														// not
+																														// move
+																														// entities
+																														// upwards
+																														// or
+																														// downwards
+																														// for
+																														// horizontal
+																														// crushers,
+				, facing.getAxis() == Axis.Z ? movement : zMotion)); // Or they'll only get their feet crushed.
 
 		if (level.isClientSide)
 			return;
 
 		if (!(processingEntity instanceof ItemEntity)) {
-			Vec3 entityOutPos = outPos.add(facing.getAxis() == Axis.X ? .5f * offset : 0f
-					, facing.getAxis() == Axis.Y ? .5f * offset : 0f
-					, facing.getAxis() == Axis.Z ? .5f * offset : 0f);
+			Vec3 entityOutPos = outPos.add(facing.getAxis() == Axis.X ? .5f * offset : 0f,
+				facing.getAxis() == Axis.Y ? .5f * offset : 0f, facing.getAxis() == Axis.Z ? .5f * offset : 0f);
 			int crusherDamage = AllConfigs.SERVER.kinetics.crushingDamage.get();
 
 			if (processingEntity instanceof LivingEntity) {
-				if ((((LivingEntity) processingEntity).getHealth() - crusherDamage <= 0)	//Takes LivingEntity instances as exception, so it can move them before it would kill them.
-						&& (((LivingEntity) processingEntity).hurtTime <= 0)) {				//This way it can actually output the items to the right spot.
-					processingEntity.setPos(entityOutPos.x
-							, entityOutPos.y
-							, entityOutPos.z);
+				if ((((LivingEntity) processingEntity).getHealth() - crusherDamage <= 0) // Takes LivingEntity instances
+																							// as exception, so it can
+																							// move them before it would
+																							// kill them.
+					&& (((LivingEntity) processingEntity).hurtTime <= 0)) { // This way it can actually output the items
+																			// to the right spot.
+					processingEntity.setPos(entityOutPos.x, entityOutPos.y, entityOutPos.z);
 				}
 			}
-			processingEntity.hurt(CrushingWheelTileEntity.damageSource,
-					crusherDamage);
+			processingEntity.hurt(CrushingWheelTileEntity.damageSource, crusherDamage);
 			if (!processingEntity.isAlive()) {
-				processingEntity.setPos(entityOutPos.x
-						, entityOutPos.y
-						, entityOutPos.z);
+				processingEntity.setPos(entityOutPos.x, entityOutPos.y, entityOutPos.z);
 			}
 			return;
 		}
@@ -227,24 +239,33 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 		ItemEntity itemEntity = (ItemEntity) processingEntity;
 		itemEntity.setPickUpDelay(20);
 		if (facing.getAxis() == Axis.Y) {
-			if (processingEntity.getY()  * -offset < (centerPos.y - .25f) * -offset) {
+			if (processingEntity.getY() * -offset < (centerPos.y - .25f) * -offset) {
 				intakeItem(itemEntity);
 			}
 		} else if (facing.getAxis() == Axis.Z) {
-			if (processingEntity.getZ()  * -offset < (centerPos.z - .25f) * -offset) {
+			if (processingEntity.getZ() * -offset < (centerPos.z - .25f) * -offset) {
 				intakeItem(itemEntity);
 			}
 		} else {
-			if (processingEntity.getX()  * -offset < (centerPos.x - .25f) * -offset) {
+			if (processingEntity.getX() * -offset < (centerPos.x - .25f) * -offset) {
 				intakeItem(itemEntity);
 			}
 		}
 	}
 
+	@OnlyIn(Dist.CLIENT)
+	public void tickAudio() {
+		float pitch = MathHelper.clamp((crushingspeed / 256f) + .45f, .85f, 1f);
+		if (entityUUID == null && inventory.getStackInSlot(0)
+			.isEmpty())
+			return;
+		SoundScapes.play(AmbienceGroup.CRUSHING, worldPosition, pitch);
+	}
+
 	private void intakeItem(ItemEntity itemEntity) {
 		inventory.clear();
 		inventory.setStackInSlot(0, itemEntity.getItem()
-				.copy());
+			.copy());
 		itemInserted(inventory.getStackInSlot(0));
 		itemEntity.remove();
 		level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2 | 16);
@@ -257,14 +278,14 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 		ParticleOptions particleData = null;
 		if (stack.getItem() instanceof BlockItem)
 			particleData = new BlockParticleOption(ParticleTypes.BLOCK, ((BlockItem) stack.getItem()).getBlock()
-					.defaultBlockState());
+				.defaultBlockState());
 		else
 			particleData = new ItemParticleOption(ParticleTypes.ITEM, stack);
 
 		Random r = level.random;
 		for (int i = 0; i < 4; i++)
 			level.addParticle(particleData, worldPosition.getX() + r.nextFloat(), worldPosition.getY() + r.nextFloat(),
-					worldPosition.getZ() + r.nextFloat(), 0, 0, 0);
+				worldPosition.getZ() + r.nextFloat(), 0, 0, 0);
 	}
 
 	private void applyRecipe() {
@@ -273,11 +294,11 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 		List<ItemStack> list = new ArrayList<>();
 		if (recipe.isPresent()) {
 			int rolls = inventory.getStackInSlot(0)
-					.getCount();
+				.getCount();
 			inventory.clear();
 			for (int roll = 0; roll < rolls; roll++) {
 				List<ItemStack> rolledResults = recipe.get()
-						.rollResults();
+					.rollResults();
 				for (int i = 0; i < rolledResults.size(); i++) {
 					ItemStack stack = rolledResults.get(i);
 					ItemHelper.addToList(stack, list);
@@ -326,7 +347,7 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 	private void itemInserted(ItemStack stack) {
 		Optional<ProcessingRecipe<RecipeWrapper>> recipe = findRecipe();
 		inventory.remainingTime = recipe.isPresent() ? recipe.get()
-				.getProcessingDuration() : 100;
+			.getProcessingDuration() : 100;
 		inventory.appliedRecipe = false;
 	}
 

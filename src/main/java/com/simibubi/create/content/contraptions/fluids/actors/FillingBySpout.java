@@ -16,7 +16,7 @@ public class FillingBySpout {
 
 	static RecipeWrapper wrapper = new RecipeWrapper(new ItemStackHandler(1));
 	public static boolean canItemBeFilled(Level world, ItemStack stack) {
-		wrapper.setInventorySlotContents(0, stack);
+		wrapper.setItem(0, stack);
 
 		Optional<FillingRecipe> assemblyRecipe =
 			SequencedAssemblyRecipe.getRecipe(world, wrapper, AllRecipeTypes.FILLING.getType(), FillingRecipe.class);
@@ -30,7 +30,7 @@ public class FillingBySpout {
 	}
 
 	public static int getRequiredAmountForItem(Level world, ItemStack stack, FluidStack availableFluid) {
-		wrapper.setInventorySlotContents(0, stack);
+		wrapper.setItem(0, stack);
 
 		Optional<FillingRecipe> assemblyRecipe =
 			SequencedAssemblyRecipe.getRecipe(world, wrapper, AllRecipeTypes.FILLING.getType(), FillingRecipe.class);
@@ -55,7 +55,7 @@ public class FillingBySpout {
 		FluidStack toFill = (FluidStack) availableFluid.copy();
 		toFill.setAmount(requiredAmount);
 
-		wrapper.setInventorySlotContents(0, stack);
+		wrapper.setItem(0, stack);
 
 		FillingRecipe fillingRecipe =
 			SequencedAssemblyRecipe.getRecipe(world, wrapper, AllRecipeTypes.FILLING.getType(), FillingRecipe.class)
@@ -63,7 +63,7 @@ public class FillingBySpout {
 					.test(toFill))
 				.orElseGet(() -> {
 					for (IRecipe<RecipeWrapper> recipe : world.getRecipeManager()
-						.getRecipes(AllRecipeTypes.FILLING.getType(), wrapper, world)) {
+						.getRecipesFor(AllRecipeTypes.FILLING.getType(), wrapper, world)) {
 						FillingRecipe fr = (FillingRecipe) recipe;
 						FluidIngredient requiredFluid = fr.getRequiredFluid();
 						if (requiredFluid.test(toFill))

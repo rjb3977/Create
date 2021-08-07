@@ -1,6 +1,7 @@
 package com.simibubi.create.foundation.render;
 
 import com.jozufozu.flywheel.util.BufferBuilderReader;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -10,7 +11,7 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import com.simibubi.create.foundation.block.render.SpriteShiftEntry;
-import com.simibubi.create.foundation.utility.MatrixStacker;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.lib.utility.LightUtil;
 
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
@@ -48,9 +49,10 @@ public class SuperByteBuffer {
 
 	// Vertex Lighting
 	private boolean useWorldLight;
-	private boolean hybridLight;
-	private int packedLightCoords;
 	private Matrix4f lightTransform;
+	private boolean hasCustomLight;
+	private int packedLightCoords;
+	private boolean hybridLight;
 
 	// Vertex Normals
 	private boolean fullNormalTransform;
@@ -60,10 +62,13 @@ public class SuperByteBuffer {
 	private final Vector4f pos = new Vector4f();
 	private final Vector3f normal = new Vector3f();
 	private final Vector4f lightPos = new Vector4f();
+	private final MatrixTransformStack stacker;
 
 	public SuperByteBuffer(BufferBuilder buf) {
 		template = new BufferBuilderReader(buf);
 		transforms = new PoseStack();
+		transforms.pushPose();
+		stacker = MatrixTransformStack.of(transforms);
 	}
 
 	public static float getUnInterpolatedU(TextureAtlasSprite sprite, float u) {
@@ -100,7 +105,6 @@ public class SuperByteBuffer {
 			WORLD_LIGHT_CACHE.clear();
 		}
 
-		boolean hasDefaultLight = packedLightCoords != 0;
 		float f = .5f;
 		int vertexCount = template.getVertexCount();
 		for (int i = 0; i < vertexCount; i++) {
@@ -177,10 +181,10 @@ public class SuperByteBuffer {
 				}
 
 				light = getLight(Minecraft.getInstance().level, lightPos);
-				if (hasDefaultLight) {
+				if (hasCustomLight) {
 					light = maxLight(light, packedLightCoords);
 				}
-			} else if (hasDefaultLight) {
+			} else if (hasCustomLight) {
 				light = packedLightCoords;
 			} else {
 				light = template.getLight(i);
@@ -201,7 +205,9 @@ public class SuperByteBuffer {
 	}
 
 	public SuperByteBuffer reset() {
-		transforms = new PoseStack();
+		while (!transforms.clear())
+			transforms.popPose();
+		transforms.pushPose();
 		shouldColor = false;
 		r = 0;
 		g = 0;
@@ -213,15 +219,16 @@ public class SuperByteBuffer {
 		hasOverlay = false;
 		overlay = OverlayTexture.NO_OVERLAY;
 		useWorldLight = false;
-		hybridLight = false;
-		packedLightCoords = 0;
 		lightTransform = null;
+		hasCustomLight = false;
+		packedLightCoords = 0;
+		hybridLight = false;
 		fullNormalTransform = false;
 		return this;
 	}
 
-	public MatrixStacker matrixStacker() {
-		return MatrixStacker.of(transforms);
+	public MatrixTransformStack matrixStacker() {
+		return stacker;
 	}
 
 	public SuperByteBuffer translate(Vec3 vec) {
@@ -288,6 +295,10 @@ public class SuperByteBuffer {
 		b = (color & 0xFF);
 		a = 255;
 		return this;
+	}
+
+	public SuperByteBuffer color(Color c) {
+		return color(c.getRGB());
 	}
 
 	/**
@@ -368,14 +379,14 @@ public class SuperByteBuffer {
 	}
 
 	public SuperByteBuffer light(int packedLightCoords) {
+		hasCustomLight = true;
 		this.packedLightCoords = packedLightCoords;
 		return this;
 	}
 
 	public SuperByteBuffer light(Matrix4f lightTransform, int packedLightCoords) {
-		useWorldLight = true;
-		this.lightTransform = lightTransform;
-		this.packedLightCoords = packedLightCoords;
+		light(lightTransform);
+		light(packedLightCoords);
 		return this;
 	}
 
@@ -403,6 +414,10 @@ public class SuperByteBuffer {
 		return this;
 	}
 
+	public boolean isEmpty() {
+		return template.isEmpty();
+	}
+
 	public static int transformColor(byte component, float scale) {
 		return Mth.clamp((int) (Byte.toUnsignedInt(component) * scale), 0, 255);
 	}
@@ -419,13 +434,9 @@ public class SuperByteBuffer {
 		return LightTexture.pack(Math.max(blockLight1, blockLight2), Math.max(skyLight1, skyLight2));
 	}
 
-	private static int getLight(Level world, Vector4f lightPos) {
+	private static int getLight(World world, Vector4f lightPos) {
 		BlockPos pos = new BlockPos(lightPos.x(), lightPos.y(), lightPos.z());
-		return WORLD_LIGHT_CACHE.computeIfAbsent(pos.asLong(), $ -> LevelRenderer.getLightColor(world, pos));
-	}
-
-	public boolean isEmpty() {
-		return template.isEmpty();
+		return WORLD_LIGHT_CACHE.computeIfAbsent(pos.asLong(), $ -> WorldRenderer.getLightColor(world, pos));
 	}
 
 	@FunctionalInterface

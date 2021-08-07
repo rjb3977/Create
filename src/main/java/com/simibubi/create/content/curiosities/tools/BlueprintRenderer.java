@@ -1,6 +1,7 @@
 package com.simibubi.create.content.curiosities.tools;
 
 import com.jozufozu.flywheel.core.PartialModel;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix3f;
 import com.simibubi.create.AllBlockPartials;
@@ -8,7 +9,7 @@ import com.simibubi.create.content.curiosities.tools.BlueprintEntity.BlueprintSe
 import com.simibubi.create.foundation.render.PartialBufferer;
 import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.utility.Couple;
-import com.simibubi.create.foundation.utility.MatrixStacker;
+
 import com.simibubi.create.lib.extensions.Matrix3fExtensions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -60,7 +61,7 @@ public class BlueprintRenderer extends EntityRenderer<BlueprintEntity> {
 		}
 		int itemLight = Mth.floor(sl + .5) << 20 | (Mth.floor(bl + .5) & 0xf) << 4;
 
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.rotateY(vertical ? 0 : -yaw)
 			.rotateX(fakeNormalXRotation);
 		Matrix3f copy = ms.last()
@@ -70,7 +71,7 @@ public class BlueprintRenderer extends EntityRenderer<BlueprintEntity> {
 		ms.popPose();
 		ms.pushPose();
 
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.rotateY(-yaw)
 			.rotateX(entity.xRot)
 			.translate(0, 0, 1 / 32f + .001);
@@ -131,7 +132,7 @@ public class BlueprintRenderer extends EntityRenderer<BlueprintEntity> {
 	}
 
 	@Override
-	public ResourceLocation getEntityTexture(BlueprintEntity p_110775_1_) {
+	public ResourceLocation getTextureLocation(BlueprintEntity p_110775_1_) {
 		return null;
 	}
 

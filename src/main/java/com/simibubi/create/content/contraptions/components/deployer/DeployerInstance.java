@@ -5,7 +5,7 @@ import static com.simibubi.create.content.contraptions.base.DirectionalKineticBl
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.ITickableInstance;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.jozufozu.flywheel.core.materials.OrientedData;
 import com.mojang.math.Quaternion;
@@ -39,9 +39,9 @@ public class DeployerInstance extends ShaftInstance implements IDynamicInstance,
         super(dispatcher, tile);
 
         this.tile = (DeployerTileEntity) super.tile;
-        facing = blockState.get(FACING);
+        facing = blockState.getValue(FACING);
 
-        boolean rotatePole = blockState.get(AXIS_ALONG_FIRST_COORDINATE) ^ facing.getAxis() == Direction.Axis.Z;
+        boolean rotatePole = blockState.getValue(AXIS_ALONG_FIRST_COORDINATE) ^ facing.getAxis() == Direction.Axis.Z;
 
         yRot = AngleHelper.horizontalAngle(facing);
         zRot = facing == Direction.UP ? 270 : facing == Direction.DOWN ? 90 : 0;

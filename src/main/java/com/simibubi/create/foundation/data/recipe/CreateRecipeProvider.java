@@ -18,26 +18,26 @@ import net.minecraft.world.level.ItemLike;
 
 public abstract class CreateRecipeProvider extends RecipeProvider {
 
-	final List<GeneratedRecipe> all = new ArrayList<>();
+	protected final List<GeneratedRecipe> all = new ArrayList<>();
 
-	public CreateRecipeProvider(DataGenerator p_i48262_1_) {
-		super(p_i48262_1_);
+	public CreateRecipeProvider(DataGenerator generator) {
+		super(generator);
 	}
 
 //	@Override
-//	protected void registerRecipes(Consumer<IFinishedRecipe> p_200404_1_) {
+//	protected void buildShapelessRecipes(Consumer<IFinishedRecipe> p_200404_1_) {
 //		all.forEach(c -> c.register(p_200404_1_));
 //		Create.LOGGER.info(getName() + " registered " + all.size() + " recipe" + (all.size() == 1 ? "" : "s"));
 //	}
 
-	@FunctionalInterface
-	interface GeneratedRecipe {
-		void register(Consumer<FinishedRecipe> consumer);
-	}
-
 	protected GeneratedRecipe register(GeneratedRecipe recipe) {
 		all.add(recipe);
 		return recipe;
+	}
+
+	@FunctionalInterface
+	public interface GeneratedRecipe {
+		void register(Consumer<IFinishedRecipe> consumer);
 	}
 
 	protected static class Marker {
@@ -51,6 +51,10 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 
 		static Tag.Named<Item> planks() {
 			return ItemTags.PLANKS;
+		}
+
+		static ITag.INamedTag<Item> woodSlab() {
+			return ItemTags.WOODEN_SLABS;
 		}
 
 		static Tag.Named<Item> gold() {
@@ -117,8 +121,8 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 			return AllItems.ELECTRON_TUBE.get();
 		}
 
-		static ItemLike clockwork() {
-			return AllItems.CLOCKWORK_COMPONENT.get();
+		static ItemLike precisionMechanism() {
+			return AllItems.PRECISION_MECHANISM.get();
 		}
 
 		static Tag.Named<Item> copperBlock() {

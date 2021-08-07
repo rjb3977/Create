@@ -58,8 +58,11 @@ public abstract class BasinOperatingTileEntity extends KineticTileEntity {
 		if (getSpeed() == 0)
 			return true;
 		if (isRunning())
-			return false;
+			return true;
 		if (level == null || level.isClientSide)
+			return true;
+		if (!getBasin().filter(BasinTileEntity::canContinueProcessing)
+			.isPresent())
 			return true;
 
 		List<Recipe<?>> recipes = getMatchingRecipes();
@@ -96,6 +99,7 @@ public abstract class BasinOperatingTileEntity extends KineticTileEntity {
 		if (!optionalBasin.isPresent())
 			return;
 		BasinTileEntity basin = optionalBasin.get();
+		boolean wasEmpty = basin.canContinueProcessing();
 		if (!BasinRecipe.apply(basin, currentRecipe))
 			return;
 		Optional<ITriggerable> processedRecipeTrigger = getProcessedRecipeTrigger();
@@ -104,7 +108,7 @@ public abstract class BasinOperatingTileEntity extends KineticTileEntity {
 		basin.inputTank.sendDataImmediately();
 
 		// Continue mixing
-		if (matchBasinRecipe(currentRecipe)) {
+		if (wasEmpty && matchBasinRecipe(currentRecipe)) {
 			continueWithPreviousRecipe();
 			sendData();
 		}

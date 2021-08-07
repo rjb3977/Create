@@ -206,4 +206,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements Tickab
 		return player.distanceToSqr(worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D) <= 64.0D;
 	}
 
+	public World getWorld() {
+		return getLevel();
+	}
 }

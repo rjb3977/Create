@@ -1,7 +1,8 @@
 package com.simibubi.create.content.contraptions.components.press;
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
+import com.jozufozu.flywheel.core.Materials;
 import com.jozufozu.flywheel.core.materials.OrientedData;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
@@ -19,11 +20,12 @@ public class PressInstance extends ShaftInstance implements IDynamicInstance {
         super(dispatcher, tile);
         press = tile;
 
-        pressHead = dispatcher.getOrientedMaterial()
+        pressHead = dispatcher.defaultSolid()
+                .material(Materials.ORIENTED)
                 .getModel(AllBlockPartials.MECHANICAL_PRESS_HEAD, blockState)
                 .createInstance();
 
-        Quaternion q = Vector3f.YP.rotationDegrees(AngleHelper.horizontalAngle(blockState.get(MechanicalPressBlock.HORIZONTAL_FACING)));
+        Quaternion q = Vector3f.YP.rotationDegrees(AngleHelper.horizontalAngle(blockState.getValue(MechanicalPressBlock.HORIZONTAL_FACING)));
 
         pressHead.setRotation(q);
 

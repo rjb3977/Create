@@ -21,7 +21,7 @@ package com.simibubi.create.compat.jei.category;
 //
 //	@Override
 //	public void renderAttachedBlock(MatrixStack matrixStack) {
-//		GuiGameElement.of(Blocks.FIRE.getDefaultState())
+//		GuiGameElement.of(Blocks.FIRE.defaultBlockState())
 //				.scale(24)
 //				.atLocal(0, 0, 2)
 //				.render(matrixStack);

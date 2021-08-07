@@ -1,43 +1,30 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.render;
 
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL12.GL_TEXTURE_3D;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL20.glUseProgram;
-
-import java.util.List;
-import java.util.Random;
+import java.util.Collection;
 
 import com.tterrag.registrate.fabric.Lazy;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.jozufozu.flywheel.backend.Backend;
+import com.jozufozu.flywheel.core.model.ModelUtil;
 import com.jozufozu.flywheel.event.BeginFrameEvent;
 import com.jozufozu.flywheel.event.GatherContextEvent;
 import com.jozufozu.flywheel.event.ReloadRenderersEvent;
 import com.jozufozu.flywheel.event.RenderLayerEvent;
+import com.jozufozu.flywheel.util.WorldAttached;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllMovementBehaviours;
-import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementContext;
-import com.simibubi.create.foundation.render.AllProgramSpecs;
 import com.simibubi.create.foundation.render.Compartment;
-import com.simibubi.create.foundation.render.CreateContexts;
 import com.simibubi.create.foundation.render.SuperByteBuffer;
-import com.simibubi.create.foundation.render.SuperByteBufferCache;
 import com.simibubi.create.foundation.render.TileEntityRenderHelper;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -66,123 +53,53 @@ public class ContraptionRenderDispatcher {
 	private static final Lazy<BlockModelShaper> BLOCK_MODELS = Lazy.of(() -> Minecraft.getInstance().getModelManager().getBlockModelShapes());
 	private static int worldHolderRefreshCounter;
 
-	public static final Int2ObjectMap<RenderedContraption> RENDERERS = new Int2ObjectOpenHashMap<>();
-	public static final Int2ObjectMap<ContraptionWorldHolder> WORLD_HOLDERS = new Int2ObjectOpenHashMap<>();
-	public static final Compartment<Pair<Contraption, Integer>> CONTRAPTION = new Compartment<>();
+	private static WorldAttached<ContraptionRenderManager<?>> WORLDS = new WorldAttached<>(SBBContraptionManager::new);
 
-	public static void tick() {
+	public static final Compartment<Pair<Contraption, RenderType>> CONTRAPTION = new Compartment<>();
+
+	public static void tick(World world) {
 		if (Minecraft.getInstance().isPaused()) return;
 
-		for (RenderedContraption contraption : RENDERERS.values()) {
-			contraption.getLighter().tick(contraption);
-
-			contraption.kinetics.tick();
-		}
-
-		worldHolderRefreshCounter++;
-		if (worldHolderRefreshCounter >= 20) {
-			removeDeadHolders();
-			worldHolderRefreshCounter = 0;
-		}
+		WORLDS.get(world).tick();
 	}
 
 	@SubscribeEvent
 	public static void beginFrame(BeginFrameEvent event) {
-		Camera info = event.getInfo();
-		double camX = info.getPosition().x;
-		double camY = info.getPosition().y;
-		double camZ = info.getPosition().z;
-		for (RenderedContraption renderer : RENDERERS.values()) {
-			renderer.beginFrame(info, camX, camY, camZ);
-		}
+		WORLDS.get(event.getWorld()).beginFrame(event);
 	}
 
 	@SubscribeEvent
 	public static void renderLayer(RenderLayerEvent event) {
-		removeDeadContraptions();
-
-		if (RENDERERS.isEmpty()) return;
-		RenderType layer = event.getType();
-
-		layer.setupRenderState();
-		glEnable(GL_TEXTURE_3D);
-		glActiveTexture(GL_TEXTURE4); // the shaders expect light volumes to be in texture 4
-
-		if (Backend.getInstance().canUseVBOs()) {
-			ContraptionProgram structureShader = CreateContexts.STRUCTURE.getProgram(AllProgramSpecs.STRUCTURE);
-
-			structureShader.bind();
-			structureShader.uploadViewProjection(event.viewProjection);
-			structureShader.uploadCameraPos(event.camX, event.camY, event.camZ);
-
-			for (RenderedContraption renderer : RENDERERS.values()) {
-				renderer.doRenderLayer(layer, structureShader);
-			}
-		}
-
-		if (Backend.getInstance().canUseInstancing()) {
-			for (RenderedContraption renderer : RENDERERS.values()) {
-				renderer.materialManager.render(layer, event.viewProjection, event.camX, event.camY, event.camZ, renderer::setup);
-			}
-		}
-
-		glBindTexture(GL_TEXTURE_3D, 0);
-		layer.clearRenderState();
-		glDisable(GL_TEXTURE_3D);
-		glActiveTexture(GL_TEXTURE0);
-		glUseProgram(0);
+		WORLDS.get(event.getWorld()).renderLayer(event);
 	}
 
 	@SubscribeEvent
 	public static void onRendererReload(ReloadRenderersEvent event) {
-		invalidateAll();
+		reset();
 	}
 
-	public static void invalidateOnGatherContext(GatherContextEvent e) {
-		invalidateAll();
+	public static void gatherContext(GatherContextEvent e) {
+		reset();
 	}
 
-	public static void render(AbstractContraptionEntity entity, Contraption contraption,
-							  ContraptionMatrices matrices, MultiBufferSource buffers) {
-		Level world = entity.level;
-		if (Backend.getInstance().canUseVBOs() && Backend.isFlywheelWorld(world)) {
-			RenderedContraption renderer = getRenderer(world, contraption);
-			PlacementSimulationWorld renderWorld = renderer.renderWorld;
+	public static void renderFromEntity(AbstractContraptionEntity entity, Contraption contraption, IRenderTypeBuffer buffers) {
+		World world = entity.level;
 
-			ContraptionRenderDispatcher.renderDynamic(world, renderWorld, contraption, matrices, buffers);
-		} else {
-			ContraptionWorldHolder holder = getWorldHolder(world, contraption);
-			PlacementSimulationWorld renderWorld = holder.renderWorld;
+		ContraptionRenderInfo renderInfo = WORLDS.get(world)
+				.getRenderInfo(contraption);
+		ContraptionMatrices matrices = renderInfo.getMatrices();
 
-			ContraptionRenderDispatcher.renderDynamic(world, renderWorld, contraption, matrices, buffers);
-			ContraptionRenderDispatcher.renderStructure(world, renderWorld, contraption, matrices, buffers);
-		}
-	}
+		// something went wrong with the other rendering
+		if (!matrices.isReady()) return;
 
-	private static RenderedContraption getRenderer(Level world, Contraption c) {
-		int entityId = c.entity.getId();
-		RenderedContraption contraption = RENDERERS.get(entityId);
+		PlacementSimulationWorld renderWorld = renderInfo.renderWorld;
 
-		if (contraption == null) {
-			PlacementSimulationWorld renderWorld = setupRenderWorld(world, c);
-			contraption = new RenderedContraption(c, renderWorld);
-			RENDERERS.put(entityId, contraption);
-		}
+		renderTileEntities(world, renderWorld, contraption, matrices, buffers);
 
-		return contraption;
-	}
+		if (buffers instanceof IRenderTypeBuffer.Impl)
+			((IRenderTypeBuffer.Impl) buffers).endBatch();
 
-	private static ContraptionWorldHolder getWorldHolder(Level world, Contraption c) {
-		int entityId = c.entity.getId();
-		ContraptionWorldHolder holder = WORLD_HOLDERS.get(entityId);
-
-		if (holder == null) {
-			PlacementSimulationWorld renderWorld = setupRenderWorld(world, c);
-			holder = new ContraptionWorldHolder(c, renderWorld);
-			WORLD_HOLDERS.put(entityId, holder);
-		}
-
-		return holder;
+		renderActors(world, renderWorld, contraption, matrices, buffers);
 	}
 
 	public static PlacementSimulationWorld setupRenderWorld(Level world, Contraption c) {
@@ -201,18 +118,10 @@ public class ContraptionRenderDispatcher {
 		return renderWorld;
 	}
 
-	public static void renderDynamic(Level world, PlacementSimulationWorld renderWorld, Contraption c,
-									 ContraptionMatrices matrices, MultiBufferSource buffer) {
-		renderTileEntities(world, renderWorld, c, matrices, buffer);
-		if (buffer instanceof MultiBufferSource.BufferSource)
-			((MultiBufferSource.BufferSource) buffer).endBatch();
-		renderActors(world, renderWorld, c, matrices, buffer);
-	}
-
-	public static void renderTileEntities(Level world, PlacementSimulationWorld renderWorld, Contraption c,
-										  ContraptionMatrices matrices, MultiBufferSource buffer) {
+	public static void renderTileEntities(World world, PlacementSimulationWorld renderWorld, Contraption c,
+										  ContraptionMatrices matrices, IRenderTypeBuffer buffer) {
 		TileEntityRenderHelper.renderTileEntities(world, renderWorld, c.specialRenderedTileEntities,
-				matrices.getFinalStack(), matrices.getFinalLight(), buffer);
+				matrices.getModelViewProjection(), matrices.getLight(), buffer);
 	}
 
 	protected static void renderActors(Level world, PlacementSimulationWorld renderWorld, Contraption c,
@@ -225,9 +134,9 @@ public class ContraptionRenderDispatcher {
 				context.world = world;
 			StructureTemplate.StructureBlockInfo blockInfo = actor.getLeft();
 
-			PoseStack m = matrices.contraptionStack;
+			PoseStack m = matrices.getModel();
 			m.pushPose();
-			MatrixStacker.of(m)
+			MatrixTransformStack.of(m)
 					.translate(blockInfo.pos);
 
 			MovementBehaviour movementBehaviour = AllMovementBehaviours.of(blockInfo.state);
@@ -238,65 +147,15 @@ public class ContraptionRenderDispatcher {
 		}
 	}
 
-	public static void renderStructure(Level world, PlacementSimulationWorld renderWorld, Contraption c,
-									   ContraptionMatrices matrices, MultiBufferSource buffer) {
-		SuperByteBufferCache bufferCache = CreateClient.BUFFER_CACHE;
-		List<RenderType> blockLayers = RenderType.chunkBufferLayers();
-
-		buffer.getBuffer(RenderType.solid());
-		for (int i = 0; i < blockLayers.size(); i++) {
-			RenderType layer = blockLayers.get(i);
-			Pair<Contraption, Integer> key = Pair.of(c, i);
-			SuperByteBuffer contraptionBuffer = bufferCache.get(CONTRAPTION, key, () -> buildStructureBuffer(renderWorld, c, layer));
-			if (contraptionBuffer.isEmpty())
-				continue;
-			contraptionBuffer
-					.transform(matrices.contraptionStack)
-					.light(matrices.entityMatrix)
-					.hybridLight()
-					.renderInto(matrices.entityStack, buffer.getBuffer(layer));
-		}
-	}
-
-	private static SuperByteBuffer buildStructureBuffer(PlacementSimulationWorld renderWorld, Contraption c, RenderType layer) {
-		BufferBuilder builder = buildStructure(renderWorld, c, layer);
+	public static SuperByteBuffer buildStructureBuffer(PlacementSimulationWorld renderWorld, Contraption c, RenderType layer) {
+		Collection<Template.BlockInfo> values = c.getBlocks()
+				.values();
+		BufferBuilder builder = ModelUtil.getBufferBuilderFromTemplate(renderWorld, layer, values);
 		return new SuperByteBuffer(builder);
 	}
 
-	public static BufferBuilder buildStructure(PlacementSimulationWorld renderWorld, Contraption c, RenderType layer) {
-		PoseStack ms = new PoseStack();
-		Random random = new Random();
-		BufferBuilder builder = new BufferBuilder(DefaultVertexFormat.BLOCK.getIntegerSize());
-		builder.begin(GL_QUADS, DefaultVertexFormat.BLOCK);
-
-		ForgeHooksClient.setRenderLayer(layer);
-		ModelBlockRenderer.enableCaching();
-		for (StructureTemplate.StructureBlockInfo info : c.getBlocks()
-				.values()) {
-			BlockState state = info.state;
-
-			if (state.getRenderShape() != RenderShape.MODEL)
-				continue;
-			if (!ItemBlockRenderTypes.canRenderInLayer(state, layer))
-				continue;
-
-			BlockPos pos = info.pos;
-
-			ms.pushPose();
-			ms.translate(pos.getX(), pos.getY(), pos.getZ());
-			MODEL_RENDERER.get().renderModel(renderWorld, BLOCK_MODELS.get().getBlockModel(state), state, pos, ms, builder, true,
-					random, 42, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
-			ms.popPose();
-		}
-		ModelBlockRenderer.clearCache();
-		ForgeHooksClient.setRenderLayer(null);
-
-		builder.end();
-		return builder;
-	}
-
-	public static int getLight(Level world, float lx, float ly, float lz) {
-		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+	public static int getLight(World world, float lx, float ly, float lz) {
+		BlockPos.Mutable pos = new BlockPos.Mutable();
 		float block = 0, sky = 0;
 		float offset = 1 / 8f;
 
@@ -315,27 +174,13 @@ public class ContraptionRenderDispatcher {
 		return LevelRenderer.getLightColor(renderWorld, context.localPos);
 	}
 
-	public static void invalidateAll() {
-		for (RenderedContraption renderer : RENDERERS.values()) {
-			renderer.invalidate();
+	public static void reset() {
+		WORLDS.empty(ContraptionRenderManager::delete);
+
+		if (Backend.getInstance().available()) {
+			WORLDS = new WorldAttached<>(FlwContraptionManager::new);
+		} else {
+			WORLDS = new WorldAttached<>(SBBContraptionManager::new);
 		}
-
-		RENDERERS.clear();
-		WORLD_HOLDERS.clear();
 	}
-
-	public static void removeDeadContraptions() {
-		RENDERERS.values().removeIf(renderer -> {
-			if (renderer.isDead()) {
-				renderer.invalidate();
-				return true;
-			}
-			return false;
-		});
-	}
-
-	public static void removeDeadHolders() {
-		WORLD_HOLDERS.values().removeIf(ContraptionWorldHolder::isDead);
-	}
-
 }

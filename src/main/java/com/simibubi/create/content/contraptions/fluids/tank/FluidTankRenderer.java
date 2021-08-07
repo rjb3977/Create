@@ -68,7 +68,7 @@ public class FluidTankRenderer extends SafeTileEntityRenderer<FluidTankTileEntit
 	}
 
 	@Override
-	public boolean isGlobalRenderer(FluidTankTileEntity te) {
+	public boolean shouldRenderOffScreen(FluidTankTileEntity te) {
 		return te.isController();
 	}
 

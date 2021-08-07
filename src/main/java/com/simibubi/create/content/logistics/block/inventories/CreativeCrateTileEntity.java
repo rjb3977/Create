@@ -11,7 +11,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
-import com.simibubi.create.foundation.utility.MatrixStacker;
+
 import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
@@ -91,7 +91,7 @@ public class CreativeCrateTileEntity extends CrateTileEntity {
 
 			@Override
 			protected void rotate(BlockState state, PoseStack ms) {
-				MatrixStacker.of(ms)
+				MatrixTransformStack.of(ms)
 					.rotateX(90);
 			}
 

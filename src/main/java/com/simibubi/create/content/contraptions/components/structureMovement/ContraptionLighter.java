@@ -61,4 +61,8 @@ public abstract class ContraptionLighter<C extends Contraption> implements ILigh
 
         return bounds;
     }
+
+	public GridAlignedBB getBounds() {
+		return bounds;
+	}
 }

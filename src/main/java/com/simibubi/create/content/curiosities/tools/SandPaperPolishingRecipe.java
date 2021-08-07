@@ -24,7 +24,7 @@ public class SandPaperPolishingRecipe extends ProcessingRecipe<SandPaperInv> {
 	@Override
 	public boolean matches(SandPaperInv inv, Level worldIn) {
 		return ingredients.get(0)
-			.test(inv.getStackInSlot(0));
+			.test(inv.getItem(0));
 	}
 
 	@Override

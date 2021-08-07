@@ -8,7 +8,7 @@ import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBe
 
 /**
  * Commonly used Predicates for searching through recipe collections.
- * 
+ *
  * @author simibubi
  *
  */

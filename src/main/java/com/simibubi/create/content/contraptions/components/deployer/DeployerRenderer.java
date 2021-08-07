@@ -122,10 +122,12 @@ public class DeployerRenderer extends SafeTileEntityRenderer<DeployerTileEntity>
 		SuperByteBuffer pole = PartialBufferer.get(AllBlockPartials.DEPLOYER_POLE, blockState);
 		SuperByteBuffer hand = PartialBufferer.get(te.getHandPose(), blockState);
 
-		transform(te.getLevel(), pole.translate(offset.x, offset.y, offset.z), blockState, pos, true).renderInto(ms,
-				vb);
-		transform(te.getLevel(), hand.translate(offset.x, offset.y, offset.z), blockState, pos, false).renderInto(ms,
-				vb);
+		transform(pole.translate(offset.x, offset.y, offset.z), blockState, true)
+			.light(light)
+			.renderInto(ms, vb);
+		transform(hand.translate(offset.x, offset.y, offset.z), blockState, false)
+			.light(light)
+			.renderInto(ms, vb);
 	}
 
 	protected Vec3 getHandOffset(DeployerTileEntity te, float partialTicks, BlockState blockState) {
@@ -137,8 +139,7 @@ public class DeployerRenderer extends SafeTileEntityRenderer<DeployerTileEntity>
 		return KineticTileEntityRenderer.shaft(KineticTileEntityRenderer.getRotationAxisOf(te));
 	}
 
-	private static SuperByteBuffer transform(Level world, SuperByteBuffer buffer, BlockState deployerState,
-		BlockPos pos, boolean axisDirectionMatters) {
+	private static SuperByteBuffer transform(SuperByteBuffer buffer, BlockState deployerState, boolean axisDirectionMatters) {
 		Direction facing = deployerState.getValue(FACING);
 
 		float zRotLast =
@@ -150,7 +151,6 @@ public class DeployerRenderer extends SafeTileEntityRenderer<DeployerTileEntity>
 		buffer.rotateCentered(Direction.SOUTH, (float) ((zRot) / 180 * Math.PI));
 		buffer.rotateCentered(Direction.UP, (float) ((yRot) / 180 * Math.PI));
 		buffer.rotateCentered(Direction.SOUTH, (float) ((zRotLast) / 180 * Math.PI));
-		buffer.light(LevelRenderer.getLightColor(world, deployerState, pos));
 		return buffer;
 	}
 
@@ -158,9 +158,7 @@ public class DeployerRenderer extends SafeTileEntityRenderer<DeployerTileEntity>
 		ContraptionMatrices matrices, MultiBufferSource buffer) {
 		VertexConsumer builder = buffer.getBuffer(RenderType.solid());
 		BlockState blockState = context.state;
-		BlockPos pos = BlockPos.ZERO;
 		Mode mode = NBTHelper.readEnum(context.tileData, "Mode", Mode.class);
-		Level world = context.world;
 		PartialModel handPose = getHandPose(mode);
 
 		SuperByteBuffer pole = PartialBufferer.get(AllBlockPartials.DEPLOYER_POLE, blockState);
@@ -180,19 +178,19 @@ public class DeployerRenderer extends SafeTileEntityRenderer<DeployerTileEntity>
 		Vec3 offset = Vec3.atLowerCornerOf(blockState.getValue(FACING)
 			.getNormal()).scale(factor);
 
-		PoseStack m = matrices.contraptionStack;
+		PoseStack m = matrices.getModel();
 		m.pushPose();
 		m.translate(offset.x, offset.y, offset.z);
 
 		pole.transform(m);
 		hand.transform(m);
-		pole = transform(world, pole, blockState, pos, true);
-		hand = transform(world, hand, blockState, pos, false);
+		pole = transform(pole, blockState, true);
+		hand = transform(hand, blockState, false);
 
-		pole.light(matrices.entityMatrix, ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
-			.renderInto(matrices.entityStack, builder);
-		hand.light(matrices.entityMatrix, ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
-			.renderInto(matrices.entityStack, builder);
+		pole.light(matrices.getWorld(), ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
+			.renderInto(matrices.getViewProjection(), builder);
+		hand.light(matrices.getWorld(), ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
+			.renderInto(matrices.getViewProjection(), builder);
 
 		m.popPose();
 	}

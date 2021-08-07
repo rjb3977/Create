@@ -4,18 +4,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraftforge.common.util.NonNullFunction;
 
 public class WorldAttached<T> {
 
 	static List<Map<LevelAccessor, ?>> allMaps = new ArrayList<>();
 	Map<LevelAccessor, T> attached;
-	private Supplier<T> factory;
+	private final NonNullFunction<IWorld, T> factory;
 
-	public WorldAttached(Supplier<T> factory) {
+	public WorldAttached(NonNullFunction<IWorld, T> factory) {
 		this.factory = factory;
 		attached = new HashMap<>();
 		allMaps.add(attached);
@@ -25,12 +27,12 @@ public class WorldAttached<T> {
 		allMaps.forEach(m -> m.remove(world));
 	}
 
-	@Nullable
+	@Nonnull
 	public T get(LevelAccessor world) {
 		T t = attached.get(world);
 		if (t != null)
 			return t;
-		T entry = factory.get();
+		T entry = factory.apply(world);
 		put(world, entry);
 		return entry;
 	}

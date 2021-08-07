@@ -40,7 +40,7 @@ package com.simibubi.create.compat.jei.category;
 //		itemStacks.init(0, true, 12, 47);
 //		itemStacks.set(0, Arrays.asList(recipe.getIngredients()
 //				.get(0)
-//				.getMatchingStacks()));
+//				.getItems()));
 //
 //		List<ProcessingOutput> results = recipe.getRollableResults();
 //		boolean single = results.size() == 1;
@@ -86,14 +86,14 @@ package com.simibubi.create.compat.jei.category;
 //
 //	@Override
 //	public void renderAttachedBlock(MatrixStack matrixStack) {
-//		matrixStack.push();
+//		matrixStack.pushPose();
 //
 //		GuiGameElement.of(Fluids.WATER)
 //				.scale(24)
 //				.atLocal(0, 0, 2)
 //				.render(matrixStack);
 //
-//		matrixStack.pop();
+//		matrixStack.popPose();
 //	}
 //
 //}

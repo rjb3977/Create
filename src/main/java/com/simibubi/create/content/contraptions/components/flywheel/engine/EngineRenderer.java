@@ -37,7 +37,7 @@ public class EngineRenderer<T extends EngineTileEntity> extends SafeTileEntityRe
 				PartialBufferer.get(frame, te.getBlockState())
 						.rotateCentered(Direction.UP, angle)
 						.translate(0, 0, -1)
-						.light(LevelRenderer.getLightColor(te.getLevel(), te.getBlockState(), te.getBlockPos()))
+						.light(light)
 						.renderInto(ms, buffer.getBuffer(RenderType.solid()));
 			}
 		}

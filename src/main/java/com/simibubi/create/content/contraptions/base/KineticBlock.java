@@ -29,8 +29,18 @@ public abstract class KineticBlock extends Block implements IRotate, Harvestable
 	}
 
 	@Override
-	public boolean canHarvestBlock(BlockState state, BlockGetter world, BlockPos pos, Player player) {
-		return player.getMainHandItem().isCorrectToolForDrops(state);
+	public ToolType getHarvestTool(BlockState state) {
+		return null;
+	}
+
+	@Override
+	public boolean canHarvestBlock(BlockState state, IBlockReader world, BlockPos pos, PlayerEntity player) {
+		for (ToolType toolType : player.getMainHandItem()
+			.getToolTypes()) {
+			if (isToolEffective(state, toolType))
+				return true;
+		}
+		return super.canHarvestBlock(state, world, pos, player);
 	}
 
 	@Override
@@ -71,6 +81,8 @@ public abstract class KineticBlock extends Block implements IRotate, Harvestable
 //	}
 
 	protected boolean areStatesKineticallyEquivalent(BlockState oldState, BlockState newState) {
+		if (oldState.getBlock() != newState.getBlock())
+			return false;
 		return getRotationAxis(newState) == getRotationAxis(oldState);
 	}
 

@@ -82,7 +82,6 @@ public class MinecartSim2020 {
 
 //		AbstractRailBlock abstractrailblock = (AbstractRailBlock) trackState.getBlock();
 		RailShape railshape = MinecartAndRailUtil.getDirectionOfRail(trackState, cart.level, cartPos, cart);
-
 		switch (railshape) {
 		case ASCENDING_EAST:
 			forcedMovement = forcedMovement.add(-1 * MinecartAndRailUtil.getSlopeAdjustment(), 0.0D, 0.0D);

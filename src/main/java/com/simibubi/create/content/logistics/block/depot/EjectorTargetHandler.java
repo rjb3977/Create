@@ -6,7 +6,7 @@ import com.simibubi.create.CreateClient;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.ChatFormatting;
@@ -195,7 +195,7 @@ public class EjectorTargetHandler {
 		double tickOffset = totalFlyingTicks / segments;
 		boolean valid = xDiff == validX && zDiff == validZ;
 		int intColor = valid ? 0x9ede73 : 0xff7171;
-		Vec3 color = ColorHelper.getRGB(intColor);
+		Vec3 color = Color.vectorFromRGB(intColor);
 		DustParticleOptions data = new DustParticleOptions((float) color.x, (float) color.y, (float) color.z, 1);
 		ClientLevel world = mc.level;
 

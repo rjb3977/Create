@@ -31,15 +31,15 @@ public class AllTags {
 	}
 
 	public static Tag.Named<Block> forgeBlockTag(String name) {
-		return null;//forgeTag(BlockTags::makeWrapperTag, name);
+		return null;//forgeTag(BlockTags::bind, name);
 	}
 
 	public static Tag.Named<Item> forgeItemTag(String name) {
-		return null;//forgeTag(ItemTags::makeWrapperTag, name);
+		return null;//forgeTag(ItemTags::bind, name);
 	}
 
 	public static Tag.Named<Fluid> forgeFluidTag(String name) {
-		return null;//forgeTag(FluidTags::makeWrapperTag, name);
+		return null;//forgeTag(FluidTags::bind, name);
 	}
 
 	public static <T> Tag.Named<T> forgeTag(Function<String, Tag.Named<T>> wrapperFactory, String name) {
@@ -69,6 +69,7 @@ public class AllTags {
 		SEATS(MOD),
 		VALVE_HANDLES(MOD),
 		UPRIGHT_ON_BELT(MOD),
+		SANDPAPER(MOD),
 		CREATE_INGOTS(MOD),
 		BEACON_PAYMENT(FORGE),
 		INGOTS(FORGE),
@@ -86,9 +87,9 @@ public class AllTags {
 
 		private AllItemTags(NameSpace namespace, String path) {
 			tag = TagUtil.getTagFromResourceLocation(new ResourceLocation(namespace.id, (path.isEmpty() ? "" : path + "/") + Lang.asId(name())));
-//			tag = ItemTags.makeWrapperTag(
+//			tag = ItemTags.bind(
 //					new ResourceLocation(namespace.id, (path.isEmpty() ? "" : path + "/") + Lang.asId(name())).toString());
-//			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.getOrCreateTagBuilder(tag));
+//			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.tag(tag));
 		}
 
 		public boolean matches(ItemStack stack) {
@@ -96,12 +97,12 @@ public class AllTags {
 		}
 
 		public void add(Item... values) {
-//			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.getOrCreateTagBuilder(tag)
+//			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.tag(tag)
 //					.add(values));
 		}
 
 		public void includeIn(AllItemTags parent) {
-//			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.getOrCreateTagBuilder(parent.tag)
+//			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.tag(parent.tag)
 //					.addTag(tag));
 		}
 	}
@@ -166,8 +167,8 @@ public class AllTags {
 			tag = TagUtil.getTagFromResourceLocation(id);
 //			if (ModList.get()
 //					.isLoaded(namespace.id)) {
-//				tag = BlockTags.makeWrapperTag(id.toString());
-//				REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.getOrCreateTagBuilder(tag));
+//				tag = BlockTags.bind(id.toString());
+//				REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag));
 //			} else {
 //				tag = new EmptyNamedTag<>(id);
 //			}
@@ -179,17 +180,17 @@ public class AllTags {
 		}
 
 		public void includeIn(AllBlockTags parent) {
-//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.getOrCreateTagBuilder(parent.tag)
+//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(parent.tag)
 //					.addTag(tag));
 		}
 
 		public void includeAll(Tag.Named<Block> child) {
-//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.getOrCreateTagBuilder(tag)
+//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag)
 //					.addTag(child));
 		}
 
 		public void add(Block... values) {
-//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.getOrCreateTagBuilder(tag)
+//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag)
 //					.add(values));
 		}
 	}

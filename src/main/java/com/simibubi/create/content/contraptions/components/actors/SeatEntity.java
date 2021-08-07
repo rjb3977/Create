@@ -104,7 +104,7 @@ public class SeatEntity extends Entity implements ExtraSpawnDataEntity {
 		}
 
 		@Override
-		public ResourceLocation getEntityTexture(SeatEntity p_110775_1_) {
+		public ResourceLocation getTextureLocation(SeatEntity p_110775_1_) {
 			return null;
 		}
 	}

@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.particle;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.content.contraptions.goggles.GogglesItem;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -37,7 +37,7 @@ public class RotationIndicatorParticle extends SimpleAnimatedParticle {
 		this.quadSize *= 0.75F;
 		this.lifetime = lifeSpan + this.random.nextInt(32);
 		this.setFadeColor(color);
-		this.setColor(ColorHelper.mixColors(color, 0xFFFFFF, .5f));
+		this.setColor(Color.mixColors(color, 0xFFFFFF, .5f));
 		this.setSpriteFromAge(sprite);
 		this.radius1 = radius1;
 		this.radius = radius1;
@@ -83,7 +83,7 @@ public class RotationIndicatorParticle extends SimpleAnimatedParticle {
 			this.spriteSet = animatedSprite;
 		}
 
-		public Particle makeParticle(RotationIndicatorParticleData data, ClientLevel worldIn, double x, double y, double z,
+		public Particle createParticle(RotationIndicatorParticleData data, ClientLevel worldIn, double x, double y, double z,
 				double xSpeed, double ySpeed, double zSpeed) {
 			Minecraft mc = Minecraft.getInstance();
 			LocalPlayer player = mc.player;

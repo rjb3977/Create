@@ -3,6 +3,7 @@ package com.simibubi.create.foundation.gui;
 import java.awt.Color;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.Create;
+import com.simibubi.create.foundation.utility.Color;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;

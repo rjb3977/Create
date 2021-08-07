@@ -9,7 +9,7 @@ import net.minecraft.world.level.LightLayer;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.logistics.block.FlapData;
@@ -26,11 +26,12 @@ public class BeltTunnelInstance extends TileEntityInstance<BeltTunnelTileEntity>
 
         tunnelFlaps = new EnumMap<>(Direction.class);
 
-		Instancer<FlapData> model = modelManager.getMaterial(AllMaterialSpecs.FLAPS)
+        Instancer<FlapData> model = modelManager.defaultSolid()
+                .material(AllMaterialSpecs.FLAPS)
 				.getModel(AllBlockPartials.BELT_TUNNEL_FLAP, blockState);
 
-        int blockLight = world.getLightLevel(LightLayer.BLOCK, pos);
-        int skyLight = world.getLightLevel(LightLayer.SKY, pos);
+        int blockLight = world.getBrightness(LightLayer.BLOCK, pos);
+        int skyLight = world.getBrightness(LightLayer.SKY, pos);
 
         tile.flaps.forEach((direction, flapValue) -> {
 
@@ -48,7 +49,7 @@ public class BeltTunnelInstance extends TileEntityInstance<BeltTunnelTileEntity>
 
                 FlapData key = model.createInstance();
 
-                key.setPosition(pos)
+                key.setPosition(getInstancePosition())
                    .setSegmentOffset(segmentOffset, 0, 0)
                    .setBlockLight(blockLight)
                    .setSkyLight(skyLight)

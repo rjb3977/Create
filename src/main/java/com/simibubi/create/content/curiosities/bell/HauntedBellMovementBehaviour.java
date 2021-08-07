@@ -18,7 +18,7 @@ public class HauntedBellMovementBehaviour extends BellMovementBehaviour {
 	@Override
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
 		if (!context.world.isClientSide && getRecharge(context) == 0) {
-			HauntedBellPulser.sendPulse(context.world, pos, DISTANCE, true);
+			HauntedBellPulser.sendPulse(context.world, pos, DISTANCE, false);
 			setRecharge(context, HauntedBellTileEntity.RECHARGE_TICKS);
 			playSound(context);
 		}

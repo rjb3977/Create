@@ -26,7 +26,6 @@ import com.simibubi.create.content.schematics.ItemRequirement;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class GlassFluidPipeBlock extends AxisPipeBlock implements SimpleWaterloggedBlock, ISpecialBlockItemRequirement, EntityBlock {

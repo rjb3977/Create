@@ -155,6 +155,10 @@ public class LecternControllerTileEntity extends SmartTileEntity {
 	}
 
 	public void dropController(BlockState state) {
+		Entity playerEntity = ((ServerWorld) level).getEntity(user);
+		if (playerEntity instanceof PlayerEntity)
+			stopUsing((PlayerEntity) playerEntity);
+
 		Direction dir = state.getValue(LecternControllerBlock.FACING);
 		double x = worldPosition.getX() + 0.5 + 0.25*dir.getStepX();
 		double y = worldPosition.getY() + 1;

@@ -178,7 +178,7 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 //					.getFillSound();
 //			if (soundevent == null)
 //				soundevent =
-//						fluid.isIn(FluidTags.LAVA) ? SoundEvents.ITEM_BUCKET_FILL_LAVA : SoundEvents.ITEM_BUCKET_FILL;
+//						fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL;
 		}
 
 		if (soundevent != null && !onClient) {

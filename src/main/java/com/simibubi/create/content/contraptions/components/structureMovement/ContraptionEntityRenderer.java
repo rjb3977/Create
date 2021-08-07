@@ -1,7 +1,6 @@
 package com.simibubi.create.content.contraptions.components.structureMovement;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionMatrices;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -16,7 +15,7 @@ public class ContraptionEntityRenderer<C extends AbstractContraptionEntity> exte
 	}
 
 	@Override
-	public ResourceLocation getEntityTexture(C entity) {
+	public ResourceLocation getTextureLocation(C entity) {
 		return null;
 	}
 
@@ -36,10 +35,9 @@ public class ContraptionEntityRenderer<C extends AbstractContraptionEntity> exte
 		int overlay) {
 		super.render(entity, yaw, partialTicks, ms, buffers, overlay);
 
-		ContraptionMatrices matrices = new ContraptionMatrices(ms, entity);
 		Contraption contraption = entity.getContraption();
 		if (contraption != null) {
-			ContraptionRenderDispatcher.render(entity, contraption, matrices, buffers);
+			ContraptionRenderDispatcher.renderFromEntity(entity, contraption, buffers);
 		}
 	}
 

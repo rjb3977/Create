@@ -96,7 +96,7 @@ public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock,
 			defaultState = defaultState.setValue(PROPERTY_BY_DIRECTION.get(d), d.getAxis() == axis);
 		return defaultState;
 	}
-	
+
 	@Nullable
 	private Axis getAxis(BlockGetter world, BlockPos pos, BlockState state) {
 		return FluidPropagator.getStraightPipeAxis(state);

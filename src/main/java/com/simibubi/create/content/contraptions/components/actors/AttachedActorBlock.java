@@ -73,5 +73,5 @@ public abstract class AttachedActorBlock extends HorizontalDirectionalBlock impl
 	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
-	
+
 }

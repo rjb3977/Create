@@ -70,6 +70,9 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 					}
 					return InteractionResult.SUCCESS;
 				}
+
+				if (AllBlocks.LECTERN_CONTROLLER.has(hitState))
+					return ActionResultType.PASS;
 			}
 		}
 
@@ -83,7 +86,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 		if (player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
 			if (!world.isClientSide && player instanceof ServerPlayer && player.mayBuild())
 				NetworkUtil.openGUI((ServerPlayer) player, this, buf -> {
-					buf.writeItemStack(heldItem);
+					buf.writeItem(heldItem);
 				});
 			return InteractionResultHolder.success(heldItem);
 		}

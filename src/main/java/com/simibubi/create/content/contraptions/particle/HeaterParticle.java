@@ -102,7 +102,7 @@ public class HeaterParticle extends SimpleAnimatedParticle {
 		}
 
 		@Override
-		public Particle makeParticle(HeaterParticleData data, ClientLevel worldIn, double x, double y, double z, double vx,
+		public Particle createParticle(HeaterParticleData data, ClientLevel worldIn, double x, double y, double z, double vx,
 			double vy, double vz) {
 			return new HeaterParticle(worldIn, data.r, data.g, data.b, x, y, z, vx, vy, vz, this.spriteSet);
 		}

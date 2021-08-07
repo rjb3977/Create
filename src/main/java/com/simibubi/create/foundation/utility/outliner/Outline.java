@@ -3,6 +3,7 @@ package com.simibubi.create.foundation.utility.outliner;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -11,8 +12,7 @@ import com.simibubi.create.AllSpecialTextures;
 import com.simibubi.create.foundation.renderState.RenderTypes;
 import com.simibubi.create.foundation.renderState.SuperRenderTypeBuffer;
 import com.simibubi.create.foundation.utility.AngleHelper;
-import com.simibubi.create.foundation.utility.ColorHelper;
-import com.simibubi.create.foundation.utility.MatrixStacker;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.VecHelper;
 
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -39,7 +39,7 @@ public abstract class Outline {
 			.length();
 		float vAngle = AngleHelper.deg(Mth.atan2(hDistance, diff.y)) - 90;
 		ms.pushPose();
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.translate(start)
 			.rotateY(hAngle).rotateX(vAngle);
 		renderAACuboidLine(ms, buffer, Vec3.ZERO, new Vec3(0, 0, diff.length()));
@@ -143,7 +143,7 @@ public abstract class Outline {
 		}
 
 		builder.vertex(peek.pose(), (float) pos.x, (float) pos.y, (float) pos.z)
-			.color((float) rgb.x, (float) rgb.y, (float) rgb.z, params.alpha)
+			.color(rgb.getRedAsFloat(), rgb.getGreenAsFloat(), rgb.getBlueAsFloat(), rgb.getAlphaAsFloat() * params.alpha)
 			.uv(u, v)
 			.overlayCoords(OverlayTexture.NO_OVERLAY)
 			.uv2(j, k)
@@ -168,7 +168,7 @@ public abstract class Outline {
 		protected boolean disableNormals;
 		protected float alpha;
 		protected int lightMapU, lightMapV;
-		protected Vec3 rgb;
+		protected Color rgb;
 		private float lineWidth;
 
 		public OutlineParams() {
@@ -176,7 +176,7 @@ public abstract class Outline {
 			alpha = 1;
 			lineWidth = 1 / 32f;
 			fadeLineWidth = true;
-			rgb = ColorHelper.getRGB(0xFFFFFF);
+			rgb = Color.WHITE;
 
 			int i = 15 << 20 | 15 << 4;
 			lightMapU = i >> 16 & '\uffff';
@@ -186,7 +186,12 @@ public abstract class Outline {
 		// builder
 
 		public OutlineParams colored(int color) {
-			rgb = ColorHelper.getRGB(color);
+			rgb = new Color(color, false);
+			return this;
+		}
+
+		public OutlineParams colored(Color c) {
+			rgb = c.copy();
 			return this;
 		}
 

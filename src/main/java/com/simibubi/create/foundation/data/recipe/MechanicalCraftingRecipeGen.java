@@ -20,8 +20,8 @@ package com.simibubi.create.foundation.data.recipe;
 //	GeneratedRecipe
 //
 //	CRUSHING_WHEEL = create(AllBlocks.CRUSHING_WHEEL::get).returns(2)
-//		.recipe(b -> b.key('P', Ingredient.fromTag(ItemTags.PLANKS))
-//			.key('S', Ingredient.fromTag(I.stone()))
+//		.recipe(b -> b.key('P', Ingredient.of(ItemTags.PLANKS))
+//			.key('S', Ingredient.of(I.stone()))
 //			.key('A', I.andesite())
 //			.patternLine(" AAA ")
 //			.patternLine("AAPAA")
@@ -30,10 +30,10 @@ package com.simibubi.create.foundation.data.recipe;
 //			.patternLine(" AAA ")),
 //
 //		EXTENDO_GRIP = create(AllItems.EXTENDO_GRIP::get).returns(1)
-//			.recipe(b -> b.key('L', Ingredient.fromTag(I.brass()))
-//				.key('R', I.clockwork())
+//			.recipe(b -> b.key('L', Ingredient.of(I.brass()))
+//				.key('R', I.precisionMechanism())
 //				.key('H', AllItems.BRASS_HAND.get())
-//				.key('S', Ingredient.fromTag(Tags.Items.RODS_WOODEN))
+//				.key('S', Ingredient.of(Tags.Items.RODS_WOODEN))
 //				.patternLine(" L ")
 //				.patternLine(" R ")
 //				.patternLine("SSS")
@@ -42,25 +42,23 @@ package com.simibubi.create.foundation.data.recipe;
 //
 //		POTATO_CANNON = create(AllItems.POTATO_CANNON::get).returns(1)
 //			.recipe(b -> b.key('L', I.andesite())
-//				.key('R', I.clockwork())
-//				.key('S', Ingredient.fromTag(I.copper()))
-//				.patternLine("L")
-//				.patternLine("R")
-//				.patternLine("S")
-//				.patternLine("S")
-//				.patternLine("S")),
+//				.key('R', I.precisionMechanism())
+//				.key('S', AllBlocks.FLUID_PIPE.get())
+//				.key('C', Ingredient.of(I.copper()))
+//				.patternLine("LRSSS")
+//				.patternLine("CC   ")),
 //
 //		FURNACE_ENGINE = create(AllBlocks.FURNACE_ENGINE::get).returns(1)
-//			.recipe(b -> b.key('P', Ingredient.fromTag(I.brassSheet()))
-//				.key('B', Ingredient.fromTag(I.brass()))
-//				.key('I', Ingredient.fromItems(Blocks.PISTON, Blocks.STICKY_PISTON))
+//			.recipe(b -> b.key('P', Ingredient.of(I.brassSheet()))
+//				.key('B', Ingredient.of(I.brass()))
+//				.key('I', Ingredient.of(Blocks.PISTON, Blocks.STICKY_PISTON))
 //				.key('C', I.brassCasing())
 //				.patternLine("PPB")
 //				.patternLine("PCI")
 //				.patternLine("PPB")),
 //
 //		FLYWHEEL = create(AllBlocks.FLYWHEEL::get).returns(1)
-//			.recipe(b -> b.key('B', Ingredient.fromTag(I.brass()))
+//			.recipe(b -> b.key('B', Ingredient.of(I.brass()))
 //				.key('C', I.brassCasing())
 //				.patternLine(" BBB")
 //				.patternLine("CB B")

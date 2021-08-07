@@ -8,49 +8,77 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * <p>
+ *     ContraptionMatrices must be cleared and setup per-contraption per-frame
+ * </p>
+ */
 public class ContraptionMatrices {
-	public final PoseStack entityStack;
-	public final PoseStack contraptionStack;
-	public final Matrix4f entityMatrix;
+	private final PoseStack modelViewProjection = new MatrixStack();
+	private final PoseStack viewProjection = new MatrixStack();
+	private final PoseStack model = new MatrixStack();
+	private final Matrix4f world = new Matrix4f();
+	private final Matrix4f light = new Matrix4f();
 
-	public ContraptionMatrices(PoseStack entityStack, AbstractContraptionEntity entity) {
-		this.entityStack = entityStack;
-		this.contraptionStack = new PoseStack();
+	private boolean ready;
+
+	public ContraptionMatrices() {
+		world.setIdentity();
+		light.setIdentity();
+	}
+
+	public void setup(PoseStack viewProjection, AbstractContraptionEntity entity) {
 		float partialTicks = AnimationTickHolder.getPartialTicks();
-		entity.doLocalTransforms(partialTicks, new PoseStack[] { this.contraptionStack });
-		entityMatrix = translateTo(entity, partialTicks);
+
+		this.viewProjection.pushPose();
+		transform(this.viewProjection, viewProjection);
+		model.pushPose();
+		entity.doLocalTransforms(partialTicks, new PoseStack[] { model });
+
+		modelViewProjection.pushPose();
+		transform(modelViewProjection, viewProjection);
+		transform(modelViewProjection, model);
+
+		translateToEntity(world, entity, partialTicks);
+
+		light.set(world);
+		light.multiply(model
+				.last().pose());
+
+		ready = true;
 	}
 
-	public PoseStack getFinalStack() {
-		PoseStack finalStack = new PoseStack();
-		transform(finalStack, entityStack);
-		transform(finalStack, contraptionStack);
-		return finalStack;
+	public void clear() {
+		clearStack(modelViewProjection);
+		clearStack(viewProjection);
+		clearStack(model);
+		world.setIdentity();
+		light.setIdentity();
+		ready = false;
 	}
 
-	public Matrix4f getFinalModel() {
-		Matrix4f finalModel = entityStack.last().pose().copy();
-		finalModel.multiply(contraptionStack.last().pose());
-		return finalModel;
+	public PoseStack getModelViewProjection() {
+		return modelViewProjection;
 	}
 
-	public Matrix3f getFinalNormal() {
-		Matrix3f finalNormal = entityStack.last().normal().copy();
-		finalNormal.mul(contraptionStack.last().normal());
-		return finalNormal;
+	public PoseStack getViewProjection() {
+		return viewProjection;
 	}
 
-	public Matrix4f getFinalLight() {
-		Matrix4f lightTransform = entityMatrix.copy();
-		lightTransform.multiply(contraptionStack.last().pose());
-		return lightTransform;
+	public PoseStack getModel() {
+		return model;
 	}
 
-	public static Matrix4f translateTo(Entity entity, float partialTicks) {
-		double x = Mth.lerp(partialTicks, entity.xOld, entity.getX());
-		double y = Mth.lerp(partialTicks, entity.yOld, entity.getY());
-		double z = Mth.lerp(partialTicks, entity.zOld, entity.getZ());
-		return Matrix4f.createTranslateMatrix((float) x, (float) y, (float) z);
+	public Matrix4f getWorld() {
+		return world;
+	}
+
+	public Matrix4f getLight() {
+		return light;
+	}
+
+	public boolean isReady() {
+		return ready;
 	}
 
 	public static void transform(PoseStack ms, PoseStack transform) {
@@ -61,4 +89,18 @@ public class ContraptionMatrices {
 			.mul(transform.last()
 			.normal());
 	}
+
+	public static void translateToEntity(Matrix4f matrix, Entity entity, float partialTicks) {
+		double x = Mth.lerp(partialTicks, entity.xOld, entity.getX());
+		double y = Mth.lerp(partialTicks, entity.yOld, entity.getY());
+		double z = Mth.lerp(partialTicks, entity.zOld, entity.getZ());
+		matrix.setTranslation((float) x, (float) y, (float) z);
+	}
+
+	public static void clearStack(MatrixStack ms) {
+		while (!ms.clear()) {
+			ms.popPose();
+		}
+	}
+
 }

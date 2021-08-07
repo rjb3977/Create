@@ -43,13 +43,13 @@ public abstract class EntityContraptionInteractionMixin {
 
 	@Final
 	@Shadow
-	protected Random rand;
+	protected Random random;
 
 	@Shadow
-	private float nextStepDistance;
+	private float nextStep;
 
 	@Shadow
-	protected abstract float determineNextStepDistance();
+	protected abstract float nextStep();
 
 	@Shadow
 	protected abstract void playStepSound(BlockPos p_180429_1_, BlockState p_180429_2_);
@@ -100,10 +100,10 @@ public abstract class EntityContraptionInteractionMixin {
 		});
 
 		if (stepped.get())
-			this.nextStepDistance = this.determineNextStepDistance();
+			this.nextStep = this.nextStep();
 	}
 
-	@Inject(method = { "spawnSprintingParticles" }, at = @At(value = "TAIL"))
+	@Inject(method = { "spawnSprintParticle" }, at = @At(value = "TAIL"))
 	private void createRunningParticlesMixin(CallbackInfo ci) {
 		Vec3 worldPos = self.position()
 			.add(0, -0.2, 0);

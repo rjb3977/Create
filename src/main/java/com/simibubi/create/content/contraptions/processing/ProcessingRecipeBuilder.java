@@ -16,11 +16,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.Create;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
-import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.lib.condition.ModLoadedCondition;
 import com.simibubi.create.lib.condition.NotCondition;
@@ -190,15 +187,15 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 
 	public static class ProcessingRecipeParams {
 
-		ResourceLocation id;
-		NonNullList<Ingredient> ingredients;
-		NonNullList<ProcessingOutput> results;
-		NonNullList<FluidIngredient> fluidIngredients;
-		NonNullList<FluidStack> fluidResults;
-		int processingDuration;
-		HeatCondition requiredHeat;
+		protected ResourceLocation id;
+		protected NonNullList<Ingredient> ingredients;
+		protected NonNullList<ProcessingOutput> results;
+		protected NonNullList<FluidIngredient> fluidIngredients;
+		protected NonNullList<FluidStack> fluidResults;
+		protected int processingDuration;
+		protected HeatCondition requiredHeat;
 
-		ProcessingRecipeParams(ResourceLocation id) {
+		protected ProcessingRecipeParams(ResourceLocation id) {
 			this.id = id;
 			ingredients = NonNullList.create();
 			results = NonNullList.create();
@@ -219,16 +216,16 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 
 		@SuppressWarnings("unchecked")
 		public DataGenResult(S recipe, List<Condition> recipeConditions) {
-			this.recipeConditions = recipeConditions;
-			AllRecipeTypes recipeType = recipe.getEnumType();
-			String typeName = Lang.asId(recipeType.name());
 			this.recipe = recipe;
+			this.recipeConditions = recipeConditions;
+			IRecipeTypeInfo recipeType = this.recipe.getTypeInfo();
+			ResourceLocation typeId = recipeType.getId();
 
-			if (!(recipeType.serializer instanceof ProcessingRecipeSerializer))
-				throw new IllegalStateException("Cannot datagen ProcessingRecipe of type: " + typeName);
+			if (!(recipeType.getSerializer() instanceof ProcessingRecipeSerializer))
+				throw new IllegalStateException("Cannot datagen ProcessingRecipe of type: " + typeId);
 
-			this.id = Create.asResource(typeName + "/" + recipe.getId()
-				.getPath());
+			this.id = new ResourceLocation(recipe.getId().getNamespace(),
+					typeId.getPath() + "/" + recipe.getId().getPath());
 			this.serializer = (ProcessingRecipeSerializer<S>) recipe.getSerializer();
 		}
 

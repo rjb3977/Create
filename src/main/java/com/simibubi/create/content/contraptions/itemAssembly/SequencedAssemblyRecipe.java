@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.Create;
@@ -33,14 +34,14 @@ import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 
-	ResourceLocation id;
-	SequencedAssemblyRecipeSerializer serializer;
+	protected ResourceLocation id;
+	protected SequencedAssemblyRecipeSerializer serializer;
 
-	Ingredient ingredient;
-	List<SequencedRecipe<?>> sequence;
-	int loops;
-	ProcessingOutput transitionalItem;
-	List<ProcessingOutput> resultPool;
+	protected Ingredient ingredient;
+	protected List<SequencedRecipe<?>> sequence;
+	protected int loops;
+	protected ProcessingOutput transitionalItem;
+	protected List<ProcessingOutput> resultPool;
 
 	public SequencedAssemblyRecipe(ResourceLocation recipeId, SequencedAssemblyRecipeSerializer serializer) {
 		this.id = recipeId;
@@ -52,7 +53,9 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 
 	public static <C extends Container, R extends ProcessingRecipe<C>> Optional<R> getRecipe(Level world, C inv,
 		RecipeType<R> type, Class<R> recipeClass) {
-		return getRecipe(world, inv.getItem(0), type, recipeClass).filter(r -> r.matches(inv, world));
+		//return getRecipe(world, inv.getItem(0), type, recipeClass).filter(r -> r.matches(inv, world));
+		return getRecipes(world, inv.getItem(0), type, recipeClass).filter(r -> r.matches(inv, world))
+				.findFirst();
 	}
 
 	public static <R extends ProcessingRecipe<?>> Optional<R> getRecipe(Level world, ItemStack item,
@@ -70,6 +73,24 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 			return Optional.of(recipeClass.cast(recipe));
 		}
 		return Optional.empty();
+	}
+
+	public static <R extends ProcessingRecipe<?>> Stream<R> getRecipes(World world, ItemStack item,
+		IRecipeType<R> type, Class<R> recipeClass) {
+		List<SequencedAssemblyRecipe> all = world.getRecipeManager()
+			.<RecipeWrapper, SequencedAssemblyRecipe>getAllRecipesFor(AllRecipeTypes.SEQUENCED_ASSEMBLY.getType());
+
+		return all.stream()
+				.filter(it -> it.appliesTo(item))
+				.map(it -> Pair.of(it, it.getNextRecipe(item).getRecipe()))
+				.filter(it -> it.getSecond()
+						.getType() == type && recipeClass.isInstance(it.getSecond()))
+				.map(it -> {
+					it.getSecond()
+							.enforceNextResult(() -> it.getFirst().advance(item));
+					return it.getSecond();
+				})
+				.map(recipeClass::cast);
 	}
 
 	private ItemStack advance(ItemStack input) {
@@ -153,7 +174,7 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 	}
 
 	@Override
-	public ItemStack getCraftingResult(RecipeWrapper p_77572_1_) {
+	public ItemStack assemble(RecipeWrapper p_77572_1_) {
 		return ItemStack.EMPTY;
 	}
 
@@ -184,6 +205,11 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 	@Override
 	public RecipeSerializer<?> getSerializer() {
 		return serializer;
+	}
+
+	@Override
+	public boolean isSpecial() {
+		return true;
 	}
 
 	@Override

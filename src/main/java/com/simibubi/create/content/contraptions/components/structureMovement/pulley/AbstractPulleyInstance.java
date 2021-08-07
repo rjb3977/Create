@@ -8,7 +8,7 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.LightLayer;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.instancing.ConditionalInstance;
 import com.jozufozu.flywheel.core.instancing.GroupInstance;
 import com.jozufozu.flywheel.core.instancing.SelectInstance;
@@ -135,7 +135,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 		int length = Mth.ceil(offset);
 
 		if (volume == null || bLight.length < length + 1) {
-			volume = GridAlignedBB.from(pos.down(length), pos);
+			volume = GridAlignedBB.from(pos.below(length), pos);
 			volume.fixMinMax();
 
 			bLight = Arrays.copyOf(bLight, length + 1);
@@ -186,9 +186,9 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 		int top = this.pos.getY();
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		changed.forEachContained((x, y, z) -> {
-			pos.setPos(x, y, z);
-			byte block = (byte) world.getLightLevel(LightType.BLOCK, pos);
-			byte sky = (byte) world.getLightLevel(LightType.SKY, pos);
+			pos.set(x, y, z);
+			byte block = (byte) world.getBrightness(LightType.BLOCK, pos);
+			byte sky = (byte) world.getBrightness(LightType.SKY, pos);
 
 			int i = top - y;
 

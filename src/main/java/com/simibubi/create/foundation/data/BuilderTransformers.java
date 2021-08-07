@@ -13,11 +13,12 @@ import com.simibubi.create.content.contraptions.relays.encased.EncasedShaftBlock
 import com.simibubi.create.content.logistics.block.belts.tunnel.BeltTunnelBlock;
 import com.simibubi.create.content.logistics.block.belts.tunnel.BeltTunnelItem;
 import com.simibubi.create.foundation.block.ItemUseOverrides;
+import com.simibubi.create.foundation.block.BlockStressDefaults;
 import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
-import com.simibubi.create.foundation.config.StressConfigDefaults;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 
+import net.minecraft.block.AbstractBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +35,7 @@ public class BuilderTransformers {
 //			.blockstate((c, p) -> p.horizontalBlock(c.get(), p.models()
 //				.getExistingFile(p.modLoc("block/cuckoo_clock/block"))))
 			.addLayer(() -> RenderType::cutoutMipped)
-			.transform(StressConfigDefaults.setImpact(1.0))
+			.transform(BlockStressDefaults.setImpact(1.0))
 			.item()
 			.transform(ModelGen.customItemModel("cuckoo_clock", "item"));
 	}
@@ -48,8 +49,8 @@ public class BuilderTransformers {
 				(block, cc) -> cc.make(block, casingShift, (s, f) -> f.getAxis() != s.getValue(EncasedShaftBlock.AXIS))))
 //			.blockstate((c, p) -> axisBlock(c, p, blockState -> p.models()
 //				.getExistingFile(p.modLoc("block/encased_shaft/block_" + casing)), true))
-			.transform(StressConfigDefaults.setNoImpact())
-//			.loot((p, b) -> p.registerDropping(b, AllBlocks.SHAFT.get()))
+			.transform(BlockStressDefaults.setNoImpact())
+//			.loot((p, b) -> p.dropOther(b, AllBlocks.SHAFT.get()))
 			.item()
 //			.model(AssetLookup.customBlockItemModel("encased_shaft", "item_" + casing))
 			.build();
@@ -59,7 +60,7 @@ public class BuilderTransformers {
 		@Nullable DyeColor color) {
 		return b -> b.initialProperties(SharedProperties::softMetal)
 //			.blockstate((c, p) -> {
-//				String variant = color == null ? "copper" : color.getString();
+//				String variant = color == null ? "copper" : color.getSerializedName();
 //				p.directionalBlock(c.get(), p.models()
 //					.withExistingParent(variant + "_valve_handle", p.modLoc("block/valve_handle"))
 //					.texture("3", p.modLoc("block/valve_handle/valve_handle_" + variant)));
@@ -88,10 +89,10 @@ public class BuilderTransformers {
 //			.blockstate((c, p) -> p.getVariantBuilder(c.get())
 //				.forAllStates(state -> {
 //					String id = "block/" + type + "_tunnel";
-//					Shape shape = state.get(BeltTunnelBlock.SHAPE);
+//					Shape shape = state.getValue(BeltTunnelBlock.SHAPE);
 //					if (shape == BeltTunnelBlock.Shape.CLOSED)
 //						shape = BeltTunnelBlock.Shape.STRAIGHT;
-//					String shapeName = shape.getString();
+//					String shapeName = shape.getSerializedName();
 //					return ConfiguredModel.builder()
 //						.modelFile(p.models()
 //							.withExistingParent(id + "/" + shapeName, p.modLoc("block/belt_tunnel/" + shapeName))
@@ -99,7 +100,7 @@ public class BuilderTransformers {
 //							.texture("2", p.modLoc(id))
 //							.texture("3", p.modLoc(id + "_top_window"))
 //							.texture("particle", particleTexture))
-//						.rotationY(state.get(BeltTunnelBlock.HORIZONTAL_AXIS) == Axis.X ? 0 : 90)
+//						.rotationY(state.getValue(BeltTunnelBlock.HORIZONTAL_AXIS) == Axis.X ? 0 : 90)
 //						.build();
 //				}))
 			.item(BeltTunnelItem::new)
@@ -118,7 +119,7 @@ public class BuilderTransformers {
 			.properties(p -> p.noOcclusion())
 //			.blockstate(new MechanicalPistonGenerator(type)::generate)
 			.addLayer(() -> RenderType::cutoutMipped)
-			.transform(StressConfigDefaults.setImpact(4.0))
+			.transform(BlockStressDefaults.setImpact(4.0))
 			.item()
 			.transform(ModelGen.customItemModel("mechanical_piston", type.getSerializedName(), "item"));
 	}
@@ -169,8 +170,8 @@ public class BuilderTransformers {
 //						String variant = "single";
 //						int yRot = 0;
 //
-//						if (state.get(CrateBlock.DOUBLE)) {
-//							Direction direction = state.get(CrateBlock.FACING);
+//						if (state.getValue(CrateBlock.DOUBLE)) {
+//							Direction direction = state.getValue(CrateBlock.FACING);
 //							if (direction.getAxis() == Axis.X)
 //								yRot = 90;
 //
@@ -210,10 +211,15 @@ public class BuilderTransformers {
 				.sound(SoundType.ANVIL))
 			.addLayer(() -> RenderType::cutoutMipped)
 			.tag(AllBlockTags.BRITTLE.tag)
-			.blockstate((c, p) -> p.horizontalBlock(c.getEntry(), state ->
-				AssetLookup.partialBaseModel(c, p, state.get(BlockStateProperties.BELL_ATTACHMENT).getString())))
+			.blockstate((c, p) -> p.horizontalBlock(c.getEntry(), state -> {
+				String variant = state.getValue(BlockStateProperties.BELL_ATTACHMENT)
+					.getSerializedName();
+				return p.models()
+					.withExistingParent(c.getName() + "_" + variant, p.modLoc("block/bell_base/block_" + variant));
+			}))
 			.item()
-			.transform(ModelGen.customItemModel());
+			.model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/" + c.getName())))
+			.build();
 	}
 
 }

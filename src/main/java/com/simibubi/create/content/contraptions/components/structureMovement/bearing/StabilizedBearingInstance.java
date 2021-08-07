@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.bearing;
 
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
+import com.jozufozu.flywheel.core.Materials;
 import com.jozufozu.flywheel.core.materials.OrientedData;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
@@ -31,7 +32,9 @@ public class StabilizedBearingInstance extends ActorInstance {
 
 		blockOrientation = BearingInstance.getBlockStateOrientation(facing);
 
-		topInstance = materialManager.getOrientedMaterial().getModel(AllBlockPartials.BEARING_TOP, blockState).createInstance();
+        topInstance = materialManager.defaultSolid()
+                .material(Materials.ORIENTED)
+                .getModel(AllBlockPartials.BEARING_TOP, blockState).createInstance();
 
 		topInstance.setPosition(context.localPos)
 				.setRotation(blockOrientation)

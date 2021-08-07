@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.components.fan.IAirCurrentSource;
 import com.simibubi.create.content.contraptions.processing.InWorldProcessing;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;

@@ -43,8 +43,8 @@ public class BasinMovementBehaviour extends MovementBehaviour {
 					continue;
 				ItemEntity itemEntity = new ItemEntity(context.world, context.position.x, context.position.y,
 					context.position.z, itemStackHandler.getStackInSlot(i));
-				itemEntity.setMotion(facingVec.scale(.05));
-				context.world.addEntity(itemEntity);
+				itemEntity.setDeltaMovement(facingVec.scale(.05));
+				context.world.addFreshEntity(itemEntity);
 				itemStackHandler.setStackInSlot(i, ItemStack.EMPTY);
 			}
 			context.tileData.put(key, itemStackHandler.serializeNBT());

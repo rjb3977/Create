@@ -16,6 +16,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Mirror;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -35,8 +36,7 @@ public class VecHelper {
 
 	public static Vec3 rotateCentered(Vec3 vec, double deg, Axis axis) {
 		Vec3 shift = getCenterOf(BlockPos.ZERO);
-		return VecHelper.rotate(vec.subtract(shift), deg, axis)
-			.add(shift);
+		return VecHelper.rotate(vec.subtract(shift), deg, axis).add(shift);
 	}
 
 	public static Vec3 rotate(Vec3 vec, double deg, Axis axis) {
@@ -58,6 +58,28 @@ public class VecHelper {
 			return new Vec3(x * cos + z * sin, y, z * cos - x * sin);
 		if (axis == Axis.Z)
 			return new Vec3(x * cos - y * sin, y * cos + x * sin, z);
+		return vec;
+	}
+
+	public static Vector3d mirrorCentered(Vector3d vec, Mirror mirror) {
+		Vector3d shift = getCenterOf(BlockPos.ZERO);
+		return VecHelper.mirror(vec.subtract(shift), mirror).add(shift);
+	}
+
+	public static Vector3d mirror(Vector3d vec, Mirror mirror) {
+		if (mirror == null || mirror == Mirror.NONE)
+			return vec;
+		if (vec == Vector3d.ZERO)
+			return vec;
+
+		double x = vec.x;
+		double y = vec.y;
+		double z = vec.z;
+
+		if (mirror == Mirror.LEFT_RIGHT)
+			return new Vector3d(x, y, -z);
+		if (mirror == Mirror.FRONT_BACK)
+			return new Vector3d(-x, y, z);
 		return vec;
 	}
 

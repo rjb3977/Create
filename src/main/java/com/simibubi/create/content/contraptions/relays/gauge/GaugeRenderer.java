@@ -42,6 +42,7 @@ public class GaugeRenderer extends KineticTileEntityRenderer {
 		if (Backend.getInstance().canUseInstancing(te.getLevel())) return;
 
 		super.renderSafe(te, partialTicks, ms, buffer, light, overlay);
+
 		BlockState gaugeState = te.getBlockState();
 		GaugeTileEntity gaugeTE = (GaugeTileEntity) te;
 		int lightCoords = LevelRenderer.getLightColor(te.getLevel(), gaugeState, te.getBlockPos());
@@ -63,12 +64,11 @@ public class GaugeRenderer extends KineticTileEntityRenderer {
 			rotateBufferTowards(dialBuffer, facing).translate(0, dialPivot, dialPivot)
 				.rotate(Direction.EAST, (float) (Math.PI / 2 * -progress))
 				.translate(0, -dialPivot, -dialPivot)
-				.light(lightCoords)
+				.light(light)
 				.renderInto(ms, vb);
-			rotateBufferTowards(headBuffer, facing).light(lightCoords)
+			rotateBufferTowards(headBuffer, facing).light(light)
 				.renderInto(ms, vb);
 		}
-
 	}
 
 	@Override

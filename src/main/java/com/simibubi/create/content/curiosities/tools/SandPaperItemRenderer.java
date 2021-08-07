@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 public class SandPaperItemRenderer implements DynamicItemRenderer {
 
 	@Override
-	public void render(ItemStack stack, TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+	public void renderByItem(ItemStack stack, TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 		LocalPlayer player = Minecraft.getInstance().player;
 		SandPaperModel mainModel = (SandPaperModel) itemRenderer.getModel(stack, Minecraft.getInstance().level, null);

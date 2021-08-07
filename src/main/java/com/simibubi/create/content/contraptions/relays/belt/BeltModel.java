@@ -44,17 +44,22 @@ public class BeltModel extends ForwardingBakedModel {
 		if (applyTransform) {
 			SpriteShiftEntry spriteShift = AllSpriteShifts.ANDESIDE_BELT_CASING;
 			TextureAtlasSprite target = spriteShift.getTarget();
-			context.pushTransform(quad -> {
-				TextureAtlasSprite original = SPRITE_FINDER.get().find(quad, 0);
-				for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
-					float u = quad.spriteU(vertexIndex, 0);
-					float v = quad.spriteV(vertexIndex, 0);
-					u = target.getU(SuperByteBuffer.getUnInterpolatedU(original, u));
-					v = target.getV(SuperByteBuffer.getUnInterpolatedV(original, v));
-					quad.sprite(vertexIndex, 0, u, v);
-				}
-				return true;
-			});
+			BakedQuad newQuad = QuadHelper.clone(quad);
+			int[] vertexData = newQuad.getVertices();
+
+			for (int vertex = 0; vertex < vertexData.length; vertex += format.getIntegerSize()) {
+				int uvOffset = 16 / 4;
+				int uIndex = vertex + uvOffset;
+				int vIndex = vertex + uvOffset + 1;
+				float u = Float.intBitsToFloat(vertexData[uIndex]);
+				float v = Float.intBitsToFloat(vertexData[vIndex]);
+				vertexData[uIndex] =
+					Float.floatToRawIntBits(target.getU(SuperByteBuffer.getUnInterpolatedU(original, u)));
+				vertexData[vIndex] =
+					Float.floatToRawIntBits(target.getV(SuperByteBuffer.getUnInterpolatedV(original, v)));
+			}
+
+			quads.set(i, newQuad);
 		}
 		super.emitBlockQuads(blockView, state, pos, randomSupplier, context);
 		if (applyTransform) {

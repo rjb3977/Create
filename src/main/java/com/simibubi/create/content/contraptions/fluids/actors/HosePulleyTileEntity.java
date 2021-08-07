@@ -186,7 +186,7 @@ public class HosePulleyTileEntity extends KineticTileEntity {
 //	@Override
 //	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
 //		if (isFluidHandlerCap(cap)
-//			&& (side == null || HosePulleyBlock.hasPipeTowards(world, pos, getBlockState(), side)))
+//			&& (side == null || HosePulleyBlock.hasPipeTowards(level, worldPosition, getBlockState(), side)))
 //			return this.capability.cast();
 //		return super.getCapability(cap, side);
 //	}

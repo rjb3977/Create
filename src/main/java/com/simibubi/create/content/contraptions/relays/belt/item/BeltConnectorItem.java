@@ -136,9 +136,9 @@ public class BeltConnectorItem extends BlockItem {
 				part = BeltPart.PULLEY;
 			if (pulley && shaftState.getValue(AbstractShaftBlock.AXIS) == Axis.Y)
 				slope = BeltSlope.SIDEWAYS;
-			world.setBlock(pos, beltBlock.setValue(BeltBlock.SLOPE, slope)
+			KineticTileEntity.switchToBlockState(world, pos, beltBlock.setValue(BeltBlock.SLOPE, slope)
 				.setValue(BeltBlock.PART, part)
-				.setValue(BeltBlock.HORIZONTAL_FACING, facing), 3);
+				.setValue(BeltBlock.HORIZONTAL_FACING, facing));
 		}
 	}
 

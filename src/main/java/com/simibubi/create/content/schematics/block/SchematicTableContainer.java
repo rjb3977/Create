@@ -49,7 +49,7 @@ public class SchematicTableContainer extends AbstractContainerMenu {
 	protected void init() {
 		inputSlot = new SlotItemHandler(te.inventory, 0, 21, 57) {
 			@Override
-			public boolean isItemValid(ItemStack stack) {
+			public boolean mayPlace(ItemStack stack) {
 				return AllItems.EMPTY_SCHEMATIC.isIn(stack) || AllItems.SCHEMATIC_AND_QUILL.isIn(stack)
 						|| AllItems.SCHEMATIC.isIn(stack);
 			}
@@ -57,7 +57,7 @@ public class SchematicTableContainer extends AbstractContainerMenu {
 
 		outputSlot = new SlotItemHandler(te.inventory, 1, 166, 57) {
 			@Override
-			public boolean isItemValid(ItemStack stack) {
+			public boolean mayPlace(ItemStack stack) {
 				return false;
 			}
 		};

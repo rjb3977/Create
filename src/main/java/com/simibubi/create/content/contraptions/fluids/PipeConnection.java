@@ -283,8 +283,8 @@ public class PipeConnection {
 
 	/**
 	 * @return zero if outward == inbound <br>
-	 *         positive if outward > inbound <br>
-	 *         negative if outward < inbound
+	 *         positive if outward {@literal >} inbound <br>
+	 *         negative if outward {@literal <} inbound
 	 */
 	public float comparePressure() {
 		return getOutwardPressure() - getInboundPressure();

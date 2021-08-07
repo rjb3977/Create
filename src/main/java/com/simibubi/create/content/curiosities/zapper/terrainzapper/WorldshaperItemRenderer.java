@@ -38,7 +38,7 @@ public class WorldshaperItemRenderer extends ZapperItemRenderer<WorldshaperModel
 
 		// Core glows
 		float multiplier = Mth.sin(worldTime * 5);
-		if (mainHand || offHand) 
+		if (mainHand || offHand)
 			multiplier = animation;
 
 		int lightItensity = (int) (15 * clamp(multiplier, 0, 1));

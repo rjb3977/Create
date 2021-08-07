@@ -73,7 +73,7 @@ public class SidedFilteringBehaviour extends FilteringBehaviour {
 	@Override
 	public void read(CompoundTag nbt, boolean clientPacket) {
 		NBTHelper.iterateCompoundList(nbt.getList("Filters", NBT.TAG_COMPOUND), compound -> {
-			Direction face = Direction.byIndex(compound.getInt("Side"));
+			Direction face = Direction.from3DDataValue(compound.getInt("Side"));
 			if (sidedFilters.containsKey(face))
 				sidedFilters.get(face)
 					.read(compound, clientPacket);

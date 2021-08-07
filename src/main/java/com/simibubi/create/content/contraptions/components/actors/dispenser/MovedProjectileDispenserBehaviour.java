@@ -80,19 +80,19 @@ public abstract class MovedProjectileDispenserBehaviour extends MovedDefaultDisp
 	}
 
 	private static Method getProjectileEntityLookup() {
-		Method getProjectileEntity = MethodGetter.findMethod(AbstractProjectileDispenseBehavior.class, "getProjectileEntity", "method_12844", Level.class, Position.class, ItemStack.class);
+		Method getProjectileEntity = MethodGetter.findMethod(AbstractProjectileDispenseBehavior.class, "getProjectileEntity", "method_12844", Level.class, Position.class, ItemStack.class); // getProjectile
 		getProjectileEntity.setAccessible(true);
 		return getProjectileEntity;
 	}
 
 	private static Method getProjectileInaccuracyLookup() {
-		Method getProjectileInaccuracy = MethodGetter.findMethod(AbstractProjectileDispenseBehavior.class, "getProjectileInaccuracy", "method_12845");
+		Method getProjectileInaccuracy = MethodGetter.findMethod(AbstractProjectileDispenseBehavior.class, "getProjectileInaccuracy", "method_12845"); // getUncertainty
 		getProjectileInaccuracy.setAccessible(true);
 		return getProjectileInaccuracy;
 	}
 
 	private static Method getProjectileVelocityLookup() {
-		Method getProjectileVelocity = MethodGetter.findMethod(AbstractProjectileDispenseBehavior.class, "getProjectileVelocity", "method_12846");
+		Method getProjectileVelocity = MethodGetter.findMethod(AbstractProjectileDispenseBehavior.class, "getProjectileVelocity", "method_12846"); // getPower
 		getProjectileVelocity.setAccessible(true);
 		return getProjectileVelocity;
 	}

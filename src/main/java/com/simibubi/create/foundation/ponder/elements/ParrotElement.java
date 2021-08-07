@@ -124,7 +124,7 @@ public class ParrotElement extends AnimatedSceneElement {
 		ms.translate(Mth.lerp(pt, entity.xo, entity.getX()),
 			Mth.lerp(pt, entity.yo, entity.getY()), Mth.lerp(pt, entity.zo, entity.getZ()));
 
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.rotateY(AngleHelper.angleLerp(pt, entity.yRotO, entity.yRot));
 
 		entityrenderermanager.render(entity, 0, 0, 0, 0, pt, ms, buffer, lightCoordsFromFade(fade));

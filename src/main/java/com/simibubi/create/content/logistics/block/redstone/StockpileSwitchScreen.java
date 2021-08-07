@@ -163,7 +163,7 @@ public class StockpileSwitchScreen extends AbstractSimiScreen {
 
 	@Override
 	public boolean mouseClicked(double x, double y, int button) {
-		if (flipSignals.isHovered()) 
+		if (flipSignals.isHovered())
 			send(!te.isInverted());
 		if (confirmButton.isHovered()) {
 			minecraft.player.closeContainer();

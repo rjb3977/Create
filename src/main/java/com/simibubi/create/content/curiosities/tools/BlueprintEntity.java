@@ -204,6 +204,7 @@ public class BlueprintEntity extends HangingEntity
 		this.setBoundingBox(new AABB(d1 - d4, d2 - d5, d3 - d6, d1 + d4, d2 + d5, d3 + d6));
 	}
 
+	@Override
 	public boolean survives() {
 		if (!level.noCollision(this))
 			return false;
@@ -223,7 +224,7 @@ public class BlueprintEntity extends HangingEntity
 				int i1 = (i - 1) / -2;
 				int j1 = (j - 1) / -2;
 				blockpos$mutable.set(blockpos)
-					.move(direction, k + i1)
+					.move(newDirection, k + i1)
 					.move(upDirection, l + j1);
 				BlockState blockstate = this.level.getBlockState(blockpos$mutable);
 				if (Block.canSupportCenter(this.level, blockpos$mutable, this.direction))
@@ -437,7 +438,7 @@ public class BlueprintEntity extends HangingEntity
 		int i = section.index;
 		if (!level.isClientSide && player instanceof ServerPlayer) {
 			NetworkUtil.openGUI((ServerPlayer) player, section, buf -> {
-				buf.writeVarInt(getEntityId());
+				buf.writeVarInt(getId());
 				buf.writeVarInt(i);
 			});
 		}

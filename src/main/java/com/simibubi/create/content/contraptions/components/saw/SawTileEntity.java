@@ -22,6 +22,7 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
+import com.simibubi.create.foundation.utility.AbstractBlockBreakQueue;
 import com.simibubi.create.foundation.utility.TreeCutter;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.recipe.RecipeConditions;
@@ -49,6 +50,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
@@ -68,6 +70,8 @@ import net.minecraft.world.phys.Vec3;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class SawTileEntity extends BlockBreakingKineticTileEntity {
+
+	private static final AxisAlignedBB RENDER_BOX = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
 
 	private static final Object cuttingRecipesKey = new Object();
 	public static final LazyLoadedValue<RecipeType<?>> woodcuttingRecipeType =
@@ -116,6 +120,12 @@ public class SawTileEntity extends BlockBreakingKineticTileEntity {
 		recipeIndex = compound.getInt("RecipeIndex");
 		if (compound.contains("PlayEvent"))
 			playEvent = ItemStack.of(compound.getCompound("PlayEvent"));
+	}
+
+	@Override
+	protected AxisAlignedBB makeRenderBoundingBox() {
+		return RENDER_BOX.inflate(.125f)
+			.move(worldPosition);
 	}
 
 	@Override
@@ -434,6 +444,12 @@ public class SawTileEntity extends BlockBreakingKineticTileEntity {
 
 	@Override
 	public void onBlockBroken(BlockState stateToBreak) {
+		Optional<AbstractBlockBreakQueue> dynamicTree = TreeCutter.findDynamicTree(stateToBreak.getBlock(), breakingPos);
+		if (dynamicTree.isPresent()) {
+			dynamicTree.get().destroyBlocks(level, null, this::dropItemFromCutTree);
+			return;
+		}
+
 		super.onBlockBroken(stateToBreak);
 		TreeCutter.findTree(level, breakingPos)
 			.destroyBlocks(level, null, this::dropItemFromCutTree);
@@ -472,6 +488,8 @@ public class SawTileEntity extends BlockBreakingKineticTileEntity {
 		if (block instanceof KelpBlock)
 			return true;
 		if (block instanceof ChorusPlantBlock)
+			return true;
+		if (TreeCutter.canDynamicTreeCutFrom(block))
 			return true;
 		return false;
 	}

@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.bearing;
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.jozufozu.flywheel.core.materials.OrientedData;
 import com.mojang.math.Quaternion;
@@ -26,7 +26,7 @@ public class BearingInstance<B extends KineticTileEntity & IBearingTileEntity> e
 		super(modelManager, tile);
 		this.bearing = tile;
 
-		Direction facing = blockState.get(BlockStateProperties.FACING);
+		Direction facing = blockState.getValue(BlockStateProperties.FACING);
 		rotationAxis = Direction.get(Direction.AxisDirection.POSITIVE, axis).step();
 
 		blockOrientation = getBlockStateOrientation(facing);

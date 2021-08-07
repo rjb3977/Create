@@ -148,7 +148,7 @@ public class ClientEvents {
 		PlacementHelpers.tick();
 		CreateClient.OUTLINER.tickOutlines();
 		CreateClient.GHOST_BLOCKS.tickGhosts();
-		ContraptionRenderDispatcher.tick();
+		ContraptionRenderDispatcher.tick(world);
 		BlueprintOverlayRenderer.tick();
 	}
 
@@ -180,7 +180,7 @@ public class ClientEvents {
 
 	public static void onRenderWorld(WorldRenderContext event) {
 		Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera()
-				.getPosition();
+			.getPosition();
 		float pt = AnimationTickHolder.getPartialTicks();
 
 		PoseStack ms = event.matrixStack();
@@ -240,16 +240,15 @@ public class ClientEvents {
 
 		String translationKey = stack.getItem()
 			.getDescriptionId(stack);
-		if (!translationKey.startsWith(itemPrefix) && !translationKey.startsWith(blockPrefix))
-			return;
 
-		if (TooltipHelper.hasTooltip(stack, Minecraft.getInstance().player)) {
-			List<Component> toolTip = new ArrayList<>();
-			toolTip.add(itemTooltip.remove(0));
-			TooltipHelper.getTooltip(stack)
-				.addInformation(toolTip);
-			itemTooltip.addAll(0, toolTip);
-		}
+		if (translationKey.startsWith(itemPrefix) || translationKey.startsWith(blockPrefix))
+			if (TooltipHelper.hasTooltip(stack, Minecraft.getInstance().player)) {
+				List<Component> toolTip = new ArrayList<>();
+				toolTip.add(itemTooltip.remove(0));
+				TooltipHelper.getTooltip(stack)
+					.addInformation(toolTip);
+				itemTooltip.addAll(0, toolTip);
+			}
 
 		if (stack.getItem() instanceof BlockItem) {
 			BlockItem item = (BlockItem) stack.getItem();

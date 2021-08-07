@@ -27,8 +27,8 @@ package com.simibubi.create.foundation.mixin;
 //	@Inject(at = @At("HEAD"), method = "requestModelDataRefresh", cancellable = true, remap = false)
 //	private static void requestModelDataRefresh(TileEntity te, CallbackInfo ci) {
 //		if (te != null) {
-//			World world = te.getWorld();
-//			if (world != Minecraft.getInstance().world && world instanceof SchematicWorld)
+//			World world = te.getLevel();
+//			if (world != Minecraft.getInstance().level && world instanceof SchematicWorld)
 //				ci.cancel();
 //		}
 //	}

@@ -21,6 +21,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.components.structureMovement.BlockMovementChecks;
+import com.simibubi.create.content.contraptions.components.structureMovement.StructureTransform;
 import com.simibubi.create.content.schematics.item.SchematicItem;
 import com.simibubi.create.foundation.utility.BlockHelper;
 
@@ -48,6 +49,13 @@ public class SchematicPrinter {
 	public void fromTag(CompoundTag compound, boolean clientPacket) {
 		if (compound.contains("CurrentPos"))
 			currentPos = NbtUtils.readBlockPos(compound.getCompound("CurrentPos"));
+		if (clientPacket) {
+			schematicLoaded = false;
+			if (compound.contains("Anchor")) {
+				schematicAnchor = NBTUtil.readBlockPos(compound.getCompound("Anchor"));
+				schematicLoaded = true;
+			}
+		}
 
 		printingEntityIndex = compound.getInt("EntityProgress");
 		printStage = PrintStage.valueOf(compound.getString("PrintStage"));
@@ -59,6 +67,8 @@ public class SchematicPrinter {
 	public void write(CompoundTag compound) {
 		if (currentPos != null)
 			compound.put("CurrentPos", NbtUtils.writeBlockPos(currentPos));
+		if (schematicAnchor != null)
+			compound.put("Anchor", NBTUtil.writeBlockPos(schematicAnchor));
 
 		compound.putInt("EntityProgress", printingEntityIndex);
 		compound.putString("PrintStage", printStage.name());
@@ -75,9 +85,19 @@ public class SchematicPrinter {
 		StructureTemplate activeTemplate = SchematicItem.loadSchematic(blueprint);
 		StructurePlaceSettings settings = SchematicItem.getSettings(blueprint, processNBT);
 
-		schematicAnchor = NbtUtils.readBlockPos(blueprint.getTag().getCompound("Anchor"));
+		schematicAnchor = NbtUtils.readBlockPos(blueprint.getTag()
+			.getCompound("Anchor"));
 		blockReader = new SchematicWorld(schematicAnchor, originalWorld);
 		activeTemplate.placeInWorldChunk(blockReader, schematicAnchor, settings, blockReader.getRandom());
+
+		BlockPos extraBounds = Template.calculateRelativePosition(settings, activeTemplate.getSize()
+			.offset(-1, -1, -1));
+		blockReader.bounds.expand(new MutableBoundingBox(extraBounds, extraBounds));
+
+		StructureTransform transform = new StructureTransform(settings.getRotationPivot(), Direction.Axis.Y,
+			settings.getRotation(), settings.getMirror());
+		for (TileEntity te : blockReader.tileEntities.values())
+			transform.apply(te);
 
 		printingEntityIndex = -1;
 		printStage = PrintStage.BLOCKS;
@@ -290,7 +310,8 @@ public class SchematicPrinter {
 	}
 
 	public static boolean shouldDeferBlock(BlockState state) {
-		return state.getBlock().is(AllBlocks.GANTRY_CARRIAGE.get()) || BlockMovementChecks.isBrittle(state);
+		return AllBlocks.GANTRY_CARRIAGE.has(state) || AllBlocks.MECHANICAL_ARM.has(state)
+			|| BlockMovementChecks.isBrittle(state);
 	}
 
 }

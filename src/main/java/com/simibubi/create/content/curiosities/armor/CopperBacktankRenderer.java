@@ -9,6 +9,7 @@ import com.simibubi.create.foundation.render.PartialBufferer;
 import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -25,12 +26,12 @@ public class CopperBacktankRenderer extends KineticTileEntityRenderer {
 		int light, int overlay) {
 		super.renderSafe(te, partialTicks, ms, buffer, light, overlay);
 
+		BlockState blockState = te.getBlockState();
 		SuperByteBuffer cogs =
-				CreateClient.BUFFER_CACHE.renderPartial(AllBlockPartials.COPPER_BACKTANK_COGS, te.getBlockState());
+			CreateClient.BUFFER_CACHE.renderPartial(AllBlockPartials.COPPER_BACKTANK_COGS, blockState);
 		cogs.matrixStacker()
 			.centre()
-			.rotateY(180 + AngleHelper.horizontalAngle(te.getBlockState()
-				.getValue(CopperBacktankBlock.HORIZONTAL_FACING)))
+			.rotateY(180 + AngleHelper.horizontalAngle(blockState.getValue(CopperBacktankBlock.HORIZONTAL_FACING)))
 			.unCentre()
 			.translate(0, 6.5f / 16, 11f / 16)
 			.rotate(Direction.EAST,

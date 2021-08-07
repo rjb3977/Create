@@ -37,8 +37,28 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 
 	public NumberEntry(String label, ConfigValue<T> value) {
 		super(label, value);
-		textField = new ConfigTextField(Minecraft.getInstance().font, 0, 0, 200, 20, unit);
-		textField.setValue(String.valueOf(getValue()));
+		textField = new ConfigTextField(Minecraft.getInstance().font, 0, 0, 200, 20);
+		if (this instanceof IntegerEntry && annotations.containsKey("IntDisplay")) {
+			String intDisplay = annotations.get("IntDisplay");
+			int intValue = (Integer) getValue();
+			String textValue;
+			switch (intDisplay) {
+				case "#":
+					textValue = "#" + Integer.toHexString(intValue).toUpperCase(Locale.ROOT);
+					break;
+				case "0x":
+					textValue = "0x" + Integer.toHexString(intValue).toUpperCase(Locale.ROOT);
+					break;
+				case "0b":
+					textValue = "0b" + Integer.toBinaryString(intValue);
+					break;
+				default:
+					textValue = String.valueOf(intValue);
+			}
+			textField.setValue(textValue);
+		} else {
+			textField.setValue(String.valueOf(getValue()));
+		}
 		textField.setTextColor(Theme.i(Theme.Key.TEXT));
 
 //		Object range = spec.getRange();
@@ -81,6 +101,7 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 			}
 		});
 
+		textField.moveCursorToStart();
 		listeners.add(textField);
 		onReset();
 	}
@@ -106,11 +127,13 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 	@Override
 	public void onValueChange(T newValue) {
 		super.onValueChange(newValue);
-		String newText = String.valueOf(newValue);
-		if (textField.getValue().equals(newText))
-			return;
 
-		textField.setValue(newText);
+		try {
+			T current = getParser().apply(textField.getValue());
+			if (!current.equals(newValue)) {
+				textField.setValue(String.valueOf(newValue));
+			}
+		} catch (IllegalArgumentException ignored) {}
 	}
 
 	@Override
@@ -160,7 +183,17 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 
 		@Override
 		protected Function<String, Integer> getParser() {
-			return Integer::parseInt;
+			return (string) -> {
+				if (string.startsWith("#")) {
+					return Integer.parseUnsignedInt(string.substring(1), 16);
+				} else if (string.startsWith("0x")) {
+					return Integer.parseUnsignedInt(string.substring(2), 16);
+				} else if (string.startsWith("0b")) {
+					return Integer.parseUnsignedInt(string.substring(2), 2);
+				} else {
+					return Integer.parseInt(string);
+				}
+			};
 		}
 	}
 

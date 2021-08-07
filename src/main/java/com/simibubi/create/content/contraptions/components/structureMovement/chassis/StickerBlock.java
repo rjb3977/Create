@@ -116,11 +116,11 @@ public class StickerBlock extends ProperDirectionalBlock implements ITE<StickerT
 			.below()) || p_176216_2_.isSuppressingBounce()) {
 			super.updateEntityAfterFallOn(p_176216_1_, p_176216_2_);
 		} else {
-			this.func_226946_a_(p_176216_2_);
+			this.bounceUp(p_176216_2_);
 		}
 	}
 
-	private void func_226946_a_(Entity p_226946_1_) {
+	private void bounceUp(Entity p_226946_1_) {
 		Vec3 Vector3d = p_226946_1_.getDeltaMovement();
 		if (Vector3d.y < 0.0D) {
 			double d0 = p_226946_1_ instanceof LivingEntity ? 1.0D : 0.8D;

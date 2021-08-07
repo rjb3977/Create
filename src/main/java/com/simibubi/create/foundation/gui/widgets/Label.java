@@ -43,12 +43,12 @@ public class Label extends AbstractSimiWidget {
 
 	public void setTextAndTrim(Component newText, boolean trimFront, int maxWidthPx) {
 		Font fontRenderer = Minecraft.getInstance().font;
-		
+
 		if (fontRenderer.width(newText) <= maxWidthPx) {
 			text = newText;
 			return;
 		}
-		
+
 		String trim = "...";
 		int trimWidth = fontRenderer.width(trim);
 
@@ -79,7 +79,7 @@ public class Label extends AbstractSimiWidget {
 		MutableComponent copy = text.plainCopy();
 		if (suffix != null && !suffix.isEmpty())
 			copy.append(suffix);
-		
+
 		if (hasShadow)
 			font.drawShadow(matrixStack, copy, x, y, color);
 		else

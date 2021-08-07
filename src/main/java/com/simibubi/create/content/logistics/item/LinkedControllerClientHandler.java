@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.CreateClient;
@@ -33,10 +34,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class LinkedControllerClientHandler {
-
-	enum Mode {
-		IDLE, ACTIVE, BIND
-	}
 
 	public static Mode MODE = Mode.IDLE;
 	public static int PACKET_RATE = 5;
@@ -111,6 +108,8 @@ public class LinkedControllerClientHandler {
 		if (!currentlyPressed.isEmpty())
 			AllPackets.channel.sendToServer(new LinkedControllerInputPacket(currentlyPressed, false));
 		currentlyPressed.clear();
+
+		LinkedControllerItemRenderer.resetButtons();
 	}
 
 	protected static boolean isActuallyPressed(KeyMapping kb) {
@@ -118,11 +117,12 @@ public class LinkedControllerClientHandler {
 			.getWindow()
 			.getWindow(),
 				((KeyBindingAccessor) kb).create$keyCode()
-				.getKeyCode());
+				.getValue());
 	}
 
 	public static void tick() {
 		LinkedControllerItemRenderer.tick();
+
 		if (MODE == Mode.IDLE)
 			return;
 		if (packetCooldown > 0)
@@ -145,6 +145,13 @@ public class LinkedControllerClientHandler {
 				onReset();
 				return;
 			}
+		}
+
+		if (inLectern() && AllBlocks.LECTERN_CONTROLLER.get().getTileEntityOptional(mc.level, lecternPos)
+				.map(te -> !te.isUsedBy(mc.player))
+				.orElse(true)) {
+			deactivateInLectern();
+			return;
 		}
 
 		if (mc.screen != null) {
@@ -188,7 +195,7 @@ public class LinkedControllerClientHandler {
 			// Keepalive Pressed Keys
 			if (packetCooldown == 0) {
 				if (!pressedKeys.isEmpty()) {
-					AllPackets.channel.sendToServer(new LinkedControllerInputPacket(pressedKeys, true));
+					AllPackets.channel.sendToServer(new LinkedControllerInputPacket(pressedKeys, true, lecternPos));
 					packetCooldown = PACKET_RATE;
 				}
 			}
@@ -259,6 +266,10 @@ public class LinkedControllerClientHandler {
 
 		ms.popPose();
 
+	}
+
+	public enum Mode {
+		IDLE, ACTIVE, BIND
 	}
 
 }

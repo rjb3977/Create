@@ -73,10 +73,10 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 	}
 
 	static {
-		loadedMinecartsByUUID = new WorldAttached<>(HashMap::new);
-		loadedMinecartsWithCoupling = new WorldAttached<>(HashSet::new);
-		queuedAdditions = new WorldAttached<>(() -> ObjectLists.synchronize(new ObjectArrayList<>()));
-		queuedUnloads = new WorldAttached<>(() -> ObjectLists.synchronize(new ObjectArrayList<>()));
+		loadedMinecartsByUUID = new WorldAttached<>($ -> new HashMap<>());
+		loadedMinecartsWithCoupling = new WorldAttached<>($ -> new HashSet<>());
+		queuedAdditions = new WorldAttached<>($ -> ObjectLists.synchronize(new ObjectArrayList<>()));
+		queuedUnloads = new WorldAttached<>($ -> ObjectLists.synchronize(new ObjectArrayList<>()));
 	}
 
 	public static void tick(Level world) {
@@ -213,8 +213,8 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 			if (capability.cap.isPresent())
 				capability.cap.invalidate();
 		});
-		queuedAdditions.get(cart.getCommandSenderWorld())
-			.add(cart);
+		queuedAdditions.get(entity.getCommandSenderWorld())
+			.add((AbstractMinecartEntity) entity);
 	}
 
 	public static void startTracking(Entity entity) {

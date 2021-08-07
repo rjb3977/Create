@@ -16,7 +16,7 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public class CubeParticleData implements ParticleOptions, ICustomParticleData<CubeParticleData> {
 
-	public static final Codec<CubeParticleData> CODEC = RecordCodecBuilder.create(i -> 
+	public static final Codec<CubeParticleData> CODEC = RecordCodecBuilder.create(i ->
 		i.group(
 			Codec.FLOAT.fieldOf("r").forGetter(p -> p.r),
 			Codec.FLOAT.fieldOf("g").forGetter(p -> p.g),

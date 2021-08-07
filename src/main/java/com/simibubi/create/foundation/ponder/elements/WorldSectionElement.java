@@ -22,7 +22,6 @@ import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.render.SuperByteBufferCache;
 import com.simibubi.create.foundation.render.TileEntityRenderHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.client.Minecraft;
@@ -220,7 +219,7 @@ public class WorldSectionElement extends AnimatedSceneElement {
 	}
 
 	public void transformMS(PoseStack ms, float pt) {
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.translate(VecHelper.lerp(pt, prevAnimatedOffset, animatedOffset));
 		if (!animatedRotation.equals(Vec3.ZERO) || !prevAnimatedRotation.equals(Vec3.ZERO)) {
 			if (centerOfRotation == null)
@@ -228,14 +227,14 @@ public class WorldSectionElement extends AnimatedSceneElement {
 			double rotX = Mth.lerp(pt, prevAnimatedRotation.x, animatedRotation.x);
 			double rotZ = Mth.lerp(pt, prevAnimatedRotation.z, animatedRotation.z);
 			double rotY = Mth.lerp(pt, prevAnimatedRotation.y, animatedRotation.y);
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.translate(centerOfRotation)
 				.rotateX(rotX)
 				.rotateZ(rotZ)
 				.rotateY(rotY)
 				.translateBack(centerOfRotation);
 			if (stabilizationAnchor != null) {
-				MatrixStacker.of(ms)
+				MatrixTransformStack.of(ms)
 					.translate(stabilizationAnchor)
 					.rotateX(-rotX)
 					.rotateZ(-rotZ)

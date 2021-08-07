@@ -39,7 +39,7 @@ public class Create implements ModInitializer {
 
 	public static final String ID = "create";
 	public static final String NAME = "Create";
-	public static final String VERSION = "0.3.2";
+	public static final String VERSION = "0.3.2d";
 
 	public static final Logger LOGGER = LogManager.getLogger();
 
@@ -74,9 +74,9 @@ public class Create implements ModInitializer {
 		AllEntityTypes.register();
 		AllTileEntities.register();
 		AllMovementBehaviours.register();
-		AllConfigs.register();
 		AllWorldFeatures.register();
-
+		AllEnchantments.register();
+		AllConfigs.register(ModLoadingContext.get());
 
 //		IEventBus modEventBus = FMLJavaModLoadingContext.get()
 //			.getModEventBus();
@@ -110,16 +110,14 @@ public class Create implements ModInitializer {
 
 	public static void init() {
 		CapabilityMinecartController.register();
-		SchematicInstances.register();
-
-		CHUNK_UTIL.init();
-//		MinecraftForge.EVENT_BUS.register(chunkUtil); // init() handles registering events
-
 		AllPackets.registerPackets();
-		AllTriggers.register();
+		SchematicInstances.register();
 		PotatoCannonProjectileTypes.register();
 
+		CHUNK_UTIL.init();
+
 //		event.enqueueWork(() -> { // I think this can just be run on initialize too
+			AllTriggers.register();
 			SchematicProcessor.register();
 			AllWorldFeatures.registerFeatures();
 //		}

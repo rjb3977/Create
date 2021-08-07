@@ -4,6 +4,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 
 import com.jozufozu.flywheel.backend.Backend;
 import com.jozufozu.flywheel.core.PartialModel;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
@@ -18,7 +19,6 @@ import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringRenderer;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
 import com.simibubi.create.foundation.utility.AngleHelper;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
 import net.minecraft.client.Minecraft;
@@ -191,21 +191,21 @@ public class SawRenderer extends SafeTileEntityRenderer<SawTileEntity> {
 				superBuffer = PartialBufferer.get(AllBlockPartials.SAW_BLADE_VERTICAL_INACTIVE, state);
 		}
 
-		PoseStack m = matrices.contraptionStack;
+		PoseStack m = matrices.getModel();
 		m.pushPose();
-		MatrixStacker.of(m)
+		MatrixTransformStack.of(m)
 			.centre()
 			.rotateY(AngleHelper.horizontalAngle(facing))
 			.rotateX(AngleHelper.verticalAngle(facing));
 		if (!SawBlock.isHorizontal(state))
-			MatrixStacker.of(m)
+			MatrixTransformStack.of(m)
 				.rotateZ(state.getValue(SawBlock.AXIS_ALONG_FIRST_COORDINATE) ? 0 : 90);
-		MatrixStacker.of(m)
+		MatrixTransformStack.of(m)
 			.unCentre();
 
 		superBuffer.transform(m)
-			.light(matrices.entityMatrix, ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
-			.renderInto(matrices.entityStack, buffer.getBuffer(RenderType.cutoutMipped()));
+			.light(matrices.getWorld(), ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
+			.renderInto(matrices.getViewProjection(), buffer.getBuffer(RenderType.cutoutMipped()));
 
 		m.popPose();
 	}

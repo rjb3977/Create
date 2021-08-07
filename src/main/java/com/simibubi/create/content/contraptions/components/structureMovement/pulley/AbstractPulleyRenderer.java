@@ -35,7 +35,7 @@ public abstract class AbstractPulleyRenderer extends KineticTileEntityRenderer {
 	}
 
 	@Override
-	public boolean isGlobalRenderer(KineticTileEntity p_188185_1_) {
+	public boolean shouldRenderOffScreen(KineticTileEntity p_188185_1_) {
 		return true;
 	}
 

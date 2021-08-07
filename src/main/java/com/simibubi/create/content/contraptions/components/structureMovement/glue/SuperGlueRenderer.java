@@ -1,12 +1,12 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.glue;
 
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.utility.AngleHelper;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 
 import net.minecraft.client.Minecraft;
@@ -41,7 +41,7 @@ public class SuperGlueRenderer extends EntityRenderer<SuperGlueEntity> {
 	}
 
 	@Override
-	public ResourceLocation getEntityTexture(SuperGlueEntity entity) {
+	public ResourceLocation getTextureLocation(SuperGlueEntity entity) {
 		return regular;
 	}
 
@@ -69,7 +69,7 @@ public class SuperGlueRenderer extends EntityRenderer<SuperGlueEntity> {
 		Direction face = entity.getFacingDirection();
 
 		ms.pushPose();
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.rotateY(AngleHelper.horizontalAngleNew(face))
 			.rotateX(AngleHelper.verticalAngle(face));
 		Pose peek = ms.last();

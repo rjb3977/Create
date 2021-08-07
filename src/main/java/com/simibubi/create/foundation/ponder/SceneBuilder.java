@@ -77,7 +77,7 @@ import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour.TransportedResult;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 
@@ -137,8 +137,8 @@ public class SceneBuilder {
 	 * @param title
 	 */
 	public void title(String sceneId, String title) {
-		scene.sceneId = sceneId;
-		PonderLocalization.registerSpecific(sceneId, PonderScene.TITLE_KEY, title);
+		scene.sceneId = new ResourceLocation(scene.namespace, sceneId);
+		PonderLocalization.registerSpecific(scene.sceneId, PonderScene.TITLE_KEY, title);
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class SceneBuilder {
 	 * Use this in case you are not happy with the scale of the scene relative to
 	 * the overlay
 	 *
-	 * @param factor >1 will make the scene appear larger, smaller otherwise
+	 * @param factor {@literal >}1 will make the scene appear larger, smaller otherwise
 	 */
 	public void scaleSceneView(float factor) {
 		scene.scaleFactor = factor;
@@ -175,7 +175,7 @@ public class SceneBuilder {
 	 * Use this in case you are not happy with the vertical alignment of the scene
 	 * relative to the overlay
 	 *
-	 * @param yOffset >0 moves the scene up, down otherwise
+	 * @param yOffset {@literal >}0 moves the scene up, down otherwise
 	 */
 	public void setSceneOffsetY(float yOffset) {
 		scene.yOffset = yOffset;
@@ -309,7 +309,7 @@ public class SceneBuilder {
 		}
 
 		public void createRedstoneParticles(BlockPos pos, int color, int amount) {
-			Vec3 rgb = ColorHelper.getRGB(color);
+			Vec3 rgb = Color.vectorFromRGB(color);
 			addInstruction(new EmitParticlesInstruction(VecHelper.getCenterOf(pos), Emitter.withinBlockSpace(
 				new DustParticleOptions((float) rgb.x, (float) rgb.y, (float) rgb.z, 1), Vec3.ZERO), amount, 2));
 		}

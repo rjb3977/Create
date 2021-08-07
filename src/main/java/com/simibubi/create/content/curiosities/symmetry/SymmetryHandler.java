@@ -59,6 +59,9 @@ public class SymmetryHandler {
 	}
 
 	public static void onBlockDestroyed(Level world, Player player, BlockPos pos, BlockState state, BlockEntity te) {
+		if (world.isClientSide())
+			return;
+
 		Inventory inv = player.inventory;
 		for (int i = 0; i < Inventory.getSelectionSize(); i++) {
 			if (!inv.getItem(i)

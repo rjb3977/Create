@@ -99,10 +99,10 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterC
 		selectedAttributes.clear();
 		selectedAttributes.add((menu.selectedAttributes.isEmpty() ? noSelectedT : selectedT).plainCopy()
 			.withStyle(ChatFormatting.YELLOW));
-		menu.selectedAttributes.forEach(at -> selectedAttributes.add(new TextComponent("- ")
+		menu.selectedAttributes.forEach(at -> selectedAttributes.add(new StringTextComponent("- ")
 			.append(at.getFirst()
 				.format(at.getSecond()))
-			.withStyle(ChatFormatting.GRAY)));
+			.withStyle(TextFormatting.GRAY)));
 	}
 
 	private void referenceItemChanged(ItemStack stack) {

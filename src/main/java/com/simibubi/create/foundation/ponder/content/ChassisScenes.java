@@ -461,7 +461,7 @@ public class ChassisScenes {
 		scene.world.rotateBearing(bearingPos, 360, 80);
 		scene.world.rotateSection(contraption, 0, 360, 0, 80);
 		scene.idle(90);
-		
+
 		scene.world.destroyBlock(util.grid.at(1, 2, 0));
 		scene.idle(1);
 		scene.world.destroyBlock(util.grid.at(1, 2, 1));

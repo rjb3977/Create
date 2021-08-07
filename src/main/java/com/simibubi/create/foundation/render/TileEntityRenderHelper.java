@@ -9,7 +9,6 @@ import com.mojang.math.Vector4f;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -45,7 +44,8 @@ public class TileEntityRenderHelper {
 		Iterator<BlockEntity> iterator = customRenderTEs.iterator();
 		while (iterator.hasNext()) {
 			BlockEntity tileEntity = iterator.next();
-			// if (tileEntity instanceof IInstanceRendered) continue; // TODO: some things still need to render
+			if (Backend.getInstance().canUseInstancing(renderWorld) && InstancedRenderRegistry.getInstance()
+					.shouldSkipRender(tileEntity)) continue;
 
 			BlockEntityRenderer<BlockEntity> renderer = BlockEntityRenderDispatcher.instance.getRenderer(tileEntity);
 			if (renderer == null) {
@@ -55,7 +55,7 @@ public class TileEntityRenderHelper {
 
 			BlockPos pos = tileEntity.getBlockPos();
 			ms.pushPose();
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.translate(pos);
 
 			try {

@@ -51,11 +51,11 @@ public class ConfigDrivenFeatureEntry extends ConfigBase {
 
 	private ConfiguredFeature<?, ?> createFeature() {
 		ConfigDrivenOreFeatureConfig config =
-				new ConfigDrivenOreFeatureConfig(Predicates.NATURAL_STONE, block.get()
-						.defaultBlockState(), id);
+			new ConfigDrivenOreFeatureConfig(Predicates.NATURAL_STONE, block.get()
+				.defaultBlockState(), id);
 
 		return ConfigDrivenOreFeature.INSTANCE.configured(config)
-				.decorated(ConfigDrivenDecorator.INSTANCE.configured(config));
+			.decorated(ConfigDrivenDecorator.INSTANCE.configured(config));
 	}
 
 	public void addToConfig() {

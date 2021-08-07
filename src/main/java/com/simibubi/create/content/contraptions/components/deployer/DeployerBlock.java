@@ -21,6 +21,7 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.content.contraptions.base.DirectionalAxisKineticBlock;
+import com.simibubi.create.content.contraptions.components.AssemblyOperatorUseContext;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
@@ -126,4 +127,9 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements ITE<De
 		return false;
 	}
 
+	@Override
+	protected Direction getFacingForPlacement(BlockItemUseContext context) {
+		if (context instanceof AssemblyOperatorUseContext) return Direction.DOWN;
+		else return super.getFacingForPlacement(context);
+	}
 }

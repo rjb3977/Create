@@ -25,8 +25,7 @@ public class PotatoProjectileRenderer extends EntityRenderer<PotatoProjectileEnt
 		ms.pushPose();
 		ms.translate(0, entity.getBoundingBox()
 			.getYsize() / 2 - 1 / 8f, 0);
-		entity.getProjectileType()
-			.getRenderMode()
+		entity.getRenderMode()
 			.transform(ms, entity, pt);
 
 		Minecraft.getInstance()
@@ -36,7 +35,7 @@ public class PotatoProjectileRenderer extends EntityRenderer<PotatoProjectileEnt
 	}
 
 	@Override
-	public ResourceLocation getEntityTexture(PotatoProjectileEntity p_110775_1_) {
+	public ResourceLocation getTextureLocation(PotatoProjectileEntity p_110775_1_) {
 		return null;
 	}
 

@@ -66,7 +66,7 @@ public class FlipTool extends PlacementToolBase {
 			.inflate(1 - directionVec.x, 1 - directionVec.y, 1 - directionVec.z);
 		bounds = bounds.move(directionVec.scale(.5f)
 			.multiply(boundsSize));
-		
+
 		outline.setBounds(bounds);
 		AllSpecialTextures tex = AllSpecialTextures.CHECKERED;
 		outline.getParams()
@@ -75,7 +75,7 @@ public class FlipTool extends PlacementToolBase {
 			.colored(0xdddddd)
 			.withFaceTextures(tex, tex);
 		outline.render(ms, buffer, AnimationTickHolder.getPartialTicks());
-		
+
 		super.renderOnSchematic(ms, buffer);
 	}
 

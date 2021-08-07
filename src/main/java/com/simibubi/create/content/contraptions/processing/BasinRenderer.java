@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.processing;
 
 import java.util.Random;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.fluid.FluidRenderer;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
@@ -9,7 +10,6 @@ import com.simibubi.create.foundation.tileEntity.renderer.SmartTileEntityRendere
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.IntAttached;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
@@ -44,7 +44,7 @@ public class BasinRenderer extends SmartTileEntityRenderer<BasinTileEntity> {
 
 		BlockPos pos = basin.getBlockPos();
 		ms.translate(.5, .2f, .5);
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.rotateY(basin.ingredientRotation.getValue(partialTicks));
 
 		Random r = new Random(pos.hashCode());
@@ -78,7 +78,7 @@ public class BasinRenderer extends SmartTileEntityRenderer<BasinTileEntity> {
 
 			Vec3 itemPosition = VecHelper.rotate(baseVector, anglePartition * itemCount, Axis.Y);
 			ms.translate(itemPosition.x, itemPosition.y, itemPosition.z);
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.rotateY(anglePartition * itemCount + 35)
 				.rotateX(65);
 
@@ -120,7 +120,7 @@ public class BasinRenderer extends SmartTileEntityRenderer<BasinTileEntity> {
 				continue;
 
 			ms.pushPose();
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.translate(outVec)
 				.translate(new Vec3(0, Math.max(-.55f, -(progress * progress * 2)), 0))
 				.translate(directionVec.scale(progress * .5f))

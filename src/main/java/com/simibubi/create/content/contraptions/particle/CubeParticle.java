@@ -114,7 +114,7 @@ public class CubeParticle extends Particle {
 		if (this.hot && this.age > 0) {
 			if (this.yo == this.y) {
 				billowing = true;
-				ParticleHelper.setField_21507(this, false); // Prevent motion being ignored due to vertical collision
+				stoppedByCollision = false; // Prevent motion being ignored due to vertical collision
 				if (this.xd == 0 && this.zd == 0) {
 					Vec3 diff = Vec3.atLowerCornerOf(new BlockPos(x, y, z)).add(0.5, 0.5, 0.5).subtract(x, y, z);
 					this.xd = -diff.x * 0.1;
@@ -171,7 +171,7 @@ public class CubeParticle extends Particle {
 		public Factory() {}
 
 		@Override
-		public Particle makeParticle(CubeParticleData data, ClientLevel world, double x, double y, double z, double motionX,
+		public Particle createParticle(CubeParticleData data, ClientLevel world, double x, double y, double z, double motionX,
 			double motionY, double motionZ) {
 			CubeParticle particle = new CubeParticle(world, x, y, z, motionX, motionY, motionZ);
 			particle.setColor(data.r, data.g, data.b);

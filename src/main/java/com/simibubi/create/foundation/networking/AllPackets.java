@@ -15,7 +15,6 @@ import com.simibubi.create.content.contraptions.components.structureMovement.tra
 import com.simibubi.create.content.contraptions.fluids.actors.FluidSplashPacket;
 import com.simibubi.create.content.contraptions.relays.advanced.sequencer.ConfigureSequencedGearshiftPacket;
 import com.simibubi.create.content.curiosities.bell.SoulPulseEffectPacket;
-import com.simibubi.create.content.curiosities.projector.ConfigureProjectorPacket;
 import com.simibubi.create.content.curiosities.symmetry.SymmetryEffectPacket;
 import com.simibubi.create.content.curiosities.tools.BlueprintAssignCompleteRecipePacket;
 import com.simibubi.create.content.curiosities.tools.ExtendoGripInteractionPacket;
@@ -63,7 +62,6 @@ public enum AllPackets {
 	CONFIGURE_FLEXCRATE(ConfigureFlexcratePacket.class),
 	CONFIGURE_STOCKSWITCH(ConfigureStockswitchPacket.class),
 	CONFIGURE_SEQUENCER(ConfigureSequencedGearshiftPacket.class),
-	CONFIGURE_PROJECTOR(ConfigureProjectorPacket.class),
 	PLACE_SCHEMATIC(SchematicPlacePacket.class),
 	UPLOAD_SCHEMATIC(SchematicUploadPacket.class),
 	CLEAR_CONTAINER(ClearContainerPacket.class),

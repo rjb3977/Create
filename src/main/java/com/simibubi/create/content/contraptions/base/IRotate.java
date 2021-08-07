@@ -100,7 +100,7 @@ public interface IRotate extends IWrenchable {
 			else if (stressPercent > .5d) return StressImpact.MEDIUM;
 			else return StressImpact.LOW;
 		}
-		
+
 		public static boolean isEnabled() {
 			return !AllConfigs.SERVER.kinetics.disableStress.get();
 		}

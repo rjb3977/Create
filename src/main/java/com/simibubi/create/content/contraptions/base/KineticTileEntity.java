@@ -18,6 +18,7 @@ import com.simibubi.create.content.contraptions.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.contraptions.goggles.IHaveHoveringInformation;
 import com.simibubi.create.content.contraptions.relays.elementary.ICogWheel;
 import com.simibubi.create.content.contraptions.relays.gearbox.GearboxBlock;
+import com.simibubi.create.foundation.block.BlockStressValues;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.sound.SoundScapes;
@@ -160,20 +161,20 @@ public abstract class KineticTileEntity extends SmartTileEntity
 		}
 	}
 
-	public float calculateAddedStressCapacity() {
-		float capacity = (float) AllConfigs.SERVER.kinetics.stressValues.getCapacityOf(getStressConfigKey());
-		this.lastCapacityProvided = capacity;
-		return capacity;
-	}
-
 	protected Block getStressConfigKey() {
 		return getBlockState().getBlock();
 	}
 
 	public float calculateStressApplied() {
-		float impact = (float) AllConfigs.SERVER.kinetics.stressValues.getImpactOf(getStressConfigKey());
+		float impact = (float) BlockStressValues.getImpact(getStressConfigKey());
 		this.lastStressApplied = impact;
 		return impact;
+	}
+
+	public float calculateAddedStressCapacity() {
+		float capacity = (float) BlockStressValues.getCapacity(getStressConfigKey());
+		this.lastCapacityProvided = capacity;
+		return capacity;
 	}
 
 	public void onSpeedChanged(float previousSpeed) {
@@ -560,7 +561,7 @@ public abstract class KineticTileEntity extends SmartTileEntity
 //	@Override
 //	public void requestModelDataUpdate() {
 //		super.requestModelDataUpdate();
-//		if (!this.removed)
+//		if (!this.remove)
 //			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
 //	}
 
@@ -596,5 +597,6 @@ public abstract class KineticTileEntity extends SmartTileEntity
 	protected boolean isNoisy() {
 		return true;
 	}
+
 
 }

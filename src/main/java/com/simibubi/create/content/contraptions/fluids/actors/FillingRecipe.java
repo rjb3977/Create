@@ -41,7 +41,8 @@ public class FillingRecipe extends ProcessingRecipe<RecipeWrapper> implements IA
 
 	@Override
 	public boolean matches(RecipeWrapper iInventory, Level world) {
-		return false;
+		return ingredients.get(0)
+				.test(inv.getItem(0));
 	}
 
 	@Override

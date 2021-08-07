@@ -54,7 +54,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 			this.te = te;
 			forbidExtraction();
 			whenContentsChanged(slot -> {
-				if (getStackInSlot(slot).isEmpty())
+				if (getItem(slot).isEmpty())
 					return;
 				if (te.phase == Phase.IDLE)
 					te.checkCompletedRecipe(false);
@@ -80,7 +80,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 	protected Inventory inventory;
 	protected GroupedItems groupedItems = new GroupedItems();
 	protected ConnectedInput input = new ConnectedInput();
-	protected LazyOptional<IItemHandler> invSupplier = LazyOptional.of(() -> input.getItemHandler(world, pos));
+	protected LazyOptional<IItemHandler> invSupplier = LazyOptional.of(() -> input.getItemHandler(level, worldPosition));
 	protected boolean reRender;
 	protected Phase phase;
 	protected int countDown;
@@ -413,9 +413,9 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 		Vec3 ejectPos = VecHelper.getCenterOf(worldPosition)
 			.add(vec);
 		groupedItems.grid.forEach((pair, stack) -> dropItem(ejectPos, stack));
-		if (!inventory.getStackInSlot(0)
+		if (!inventory.getItem(0)
 			.isEmpty())
-			dropItem(ejectPos, inventory.getStackInSlot(0));
+			dropItem(ejectPos, inventory.getItem(0));
 		phase = Phase.IDLE;
 		groupedItems = new GroupedItems();
 		inventory.setStackInSlot(0, ItemStack.EMPTY);
@@ -440,12 +440,12 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 	}
 
 	public boolean craftingItemPresent() {
-		return !inventory.getStackInSlot(0)
+		return !inventory.getItem(0)
 			.isEmpty();
 	}
 
 	public boolean craftingItemOrCoverPresent() {
-		return !inventory.getStackInSlot(0)
+		return !inventory.getItem(0)
 			.isEmpty() || covered;
 	}
 
@@ -465,7 +465,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 
 	protected void begin() {
 		phase = Phase.ACCEPTING;
-		groupedItems = new GroupedItems(inventory.getStackInSlot(0));
+		groupedItems = new GroupedItems(inventory.getItem(0));
 		inventory.setStackInSlot(0, ItemStack.EMPTY);
 		if (RecipeGridHandler.getPrecedingCrafters(this)
 			.isEmpty()) {
@@ -501,7 +501,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 		reRender = true;
 		sendData();
 		invSupplier.invalidate();
-		invSupplier = LazyOptional.of(() -> input.getItemHandler(world, pos));
+		invSupplier = LazyOptional.of(() -> input.getItemHandler(level, worldPosition));
 	}
 
 	public Inventory getInventory() {

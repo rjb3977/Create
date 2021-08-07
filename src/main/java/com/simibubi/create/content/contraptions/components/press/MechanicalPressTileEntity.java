@@ -86,7 +86,7 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 
 		if (clientPacket) {
 			NBTHelper.iterateCompoundList(compound.getList("ParticleItems", NBT.TAG_COMPOUND),
-				c -> pressedItems.add(ItemStack.read(c)));
+				c -> pressedItems.add(ItemStack.of(c)));
 			spawnParticles();
 		}
 	}
@@ -107,8 +107,8 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 
 //	@Override
 //	public AxisAlignedBB makeRenderBoundingBox() {
-//		return new AxisAlignedBB(pos).expand(0, -1.5, 0)
-//			.expand(0, 1, 0);
+//		return new AxisAlignedBB(worldPosition).expandTowards(0, -1.5, 0)
+//			.expandTowards(0, 1, 0);
 //	}
 
 	public float getRenderedHeadOffset(float partialTicks) {
@@ -197,8 +197,12 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 			finished = true;
 			running = false;
 
-			if (onBasin() && matchBasinRecipe(currentRecipe))
+			if (onBasin() && matchBasinRecipe(currentRecipe)
+				&& getBasin().filter(BasinTileEntity::canContinueProcessing)
+					.isPresent())
 				startProcessingBasin();
+			else
+				basinChecker.scheduleUpdate();
 
 			pressedItems.clear();
 			sendData();
@@ -225,7 +229,7 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 			.getInputInventory();
 		if (basin.isPresent()) {
 			for (int slot = 0; slot < inputs.getSlots(); slot++) {
-				ItemStack stackInSlot = inputs.getStackInSlot(slot);
+				ItemStack stackInSlot = inputs.getItem(slot);
 				if (stackInSlot.isEmpty())
 					continue;
 				pressedItems.add(stackInSlot);
@@ -331,11 +335,23 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 		if (assemblyRecipe.isPresent())
 			return assemblyRecipe;
 
-		pressingInv.setInventorySlotContents(0, item);
+		pressingInv.setItem(0, item);
 		return AllRecipeTypes.PRESSING.find(pressingInv, level);
 	}
 
-	public static boolean canCompress(NonNullList<Ingredient> ingredients) {
+	private static final List<ResourceLocation> RECIPE_DENY_LIST =
+		ImmutableList.of(new ResourceLocation("occultism", "spirit_trade"));
+
+	public static <C extends IInventory> boolean canCompress(IRecipe<C> recipe) {
+		NonNullList<Ingredient> ingredients = recipe.getIngredients();
+		if (!(recipe instanceof ICraftingRecipe))
+			return false;
+
+		IRecipeSerializer<?> serializer = recipe.getSerializer();
+		for (ResourceLocation denied : RECIPE_DENY_LIST)
+			if (serializer != null && denied.equals(serializer.getRegistryName()))
+				return false;
+
 		return AllConfigs.SERVER.recipes.allowShapedSquareInPress.get()
 			&& (ingredients.size() == 4 || ingredients.size() == 9) && ItemHelper.condenseIngredients(ingredients)
 				.size() == 1;
@@ -343,8 +359,8 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 
 	@Override
 	protected <C extends Container> boolean matchStaticFilters(Recipe<C> recipe) {
-		return (recipe instanceof CraftingRecipe && canCompress(recipe.getIngredients()))
-			|| recipe.getType() == AllRecipeTypes.COMPACTING.type;
+		return (recipe instanceof CraftingRecipe && canCompress(recipe))
+			|| recipe.getType() == AllRecipeTypes.COMPACTING.getType();
 	}
 
 	@Override

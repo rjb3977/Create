@@ -1,25 +1,20 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.render;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 import com.jozufozu.flywheel.backend.Backend;
-import com.jozufozu.flywheel.backend.gl.attrib.CommonAttributes;
-import com.jozufozu.flywheel.backend.gl.attrib.VertexFormat;
-import com.jozufozu.flywheel.backend.instancing.IInstanceRendered;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.backend.model.ArrayModelRenderer;
-import com.jozufozu.flywheel.backend.model.BufferedModel;
-import com.jozufozu.flywheel.backend.model.IndexedModel;
 import com.jozufozu.flywheel.backend.model.ModelRenderer;
+import com.jozufozu.flywheel.core.model.IModel;
+import com.jozufozu.flywheel.core.model.WorldModel;
+import com.jozufozu.flywheel.event.BeginFrameEvent;
 import com.jozufozu.flywheel.light.GridAlignedBB;
-import com.jozufozu.flywheel.util.BufferBuilderReader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
@@ -35,16 +30,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.phys.AABB;
 
-public class RenderedContraption extends ContraptionWorldHolder {
-	public static final VertexFormat FORMAT = VertexFormat.builder()
-			.addAttributes(CommonAttributes.VEC3,
-					CommonAttributes.NORMAL,
-					CommonAttributes.UV,
-					CommonAttributes.RGBA,
-					CommonAttributes.LIGHT)
-			.build();
+public class RenderedContraption extends ContraptionRenderInfo {
 
 	private final ContraptionLighter<?> lighter;
 
@@ -53,13 +42,17 @@ public class RenderedContraption extends ContraptionWorldHolder {
 
 	private final Map<RenderType, ModelRenderer> renderLayers = new HashMap<>();
 
-	private Matrix4f model;
+	private final Matrix4f modelViewPartial = new Matrix4f();
+	private boolean modelViewPartialReady;
 	private AABB lightBox;
 
 	public RenderedContraption(Contraption contraption, PlacementSimulationWorld renderWorld) {
 		super(contraption, renderWorld);
 		this.lighter = contraption.makeLighter();
-		this.materialManager = new ContraptionMaterialManager(CreateContexts.CWORLD);
+		this.materialManager = MaterialManager.builder(CreateContexts.CWORLD)
+				.setGroupFactory(ContraptionGroup.forContraption(this))
+				.setIgnoreOriginCoordinate(true)
+				.build();
 		this.kinetics = new ContraptionInstanceManager(this, materialManager);
 
 		buildLayers();
@@ -84,28 +77,32 @@ public class RenderedContraption extends ContraptionWorldHolder {
 	public void beginFrame(Camera info, double camX, double camY, double camZ) {
 		kinetics.beginFrame(info);
 
-		AbstractContraptionEntity entity = contraption.entity;
-		float pt = AnimationTickHolder.getPartialTicks();
+		modelViewPartial.setIdentity();
+		modelViewPartialReady = false;
 
-		PoseStack stack = new PoseStack();
+		if (!isVisible()) return;
 
-		double x = Mth.lerp(pt, entity.xOld, entity.getX()) - camX;
-		double y = Mth.lerp(pt, entity.yOld, entity.getY()) - camY;
-		double z = Mth.lerp(pt, entity.zOld, entity.getZ()) - camZ;
-		stack.translate(x, y, z);
+		kinetics.beginFrame(event.getInfo());
 
-		entity.doLocalTransforms(pt, new PoseStack[] { stack });
+		Vector3d cameraPos = event.getCameraPos();
 
-		model = stack.last().pose();
+		lightBox = GridAlignedBB.toAABB(lighter.lightVolume.getTextureVolume())
+				.move(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+	}
 
-		AABB lightBox = GridAlignedBB.toAABB(lighter.lightVolume.getTextureVolume());
+	@Override
+	public void setupMatrices(MatrixStack viewProjection, double camX, double camY, double camZ) {
+		super.setupMatrices(viewProjection, camX, camY, camZ);
 
-		this.lightBox = lightBox.move(-camX, -camY, -camZ);
+		if (!modelViewPartialReady) {
+			setupModelViewPartial(modelViewPartial, getMatrices().getModel().last().pose(), contraption.entity, camX, camY, camZ, AnimationTickHolder.getPartialTicks());
+			modelViewPartialReady = true;
+		}
 	}
 
 	void setup(ContraptionProgram shader) {
-		if (model == null || lightBox == null) return;
-		shader.bind(model, lightBox);
+		if (!modelViewPartialReady || lightBox == null) return;
+		shader.bind(modelViewPartial, lightBox);
 		lighter.lightVolume.bind();
 	}
 
@@ -131,14 +128,15 @@ public class RenderedContraption extends ContraptionWorldHolder {
 		List<RenderType> blockLayers = RenderType.chunkBufferLayers();
 
 		for (RenderType layer : blockLayers) {
-			BufferedModel layerModel = buildStructureModel(renderWorld, contraption, layer);
+			Supplier<IModel> layerModel = () -> new WorldModel(renderWorld, layer, contraption.getBlocks().values());
 
-			if (layerModel != null) {
-				if (Backend.getInstance().compat.vertexArrayObjectsSupported())
-					renderLayers.put(layer, new ArrayModelRenderer(layerModel));
-				else
-					renderLayers.put(layer, new ModelRenderer(layerModel));
-			}
+			ModelRenderer renderer;
+			if (Backend.getInstance().compat.vertexArrayObjectsSupported())
+				renderer = new ArrayModelRenderer(layerModel);
+			else
+				renderer = new ModelRenderer(layerModel);
+
+			renderLayers.put(layer, renderer);
 		}
 	}
 
@@ -146,7 +144,8 @@ public class RenderedContraption extends ContraptionWorldHolder {
 		Collection<BlockEntity> tileEntities = contraption.maybeInstancedTileEntities;
 		if (!tileEntities.isEmpty()) {
 			for (BlockEntity te : tileEntities) {
-				if (te instanceof IInstanceRendered) {
+				if (InstancedRenderRegistry.getInstance()
+						.canInstance(te.getType())) {
 					Level world = te.getLevel();
 					BlockPos pos = te.getBlockPos();
 					te.setLevelAndPosition(renderWorld, pos);
@@ -161,46 +160,12 @@ public class RenderedContraption extends ContraptionWorldHolder {
 		contraption.getActors().forEach(kinetics::createActor);
 	}
 
-	@Nullable
-	private static BufferedModel buildStructureModel(PlacementSimulationWorld renderWorld, Contraption c, RenderType layer) {
-		BufferBuilderReader reader = new BufferBuilderReader(ContraptionRenderDispatcher.buildStructure(renderWorld, c, layer));
-
-		int vertexCount = reader.getVertexCount();
-		if (vertexCount == 0) return null;
-
-		VertexFormat format = FORMAT;
-
-		ByteBuffer vertices = ByteBuffer.allocate(format.getStride() * vertexCount);
-		vertices.order(ByteOrder.nativeOrder());
-
-		for (int i = 0; i < vertexCount; i++) {
-			vertices.putFloat(reader.getX(i));
-			vertices.putFloat(reader.getY(i));
-			vertices.putFloat(reader.getZ(i));
-
-			vertices.put(reader.getNX(i));
-			vertices.put(reader.getNY(i));
-			vertices.put(reader.getNZ(i));
-
-			vertices.putFloat(reader.getU(i));
-			vertices.putFloat(reader.getV(i));
-
-			vertices.put(reader.getR(i));
-			vertices.put(reader.getG(i));
-			vertices.put(reader.getB(i));
-			vertices.put(reader.getA(i));
-
-			int light = reader.getLight(i);
-
-			byte block = (byte) (LightTexture.block(light) << 4);
-			byte sky = (byte) (LightTexture.sky(light) << 4);
-
-			vertices.put(block);
-			vertices.put(sky);
-		}
-
-		vertices.rewind();
-
-		return IndexedModel.fromSequentialQuads(format, vertices, vertexCount);
+	public static void setupModelViewPartial(Matrix4f matrix, Matrix4f modelMatrix, AbstractContraptionEntity entity, double camX, double camY, double camZ, float pt) {
+		float x = (float) (MathHelper.lerp(pt, entity.xOld, entity.getX()) - camX);
+		float y = (float) (MathHelper.lerp(pt, entity.yOld, entity.getY()) - camY);
+		float z = (float) (MathHelper.lerp(pt, entity.zOld, entity.getZ()) - camZ);
+		matrix.setTranslation(x, y, z);
+		matrix.multiply(modelMatrix);
 	}
+
 }

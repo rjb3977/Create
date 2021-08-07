@@ -148,7 +148,7 @@ public class FilterItem extends Item implements MenuProvider {
 
 		if (!player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
 			if (!world.isClientSide && player instanceof ServerPlayer)
-				NetworkUtil.openGUI((ServerPlayer) player, this, buf -> buf.writeItemStack(heldItem));
+				NetworkUtil.openGUI((ServerPlayer) player, this, buf -> buf.writeItem(heldItem));
 			return InteractionResultHolder.success(heldItem);
 		}
 		return InteractionResultHolder.pass(heldItem);
@@ -220,6 +220,8 @@ public class FilterItem extends Item implements MenuProvider {
 			for (Tag inbt : attributes) {
 				CompoundTag compound = (CompoundTag) inbt;
 				ItemAttribute attribute = ItemAttribute.fromNBT(compound);
+				if (attribute == null)
+					continue;
 				boolean matches = attribute.appliesTo(stack, world) != compound.getBoolean("Inverted");
 
 				if (matches) {
@@ -271,7 +273,7 @@ public class FilterItem extends Item implements MenuProvider {
 				return false;
 			if (!matchNBT)
 				return fluidInFilter.getFluid()
-					.isEquivalentTo(stack.getFluid());
+					.isSame(stack.getFluid());
 			boolean fluidEqual = fluidInFilter.isFluidEqual(stack);
 			return fluidEqual;
 		}

@@ -68,7 +68,7 @@ public class MechanicalPistonBlock extends DirectionalAxisKineticBlock implement
 			return InteractionResult.PASS;
 		if (!(player.getItemInHand(handIn)
 			.getItem()
-			/*.isIn(TagUtil.SLIMEBALLS)*/== Items.SLIME_BALL)) {
+			/*.is(TagUtil.SLIMEBALLS)*/== Items.SLIME_BALL)) {
 			if (player.getItemInHand(handIn)
 				.isEmpty()) {
 				withTileEntityDo(worldIn, pos, te -> te.assembleNextTick = true);

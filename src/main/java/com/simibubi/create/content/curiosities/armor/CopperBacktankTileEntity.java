@@ -5,7 +5,7 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.particle.AirParticleData;
-import com.simibubi.create.foundation.config.AllConfigs;
+import com.simibubi.create.foundation.tileEntity.ComparatorUtil;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.particles.ParticleTypes;
@@ -24,8 +24,12 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 	public int airLevelTimer;
 	private Component customName;
 
+	private int capacityEnchantLevel;
+	private ListNBT enchantmentTag;
+
 	public CopperBacktankTileEntity(BlockEntityType<?> typeIn) {
 		super(typeIn);
+		enchantmentTag = new ListNBT();
 	}
 
 	@Override
@@ -33,12 +37,18 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 		super.tick();
 		if (getSpeed() == 0)
 			return;
+
+		BlockState state = getBlockState();
+		BooleanProperty waterProperty = BlockStateProperties.WATERLOGGED;
+		if (state.hasProperty(waterProperty) && state.getValue(waterProperty))
+			return;
+
 		if (airLevelTimer > 0) {
 			airLevelTimer--;
 			return;
 		}
 
-		int max = getMaxAir();
+		int max = BackTankUtil.maxAir(capacityEnchantLevel);
 		if (level.isClientSide) {
 			Vec3 centerOf = VecHelper.getCenterOf(worldPosition);
 			Vec3 v = VecHelper.offsetRandomly(centerOf, Create.RANDOM, .65f);
@@ -51,33 +61,20 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 		if (airLevel == max)
 			return;
 
+		int prevComparatorLevel = getComparatorOutput();
 		float abs = Math.abs(getSpeed());
 		int increment = Mth.clamp(((int) abs - 100) / 20, 1, 5);
 		airLevel = Math.min(max, airLevel + increment);
+		if (getComparatorOutput() != prevComparatorLevel && !level.isClientSide)
+			level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
 		if (airLevel == max)
 			sendData();
 		airLevelTimer = Mth.clamp((int) (128f - abs / 5f) - 108, 0, 20);
 	}
 
-	protected int getMaxAir() {
-		return AllConfigs.SERVER.curiosities.maxAirInBacktank.get();
-	}
-
-	public int getAirLevel() {
-		return airLevel;
-	}
-
-	public void setAirLevel(int airLevel) {
-		this.airLevel = airLevel;
-		sendData();
-	}
-
-	public void setCustomName(Component customName) {
-		this.customName = customName;
-	}
-
-	public Component getCustomName() {
-		return customName;
+	public int getComparatorOutput() {
+		int max = BackTankUtil.maxAir(capacityEnchantLevel);
+		return ComparatorUtil.fractionToRedstoneLevel(airLevel / (float) max);
 	}
 
 	@Override
@@ -85,19 +82,23 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 		super.write(compound, clientPacket);
 		compound.putInt("Air", airLevel);
 		compound.putInt("Timer", airLevelTimer);
+		compound.putInt("CapacityEnchantment", capacityEnchantLevel);
 		if (this.customName != null)
 			compound.putString("CustomName", Component.Serializer.toJson(this.customName));
+		compound.put("Enchantments", enchantmentTag);
 	}
 
 	@Override
 	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		super.fromTag(state, compound, clientPacket);
 		int prev = airLevel;
+		capacityEnchantLevel = compound.getInt("CapacityEnchantment");
 		airLevel = compound.getInt("Air");
 		airLevelTimer = compound.getInt("Timer");
+		enchantmentTag = compound.getList("Enchantments", NBT.TAG_COMPOUND);
 		if (compound.contains("CustomName", 8))
 			this.customName = Component.Serializer.fromJson(compound.getString("CustomName"));
-		if (prev != 0 && prev != airLevel && airLevel == getMaxAir() && clientPacket)
+		if (prev != 0 && prev != airLevel && airLevel == BackTankUtil.maxAir(capacityEnchantLevel) && clientPacket)
 			playFilledEffect();
 	}
 
@@ -124,6 +125,35 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 	@Override
 	public boolean shouldRenderNormally() {
 		return true;
+	}
+
+	public int getAirLevel() {
+		return airLevel;
+	}
+
+	public void setAirLevel(int airLevel) {
+		this.airLevel = airLevel;
+		sendData();
+	}
+
+	public void setCustomName(ITextComponent customName) {
+		this.customName = customName;
+	}
+
+	public ITextComponent getCustomName() {
+		return customName;
+	}
+
+	public ListNBT getEnchantmentTag() {
+		return enchantmentTag;
+	}
+
+	public void setEnchantmentTag(ListNBT enchantmentTag) {
+		this.enchantmentTag = enchantmentTag;
+	}
+
+	public void setCapacityEnchantLevel(int capacityEnchantLevel) {
+		this.capacityEnchantLevel = capacityEnchantLevel;
 	}
 
 }

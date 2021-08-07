@@ -1,8 +1,9 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.gantry;
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.materials.ModelData;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
@@ -35,8 +36,8 @@ public class GantryCarriageInstance extends ShaftInstance implements IDynamicIns
                                  .getModel(AllBlockPartials.GANTRY_COGS, blockState)
                                  .createInstance();
 
-        facing = blockState.get(GantryCarriageBlock.FACING);
-        alongFirst = blockState.get(GantryCarriageBlock.AXIS_ALONG_FIRST_COORDINATE);
+        facing = blockState.getValue(GantryCarriageBlock.FACING);
+        alongFirst = blockState.getValue(GantryCarriageBlock.AXIS_ALONG_FIRST_COORDINATE);
         rotationAxis = KineticTileEntityRenderer.getRotationAxisOf(tile);
 
         rotationMult = getRotationMultiplier(getGantryAxis(), facing);
@@ -63,7 +64,7 @@ public class GantryCarriageInstance extends ShaftInstance implements IDynamicIns
 
     private void animateCogs(float cogAngle) {
         PoseStack ms = new PoseStack();
-        MatrixStacker.of(ms)
+        MatrixTransformStack.of(ms)
                      .translate(getInstancePosition())
                      .centre()
                      .rotateY(AngleHelper.horizontalAngle(facing))

@@ -29,6 +29,7 @@ package com.simibubi.create.compat.jei.category;
 //import net.minecraft.item.ItemStack;
 //import net.minecraft.item.crafting.Ingredient;
 //import net.minecraft.util.NonNullList;
+//import net.minecraftforge.fluids.FluidStack;
 //
 //public class BasinCategory extends CreateRecipeCategory<BasinRecipe> {
 //
@@ -50,9 +51,9 @@ package com.simibubi.create.compat.jei.category;
 //
 //		HeatCondition requiredHeat = recipe.getRequiredHeat();
 //		if (!requiredHeat.testBlazeBurner(HeatLevel.NONE))
-//			itemIngredients.add(Ingredient.fromItems(AllBlocks.BLAZE_BURNER.get()));
+//			itemIngredients.add(Ingredient.of(AllBlocks.BLAZE_BURNER.get()));
 //		if (!requiredHeat.testBlazeBurner(HeatLevel.KINDLED))
-//			itemIngredients.add(Ingredient.fromItems(AllItems.BLAZE_CAKE.get()));
+//			itemIngredients.add(Ingredient.of(AllItems.BLAZE_CAKE.get()));
 //
 //		ingredients.setInputIngredients(itemIngredients);
 //		ingredients.setInputLists(VanillaTypes.FLUID, recipe.getFluidIngredients()
@@ -61,7 +62,7 @@ package com.simibubi.create.compat.jei.category;
 //			.collect(Collectors.toList()));
 //		if (!recipe.getRollableResults()
 //			.isEmpty())
-//			ingredients.setOutput(VanillaTypes.ITEM, recipe.getRecipeOutput());
+//			ingredients.setOutput(VanillaTypes.ITEM, recipe.getResultItem());
 //		if (!recipe.getFluidResults()
 //			.isEmpty())
 //			ingredients.setOutputs(VanillaTypes.FLUID, recipe.getFluidResults());
@@ -96,7 +97,7 @@ package com.simibubi.create.compat.jei.category;
 //			Ingredient ingredient = pair.getFirst();
 //			MutableInt amount = pair.getSecond();
 //
-//			for (ItemStack itemStack : ingredient.getMatchingStacks()) {
+//			for (ItemStack itemStack : ingredient.getItems()) {
 //				ItemStack stack = itemStack.copy();
 //				stack.setCount(amount.getValue());
 //				stacks.add(stack);
@@ -116,7 +117,7 @@ package com.simibubi.create.compat.jei.category;
 //
 //		if (!itemOutput.isEmpty()) {
 //			itemStacks.init(i, false, 141, 50 + yOffset);
-//			itemStacks.set(i, recipe.getRecipeOutput()
+//			itemStacks.set(i, recipe.getResultItem()
 //				.getStack());
 //			yOffset -= 19;
 //		}
@@ -164,7 +165,7 @@ package com.simibubi.create.compat.jei.category;
 //
 //		AllGuiTextures heatBar = noHeat ? AllGuiTextures.JEI_NO_HEAT_BAR : AllGuiTextures.JEI_HEAT_BAR;
 //		heatBar.draw(matrixStack, 4, 80);
-//		Minecraft.getInstance().fontRenderer.draw(matrixStack, Lang.translate(requiredHeat.getTranslationKey()), 9,
+//		Minecraft.getInstance().font.draw(matrixStack, Lang.translate(requiredHeat.getTranslationKey()), 9,
 //			86, requiredHeat.getColor());
 //	}
 //

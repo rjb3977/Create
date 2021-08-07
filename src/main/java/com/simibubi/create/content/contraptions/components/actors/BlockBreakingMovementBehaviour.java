@@ -165,10 +165,8 @@ public class BlockBreakingMovementBehaviour extends MovementBehaviour {
 		float breakSpeed = Mth.clamp(Math.abs(context.getAnimationSpeed()) / 500f, 1 / 128f, 16f);
 		destroyProgress += Mth.clamp((int) (breakSpeed / blockHardness), 1, 10 - destroyProgress);
 		world.playSound(null, breakingPos, stateToBreak.getSoundType().getHitSound(), SoundSource.NEUTRAL, .25f, 1);
-		
 		if (destroyProgress >= 10) {
 			world.destroyBlockProgress(id, breakingPos, -1);
-			
 			// break falling blocks from top to bottom
 			BlockPos ogPos = breakingPos;
 			BlockState stateAbove = world.getBlockState(breakingPos.above());
@@ -177,8 +175,9 @@ public class BlockBreakingMovementBehaviour extends MovementBehaviour {
 				stateAbove = world.getBlockState(breakingPos.above());
 			}
 			stateToBreak = world.getBlockState(breakingPos);
-			
+
 			context.stall = false;
+			if (shouldDestroyStartBlock(stateToBreak))
 			BlockHelper.destroyBlock(context.world, breakingPos, 1f, stack -> this.dropItem(context, stack));
 			onBlockBroken(context, ogPos, stateToBreak);
 			ticksUntilNextProgress = -1;
@@ -192,6 +191,10 @@ public class BlockBreakingMovementBehaviour extends MovementBehaviour {
 		world.destroyBlockProgress(id, breakingPos, (int) destroyProgress);
 		data.putInt("TicksUntilNextProgress", ticksUntilNextProgress);
 		data.putInt("Progress", destroyProgress);
+	}
+
+	protected boolean shouldDestroyStartBlock(BlockState stateToBreak) {
+		return true;
 	}
 
 	public boolean canBreak(Level world, BlockPos breakingPos, BlockState state) {

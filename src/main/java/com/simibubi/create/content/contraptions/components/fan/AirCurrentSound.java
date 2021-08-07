@@ -23,26 +23,26 @@ public class AirCurrentSound extends AbstractTickableSoundInstance {
 	public void setPitch(float pitch) {
 		this.pitch = pitch;
 	}
-	
+
 	public void fadeIn(float maxVolume) {
 		volume = Math.min(maxVolume, volume + .05f);
 	}
-	
+
 	public void fadeOut() {
 		volume = Math.max(0, volume - .05f);
 	}
-	
+
 	public boolean isFaded() {
 		return volume == 0;
 	}
-	
+
 	@Override
 	public float getPitch() {
 		return pitch;
 	}
-	
-	public void stop() {
+
+	public void stopSound() {
 		stop();
 	}
-	
+
 }

@@ -39,7 +39,7 @@ package com.simibubi.create.compat.jei.category;
 //
 //		if (!recipe.getRollableResults()
 //			.isEmpty())
-//			ingredients.setOutput(VanillaTypes.ITEM, recipe.getRecipeOutput());
+//			ingredients.setOutput(VanillaTypes.ITEM, recipe.getResultItem());
 //	}
 //
 //	@Override
@@ -47,12 +47,14 @@ package com.simibubi.create.compat.jei.category;
 //		IGuiItemStackGroup itemStacks = recipeLayout.getItemStacks();
 //		itemStacks.init(0, true, 26, 50);
 //		itemStacks.set(0, Arrays.asList(recipe.getProcessedItem()
-//			.getMatchingStacks()));
+//			.getItems()));
 //		itemStacks.init(1, true, 50, 4);
 //		itemStacks.set(1, Arrays.asList(recipe.getRequiredHeldItem()
-//			.getMatchingStacks()));
+//			.getItems()));
 //		itemStacks.init(2, false, 131, 50);
-//		itemStacks.set(2, recipe.getRecipeOutput());
+//		itemStacks.set(2, recipe.getResultItem());
+
+		addStochasticTooltip(itemStacks, recipe.getRollableResults(), 2);
 //	}
 //
 //	@Override

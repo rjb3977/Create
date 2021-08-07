@@ -10,7 +10,7 @@ import com.simibubi.create.foundation.gui.GuiGameElement;
 import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.lib.helper.EntityRendererManagerHelper;
 import com.simibubi.create.lib.helper.LivingRendererHelper;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
@@ -37,41 +37,37 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
 
-	private LivingEntityRenderer<T, M> renderer;
-
-	public CopperBacktankArmorLayer(LivingEntityRenderer<T, M> renderer) {
+	public CopperBacktankArmorLayer(IEntityRenderer<T, M> renderer) {
 		super(renderer);
-		this.renderer = renderer;
-		LivingRendererHelper.addRenderer(renderer, this);
 	}
 
 	@Override
 	public void render(PoseStack ms, MultiBufferSource buffer, int light, LivingEntity entity, float yaw, float pitch,
 		float pt, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
-
 		if (entity.getPose() == Pose.SLEEPING)
 			return;
 		if (!AllItems.COPPER_BACKTANK.get()
 			.isWornBy(entity))
 			return;
 
-		M entityModel = renderer.getModel();
-		if (!(entityModel instanceof HumanoidModel))
+		M entityModel = getParentModel();
+		if (!(entityModel instanceof BipedModel))
 			return;
 
-		ms.pushPose();
-		HumanoidModel<?> model = (HumanoidModel<?>) entityModel;
+		BipedModel<?> model = (BipedModel<?>) entityModel;
+		RenderType renderType = Atlases.cutoutBlockSheet();
 		BlockState renderedState = AllBlocks.COPPER_BACKTANK.getDefaultState()
 				.setValue(CopperBacktankBlock.HORIZONTAL_FACING, Direction.SOUTH);
-		RenderType renderType = Sheets.cutoutBlockSheet();
-
 		SuperByteBuffer backtank = CreateClient.BUFFER_CACHE.renderBlock(renderedState);
 		SuperByteBuffer cogs =
 				CreateClient.BUFFER_CACHE.renderPartial(AllBlockPartials.COPPER_BACKTANK_COGS, renderedState);
 
+		ms.pushPose();
+
 		model.body.translateAndRotate(ms);
 		ms.translate(-1 / 2f, 10 / 16f, 1f);
 		ms.scale(1, -1, -1);
+
 		backtank.forEntityRender()
 			.light(light)
 			.renderInto(ms, buffer.getBuffer(renderType));
@@ -91,18 +87,22 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 		ms.popPose();
 	}
 
-	public static void register() {
-		EntityRenderDispatcher renderManager = Minecraft.getInstance()
-			.getEntityRenderDispatcher();
-		registerOn(EntityRendererManagerHelper.getPlayerRenderer(renderManager));
-		for (EntityRenderer<?> renderer : EntityRendererManagerHelper.getRenderers(renderManager).values())
+	public static void registerOnAll(EntityRendererManager renderManager) {
+		for (PlayerRenderer renderer : renderManager.getSkinMap().values())
+			registerOn(renderer);
+		for (EntityRenderer<?> renderer : renderManager.renderers.values())
 			registerOn(renderer);
 	}
 
-	private static void registerOn(EntityRenderer<?> entityRenderer) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void registerOn(EntityRenderer<?> entityRenderer) {
 		if (!(entityRenderer instanceof LivingEntityRenderer))
 			return;
-		new CopperBacktankArmorLayer<>((LivingEntityRenderer<?, ?>) entityRenderer);
+		LivingRenderer<?, ?> livingRenderer = (LivingRenderer<?, ?>) entityRenderer;
+		if (!(livingRenderer.getModel() instanceof BipedModel))
+			return;
+		CopperBacktankArmorLayer<?, ?> layer = new CopperBacktankArmorLayer<>(livingRenderer);
+		livingRenderer.addLayer((CopperBacktankArmorLayer) layer);
 	}
 
 	public static void renderRemainingAirOverlay(PoseStack ms, BufferSource buffers, int light, int overlay, float pt) {
@@ -132,7 +132,7 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 			.render(ms);
 		int color = 0xFF_FFFFFF;
 		if (timeLeft < 60 && timeLeft % 2 == 0) {
-			color = ColorHelper.mixColors(0xFF_FF0000, color, Math.max(timeLeft / 60f, .25f));
+			color = Color.mixColors(0xFF_FF0000, color, Math.max(timeLeft / 60f, .25f));
 		}
 		Minecraft.getInstance().font.drawShadow(ms, text, 16, 5, color);
 		buffers.endBatch();

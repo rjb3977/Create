@@ -17,11 +17,11 @@ import net.minecraft.client.Minecraft;
 @Mixin(Minecraft.class)
 public class WindowResizeMixin {
 
-	@Shadow @Final private Window mainWindow;
+	@Shadow @Final private Window window;
 
-	@Inject(at = @At("TAIL"), method = "updateWindowSize")
+	@Inject(at = @At("TAIL"), method = "resizeDisplay")
 	private void updateWindowSize(CallbackInfo ci) {
-		UIRenderHelper.updateWindowSize(mainWindow);
+		UIRenderHelper.updateWindowSize(window);
 	}
 
 }

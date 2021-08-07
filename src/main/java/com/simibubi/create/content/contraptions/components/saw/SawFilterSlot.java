@@ -1,8 +1,8 @@
 package com.simibubi.create.content.contraptions.components.saw;
 
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,7 +22,7 @@ public class SawFilterSlot extends ValueBoxTransform {
 	@Override
 	protected void rotate(BlockState state, PoseStack ms) {
 		int yRot = state.getValue(SawBlock.AXIS_ALONG_FIRST_COORDINATE) ? 270 : 180;
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.rotateY(yRot)
 			.rotateX(90);
 	}

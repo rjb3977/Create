@@ -115,6 +115,7 @@ public class MechanicalMixerTileEntity extends BasinOperatingTileEntity {
 		if (runningTicks >= 40) {
 			running = false;
 			runningTicks = 0;
+			basinChecker.scheduleUpdate();
 			return;
 		}
 
@@ -163,7 +164,7 @@ public class MechanicalMixerTileEntity extends BasinOperatingTileEntity {
 		for (SmartInventory inv : basin.get()
 			.getInvs()) {
 			for (int slot = 0; slot < inv.getSlots(); slot++) {
-				ItemStack stackInSlot = inv.getStackInSlot(slot);
+				ItemStack stackInSlot = inv.getItem(slot);
 				if (stackInSlot.isEmpty())
 					continue;
 				ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, stackInSlot);
@@ -228,7 +229,7 @@ public class MechanicalMixerTileEntity extends BasinOperatingTileEntity {
 		return ((r.getSerializer() == RecipeSerializer.SHAPELESS_RECIPE
 			&& AllConfigs.SERVER.recipes.allowShapelessInMixer.get() && r.getIngredients()
 				.size() > 1)
-			|| r.getType() == AllRecipeTypes.MIXING.type);
+			|| r.getType() == AllRecipeTypes.MIXING.getType());
 	}
 
 	@Override

@@ -63,7 +63,7 @@ public class CardboardBoxItem extends Item {
 	@Override
 	public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
 	}
-	
+
 	public static void addAddress(ItemStack box, String address) {
 		box.getOrCreateTag().putString("Address", address);
 	}

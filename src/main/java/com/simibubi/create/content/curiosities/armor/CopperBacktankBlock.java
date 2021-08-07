@@ -60,6 +60,17 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 	}
 
 	@Override
+	public boolean hasAnalogOutputSignal(BlockState p_149740_1_) {
+		return true;
+	}
+
+	@Override
+	public int getAnalogOutputSignal(BlockState p_180641_1_, World world, BlockPos pos) {
+		return getTileEntityOptional(world, pos).map(CopperBacktankTileEntity::getComparatorOutput)
+			.orElse(0);
+	}
+
+	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState,
 		LevelAccessor world, BlockPos pos, BlockPos neighbourPos) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
@@ -95,8 +106,11 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 		if (stack == null)
 			return;
 		withTileEntityDo(worldIn, pos, te -> {
+			te.setCapacityEnchantLevel(EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack));
 			te.setAirLevel(stack.getOrCreateTag()
 				.getInt("Air"));
+			if (stack.isEnchanted())
+				te.setEnchantmentTag(stack.getEnchantmentTags());
 			if (stack.hasCustomHoverName())
 				te.setCustomName(stack.getHoverName());
 		});
@@ -129,12 +143,22 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 	public ItemStack getCloneItemStack(BlockGetter p_185473_1_, BlockPos p_185473_2_, BlockState p_185473_3_) {
 		ItemStack item = AllItems.COPPER_BACKTANK.asStack();
 		Optional<CopperBacktankTileEntity> tileEntityOptional = getTileEntityOptional(p_185473_1_, p_185473_2_);
+
 		int air = tileEntityOptional.map(CopperBacktankTileEntity::getAirLevel)
 			.orElse(0);
-		Component customName = tileEntityOptional.map(CopperBacktankTileEntity::getCustomName)
+		CompoundNBT tag = item.getOrCreateTag();
+		tag.putInt("Air", air);
+
+		ListNBT enchants = tileEntityOptional.map(CopperBacktankTileEntity::getEnchantmentTag)
+			.orElse(new ListNBT());
+		if (!enchants.isEmpty()) {
+			ListNBT enchantmentTagList = item.getEnchantmentTags();
+			enchantmentTagList.addAll(enchants);
+			tag.put("Enchantments", enchantmentTagList);
+		}
+
+		ITextComponent customName = tileEntityOptional.map(CopperBacktankTileEntity::getCustomName)
 			.orElse(null);
-		item.getOrCreateTag()
-			.putInt("Air", air);
 		if (customName != null)
 			item.setHoverName(customName);
 		return item;

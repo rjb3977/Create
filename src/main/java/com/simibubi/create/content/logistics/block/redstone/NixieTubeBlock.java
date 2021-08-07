@@ -26,17 +26,24 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
+import com.simibubi.create.content.contraptions.wrench.IWrenchable;
+import com.simibubi.create.content.schematics.ISpecialBlockItemRequirement;
+import com.simibubi.create.content.schematics.ItemRequirement;
+import com.simibubi.create.content.schematics.ItemRequirement.ItemUseType;
 import com.simibubi.create.foundation.block.ITE;
+import com.simibubi.create.foundation.utility.DyeHelper;
 import com.simibubi.create.foundation.utility.Iterate;
 
 import com.simibubi.create.lib.block.CanConnectRedstoneBlock;
 
-public class NixieTubeBlock extends HorizontalDirectionalBlock implements ITE<NixieTubeTileEntity>, CanConnectRedstoneBlock, EntityBlock {
+public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenchable, ISpecialBlockItemRequirement, ITE<NixieTubeTileEntity>, CanConnectRedstoneBlock, EntityBlock {
 
 	public static final BooleanProperty CEILING = BooleanProperty.create("ceiling");
+	private DyeColor color;
 
-	public NixieTubeBlock(Properties properties) {
+	public NixieTubeBlock(Properties properties, DyeColor color) {
 		super(properties);
+		this.color = color;
 		registerDefaultState(defaultBlockState().setValue(CEILING, false));
 	}
 
@@ -51,7 +58,6 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements ITE<Ni
 			return InteractionResult.PASS;
 		if (player.isShiftKeyDown())
 			return InteractionResult.PASS;
-
 		if (heldItem.isEmpty()) {
 			if (nixie.reactsToRedstone())
 				return InteractionResult.PASS;
@@ -60,36 +66,49 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements ITE<Ni
 			return InteractionResult.SUCCESS;
 		}
 
-		if (heldItem.getItem() == Items.NAME_TAG && heldItem.hasCustomHoverName()) {
-			Direction left = state.getValue(FACING)
-					.getClockWise();
-			Direction right = left.getOpposite();
+		boolean display = heldItem.getItem() == Items.NAME_TAG && heldItem.hasCustomHoverName();
+		DyeColor dye = null;
+		for (DyeColor color : DyeColor.values())
+			if (heldItem.getItem()
+				.is(DyeHelper.getTagOfDye(color)))
+				dye = color;
 
-			if (world.isClientSide)
-				return InteractionResult.SUCCESS;
+		if (!display && dye == null)
+			return ActionResultType.PASS;
 
-			BlockPos currentPos = pos;
-			while (true) {
-				BlockPos nextPos = currentPos.relative(left);
-				if (world.getBlockState(nextPos) != state)
-					break;
-				currentPos = nextPos;
-			}
+		Direction left = state.getValue(FACING)
+			.getClockWise();
+		Direction right = left.getOpposite();
 
-			int index = 0;
+		if (world.isClientSide)
+			return InteractionResult.SUCCESS;
 
-			while (true) {
-				final int rowPosition = index;
-				withTileEntityDo(world, currentPos, te -> te.displayCustomNameOf(heldItem, rowPosition));
-				BlockPos nextPos = currentPos.relative(right);
-				if (world.getBlockState(nextPos) != state)
-					break;
-				currentPos = nextPos;
-				index++;
-			}
+		BlockPos currentPos = pos;
+		while (true) {
+			BlockPos nextPos = currentPos.relative(left);
+			if (!areNixieBlocksEqual(world.getBlockState(nextPos), state))
+				break;
+			currentPos = nextPos;
 		}
 
-		return InteractionResult.PASS;
+		int index = 0;
+
+		while (true) {
+			final int rowPosition = index;
+
+			if (display)
+				withTileEntityDo(world, currentPos, te -> te.displayCustomNameOf(heldItem, rowPosition));
+			if (dye != null)
+				world.setBlockAndUpdate(currentPos, withColor(state, dye));
+
+			BlockPos nextPos = currentPos.relative(right);
+			if (!areNixieBlocksEqual(world.getBlockState(nextPos), state))
+				break;
+			currentPos = nextPos;
+			index++;
+		}
+
+		return ActionResultType.SUCCESS;
 	}
 
 	@Override
@@ -98,11 +117,38 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements ITE<Ni
 	}
 
 	@Override
+	public void onRemove(BlockState p_196243_1_, World p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
+		boolean p_196243_5_) {
+		if (!(p_196243_4_.getBlock() instanceof NixieTubeBlock))
+			p_196243_2_.removeBlockEntity(p_196243_3_);
+	}
+
+	@Override
+	public ItemStack getCloneItemStack(IBlockReader p_185473_1_, BlockPos p_185473_2_, BlockState p_185473_3_) {
+		return AllBlocks.ORANGE_NIXIE_TUBE.asStack();
+	}
+
+	@Override
+	public ItemRequirement getRequiredItems(BlockState state, TileEntity te) {
+		return new ItemRequirement(ItemUseType.CONSUME, AllBlocks.ORANGE_NIXIE_TUBE.get()
+			.asItem());
+	}
+
+	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter p_220053_2_, BlockPos p_220053_3_,
 		CollisionContext p_220053_4_) {
 		return (state.getValue(CEILING) ? AllShapes.NIXIE_TUBE_CEILING : AllShapes.NIXIE_TUBE)
 			.get(state.getValue(FACING)
 				.getAxis());
+	}
+
+	@Override
+	public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos,
+		PlayerEntity player) {
+		if (color != DyeColor.ORANGE)
+			return AllBlocks.ORANGE_NIXIE_TUBE.get()
+				.getPickBlock(state, target, world, pos, player);
+		return super.getPickBlock(state, target, world, pos, player);
 	}
 
 	@Override
@@ -187,6 +233,26 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements ITE<Ni
 	@Override
 	public Class<NixieTubeTileEntity> getTileEntityClass() {
 		return NixieTubeTileEntity.class;
+	}
+
+	public static boolean areNixieBlocksEqual(BlockState blockState, BlockState otherState) {
+		if (!(blockState.getBlock() instanceof NixieTubeBlock))
+			return false;
+		if (!(otherState.getBlock() instanceof NixieTubeBlock))
+			return false;
+		return withColor(blockState, DyeColor.WHITE) == withColor(otherState, DyeColor.WHITE);
+	}
+
+	public static BlockState withColor(BlockState state, DyeColor color) {
+		return (color == DyeColor.ORANGE ? AllBlocks.ORANGE_NIXIE_TUBE : AllBlocks.NIXIE_TUBES.get(color))
+			.getDefaultState()
+			.setValue(FACING, state.getValue(FACING))
+			.setValue(CEILING, state.getValue(CEILING));
+	}
+
+	public static DyeColor colorOf(BlockState blockState) {
+		return blockState.getBlock() instanceof NixieTubeBlock ? ((NixieTubeBlock) blockState.getBlock()).color
+			: DyeColor.ORANGE;
 	}
 
 }

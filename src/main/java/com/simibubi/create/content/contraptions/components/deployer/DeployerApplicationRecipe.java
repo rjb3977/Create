@@ -6,9 +6,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.simibubi.create.AllBlocks;
-import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.Create;
+import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.content.contraptions.itemAssembly.IAssemblyRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
@@ -20,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
@@ -37,9 +37,9 @@ public class DeployerApplicationRecipe extends ProcessingRecipe<RecipeWrapper> i
 	@Override
 	public boolean matches(RecipeWrapper inv, Level p_77569_2_) {
 		return ingredients.get(0)
-			.test(inv.getStackInSlot(0))
+			.test(inv.getItem(0))
 			&& ingredients.get(1)
-				.test(inv.getStackInSlot(1));
+				.test(inv.getItem(1));
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class DeployerApplicationRecipe extends ProcessingRecipe<RecipeWrapper> i
 
 	public static List<DeployerApplicationRecipe> convert(List<Recipe<?>> sandpaperRecipes) {
 		return sandpaperRecipes.stream()
-			.map(r -> new ProcessingRecipeBuilder<>(DeployerApplicationRecipe::new, Create.asResource(r.getId()
+			.map(r -> new ProcessingRecipeBuilder<>(DeployerApplicationRecipe::new, new ResourceLocation(r.getId().getNamespace(), r.getId()
 				.getPath() + "_using_deployer")).require(r.getIngredients()
 					.get(0))
 					.require(Ingredient.of(AllItems.SAND_PAPER.get(), AllItems.RED_SAND_PAPER.get()))

@@ -8,5 +8,9 @@ public abstract class AbstractDiodeBlock extends DiodeBlock implements IWrenchab
 	public AbstractDiodeBlock(Properties builder) {
 		super(builder);
 	}
-	
+
+	@Override
+	public boolean isSignalSource(BlockState state) {
+		return true;
+	}
 }

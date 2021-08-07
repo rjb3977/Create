@@ -24,7 +24,7 @@ public class MechanicalMixerRenderer extends KineticTileEntityRenderer {
 	}
 
 	@Override
-	public boolean isGlobalRenderer(KineticTileEntity te) {
+	public boolean shouldRenderOffScreen(KineticTileEntity te) {
 		return true;
 	}
 
@@ -51,13 +51,13 @@ public class MechanicalMixerRenderer extends KineticTileEntityRenderer {
 
 		SuperByteBuffer poleRender = PartialBufferer.get(AllBlockPartials.MECHANICAL_MIXER_POLE, blockState);
 		poleRender.translate(0, -renderedHeadOffset, 0)
-				.light(packedLightmapCoords)
+				.light(light)
 				.renderInto(ms, vb);
 
 		SuperByteBuffer headRender = PartialBufferer.get(AllBlockPartials.MECHANICAL_MIXER_HEAD, blockState);
 		headRender.rotateCentered(Direction.UP, angle)
 				.translate(0, -renderedHeadOffset, 0)
-				.light(packedLightmapCoords)
+				.light(light)
 				.renderInto(ms, vb);
 	}
 

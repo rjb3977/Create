@@ -219,8 +219,8 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 				RenderSystem.disableTexture();
 				RenderSystem.disableAlphaTest();
 				RenderSystem.disableBlend();
-				Tesselator tessellator = Tesselator.getInstance();
-				BufferBuilder bufferbuilder = tessellator.getBuilder();
+				Tesselator tesselator = Tesselator.getInstance();
+				BufferBuilder bufferbuilder = tesselator.getBuilder();
 				double health = DurabilityBarUtil.getDurabilityForDisplay(stack);
 				int i = Math.round(13.0F - (float) health * 13.0F);
 				int j = DurabilityBarUtil.getRGBDurabilityForDisplay(stack);

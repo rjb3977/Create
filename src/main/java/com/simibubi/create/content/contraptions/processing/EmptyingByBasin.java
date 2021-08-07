@@ -26,7 +26,7 @@ public class EmptyingByBasin {
 		if (stack.getItem() instanceof PotionItem)
 			return true;
 
-		wrapper.setInventorySlotContents(0, stack);
+		wrapper.setItem(0, stack);
 		if (AllRecipeTypes.EMPTYING.find(wrapper, world)
 			.isPresent())
 			return true;
@@ -51,7 +51,7 @@ public class EmptyingByBasin {
 		if (stack.getItem() instanceof PotionItem)
 			return PotionFluidHandler.emptyPotion(stack, simulate);
 
-		wrapper.setInventorySlotContents(0, stack);
+		wrapper.setItem(0, stack);
 		Optional<Recipe<RecipeWrapper>> recipe = AllRecipeTypes.EMPTYING.find(wrapper, world);
 		if (recipe.isPresent()) {
 			EmptyingRecipe emptyingRecipe = (EmptyingRecipe) recipe.get();

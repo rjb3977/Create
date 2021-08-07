@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
@@ -18,8 +19,8 @@ import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputB
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueBehaviour;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.IntAttached;
+import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.foundation.utility.VecHelper;
@@ -30,6 +31,7 @@ import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
 import net.fabricmc.api.EnvType;
+import net.minecraft.block.ObserverBlock;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -57,7 +59,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
-
 
 public class EjectorTileEntity extends KineticTileEntity {
 	List<IntAttached<ItemStack>> launchedItems;
@@ -222,7 +223,14 @@ public class EjectorTileEntity extends KineticTileEntity {
 		}
 
 		if (!level.isClientSide)
-			level.setBlock(worldPosition, /*world.getChunkAt(pos), getBlockState(),*/ getBlockState(), 0, 512);
+			for (Direction d : Iterate.directions) {
+				BlockState blockState = level.getBlockState(worldPosition.relative(d));
+				if (!(blockState.getBlock() instanceof ObserverBlock))
+					continue;
+				if (blockState.getValue(ObserverBlock.FACING) != d.getOpposite())
+					continue;
+				blockState.updateShape(d.getOpposite(), blockState, level, worldPosition.relative(d), worldPosition);
+			}
 
 		if (depotBehaviour.heldItem != null) {
 			addToLaunchedItems(heldItemStack);
@@ -503,7 +511,7 @@ public class EjectorTileEntity extends KineticTileEntity {
 		state = NBTHelper.readEnum(compound, "State", State.class);
 		lidProgress.readNBT(compound.getCompound("Lid"), false);
 		launchedItems = NBTHelper.readCompoundList(compound.getList("LaunchedItems", NBT.TAG_COMPOUND),
-			nbt -> IntAttached.read(nbt, ItemStack::read));
+			nbt -> IntAttached.read(nbt, ItemStack::of));
 
 		earlyTarget = null;
 		earlyTargetTime = 0;
@@ -594,7 +602,7 @@ public class EjectorTileEntity extends KineticTileEntity {
 
 		@Override
 		protected void rotate(BlockState state, PoseStack ms) {
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.rotateY(angle(state))
 				.rotateX(90);
 		}

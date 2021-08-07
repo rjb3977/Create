@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllTileEntities;
-import com.simibubi.create.content.contraptions.base.HorizontalKineticBlock;
+import com.simibubi.create.content.contraptions.base.DirectionalKineticBlock;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.config.AllConfigs;
@@ -32,7 +32,7 @@ import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<WaterWheelTileEntity> {
+public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<WaterWheelTileEntity> {
 
 	public WaterWheelBlock(Properties properties) {
 		super(properties);
@@ -127,6 +127,13 @@ public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<Water
 					flowStrength = flow.y > 0 ^ !clockwise ? -flow.y * clockwiseMultiplier : -flow.y;
 			}
 
+			if (wf.getAxis() == Axis.Y) {
+				if (side.getAxis() == Axis.Z)
+					flowStrength = flow.x < 0 ^ !clockwise ? flow.x * clockwiseMultiplier : flow.x;
+				if (side.getAxis() == Axis.X)
+					flowStrength = flow.z > 0 ^ !clockwise ? -flow.z * clockwiseMultiplier : -flow.z;
+			}
+
 			if (te.getSpeed() == 0 && flowStrength != 0 && !world.isClientSide()) {
 				AllTriggers.triggerForNearbyPlayers(AllTriggers.WATER_WHEEL, world, pos, 5);
 				if (FluidHelper.isLava(fluid.getType()))
@@ -145,18 +152,38 @@ public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<Water
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		Direction facing = context.getClickedFace();
-		BlockState placedOn = context.getLevel()
-			.getBlockState(context.getClickedPos()
-				.relative(facing.getOpposite()));
+	public BlockState getStateForPlacement(BlockItemUseContext context) {
+		Direction face = context.getClickedFace();
+		Direction horizontalFacing = context.getHorizontalDirection();
+		BlockPos pos = context.getClickedPos();
+		World world = context.getLevel();
+		PlayerEntity player = context.getPlayer();
+
+		BlockState placedOn = world.getBlockState(pos.relative(face.getOpposite()));
 		if (AllBlocks.WATER_WHEEL.has(placedOn))
-			return defaultBlockState().setValue(HORIZONTAL_FACING, placedOn.getValue(HORIZONTAL_FACING));
-		if (facing.getAxis()
-			.isHorizontal())
-			return defaultBlockState().setValue(HORIZONTAL_FACING, context.getPlayer() != null && context.getPlayer()
-				.isShiftKeyDown() ? facing.getOpposite() : facing);
-		return super.getStateForPlacement(context);
+			return defaultBlockState().setValue(FACING, placedOn.getValue(FACING));
+
+		Direction facing = face;
+		boolean sneaking = player != null && player.isShiftKeyDown();
+		if (player != null) {
+
+			Vector3d lookVec = player.getLookAngle();
+			double tolerance = 0.985;
+
+			if (!canSurvive(defaultBlockState().setValue(FACING, Direction.UP), world, pos))
+				facing = horizontalFacing;
+			else if (Vector3d.atLowerCornerOf(Direction.DOWN.getNormal())
+					.dot(lookVec.normalize()) > tolerance)
+				facing = Direction.DOWN;
+			else if (Vector3d.atLowerCornerOf(Direction.UP.getNormal())
+					.dot(lookVec.normalize()) > tolerance)
+				facing = Direction.UP;
+			else
+				facing = horizontalFacing;
+
+		}
+
+		return defaultBlockState().setValue(FACING, sneaking ? facing.getOpposite() : facing);
 	}
 
 	@Override

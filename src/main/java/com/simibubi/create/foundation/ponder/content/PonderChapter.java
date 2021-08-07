@@ -32,9 +32,9 @@ public class PonderChapter implements IScreenRenderable {
 
 	@Nonnull
 	public static PonderChapter of(String id) {
-		PonderChapter chapter = PonderRegistry.chapters.getChapter(id);
+		PonderChapter chapter = PonderRegistry.CHAPTERS.getChapter(id);
 		if (chapter == null) {
-			 chapter = PonderRegistry.chapters.addChapter(new PonderChapter(id));
+			 chapter = PonderRegistry.CHAPTERS.addChapter(new PonderChapter(id));
 		}
 
 		return chapter;
@@ -42,7 +42,7 @@ public class PonderChapter implements IScreenRenderable {
 
 	public PonderChapter addTagsToChapter(PonderTag... tags) {
 		for (PonderTag t : tags)
-			PonderRegistry.tags.add(t, this);
+			PonderRegistry.TAGS.add(t, this);
 		return this;
 	}
 

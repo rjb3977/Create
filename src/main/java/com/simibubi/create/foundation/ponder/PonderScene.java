@@ -26,7 +26,6 @@ import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.ponder.instructions.HideAllInstruction;
 import com.simibubi.create.foundation.renderState.SuperRenderTypeBuffer;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
@@ -59,7 +58,7 @@ public class PonderScene {
 	boolean finished;
 	int sceneIndex;
 	int textIndex;
-	String sceneId;
+	ResourceLocation sceneId;
 
 	IntList keyframeTimes;
 
@@ -69,6 +68,7 @@ public class PonderScene {
 	List<PonderTag> tags;
 
 	PonderWorld world;
+	String namespace;
 	ResourceLocation component;
 	SceneTransform transform;
 	SceneRenderInfo info;
@@ -90,7 +90,7 @@ public class PonderScene {
 	int totalTime;
 	int currentTime;
 
-	public PonderScene(PonderWorld world, ResourceLocation component, Collection<PonderTag> tags) {
+	public PonderScene(PonderWorld world, String namespace, ResourceLocation component, Collection<PonderTag> tags) {
 		if (world != null)
 			world.scene = this;
 
@@ -98,6 +98,7 @@ public class PonderScene {
 		textIndex = 1;
 
 		this.world = world;
+		this.namespace = namespace;
 		this.component = component;
 
 		outliner = new Outliner();
@@ -241,7 +242,7 @@ public class PonderScene {
 
 		for (RenderType type : RenderType.chunkBufferLayers())
 			forEachVisible(PonderSceneElement.class, e -> e.renderLayer(world, buffer, type, ms, pt));
-		
+
 		forEachVisible(PonderSceneElement.class, e -> e.renderLast(world, buffer, ms, pt));
 		info.set(transform.xRotation.getValue(pt) + 90, transform.yRotation.getValue(pt) + 180);
 		world.renderEntities(ms, buffer, info, pt);
@@ -400,8 +401,28 @@ public class PonderScene {
 		return new SceneBuildingUtil(getBounds());
 	}
 
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public ResourceLocation getId() {
+		return sceneId;
+	}
+
 	public SceneTransform getTransform() {
 		return transform;
+	}
+
+	public Outliner getOutliner() {
+		return outliner;
+	}
+
+	public boolean isFinished() {
+		return finished;
+	}
+
+	public void setFinished(boolean finished) {
+		this.finished = finished;
 	}
 
 	public class SceneTransform {
@@ -439,14 +460,14 @@ public class PonderScene {
 		public PoseStack apply(PoseStack ms, float pt, boolean overlayCompatible) {
 			ms.translate(width / 2, height / 2, 200 + offset);
 
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.rotateX(-35)
 				.rotateY(55);
 			ms.translate(offset, 0, 0);
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.rotateY(-55)
 				.rotateX(35);
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.rotateX(xRotation.getValue(pt))
 				.rotateY(yRotation.getValue(pt));
 
@@ -519,18 +540,6 @@ public class PonderScene {
 			setRotation(yRotation, xRotation);
 		}
 
-	}
-
-	public Outliner getOutliner() {
-		return outliner;
-	}
-
-	public boolean isFinished() {
-		return finished;
-	}
-
-	public void setFinished(boolean finished) {
-		this.finished = finished;
 	}
 
 }

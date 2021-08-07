@@ -106,7 +106,15 @@ public class AllShapes {
 		PUMP = shape(2, 0, 2, 14, 5, 14).add(4, 0, 4, 12, 16, 12)
 			.add(3, 12, 3, 13, 16, 13)
 			.forDirectional(Direction.UP),
-		CRUSHING_WHEEL_CONTROLLER_COLLISION = shape(0, 0, 0, 16, 13, 16).forDirectional(Direction.DOWN)
+		CRUSHING_WHEEL_CONTROLLER_COLLISION = shape(0, 0, 0, 16, 13, 16).forDirectional(Direction.DOWN),
+
+		BELL_FLOOR = shape(0, 0, 5, 16, 11, 11).add(3, 1, 3, 13, 13, 13).forHorizontal(SOUTH),
+		BELL_WALL = shape(5, 5, 8, 11, 11, 16).add(3, 1, 3, 13, 13, 13)
+			.forHorizontal(SOUTH),
+		BELL_DOUBLE_WALL = shape(5, 5, 0, 11, 11, 16).add(3, 1, 3, 13, 13, 13)
+			.forHorizontal(SOUTH),
+		BELL_CEILING = shape(0, 5, 5, 16, 16, 11).add(3, 1, 3, 13, 13, 13)
+			.forHorizontal(SOUTH)
 
 	;
 
@@ -230,57 +238,58 @@ public class AllShapes {
 		return Block.box(x1, y1, z1, x2, y2, z2);
 	}
 
-	private static class Builder {
-		VoxelShape shape;
+	public static class Builder {
+
+		private VoxelShape shape;
 
 		public Builder(VoxelShape shape) {
 			this.shape = shape;
 		}
 
-		Builder add(VoxelShape shape) {
+		public Builder add(VoxelShape shape) {
 			this.shape = Shapes.or(this.shape, shape);
 			return this;
 		}
 
-		Builder add(double x1, double y1, double z1, double x2, double y2, double z2) {
+		public Builder add(double x1, double y1, double z1, double x2, double y2, double z2) {
 			return add(cuboid(x1, y1, z1, x2, y2, z2));
 		}
 
-		Builder erase(double x1, double y1, double z1, double x2, double y2, double z2) {
+		public Builder erase(double x1, double y1, double z1, double x2, double y2, double z2) {
 			this.shape =
 				Shapes.join(shape, cuboid(x1, y1, z1, x2, y2, z2), BooleanOp.ONLY_FIRST);
 			return this;
 		}
 
-		VoxelShape build() {
+		public VoxelShape build() {
 			return shape;
 		}
 
-		VoxelShaper build(BiFunction<VoxelShape, Direction, VoxelShaper> factory, Direction direction) {
+		public VoxelShaper build(BiFunction<VoxelShape, Direction, VoxelShaper> factory, Direction direction) {
 			return factory.apply(shape, direction);
 		}
 
-		VoxelShaper build(BiFunction<VoxelShape, Axis, VoxelShaper> factory, Axis axis) {
+		public VoxelShaper build(BiFunction<VoxelShape, Axis, VoxelShaper> factory, Axis axis) {
 			return factory.apply(shape, axis);
 		}
 
-		VoxelShaper forDirectional(Direction direction) {
+		public VoxelShaper forDirectional(Direction direction) {
 			return build(VoxelShaper::forDirectional, direction);
 		}
 
-		VoxelShaper forAxis() {
+		public VoxelShaper forAxis() {
 			return build(VoxelShaper::forAxis, Axis.Y);
 		}
 
-		VoxelShaper forHorizontalAxis() {
+		public VoxelShaper forHorizontalAxis() {
 			return build(VoxelShaper::forHorizontalAxis, Axis.Z);
 		}
 
-		VoxelShaper forHorizontal(Direction direction) {
+		public VoxelShaper forHorizontal(Direction direction) {
 			return build(VoxelShaper::forHorizontal, direction);
 		}
 
-		VoxelShaper forDirectional() {
+		public VoxelShaper forDirectional() {
 			return forDirectional(UP);
 		}
 

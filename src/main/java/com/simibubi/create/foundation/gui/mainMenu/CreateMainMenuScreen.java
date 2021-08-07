@@ -25,9 +25,9 @@ import com.simibubi.create.foundation.gui.GuiGameElement;
 import com.simibubi.create.foundation.gui.ScreenOpener;
 import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.ponder.content.PonderTagIndexScreen;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 
 import com.simibubi.create.lib.mixin.accessor.MainMenuScreenAccessor;
 
@@ -36,9 +36,9 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	protected final Screen parent;
 	protected boolean returnOnClose;
 
-	private static final CubeMap PANORAMA_RESOURCES =
+	public static final CubeMap PANORAMA_RESOURCES =
 		new CubeMap(Create.asResource("textures/gui/title/background/panorama"));
-	private static final ResourceLocation PANORAMA_OVERLAY_TEXTURES =
+	public static final ResourceLocation PANORAMA_OVERLAY_TEXTURES =
 		new ResourceLocation("textures/gui/title/background/panorama_overlay.png");
 	private PanoramaRenderer vanillaPanorama = new PanoramaRenderer(TitleScreen.CUBE_MAP);
 	private PanoramaRenderer panorama = new PanoramaRenderer(PANORAMA_RESOURCES);
@@ -63,11 +63,12 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		float f = (float) (Util.getMillis() - this.firstRenderTime) / 1000.0F;
 		float alpha = Mth.clamp(f, 0.0F, 1.0F);
+		float elapsedPartials = minecraft.getDeltaFrameTime();
 
 		if (parent instanceof TitleScreen) {
 			if (alpha < 1)
-				vanillaPanorama.render(partialTicks, 1);
-			panorama.render(partialTicks, alpha);
+				vanillaPanorama.render(elapsedPartials, 1);
+			panorama.render(elapsedPartials, alpha);
 
 			minecraft.getTextureManager()
 				.bind(PANORAMA_OVERLAY_TEXTURES);
@@ -84,7 +85,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 			ms.translate(width / 2, 60, 200);
 			ms.scale(24 * side, 24 * side, 32);
 			ms.translate(-1.75 * ((alpha * alpha) / 2f + .5f), .25f, 0);
-			MatrixStacker.of(ms)
+			MatrixTransformStack.of(ms)
 				.rotateX(45);
 			GuiGameElement.of(AllBlocks.LARGE_COGWHEEL.getDefaultState())
 				.rotateBlock(0, Util.getMillis() / 32f * side, 0)
@@ -103,7 +104,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		AllGuiTextures.LOGO.draw(ms, 0, 0);
 		ms.popPose();
 		new BoxElement().withBackground(0x88_000000)
-			.flatBorder(new Color(0x01_000000, true))
+			.flatBorder(new Color(0x01_000000))
 			.at(-32, 56, 100)
 			.withBounds(128, 11)
 			.render(ms);

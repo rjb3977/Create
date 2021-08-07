@@ -43,7 +43,7 @@ public class HideAllInstruction extends TickingInstruction {
 			if (remainingTicks == 0)
 				ase.setFade(0);
 		});
-		
+
 		scene.forEach(AnimatedOverlayElement.class, aoe -> {
 			aoe.setFade(fade * fade);
 			if (remainingTicks == 0)

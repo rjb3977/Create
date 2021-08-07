@@ -17,7 +17,6 @@ import com.simibubi.create.content.contraptions.components.structureMovement.tra
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.Couple;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
@@ -536,7 +535,7 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 		}
 
 		for (PoseStack stack : matrixStacks)
-			MatrixStacker.of(stack)
+			MatrixTransformStack.of(stack)
 				.nudge(getId())
 				.centre()
 				.rotateY(angleYaw)

@@ -127,6 +127,7 @@ public abstract class SequencedAssemblySubCategory {
 			ms.scale(.75f, .75f, .75f);
 			deployer.draw(ms, getWidth() / 2, 0);
 			ms.popPose();
+			AllGuiTextures.JEI_SLOT.draw(ms, 3, 14);
 		}
 
 	}

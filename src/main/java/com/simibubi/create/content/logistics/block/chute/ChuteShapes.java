@@ -23,7 +23,7 @@ public class ChuteShapes {
 	public static VoxelShape createShape(BlockState state) {
 		if (AllBlocks.SMART_CHUTE.has(state))
 			return AllShapes.SMART_CHUTE;
-		
+
 		Direction direction = state.getValue(ChuteBlock.FACING);
 		Shape shape = state.getValue(ChuteBlock.SHAPE);
 

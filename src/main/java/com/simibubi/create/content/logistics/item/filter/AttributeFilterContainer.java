@@ -69,7 +69,7 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 		this.addSlot(new SlotItemHandler(ghostInventory, 0, 16, 22));
 		this.addSlot(new SlotItemHandler(ghostInventory, 1, 22, 57) {
 			@Override
-			public boolean canTakeStack(Player playerIn) {
+			public boolean mayPickup(Player playerIn) {
 				return false;
 			}
 		});

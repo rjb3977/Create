@@ -36,7 +36,7 @@ public class FlySpeedCommand {
 	private static int sendFlySpeedUpdate(CommandContext<CommandSourceStack> ctx, ServerPlayer player, float speed) {
 		ClientboundPlayerAbilitiesPacket packet = new ClientboundPlayerAbilitiesPacket(player.abilities);
 		// packet.setFlySpeed(speed);
-		SPlayerAbilitiesPacketHelper.setFlySpeed(packet, speed);
+		SPlayerAbilitiesPacketHelper.setFlySpeed(packet, speed); // flyingSpeed
 		player.connection.send(packet);
 
 		ctx.getSource()

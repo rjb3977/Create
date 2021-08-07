@@ -27,7 +27,7 @@ public class VerticalGearboxItem extends BlockItem {
 	@Override
 	public void fillItemCategory(CreativeModeTab p_150895_1_, NonNullList<ItemStack> p_150895_2_) {
 	}
-	
+
 	@Override
 	public String getDescriptionId() {
 		return "item.create.vertical_gearbox";

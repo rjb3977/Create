@@ -73,7 +73,7 @@ public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 //	@Environment(EnvType.CLIENT)
 //	public AxisAlignedBB getRenderBoundingBox() {
 //		if (cachedBoundingBox == null)
-//			cachedBoundingBox = super.getRenderBoundingBox().expand(0, -2, 0);
+//			cachedBoundingBox = super.getRenderBoundingBox().expandTowards(0, -2, 0);
 //		return cachedBoundingBox;
 //	}
 

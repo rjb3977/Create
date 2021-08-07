@@ -475,10 +475,10 @@ public class MovementActorScenes {
 		scene.idle(15);
 		scene.world.showSectionAndMerge(util.select.fromTo(4, 3, 3, 4, 2, 3), Direction.DOWN, contraption);
 		scene.idle(15);
-		
+
 		BlockPos bearingPos = util.grid.at(4, 3, 4);
 		scene.addKeyframe();
-		
+
 		scene.world.setKineticSpeed(util.select.position(4, 0, 6), 8);
 		scene.world.setKineticSpeed(util.select.position(5, 1, 6), -16);
 		scene.world.setKineticSpeed(util.select.position(4, 3, 5), -16);

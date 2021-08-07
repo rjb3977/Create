@@ -2,15 +2,18 @@ package com.simibubi.create.content.curiosities.weapons;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.AllEnchantments;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.particle.AirParticleData;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
@@ -31,11 +34,21 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 public class PotatoProjectileEntity extends AbstractHurtingProjectile implements IEntityAdditionalSpawnData {
 
-	ItemStack stack = ItemStack.EMPTY;
 	PotatoCannonProjectileTypes type;
+	ItemStack stack = ItemStack.EMPTY;
+
+	Entity stuckEntity;
+	Vector3d stuckOffset;
+	PotatoProjectileRenderMode stuckRenderer;
+	double stuckFallSpeed;
+
+	float additionalDamageMult = 1;
+	float additionalKnockback = 0;
+	float recoveryChance = 0;
 
 	public PotatoProjectileEntity(EntityType<? extends AbstractHurtingProjectile> type, Level world) {
 		super(type, world);
@@ -56,22 +69,83 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		return type;
 	}
 
+	public void setEnchantmentEffectsFromCannon(ItemStack cannon) {
+		int power = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, cannon);
+		int punch = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PUNCH_ARROWS, cannon);
+		int flame = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, cannon);
+		int recovery = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.POTATO_RECOVERY.get(), cannon);
+
+		if (power > 0)
+			additionalDamageMult = 1 + power * .2f;
+		if (punch > 0)
+			additionalKnockback = punch * .5f;
+		if (flame > 0)
+			setSecondsOnFire(100);
+		if (recovery > 0)
+			recoveryChance = .125f + recovery * .125f;
+	}
+
 	@Override
 	public void readAdditionalSaveData(CompoundTag nbt) {
 		stack = ItemStack.of(nbt.getCompound("Item"));
+		additionalDamageMult = nbt.getFloat("AdditionalDamage");
+		additionalKnockback = nbt.getFloat("AdditionalKnockback");
+		recoveryChance = nbt.getFloat("Recovery");
 		super.readAdditionalSaveData(nbt);
 	}
 
 	@Override
 	public void addAdditionalSaveData(CompoundTag nbt) {
 		nbt.put("Item", stack.serializeNBT());
+		nbt.putFloat("AdditionalDamage", additionalDamageMult);
+		nbt.putFloat("AdditionalKnockback", additionalKnockback);
+		nbt.putFloat("Recovery", recoveryChance);
 		super.addAdditionalSaveData(nbt);
+	}
+
+	public Entity getStuckEntity() {
+		if (stuckEntity == null)
+			return null;
+		if (!stuckEntity.isAlive())
+			return null;
+		return stuckEntity;
+	}
+
+	public void setStuckEntity(Entity stuckEntity) {
+		this.stuckEntity = stuckEntity;
+		this.stuckOffset = position().subtract(stuckEntity.position());
+		this.stuckRenderer = new PotatoProjectileRenderMode.StuckToEntity(stuckOffset);
+		this.stuckFallSpeed = 0.0;
+		setDeltaMovement(Vector3d.ZERO);
+	}
+
+	public PotatoProjectileRenderMode getRenderMode() {
+		if (getStuckEntity() != null)
+			return stuckRenderer;
+
+		return getProjectileType().getRenderMode();
 	}
 
 	public void tick() {
 		PotatoCannonProjectileTypes projectileType = getProjectileType();
-		setDeltaMovement(getDeltaMovement().add(0, -.05 * projectileType.getGravityMultiplier(), 0)
-			.scale(projectileType.getDrag()));
+
+		Entity stuckEntity = getStuckEntity();
+		if (stuckEntity != null) {
+			if (getY() < stuckEntity.getY() - 0.1) {
+				pop(position());
+				remove();
+			} else {
+				stuckFallSpeed += 0.007 * projectileType.getGravityMultiplier();
+				stuckOffset = stuckOffset.add(0, -stuckFallSpeed, 0);
+				Vector3d pos = stuckEntity.position()
+					.add(stuckOffset);
+				setPos(pos.x, pos.y, pos.z);
+			}
+		} else {
+			setDeltaMovement(getDeltaMovement().add(0, -0.05 * projectileType.getGravityMultiplier(), 0)
+				.scale(projectileType.getDrag()));
+		}
+
 		super.tick();
 	}
 
@@ -94,11 +168,14 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	protected void onHitEntity(EntityHitResult ray) {
 		super.onHitEntity(ray);
 
+		if (getStuckEntity() != null)
+			return;
+
 		Vec3 hit = ray.getLocation();
 		Entity target = ray.getEntity();
 		PotatoCannonProjectileTypes projectileType = getProjectileType();
-		int damage = projectileType.getDamage();
-		float knockback = projectileType.getKnockback();
+		float damage = projectileType.getDamage() * additionalDamageMult;
+		float knockback = projectileType.getKnockback() + additionalKnockback;
 		Entity owner = this.getOwner();
 
 		if (!target.isAlive())
@@ -110,12 +187,18 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 		pop(hit);
 
+		if (target instanceof WitherEntity && ((WitherEntity) target).isPowered())
+			return;
+		if (projectileType.preEntityHit(ray))
+			return;
+
 		boolean targetIsEnderman = target.getType() == EntityType.ENDERMAN;
 		int k = target.getRemainingFireTicks();
 		if (this.isOnFire() && !targetIsEnderman)
 			target.setSecondsOnFire(5);
 
-		if (!target.hurt(causePotatoDamage(), (float) damage)) {
+		boolean onServer = !level.isClientSide;
+		if (onServer && !target.hurt(causePotatoDamage(), damage)) {
 			target.setRemainingFireTicks(k);
 			remove();
 			return;
@@ -124,7 +207,9 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (targetIsEnderman)
 			return;
 
-		projectileType.onEntityHit(ray);
+		if (!projectileType.onEntityHit(ray) && onServer)
+			if (random.nextDouble() <= recoveryChance)
+				recoverItem();
 
 		if (!(target instanceof LivingEntity)) {
 			playHitSound(level, position());
@@ -137,7 +222,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (type.getReloadTicks() < 10)
 			livingentity.invulnerableTime = type.getReloadTicks() + 10;
 
-		if (knockback > 0) {
+		if (onServer && knockback > 0) {
 			Vec3 appliedMotion = this.getDeltaMovement()
 				.multiply(1.0D, 0.0D, 1.0D)
 				.normalize()
@@ -166,7 +251,17 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 				AllTriggers.POTATO_KILL.trigger(serverplayerentity);
 		}
 
-		remove();
+		if (type.isSticky() && target.isAlive()) {
+			setStuckEntity(target);
+		} else {
+			remove();
+		}
+
+	}
+
+	private void recoverItem() {
+		if (!stack.isEmpty())
+			spawnAtLocation(ItemHandlerHelper.copyStackWithSize(stack, 1));
 	}
 
 	public static void playHitSound(Level world, Vec3 location) {
@@ -181,7 +276,9 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	protected void onHitBlock(BlockHitResult ray) {
 		Vec3 hit = ray.getLocation();
 		pop(hit);
-		getProjectileType().onBlockHit(level, ray);
+		if (!getProjectileType().onBlockHit(level, ray) && !level.isClientSide)
+			if (random.nextDouble() <= recoveryChance)
+				recoverItem();
 		super.onHitBlock(ray);
 		remove();
 	}

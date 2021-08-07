@@ -176,7 +176,6 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 		super.tick();
 
 		boolean server = !level.isClientSide || isVirtual();
-
 		if (server && airCurrentUpdateCooldown-- <= 0) {
 			airCurrentUpdateCooldown = AllConfigs.SERVER.kinetics.fanBlockCheckRate.get();
 			updateAirFlow = true;

@@ -5,18 +5,18 @@ import java.util.ArrayList;
 import com.google.common.collect.Lists;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
-import com.jozufozu.flywheel.backend.instancing.InstanceMaterial;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.InstanceMaterial;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.materials.ModelData;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.RotatingData;
 import com.simibubi.create.content.contraptions.base.SingleRotatingInstance;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -62,7 +62,7 @@ public class ArmInstance extends SingleRotatingInstance implements IDynamicInsta
 		clawGrips = Lists.newArrayList(clawGrip1, clawGrip2);
 		models = Lists.newArrayList(base, lowerBody, upperBody, head, claw, clawGrip1, clawGrip2);
 		arm = tile;
-		ceiling = blockState.get(ArmBlock.CEILING);
+		ceiling = blockState.getValue(ArmBlock.CEILING);
 
 		animateArm(false);
 	}
@@ -112,7 +112,7 @@ public class ArmInstance extends SingleRotatingInstance implements IDynamicInsta
 			lowerArmAngle = Mth.lerp((Mth.sin(renderTick / 4) + 1) / 2, -45, 15);
 			upperArmAngle = Mth.lerp((Mth.sin(renderTick / 8) + 1) / 4, -45, 95);
 			headAngle = -lowerArmAngle;
-			color = ColorHelper.rainbowColor(AnimationTickHolder.getTicks() * 100);
+			color = Color.rainbowColor(AnimationTickHolder.getTicks() * 100).getRGB();
 		} else {
 			baseAngle = this.baseAngle;
 			lowerArmAngle = this.lowerArmAngle - 135;
@@ -122,7 +122,7 @@ public class ArmInstance extends SingleRotatingInstance implements IDynamicInsta
 		}
 
 		PoseStack msLocal = new PoseStack();
-		MatrixStacker msr = MatrixStacker.of(msLocal);
+		MatrixTransformStack msr = MatrixTransformStack.of(msLocal);
 		msr.translate(getInstancePosition());
 		msr.centre();
 

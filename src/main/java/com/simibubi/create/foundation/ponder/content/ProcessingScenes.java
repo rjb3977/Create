@@ -12,6 +12,7 @@ import com.simibubi.create.content.contraptions.processing.BasinBlock;
 import com.simibubi.create.content.contraptions.processing.BasinTileEntity;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock.HeatLevel;
+import com.simibubi.create.content.contraptions.processing.burner.LitBlazeBurnerBlock;
 import com.simibubi.create.foundation.ponder.ElementLink;
 import com.simibubi.create.foundation.ponder.SceneBuilder;
 import com.simibubi.create.foundation.ponder.SceneBuildingUtil;
@@ -613,7 +614,7 @@ public class ProcessingScenes {
 				.withItem(new ItemStack(Items.FLINT_AND_STEEL)),
 			40);
 		scene.idle(7);
-		scene.world.setBlock(util.grid.at(3, 1, 2), AllBlocks.LIT_BLAZE_BURNER.getDefaultState(), true);
+		scene.world.setBlock(util.grid.at(3, 1, 2), AllBlocks.LIT_BLAZE_BURNER.getDefaultState(), false);
 		scene.idle(10);
 		scene.overlay.showText(70)
 			.text("For Aesthetic purposes, Empty Blaze Burners can also be lit using Flint and Steel")
@@ -622,9 +623,22 @@ public class ProcessingScenes {
 				.above(), Direction.UP))
 			.placeNearTarget();
 		scene.idle(80);
+		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(center.east()
+			.above()), Pointing.DOWN).rightClick()
+				.withItem(new ItemStack(Items.SOUL_SAND)),
+			40);
+		scene.idle(7);
+		scene.world.modifyBlock(util.grid.at(3, 1, 2), s -> s.setValue(LitBlazeBurnerBlock.FLAME_TYPE, LitBlazeBurnerBlock.FlameType.SOUL),
+			false);
 		scene.overlay.showText(60)
+			.text("The flame can be transformed using a soul-infused item")
+			.pointAt(util.vector.blockSurface(center.east()
+				.above(), Direction.UP))
+			.placeNearTarget();
+		scene.idle(80);
+		scene.overlay.showText(90)
 			.colored(PonderPalette.RED)
-			.text("However, these are not suitable for industrial heating")
+			.text("However, without a blaze they are not suitable for industrial heating")
 			.pointAt(util.vector.blockSurface(center.east()
 				.above(), Direction.UP))
 			.placeNearTarget();

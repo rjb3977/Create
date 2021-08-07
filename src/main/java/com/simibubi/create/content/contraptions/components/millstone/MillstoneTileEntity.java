@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
+import com.simibubi.create.foundation.sound.SoundScapes;
+import com.simibubi.create.foundation.sound.SoundScapes.AmbienceGroup;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputBehaviour;
 import com.simibubi.create.foundation.utility.VecHelper;
@@ -42,6 +44,21 @@ public class MillstoneTileEntity extends KineticTileEntity {
 	public void addBehaviours(List<TileEntityBehaviour> behaviours) {
 		behaviours.add(new DirectBeltInputBehaviour(this));
 		super.addBehaviours(behaviours);
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void tickAudio() {
+		super.tickAudio();
+
+		if (getSpeed() == 0)
+			return;
+		if (inputInv.getStackInSlot(0)
+			.isEmpty())
+			return;
+
+		float pitch = MathHelper.clamp((Math.abs(getSpeed()) / 256f) + .45f, .85f, 1f);
+		SoundScapes.play(AmbienceGroup.MILLING, worldPosition, pitch);
 	}
 
 	@Override

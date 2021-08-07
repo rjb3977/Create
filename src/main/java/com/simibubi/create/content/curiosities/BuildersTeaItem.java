@@ -26,7 +26,7 @@ public class BuildersTeaItem extends Item {
 		if (playerentity instanceof ServerPlayer)
 			CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer) playerentity, stack);
 
-		if (!world.isClientSide) 
+		if (!world.isClientSide)
 			entity.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 3 * 60 * 20, 0, false, false, false));
 
 		if (playerentity != null) {
@@ -37,9 +37,9 @@ public class BuildersTeaItem extends Item {
 		}
 
 		if (playerentity == null || !playerentity.abilities.instabuild) {
-			if (stack.isEmpty()) 
+			if (stack.isEmpty())
 				return new ItemStack(Items.GLASS_BOTTLE);
-			if (playerentity != null) 
+			if (playerentity != null)
 				playerentity.inventory.add(new ItemStack(Items.GLASS_BOTTLE));
 		}
 

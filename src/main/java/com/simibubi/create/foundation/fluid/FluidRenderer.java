@@ -1,12 +1,13 @@
 package com.simibubi.create.foundation.fluid;
 
 import java.util.function.Function;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.foundation.renderState.RenderTypes;
 import com.simibubi.create.foundation.utility.AngleHelper;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
@@ -58,7 +59,7 @@ public class FluidRenderer {
 		if (inbound)
 			direction = direction.getOpposite();
 
-		MatrixStacker msr = MatrixStacker.of(ms);
+		MatrixTransformStack msr = MatrixTransformStack.of(ms);
 		ms.pushPose();
 		msr.centre()
 			.rotateY(AngleHelper.horizontalAngle(direction))
@@ -131,7 +132,7 @@ public class FluidRenderer {
 						.translateBack(center);
 
 				boolean X = side.getAxis() == Axis.X;
-				int darkColor = ColorHelper.mixColors(color, 0xff000011, 1 / 4f);
+				int darkColor = Color.mixColors(color, 0xff000011, 1 / 4f);
 				renderTiledHorizontalFace(X ? xMax : zMax, side, X ? zMin : xMin, yMin, X ? zMax : xMax, yMax, builder,
 					ms, light, darkColor, fluidTexture);
 

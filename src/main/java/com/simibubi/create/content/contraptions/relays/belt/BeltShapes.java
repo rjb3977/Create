@@ -82,19 +82,19 @@ public class BeltShapes {
 			VERTICAL_FULL = VerticalBeltShaper.make(FLAT_FULL_PART),
 			VERTICAL_END = VerticalBeltShaper.make(compose(FLAT_END_PART, FLAT_FULL_PART)),
 			VERTICAL_START = VerticalBeltShaper.make(compose(FLAT_FULL_PART, FLAT_END_PART));
-	
+
 	//Flat Shapes
 	private static final VoxelShaper
 			FLAT_FULL = VoxelShaper.forHorizontalAxis(FLAT_FULL_PART, Axis.Z),
 			FLAT_END = VoxelShaper.forHorizontal(compose(FLAT_END_PART, FLAT_FULL_PART), Direction.SOUTH),
 			FLAT_START = VoxelShaper.forHorizontal(compose(FLAT_FULL_PART, FLAT_END_PART), Direction.SOUTH);
-	
+
 	//Sideways Shapes
 	private static final VoxelShaper
 			SIDE_FULL = VoxelShaper.forHorizontalAxis(SIDEWAYS_FULL_PART, Axis.Z),
 			SIDE_END = VoxelShaper.forHorizontal(compose(SIDEWAYS_END_PART, SIDEWAYS_FULL_PART), Direction.SOUTH),
 			SIDE_START = VoxelShaper.forHorizontal(compose(SIDEWAYS_FULL_PART, SIDEWAYS_END_PART), Direction.SOUTH);
-	
+
 	//Sloped Shapes
 	private static final VoxelShaper
 			SLOPE_DESC = VoxelShaper.forHorizontal(SLOPE_DESC_PART, Direction.SOUTH),
@@ -143,14 +143,14 @@ public class BeltShapes {
 	private static VoxelShape makeFlatFull(){
 		return box(1,3,0,15,13,16);
 	}
-	
+
 	private static VoxelShape makeSidewaysEnding(){
 		return Shapes.or(
 			box(4,1,0,12,15,16),
 			box(3,1,1,13,15,15)
 		);
 	}
-	
+
 	private static VoxelShape makeSidewaysFull(){
 		return box(3,1,0,13,15,16);
 	}
@@ -162,7 +162,7 @@ public class BeltShapes {
 		cache.put(state, createdShape);
 		return createdShape;
 	}
-	
+
 	public static VoxelShape getCollisionShape(BlockState state) {
 		if (collisionCache.containsKey(state))
 			return collisionCache.get(state);
@@ -192,7 +192,7 @@ public class BeltShapes {
 			//flat ending
 			return (part == BeltPart.START ? FLAT_START : FLAT_END).get(facing);
 		}
-		
+
 		//sideways part
 		if (slope == BeltSlope.SIDEWAYS) {
 			if (part == BeltPart.MIDDLE || part == BeltPart.PULLEY)

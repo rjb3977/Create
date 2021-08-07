@@ -206,7 +206,7 @@ public class MechanicalCrafterBlock extends HorizontalKineticBlock implements IT
 				return InteractionResult.SUCCESS;
 			}
 
-			ItemStack inSlot = crafter.getInventory().getStackInSlot(0);
+			ItemStack inSlot = crafter.getInventory().getItem(0);
 			if (inSlot.isEmpty()) {
 				if (crafter.covered && !wrenched) {
 					if (worldIn.isClientSide)

@@ -7,7 +7,6 @@ import com.simibubi.create.content.contraptions.relays.belt.BeltHelper;
 import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 
 import net.minecraft.client.Minecraft;
@@ -37,7 +36,7 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 		int light, int overlay, DepotBehaviour depotBehaviour) {
 
 		TransportedItemStack transported = depotBehaviour.heldItem;
-		MatrixStacker msr = MatrixStacker.of(ms);
+		MatrixTransformStack msr = MatrixTransformStack.of(ms);
 		Vec3 itemPosition = VecHelper.getCenterOf(te.getBlockPos());
 
 		ms.pushPose();
@@ -101,7 +100,7 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 		int angle, Random r, Vec3 itemPosition) {
 		ItemRenderer itemRenderer = Minecraft.getInstance()
 			.getItemRenderer();
-		MatrixStacker msr = MatrixStacker.of(ms);
+		MatrixTransformStack msr = MatrixTransformStack.of(ms);
 		int count = (int) (Mth.log2((int) (itemStack.getCount()))) / 2;
 		boolean renderUpright = BeltHelper.isItemUpright(itemStack);
 		boolean blockItem = itemRenderer.getModel(itemStack, null, null)
@@ -119,7 +118,7 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 				float yRot = (float) Mth.atan2(diff.z, -diff.x);
 				ms.mulPose(Vector3f.YP.rotation((float) (yRot - Math.PI / 2)));
 			}
-			ms.translate(0, 3 / 32d, 1 / 16f);
+			ms.translate(0, 3 / 32d, -1 / 16f);
 		}
 
 		for (int i = 0; i <= count; i++) {

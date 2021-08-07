@@ -76,7 +76,7 @@ public class PonderWorldParticles {
 		for (ParticleRenderType iparticlerendertype : this.byType.keySet()) {
 			if (iparticlerendertype == ParticleRenderType.NO_RENDER)
 				continue;
-			enable.run(); 
+			enable.run();
 			Iterable<Particle> iterable = this.byType.get(iparticlerendertype);
 			if (iterable != null) {
 				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);

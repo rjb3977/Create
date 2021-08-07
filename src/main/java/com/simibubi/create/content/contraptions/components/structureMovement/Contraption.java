@@ -91,6 +91,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.network.DebugPacketSender;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -109,12 +110,12 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
 
 public abstract class Contraption {
 
@@ -694,18 +695,18 @@ public abstract class Contraption {
 
 		superglue.clear();
 		NBTHelper.iterateCompoundList(nbt.getList("Superglue", NBT.TAG_COMPOUND), c -> superglue
-			.add(Pair.of(NBTUtil.readBlockPos(c.getCompound("Pos")), Direction.byIndex(c.getByte("Direction")))));
+			.add(Pair.of(NBTUtil.readBlockPos(c.getCompound("Pos")), Direction.from3DDataValue(c.getByte("Direction")))));
 
 		seats.clear();
 		NBTHelper.iterateCompoundList(nbt.getList("Seats", NBT.TAG_COMPOUND), c -> seats.add(NBTUtil.readBlockPos(c)));
 
 		seatMapping.clear();
 		NBTHelper.iterateCompoundList(nbt.getList("Passengers", NBT.TAG_COMPOUND),
-			c -> seatMapping.put(NBTUtil.readUniqueId(NBTHelper.getINBT(c, "Id")), c.getInt("Seat")));
+			c -> seatMapping.put(NBTUtil.loadUUID(NBTHelper.getINBT(c, "Id")), c.getInt("Seat")));
 
 		stabilizedSubContraptions.clear();
 		NBTHelper.iterateCompoundList(nbt.getList("SubContraptions", NBT.TAG_COMPOUND),
-			c -> stabilizedSubContraptions.put(c.getUniqueId("Id"), BlockFace.fromNBT(c.getCompound("Location"))));
+			c -> stabilizedSubContraptions.put(c.getUUID("Id"), BlockFace.fromNBT(c.getCompound("Location"))));
 
 		storage.clear();
 		NBTHelper.iterateCompoundList(nbt.getList("Storage", NBT.TAG_COMPOUND), c -> storage
@@ -950,8 +951,7 @@ public abstract class Contraption {
 				int flags = BlockFlags.IS_MOVING | BlockFlags.NO_NEIGHBOR_DROPS | BlockFlags.UPDATE_NEIGHBORS
 					| BlockFlags.BLOCK_UPDATE | BlockFlags.RERENDER_MAIN_THREAD;
 				if (blockIn instanceof SimpleWaterloggedBlock && oldState.hasProperty(BlockStateProperties.WATERLOGGED)
-					&& oldState.getValue(BlockStateProperties.WATERLOGGED)
-						.booleanValue()) {
+					&& oldState.getValue(BlockStateProperties.WATERLOGGED)) {
 					world.setBlock(add, Blocks.WATER.defaultBlockState(), flags);
 					continue;
 				}
@@ -963,8 +963,22 @@ public abstract class Contraption {
 				.offset(offset);
 //			if (!shouldUpdateAfterMovement(block))
 //				continue;
+
 			int flags = BlockFlags.IS_MOVING | BlockFlags.DEFAULT;
 			world.sendBlockUpdated(add, block.state, Blocks.AIR.defaultBlockState(), flags);
+
+			// when the blockstate is set to air, the block's POI data is removed, but markAndNotifyBlock tries to
+			// remove it again, so to prevent an error from being logged by double-removal we add the POI data back now
+			// (code copied from ServerWorld.onBlockStateChange)
+			ServerWorld serverWorld = (ServerWorld) world;
+			PointOfInterestType.forState(block.state).ifPresent(poiType -> {
+				world.getServer().execute(() -> {
+					serverWorld.getPoiManager().add(add, poiType);
+					DebugPacketSender.sendPoiAddedPacket(serverWorld, add);
+				});
+			});
+
+			world.markAndNotifyBlock(add, world.getChunkAt(add), block.state, Blocks.AIR.defaultBlockState(), flags, 512);
 			block.state.updateIndirectNeighbourShapes(world, add, flags & -2);
 		}
 	}
@@ -1043,6 +1057,8 @@ public abstract class Contraption {
 							mountedStorage.addStorageToWorld(tileEntity);
 					}
 				}
+
+				transform.apply(tileEntity);
 			}
 		}
 		for (StructureBlockInfo block : blocks.values()) {

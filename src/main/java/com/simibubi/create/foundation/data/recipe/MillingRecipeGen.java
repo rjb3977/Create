@@ -11,6 +11,8 @@ package com.simibubi.create.foundation.data.recipe;
 //import net.minecraft.item.Item;
 //import net.minecraft.item.Items;
 //import net.minecraft.tags.ItemTags;
+//import net.minecraftforge.common.crafting.conditions.NotCondition;
+//import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
 //
 //public class MillingRecipeGen extends ProcessingRecipeGen {
 //
@@ -72,6 +74,10 @@ package com.simibubi.create.foundation.data.recipe;
 //			.output(.1f, Items.GREEN_DYE, 1)
 //			.whenModMissing("quark")),
 //
+//		SEA_PICKLE = create(() -> Blocks.SEA_PICKLE, b -> b.duration(50)
+//			.output(Items.LIME_DYE, 2)
+//			.output(.1f, Items.GREEN_DYE)),
+//
 //		BONE_MEAL = create(() -> Items.BONE_MEAL, b -> b.duration(70)
 //			.output(Items.WHITE_DYE, 2)
 //			.output(.1f, Items.LIGHT_GRAY_DYE, 1)),
@@ -87,6 +93,10 @@ package com.simibubi.create.foundation.data.recipe;
 //		SUGAR_CANE = create(() -> Items.SUGAR_CANE, b -> b.duration(50)
 //			.output(Items.SUGAR, 2)
 //			.output(.1f, Items.SUGAR)),
+//
+//		BEETROOT = create(() -> Items.BEETROOT, b -> b.duration(70)
+//			.output(Items.RED_DYE, 2)
+//			.output(.1f, Items.BEETROOT_SEEDS)),
 //
 //		INK_SAC = create(() -> Items.INK_SAC, b -> b.duration(100)
 //			.output(Items.BLACK_DYE, 2)

@@ -31,7 +31,7 @@ public class Debug {
 		if (Minecraft.getInstance().player != null)
 			Minecraft.getInstance().player.displayClientMessage(new TextComponent(message), true);
 	}
-	
+
 	@Deprecated
 	public static void log(String message) {
 		Create.LOGGER.info(message);

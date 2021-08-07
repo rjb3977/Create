@@ -37,7 +37,7 @@ public class SequencedAssemblyRecipeSerializer extends ForgeRegistryEntry<Recipe
 			recipe.getSequence().add(SequencedRecipe.fromJson(je.getAsJsonObject(), recipe, i++));
 		for (JsonElement je : GsonHelper.getAsJsonArray(json, "results"))
 			recipe.resultPool.add(ProcessingOutput.deserialize(je));
-		if (GsonHelper.isValidNode(json, "loops")) 
+		if (GsonHelper.isValidNode(json, "loops"))
 			recipe.loops = GsonHelper.getAsInt(json, "loops");
 		return recipe;
 	}
@@ -76,7 +76,7 @@ public class SequencedAssemblyRecipeSerializer extends ForgeRegistryEntry<Recipe
 	}
 
 	@Override
-	public final void write(FriendlyByteBuf buffer, SequencedAssemblyRecipe recipe) {
+	public final void toNetwork(FriendlyByteBuf buffer, SequencedAssemblyRecipe recipe) {
 		writeToBuffer(buffer, recipe);
 	}
 

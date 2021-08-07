@@ -373,7 +373,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 
 //	@Override
 //	public AxisAlignedBB makeRenderBoundingBox() {
-//		return super.makeRenderBoundingBox().grow(3);
+//		return super.makeRenderBoundingBox().inflate(3);
 //	}
 
 	@Override
@@ -445,12 +445,12 @@ public class DeployerTileEntity extends KineticTileEntity {
 			return null;
 		ItemStack heldItemMainhand = player.getMainHandItem();
 		if (heldItemMainhand.getItem() instanceof SandPaperItem) {
-			sandpaperInv.setInventorySlotContents(0, stack);
+			sandpaperInv.setItem(0, stack);
 			return AllRecipeTypes.SANDPAPER_POLISHING.find(sandpaperInv, level)
 				.orElse(null);
 		}
-		recipeInv.setInventorySlotContents(0, stack);
-		recipeInv.setInventorySlotContents(1, heldItemMainhand);
+		recipeInv.setItem(0, stack);
+		recipeInv.setItem(1, heldItemMainhand);
 
 		Optional<DeployerApplicationRecipe> assemblyRecipe = SequencedAssemblyRecipe.getRecipe(level, recipeInv,
 			AllRecipeTypes.DEPLOYING.getType(), DeployerApplicationRecipe.class);

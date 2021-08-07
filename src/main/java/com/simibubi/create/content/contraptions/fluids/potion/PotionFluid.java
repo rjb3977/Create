@@ -44,7 +44,7 @@ public class PotionFluid extends VirtualFluid {
 //		@Override
 //		public int getColor(FluidStack stack) {
 //			CompoundNBT tag = stack.getOrCreateTag();
-//			int color = PotionUtils.getPotionColorFromEffectList(PotionUtils.getEffectsFromTag(tag)) | 0xff000000;
+//			int color = PotionUtils.getColor(PotionUtils.getAllEffects(tag)) | 0xff000000;
 //			return color;
 //		}
 //
@@ -53,9 +53,9 @@ public class PotionFluid extends VirtualFluid {
 //			CompoundNBT tag = stack.getOrCreateTag();
 //			IItemProvider itemFromBottleType =
 //				PotionFluidHandler.itemFromBottleType(NBTHelper.readEnum(tag, "Bottle", BottleType.class));
-//			return PotionUtils.getPotionTypeFromNBT(tag)
-//				.getNamePrefixed(itemFromBottleType.asItem()
-//					.getTranslationKey() + ".effect.");
+//			return PotionUtils.getPotion(tag)
+//				.getName(itemFromBottleType.asItem()
+//					.getDescriptionId() + ".effect.");
 //		}
 //
 //	}

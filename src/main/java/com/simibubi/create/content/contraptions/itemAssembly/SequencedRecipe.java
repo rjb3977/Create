@@ -62,7 +62,7 @@ public class SequencedRecipe<T extends ProcessingRecipe<?>> {
 		ProcessingRecipeSerializer<T> serializer = (ProcessingRecipeSerializer<T>) wrapped.getSerializer();
 		buffer.writeResourceLocation(ForgeRegistries.RECIPE_SERIALIZERS.getKey(serializer));
 		buffer.writeResourceLocation(wrapped.getId());
-		serializer.write(buffer, wrapped);
+		serializer.toNetwork(buffer, wrapped);
 	}
 
 	public static SequencedRecipe<?> readFromBuffer(FriendlyByteBuf buffer) {

@@ -16,7 +16,7 @@ public class ShadowSteelItem extends NoGravMagicalDohickyItem {
 		float yMotion = (entity.fallDistance + 3) / 50f;
 		entity.setDeltaMovement(0, yMotion, 0);
 	}
-	
+
 	@Override
 	protected float getIdleParticleChance(ItemEntity entity) {
 		return (float) (Mth.clamp(entity.getItem()

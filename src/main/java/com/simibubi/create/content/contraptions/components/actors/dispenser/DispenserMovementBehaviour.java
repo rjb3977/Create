@@ -88,7 +88,7 @@ public class DispenserMovementBehaviour extends DropperMovementBehaviour {
 	@MethodsReturnNonnullByDefault
 	private static class DispenserLookup extends DispenserBlock {
 		protected DispenserLookup() {
-			super(Block.Properties.copy(Blocks.DISPENSER));
+			super(AbstractBlock.Properties.copy(Blocks.DISPENSER));
 		}
 
 		public DispenseItemBehavior getDispenseMethod(ItemStack itemStack) {

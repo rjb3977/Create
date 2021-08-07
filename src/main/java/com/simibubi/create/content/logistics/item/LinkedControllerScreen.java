@@ -108,7 +108,7 @@ public class LinkedControllerScreen extends AbstractSimiContainerScreen<LinkedCo
 			return;
 		}
 		renderTooltip(ms, addToTooltip(new LinkedList<>(), ((SlotAccessor) hoveredSlot).getSlotIndex()), x, y); // I think this replacement works?
-		// renderWrappedToolTip(ms, addToTooltip(new LinkedList<>(), ((SlotAccessor) hoveredSlot).getSlotIndex()), x, y, textRenderer);
+		// renderWrappedToolTip(ms, addToTooltip(new LinkedList<>(), ((SlotAccessor) hoveredSlot).getSlotIndex()), x, y, font);
 	}
 
 	@Override

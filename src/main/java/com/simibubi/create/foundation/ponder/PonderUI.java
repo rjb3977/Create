@@ -32,7 +32,7 @@ import com.simibubi.create.foundation.ponder.content.PonderTagScreen;
 import com.simibubi.create.foundation.ponder.elements.TextWindowElement;
 import com.simibubi.create.foundation.ponder.ui.PonderButton;
 import com.simibubi.create.foundation.renderState.SuperRenderTypeBuffer;
-import com.simibubi.create.foundation.utility.ColorHelper;
+import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.FontHelper;
 import com.simibubi.create.foundation.utility.Iterate;
@@ -135,11 +135,11 @@ public class PonderUI extends NavigatableSimiScreen {
 		else
 			stack = new ItemStack(Registry.BLOCK.get(component));
 
-		tags = new ArrayList<>(PonderRegistry.tags.getTags(component));
+		tags = new ArrayList<>(PonderRegistry.TAGS.getTags(component));
 		this.scenes = scenes;
 		if (scenes.isEmpty()) {
 			List<PonderStoryBoardEntry> l = Collections.singletonList(new PonderStoryBoardEntry(DebugScenes::empty,
-				"debug/scene_1", new ResourceLocation("minecraft", "stick")));
+				Create.ID, "debug/scene_1", new ResourceLocation("minecraft", "stick")));
 			scenes.addAll(PonderRegistry.compile(l));
 		}
 		lazyIndex = LerpedFloat.linear()
@@ -363,9 +363,9 @@ public class PonderUI extends NavigatableSimiScreen {
 		PonderScene scene = scenes.get(index);
 
 		if (hasShiftDown()) {
-			List<PonderStoryBoardEntry> list = PonderRegistry.all.get(scene.component);
+			List<PonderStoryBoardEntry> list = PonderRegistry.ALL.get(scene.component);
 			PonderStoryBoardEntry sb = list.get(index);
-			StructureTemplate activeTemplate = PonderRegistry.loadSchematic(sb.getSchematicName());
+			StructureTemplate activeTemplate = PonderRegistry.loadSchematic(sb.getSchematicLocation());
 			PonderWorld world = new PonderWorld(BlockPos.ZERO, Minecraft.getInstance().level);
 			activeTemplate.placeInWorld(world, BlockPos.ZERO, new StructurePlaceSettings(), new Random());
 			world.createBackup();
@@ -466,7 +466,7 @@ public class PonderUI extends NavigatableSimiScreen {
 					ms.scale(1, .5f + flash * .75f, 1);
 					GuiUtils.drawGradientRect(ms.last()
 						.pose(), 0, 0, -1, -story.basePlateSize, 0, 0x00_c6ffc9,
-						ColorHelper.applyAlpha(0xaa_c6ffc9, alpha));
+						new Color(0xaa_c6ffc9).scaleAlpha(alpha).getRGB());
 					ms.popPose();
 				}
 				ms.translate(0, 0, 2 / 1024f);
@@ -535,7 +535,7 @@ public class PonderUI extends NavigatableSimiScreen {
 
 	protected void renderWidgets(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		RenderSystem.disableDepthTest();
-		
+
 		float fade = fadeIn.getValue(partialTicks);
 		float lazyIndexValue = lazyIndex.getValue(partialTicks);
 		float indexDiff = Math.abs(lazyIndexValue - index);
@@ -579,7 +579,7 @@ public class PonderUI extends NavigatableSimiScreen {
 			ms.mulPose(Vector3f.XN.rotationDegrees(indexDiff * -75));
 			ms.translate(0, 0, 5);
 			FontHelper.drawSplitString(ms, font, title, 0, 0, left.x - 51,
-				ColorHelper.applyAlpha(Theme.i(Theme.Key.TEXT), 1 - indexDiff));
+				Theme.c(Theme.Key.TEXT).scaleAlpha(1 - indexDiff).getRGB());
 			ms.popPose();
 
 			if (chapter != null) {
@@ -595,10 +595,13 @@ public class PonderUI extends NavigatableSimiScreen {
 				ms.popPose();
 			}
 
-			UIRenderHelper.breadcrumbArrow(ms, width / 2 - 20, height - 51, 0, 20, 20, 5, 0x40aa9999, 0x20aa9999);
-			UIRenderHelper.breadcrumbArrow(ms, width / 2 + 20, height - 51, 0, -20, 20, -5, 0x40aa9999, 0x20aa9999);
-			UIRenderHelper.breadcrumbArrow(ms, width / 2 - 90, height - 51, 0, 70, 20, 5, 0x40aa9999, 0x10aa9999);
-			UIRenderHelper.breadcrumbArrow(ms, width / 2 + 90, height - 51, 0, -70, 20, -5, 0x40aa9999, 0x10aa9999);
+			Color c1 = Theme.c(Theme.Key.PONDER_BACK_ARROW).setAlpha(0x40);
+			Color c2 = Theme.c(Theme.Key.PONDER_BACK_ARROW).setAlpha(0x20);
+			Color c3 = Theme.c(Theme.Key.PONDER_BACK_ARROW).setAlpha(0x10);
+			UIRenderHelper.breadcrumbArrow(ms, width / 2 - 20, height - 51, 0, 20, 20, 5, c1, c2);
+			UIRenderHelper.breadcrumbArrow(ms, width / 2 + 20, height - 51, 0, -20, 20, -5, c1, c2);
+			UIRenderHelper.breadcrumbArrow(ms, width / 2 - 90, height - 51, 0, 70, 20, 5, c1, c3);
+			UIRenderHelper.breadcrumbArrow(ms, width / 2 + 90, height - 51, 0, -70, 20, -5, c1, c3);
 		}
 
 		if (identifyMode) {
@@ -612,7 +615,7 @@ public class PonderUI extends NavigatableSimiScreen {
 					).withStyle(ChatFormatting.GRAY);
 
 					//renderOrderedTooltip(ms, textRenderer.wrapLines(text, width / 3), 0, 0);
-//					renderWrappedToolTip(ms, textRenderer.getTextHandler().wrapLines(text, width / 3, Style.EMPTY), 0, 0, textRenderer);
+//					renderWrappedToolTip(ms, font.getSplitter().splitLines(text, width / 3, Style.EMPTY), 0, 0, font);
 					renderTooltip(ms, (Component) font.getSplitter().splitLines(text, width / 3, Style.EMPTY), 0, 0/*, textRenderer*/); // fixme
 					/*String tooltip = Lang
 						.createTranslationTextComponent(IDENTIFY_MODE, client.gameSettings.keyBindDrop.getBoundKeyLocalizedText().applyTextStyle(TextFormatting.WHITE))
@@ -736,7 +739,6 @@ public class PonderUI extends NavigatableSimiScreen {
 		if (PonderIndex.EDITOR_MODE && userMode.isHovered())
 			drawCenteredString(ms, font, "Editor View", userMode.x + 10, tooltipY, tooltipColor);
 		ms.popPose();
-		
 		RenderSystem.enableDepthTest();
 	}
 
@@ -863,7 +865,7 @@ public class PonderUI extends NavigatableSimiScreen {
 			boxY -= h / 2;
 			divotX += distance;
 			divotY -= divotRadius;
-			c = ColorHelper.mixColors(borderColors, 0.5f);
+			c = Color.mixColors(borderColors, 0.5f);
 			break;
 		case RIGHT:
 			divotRotation = 270;
@@ -871,7 +873,7 @@ public class PonderUI extends NavigatableSimiScreen {
 			boxY -= h / 2;
 			divotX -= divotSize + distance;
 			divotY -= divotRadius;
-			c = ColorHelper.mixColors(borderColors, 0.5f);
+			c = Color.mixColors(borderColors, 0.5f);
 			break;
 		case UP:
 			divotRotation = 180;

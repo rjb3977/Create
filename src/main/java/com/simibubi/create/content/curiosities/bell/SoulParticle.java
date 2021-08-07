@@ -5,8 +5,10 @@ import com.simibubi.create.AllParticleTypes;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.particles.IParticleData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.util.math.vector.Vector3f;
 
 public class SoulParticle extends CustomRotationParticle {
 
@@ -25,14 +27,18 @@ public class SoulParticle extends CustomRotationParticle {
 	protected int firstEndFrame = 33;
 	protected int endFrames = 20;
 
-	protected int totalFrames = 53;
-
-	protected int ticksPerFrame = 2;
-
 	protected AnimationStage animationStage;
 
+	protected int totalFrames = 53;
+	protected int ticksPerFrame = 2;
+
+	protected boolean isPerimeter = false;
+	protected boolean isExpandingPerimeter = false;
+	protected boolean isVisible = true;
+	protected int perimeterFrames = 8;
+
 	public SoulParticle(ClientLevel worldIn, double x, double y, double z, double vx, double vy, double vz,
-						SpriteSet spriteSet) {
+		SpriteSet spriteSet, IParticleData data) {
 		super(worldIn, x, y, z, spriteSet, 0);
 		this.animatedSprite = spriteSet;
 		this.quadSize = 0.5f;
@@ -41,24 +47,43 @@ public class SoulParticle extends CustomRotationParticle {
 		this.loopLength = loopFrames + (int) (this.random.nextFloat() * 5f - 4f);
 		this.startTicks = startFrames + (int) (this.random.nextFloat() * 5f - 4f);
 		this.endTicks = endFrames + (int) (this.random.nextFloat() * 5f - 4f);
-		this.numLoops = (int)(1f + this.random.nextFloat() * 2f);
+		this.numLoops = (int) (1f + this.random.nextFloat() * 2f);
 
 		this.setFrame(0);
 		this.stoppedByCollision = true; // disable movement
 		this.mirror = this.random.nextBoolean();
 
-		this.animationStage = new StartAnimation(this);
+		this.isPerimeter = data instanceof PerimeterData;
+		this.isExpandingPerimeter = data instanceof ExpandingPerimeterData;
+		this.animationStage = !isPerimeter ? new StartAnimation(this) : new PerimeterAnimation(this);
+		if (isPerimeter) {
+			yo = y -= .5f - 1 / 128f;
+			totalFrames = perimeterFrames;
+			isVisible = false;
+		}
 	}
 
 	@Override
 	public void tick() {
 		animationStage.tick();
-
 		animationStage = animationStage.getNext();
 
 		BlockPos pos = new BlockPos(x, y, z);
-		if (animationStage == null || !SoulPulseEffect.canSpawnSoulAt(level, pos))
+		if (animationStage == null)
 			remove();
+		if (!SoulPulseEffect.isDark(level, pos)) {
+			isVisible = true;
+			if (!isPerimeter)
+				remove();
+		} else if (isPerimeter)
+			isVisible = false;
+	}
+
+	@Override
+	public void render(IVertexBuilder builder, ActiveRenderInfo camera, float partialTicks) {
+		if (!isVisible)
+			return;
+		super.render(builder, camera, partialTicks);
 	}
 
 	public void setFrame(int frame) {
@@ -68,17 +93,41 @@ public class SoulParticle extends CustomRotationParticle {
 
 	@Override
 	public Quaternion getCustomRotation(Camera camera, float partialTicks) {
+		if (isPerimeter)
+			return Vector3f.XP.rotationDegrees(90);
 		return new Quaternion(0, -camera.getYRot(), 0, true);
 	}
 
 	public static class Data extends BasicParticleData<SoulParticle> {
 		@Override
 		public IBasicParticleFactory<SoulParticle> getBasicFactory() {
-			return SoulParticle::new;
+			return (worldIn, x, y, z, vx, vy, vz, spriteSet) -> new SoulParticle(worldIn, x, y, z, vx, vy, vz,
+				spriteSet, this);
 		}
+
 		@Override
 		public ParticleType<?> getType() {
 			return AllParticleTypes.SOUL.get();
+		}
+	}
+
+	public static class PerimeterData extends BasicParticleData<SoulParticle> {
+		@Override
+		public IBasicParticleFactory<SoulParticle> getBasicFactory() {
+			return (worldIn, x, y, z, vx, vy, vz, spriteSet) -> new SoulParticle(worldIn, x, y, z, vx, vy, vz,
+				spriteSet, this);
+		}
+
+		@Override
+		public ParticleType<?> getType() {
+			return AllParticleTypes.SOUL_PERIMETER.get();
+		}
+	}
+
+	public static class ExpandingPerimeterData extends PerimeterData {
+		@Override
+		public ParticleType<?> getType() {
+			return AllParticleTypes.SOUL_EXPANDING_PERIMETER.get();
 		}
 	}
 
@@ -117,7 +166,8 @@ public class SoulParticle extends CustomRotationParticle {
 		public void tick() {
 			super.tick();
 
-			particle.setFrame(particle.firstStartFrame + (int) (getAnimAge() / (float) particle.startTicks * particle.startFrames));
+			particle.setFrame(
+				particle.firstStartFrame + (int) (getAnimAge() / (float) particle.startTicks * particle.startFrames));
 		}
 
 		@Override
@@ -143,9 +193,11 @@ public class SoulParticle extends CustomRotationParticle {
 
 			int loopTick = getLoopTick();
 
-			if (loopTick == 0) loops++;
+			if (loopTick == 0)
+				loops++;
 
-			particle.setFrame(particle.firstLoopFrame + loopTick);//(int) (((float) loopTick / (float) particle.loopLength) * particle.loopFrames));
+			particle.setFrame(particle.firstLoopFrame + loopTick);// (int) (((float) loopTick / (float)
+																	// particle.loopLength) * particle.loopFrames));
 
 		}
 
@@ -172,13 +224,36 @@ public class SoulParticle extends CustomRotationParticle {
 		public void tick() {
 			super.tick();
 
-			particle.setFrame(particle.firstEndFrame + (int) ((getAnimAge() / (float) particle.endTicks) * particle.endFrames));
+			particle.setFrame(
+				particle.firstEndFrame + (int) ((getAnimAge() / (float) particle.endTicks) * particle.endFrames));
 
 		}
 
 		@Override
 		public AnimationStage getNext() {
 			if (animAge < particle.endTicks)
+				return this;
+			else
+				return null;
+		}
+	}
+
+	public static class PerimeterAnimation extends AnimationStage {
+
+		public PerimeterAnimation(SoulParticle particle) {
+			super(particle);
+		}
+
+		@Override
+		public void tick() {
+			super.tick();
+			particle.setFrame((int) getAnimAge() % particle.perimeterFrames);
+		}
+
+		@Override
+		public AnimationStage getNext() {
+			if (animAge < (particle.isExpandingPerimeter ? 8
+				: particle.startTicks + particle.endTicks + particle.numLoops * particle.loopLength))
 				return this;
 			else
 				return null;

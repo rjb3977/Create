@@ -120,7 +120,6 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		int size = buffer.readVarInt();
 		for (int i = 0; i < size; i++)
 			ingredients.add(Ingredient.fromNetwork(buffer));
-
 		size = buffer.readVarInt();
 		for (int i = 0; i < size; i++)
 			fluidIngredients.add(FluidIngredient.read(buffer));
@@ -152,7 +151,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 	}
 
 	@Override
-	public final void write(FriendlyByteBuf buffer, T recipe) {
+	public final void toNetwork(FriendlyByteBuf buffer, T recipe) {
 		writeToBuffer(buffer, recipe);
 	}
 

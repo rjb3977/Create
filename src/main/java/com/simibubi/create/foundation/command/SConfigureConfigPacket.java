@@ -198,7 +198,7 @@ public class SConfigureConfigPacket implements S2CPacket {
 			}
 
 			ResourceLocation id = new ResourceLocation(value);
-			if (!PonderRegistry.all.containsKey(id)) {
+			if (!PonderRegistry.ALL.containsKey(id)) {
 				Create.LOGGER.error("Could not find ponder scenes for item: " + id);
 				return;
 			}

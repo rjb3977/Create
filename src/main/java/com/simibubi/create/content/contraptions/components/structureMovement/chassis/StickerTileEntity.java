@@ -93,4 +93,5 @@ public class StickerTileEntity extends SmartTileEntity implements IInstanceRende
 		AllSoundEvents.SLIME_ADDED.play(level, Minecraft.getInstance().player, worldPosition, 0.35f, attach ? 0.75f : 0.2f);
 	}
 
+
 }

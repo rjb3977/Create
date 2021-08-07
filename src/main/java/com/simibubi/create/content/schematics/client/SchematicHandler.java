@@ -176,11 +176,11 @@ public class SchematicHandler {
 				renderers.get(0)
 					.render(ms, buffer);
 		}
-		
+
 		if (active)
 			currentTool.getTool()
 			.renderOnSchematic(ms, buffer);
-		
+
 		ms.popPose();
 
 	}
@@ -194,7 +194,7 @@ public class SchematicHandler {
 			.renderOverlay(ms, buffer);
 		selectionScreen.renderPassive(ms, partialTicks);
 	}
-	
+
 	public void onMouseInput(int button, boolean pressed) {
 		if (!active)
 			return;

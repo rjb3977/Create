@@ -20,7 +20,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.jozufozu.flywheel.backend.Backend;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags.AllBlockTags;
@@ -139,7 +139,7 @@ public class DeployerMovementBehaviour extends MovementBehaviour {
 			}
 		}
 
-//		BlockSnapshot blocksnapshot = BlockSnapshot.create(world.getRegistryKey(), world, pos);
+//		BlockSnapshot blocksnapshot = BlockSnapshot.create(world.dimension(), world, pos);
 		if (world.isUnobstructed(blockState, pos, CollisionContext.empty()))
 		BlockHelper.placeSchematicBlock(world, blockState, pos, firstRequired, data);
 //		if (ForgeEventFactory.onBlockPlace(player, blocksnapshot, Direction.UP))
@@ -230,7 +230,6 @@ public class DeployerMovementBehaviour extends MovementBehaviour {
 		if (player == null)
 			return;
 		context.data.put("HeldItem", NBTSerializer.serializeNBT(player.getMainHandItem()));
-
 	}
 
 	private DeployerFakePlayer getPlayer(MovementContext context) {

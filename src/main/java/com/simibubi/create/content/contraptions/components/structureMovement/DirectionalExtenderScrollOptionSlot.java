@@ -8,7 +8,6 @@ import net.minecraft.world.phys.Vec3;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.tileEntity.behaviour.CenteredSideValueBoxTransform;
 import com.simibubi.create.foundation.utility.AngleHelper;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 
 public class DirectionalExtenderScrollOptionSlot extends CenteredSideValueBoxTransform {
 
@@ -25,7 +24,7 @@ public class DirectionalExtenderScrollOptionSlot extends CenteredSideValueBoxTra
 	@Override
 	protected void rotate(BlockState state, PoseStack ms) {
 		if (!getSide().getAxis().isHorizontal())
-			MatrixStacker.of(ms).rotateY(AngleHelper.horizontalAngle(state.getValue(BlockStateProperties.FACING)) - 90);
+			MatrixTransformStack.of(ms).rotateY(AngleHelper.horizontalAngle(state.getValue(BlockStateProperties.FACING)) - 90);
 		super.rotate(state, ms);
 	}
 }

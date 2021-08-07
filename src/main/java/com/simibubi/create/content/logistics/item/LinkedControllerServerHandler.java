@@ -23,7 +23,7 @@ import com.simibubi.create.foundation.utility.WorldAttached;
 public class LinkedControllerServerHandler {
 
 	public static WorldAttached<Map<UUID, Collection<ManualFrequencyEntry>>> receivedInputs =
-		new WorldAttached<>(HashMap::new);
+		new WorldAttached<>($ -> new HashMap<>());
 	static final int TIMEOUT = 30;
 
 	public static void tick(LevelAccessor world) {

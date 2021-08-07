@@ -166,9 +166,9 @@ public class BlueprintContainer extends GhostItemContainer<BlueprintSection> {
 		}
 
 		@Override
-		public void onSlotChanged() {
-			super.onSlotChanged();
-			if (index == 9 && getHasStack() && !contentHolder.getBlueprintWorld().isClientSide) {
+		public void setChanged() {
+			super.setChanged();
+			if (index == 9 && hasItem() && !contentHolder.getBlueprintWorld().isClientSide) {
 				contentHolder.inferredIcon = false;
 				ServerPlayer serverplayerentity = (ServerPlayer) player;
 				serverplayerentity.connection.send(new ClientboundContainerSetSlotPacket(containerId, 36 + 9, getStack()));

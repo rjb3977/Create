@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.base;
 
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class SingleRotatingInstance extends KineticTileInstance<KineticTileEntity> {

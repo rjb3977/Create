@@ -32,7 +32,7 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 	}
 
 	@Override
-	public boolean isGlobalRenderer(SchematicannonTileEntity p_188185_1_) {
+	public boolean shouldRenderOffScreen(SchematicannonTileEntity p_188185_1_) {
 		return true;
 	}
 

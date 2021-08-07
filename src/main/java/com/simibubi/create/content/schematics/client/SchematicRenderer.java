@@ -91,7 +91,7 @@ public class SchematicRenderer {
 		BlockPos.betweenClosedStream(blockAccess.getBounds())
 			.forEach(localPos -> {
 				ms.pushPose();
-				MatrixStacker.of(ms)
+				MatrixTransformStack.of(ms)
 					.translate(localPos);
 				BlockPos pos = localPos.offset(anchor);
 				BlockState state = blockAccess.getBlockState(pos);

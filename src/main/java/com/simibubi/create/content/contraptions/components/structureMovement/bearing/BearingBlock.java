@@ -20,7 +20,7 @@ public abstract class BearingBlock extends DirectionalKineticBlock {
 	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
 		return face == state.getValue(FACING).getOpposite();
 	}
-	
+
 	@Override
 	public Axis getRotationAxis(BlockState state) {
 		return state.getValue(FACING).getAxis();

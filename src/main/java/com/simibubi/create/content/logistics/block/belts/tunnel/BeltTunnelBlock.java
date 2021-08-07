@@ -174,14 +174,12 @@ public class BeltTunnelBlock extends Block implements ITE<BeltTunnelTileEntity>,
 		Direction fw = Direction.get(AxisDirection.POSITIVE, axis);
 		BlockState blockState1 = reader.getBlockState(pos.relative(fw));
 		BlockState blockState2 = reader.getBlockState(pos.relative(fw.getOpposite()));
-
 		boolean funnel1 = blockState1.getBlock() instanceof BeltFunnelBlock
 			&& blockState1.getValue(BeltFunnelBlock.SHAPE) == BeltFunnelBlock.Shape.EXTENDED
 			&& blockState1.getValue(BeltFunnelBlock.HORIZONTAL_FACING) == fw.getOpposite();
 		boolean funnel2 = blockState2.getBlock() instanceof BeltFunnelBlock
 			&& blockState2.getValue(BeltFunnelBlock.SHAPE) == BeltFunnelBlock.Shape.EXTENDED
 			&& blockState2.getValue(BeltFunnelBlock.HORIZONTAL_FACING) == fw;
-
 		boolean valid1 = blockState1.getBlock() instanceof BeltTunnelBlock || funnel1;
 		boolean valid2 = blockState2.getBlock() instanceof BeltTunnelBlock || funnel2;
 		boolean canHaveWindow = valid1 && valid2 && !(funnel1 && funnel2);

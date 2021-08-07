@@ -363,7 +363,7 @@ public class AllAdvancements implements DataProvider {
 		Advancement deployer =
 			kinecticAdvancement("deployer", AllBlocks.DEPLOYER.get(), TaskType.MILESTONE).parent(brass_casing)
 				.save(t, id + ":deployer");
-		
+
 		Advancement clockwork_component =
 			itemAdvancement("clockwork_component", AllItems.CLOCKWORK_COMPONENT, TaskType.NORMAL).parent(deployer)
 				.save(t, id + ":clockwork_component");
@@ -371,7 +371,7 @@ public class AllAdvancements implements DataProvider {
 		Advancement clockwork_component_eob = deadEnd().parent(clockwork_component)
 			.addCriterion("0", itemGathered(AllItems.CLOCKWORK_COMPONENT.get()))
 			.save(t, id + ":clockwork_component_eob");
-		
+
 		Advancement extendo_grip =
 			advancement("extendo_grip", AllItems.EXTENDO_GRIP.get(), TaskType.NORMAL).parent(clockwork_component)
 				.addCriterion("0", AllTriggers.EXTENDO.instance())

@@ -24,7 +24,7 @@ public class ArmAngleTarget {
 	}
 
 	public ArmAngleTarget(BlockPos armPos, Vec3 pointTarget, Direction clawFacing, boolean ceiling) {
-//		if (ceiling) 
+//		if (ceiling)
 //			clawFacing = clawFacing.getOpposite();
 
 		Vec3 target = pointTarget;

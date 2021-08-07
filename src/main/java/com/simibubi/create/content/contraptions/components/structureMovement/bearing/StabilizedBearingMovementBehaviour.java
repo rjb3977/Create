@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.components.structureMovement.be
 import javax.annotation.Nullable;
 
 import com.jozufozu.flywheel.backend.Backend;
-import com.jozufozu.flywheel.backend.instancing.MaterialManager;
+import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.mojang.math.Quaternion;
 import com.simibubi.create.AllBlockPartials;
@@ -52,14 +52,14 @@ public class StabilizedBearingMovementBehaviour extends MovementBehaviour {
 
 		orientation = rotation;
 
-		superBuffer.transform(matrices.contraptionStack);
+		superBuffer.transform(matrices.getModel());
 		superBuffer.rotateCentered(orientation);
 
 		// render
 		superBuffer
-			.light(matrices.entityMatrix,
+			.light(matrices.getWorld(),
 				ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
-			.renderInto(matrices.entityStack, buffer.getBuffer(RenderType.solid()));
+			.renderInto(matrices.getViewProjection(), buffer.getBuffer(RenderType.solid()));
 	}
 
 	@Override

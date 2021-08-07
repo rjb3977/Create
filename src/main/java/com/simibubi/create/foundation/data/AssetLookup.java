@@ -13,6 +13,8 @@ package com.simibubi.create.foundation.data;
 //import net.minecraft.state.IntegerProperty;
 //import net.minecraft.state.properties.BlockStateProperties;
 //import net.minecraft.util.ResourceLocation;
+//import net.minecraftforge.client.model.generators.ItemModelBuilder;
+//import net.minecraftforge.client.model.generators.ModelFile;
 //
 //public class AssetLookup {
 //
@@ -77,7 +79,7 @@ package com.simibubi.create.foundation.data;
 //
 //	public static Function<BlockState, ModelFile> forPowered(DataGenContext<?, ?> ctx,
 //		RegistrateBlockstateProvider prov) {
-//		return state -> state.get(BlockStateProperties.POWERED) ? partialBaseModel(ctx, prov, "powered")
+//		return state -> state.getValue(BlockStateProperties.POWERED) ? partialBaseModel(ctx, prov, "powered")
 //			: partialBaseModel(ctx, prov);
 //	}
 //
@@ -85,7 +87,7 @@ package com.simibubi.create.foundation.data;
 //		RegistrateBlockstateProvider prov, String path) {
 //		return state -> prov.models()
 //			.getExistingFile(
-//				prov.modLoc("block/" + path + (state.get(BlockStateProperties.POWERED) ? "_powered" : "")));
+//				prov.modLoc("block/" + path + (state.getValue(BlockStateProperties.POWERED) ? "_powered" : "")));
 //	}
 //
 //	public static Function<BlockState, ModelFile> withIndicator(DataGenContext<?, ?> ctx,
@@ -93,7 +95,7 @@ package com.simibubi.create.foundation.data;
 //		return state -> {
 //			ResourceLocation baseModel = baseModelFunc.apply(state)
 //				.getLocation();
-//			Integer integer = state.get(property);
+//			Integer integer = state.getValue(property);
 //			return prov.models()
 //				.withExistingParent(ctx.getName() + "_" + integer, baseModel)
 //				.texture("indicator", "block/indicator/" + integer);
@@ -106,6 +108,10 @@ package com.simibubi.create.foundation.data;
 //
 //	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelProvider> existingItemModel() {
 //		return (c, p) -> p.getExistingFile(p.modLoc("item/" + c.getName()));
+//	}
+//
+//	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelProvider> itemModel(String name) {
+//		return (c, p) -> p.getExistingFile(p.modLoc("item/" + name));
 //	}
 //
 //	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelProvider> itemModelWithPartials() {

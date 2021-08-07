@@ -44,7 +44,7 @@ public class HauntedBellTileEntity extends AbstractBellTileEntity {
 			return false;
 
 		if (!world.isClientSide)
-			HauntedBellPulser.sendPulse(world, pos, DISTANCE, true);
+			HauntedBellPulser.sendPulse(world, pos, DISTANCE, false);
 
 		startEffect();
 

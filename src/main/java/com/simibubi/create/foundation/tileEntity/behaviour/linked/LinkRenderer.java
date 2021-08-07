@@ -44,7 +44,7 @@ public class LinkRenderer {
 
 		for (boolean first : Iterate.trueAndFalse) {
 			AABB bb = new AABB(Vec3.ZERO, Vec3.ZERO).inflate(.25f);
-			Component label = first ? freq2 : freq1;
+			Component label = first ? freq1 : freq2;
 			boolean hit = behaviour.testHit(first, target.getLocation());
 			ValueBoxTransform transform = first ? behaviour.firstSlot : behaviour.secondSlot;
 
