@@ -85,7 +85,7 @@ public class ConfigScreenList extends ObjectSelectionList<ConfigScreenList.Entry
 			if (bot >= this.y0 && top <= this.y1)
 				this.getEntry(i).tick();
 		}*/
-		children().forEach(Entry::tick);
+		children().forEach(com.simibubi.create.foundation.config.ui.ConfigScreenList.Entry::tick);
 
 	}
 
@@ -96,7 +96,7 @@ public class ConfigScreenList extends ObjectSelectionList<ConfigScreenList.Entry
 		}
 
 		String q = query.toLowerCase(Locale.ROOT);
-		Optional<Entry> first = children().stream().filter(entry -> {
+		Optional<com.simibubi.create.foundation.config.ui.ConfigScreenList.Entry> first = children().stream().filter(entry -> {
 			if (entry.path == null)
 				return false;
 
@@ -110,7 +110,7 @@ public class ConfigScreenList extends ObjectSelectionList<ConfigScreenList.Entry
 			return false;
 		}
 
-		Entry e = first.get();
+		com.simibubi.create.foundation.config.ui.ConfigScreenList.Entry e = first.get();
 		e.annotations.put("highlight", "(:");
 		centerScrollOn(e);
 		return true;

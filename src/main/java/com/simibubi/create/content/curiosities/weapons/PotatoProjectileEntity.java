@@ -1,7 +1,7 @@
 package com.simibubi.create.content.curiosities.weapons;
 
 import javax.annotation.Nullable;
-
+import Vector3d;
 import com.simibubi.create.AllEnchantments;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.particle.AirParticleData;

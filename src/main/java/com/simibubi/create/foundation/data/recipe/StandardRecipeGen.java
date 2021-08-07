@@ -23,6 +23,8 @@ import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.AllSections;
 import com.simibubi.create.content.palettes.AllPaletteBlocks;
+import com.simibubi.create.foundation.data.recipe.StandardRecipeGen.GeneratedRecipeBuilder;
+import com.simibubi.create.foundation.data.recipe.StandardRecipeGen.GeneratedRecipeBuilder.GeneratedCookingRecipeBuilder;
 import com.simibubi.create.foundation.utility.Lang;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;

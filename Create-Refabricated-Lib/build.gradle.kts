@@ -29,7 +29,7 @@ dependencies {
 	implementation("com.google.code.findbugs", "jsr305", "3.0.2")
 
     // LibBlockAttributes
-    modImplementation("alexiil.mc.lib", "libblockattributes-all", lba_version)
+//    modImplementation("alexiil.mc.lib", "libblockattributes-all", lba_version)
     //modImplementation("alexiil.mc.lib", "libblockattributes-items", lba_version)
     //modImplementation("alexiil.mc.lib", "libblockattributes-fluids", lba_version)
 

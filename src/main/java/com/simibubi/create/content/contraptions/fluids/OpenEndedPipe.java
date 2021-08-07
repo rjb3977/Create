@@ -3,6 +3,9 @@ package com.simibubi.create.content.contraptions.fluids;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.LEVEL_HONEY;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
+import AxisAlignedBB;
+import CompoundNBT;
+import World;
 import java.util.ArrayList;
 import java.util.List;
 

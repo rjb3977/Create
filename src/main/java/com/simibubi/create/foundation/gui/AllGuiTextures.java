@@ -142,7 +142,7 @@ public enum AllGuiTextures implements IScreenRenderable {
 		screen.blit(ms, x, y, startX, startY, width, height);
 	}
 
-	public void draw(PoseStack ms, int x, int y, Color c) {
+	public void draw(PoseStack ms, int x, int y, java.awt.Color c) {
 		bind();
 		UIRenderHelper.drawColoredTexture(ms, c, x, y, startX, startY, width, height);
 	}

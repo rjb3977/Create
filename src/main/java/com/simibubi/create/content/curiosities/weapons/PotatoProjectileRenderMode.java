@@ -2,6 +2,7 @@ package com.simibubi.create.content.curiosities.weapons;
 
 import static com.simibubi.create.content.curiosities.weapons.PotatoProjectileRenderMode.entityRandom;
 
+import Vector3d;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.utility.AngleHelper;

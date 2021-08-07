@@ -1,5 +1,7 @@
 package com.simibubi.create.content.curiosities.armor;
 
+import ITextComponent;
+import ListNBT;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;

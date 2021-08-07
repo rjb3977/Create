@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import World;
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.gui.IInteractionChecker;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;

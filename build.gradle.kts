@@ -158,11 +158,6 @@ dependencies {
 	modImplementation("com.github.PepperCode1", "Registrate-Fabric", registrate_version)
 	include("com.github.PepperCode1", "Registrate-Fabric", registrate_version)
 
-	// LibBlockAttributes
-	modImplementation("alexiil.mc.lib", "libblockattributes-all", lba_version)
-	//modImplementation("alexiil.mc.lib", "libblockattributes-items", lba_version)
-	//modImplementation("alexiil.mc.lib", "libblockattributes-fluids", lba_version)
-
 	// Reach Entity Attributes
 	modImplementation("com.jamieswhiteshirt", "reach-entity-attributes", reach_entity_attributes_version)
 
@@ -173,9 +168,9 @@ dependencies {
 	// ModMenu
 	modImplementation("com.terraformersmc", "modmenu", modmenu_version)
 
-	// REI
-	modCompileOnly("me.shedaniel", "RoughlyEnoughItems-api", rei_version)
-	modRuntime("me.shedaniel", "RoughlyEnoughItems", rei_version)
+	// REI // can't be found?
+//	modCompileOnly("me.shedaniel", "RoughlyEnoughItems-api", rei_version)
+//	modRuntime("me.shedaniel", "RoughlyEnoughItems", rei_version)
 
 	// DataBreaker
 	modRuntime("com.github.SuperCoder7979", "databreaker", databreaker_version) {

@@ -104,7 +104,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		AllGuiTextures.LOGO.draw(ms, 0, 0);
 		ms.popPose();
 		new BoxElement().withBackground(0x88_000000)
-			.flatBorder(new Color(0x01_000000))
+			.flatBorder(new java.awt.Color(0x01_000000))
 			.at(-32, 56, 100)
 			.withBounds(128, 11)
 			.render(ms);

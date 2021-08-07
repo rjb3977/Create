@@ -3,6 +3,7 @@ package com.simibubi.create.foundation.utility;
 import java.util.Random;
 
 import javax.annotation.Nullable;
+import Vector3d;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.lib.helper.GameRendererHelper;

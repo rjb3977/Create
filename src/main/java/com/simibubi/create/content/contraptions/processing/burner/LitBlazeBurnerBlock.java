@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.processing.burner;
 
 import java.util.Random;
-
+import EnumProperty;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.utility.Lang;

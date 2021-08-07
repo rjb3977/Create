@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import com.simibubi.create.content.logistics.item.filter.ItemAttribute;
+import com.simibubi.create.content.logistics.item.filter.attribute.ShulkerFillLevelAttribute.ShulkerLevels;
 import com.simibubi.create.foundation.utility.Lang;
 
 import net.minecraft.block.Block;

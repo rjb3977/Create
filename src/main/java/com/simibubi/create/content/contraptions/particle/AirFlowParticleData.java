@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.particle;
 
 import java.util.Locale;
-
+import IDeserializer;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;

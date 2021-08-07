@@ -2,7 +2,11 @@ package com.simibubi.create.foundation.config.ui;
 
 import java.util.Arrays;
 import java.util.List;
-
+import EnumMap;
+import LoadingCache;
+import Map;
+import Pair;
+import Pattern;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.lib.config.Config;
