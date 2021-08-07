@@ -3,10 +3,9 @@ package com.simibubi.create.content.contraptions.base;
 import com.jozufozu.flywheel.backend.gl.buffer.MappedBuffer;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.core.materials.BasicData;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.foundation.utility.ColorHelper;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.core.BlockPos;
 
 public class KineticData extends BasicData {
     private float x;
@@ -24,7 +23,7 @@ public class KineticData extends BasicData {
     }
 
     public KineticData setPosition(Vector3f pos) {
-        return setPosition(pos.getX(), pos.getY(), pos.getZ());
+        return setPosition(pos.x(), pos.y(), pos.z());
     }
 
     public KineticData setPosition(float x, float y, float z) {

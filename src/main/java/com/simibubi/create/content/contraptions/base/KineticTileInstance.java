@@ -7,9 +7,8 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.relays.elementary.ICogWheel;
 import com.simibubi.create.content.contraptions.relays.elementary.ShaftBlock;
 import com.simibubi.create.foundation.render.AllMaterialSpecs;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class KineticTileInstance<T extends KineticTileEntity> extends TileEntityInstance<T> {
 
@@ -90,6 +89,6 @@ public abstract class KineticTileInstance<T extends KineticTileEntity> extends T
 
     public static BlockState shaft(Direction.Axis axis) {
         return AllBlocks.SHAFT.getDefaultState()
-                .with(ShaftBlock.AXIS, axis);
+                .setValue(ShaftBlock.AXIS, axis);
     }
 }

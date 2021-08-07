@@ -9,34 +9,33 @@ import com.simibubi.create.content.contraptions.components.structureMovement.ren
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionMatrices;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 
 	@Override
 	public boolean isActive(MovementContext context) {
-		return !VecHelper.isVecPointingTowards(context.relativeMotion, context.state.get(DrillBlock.FACING)
+		return !VecHelper.isVecPointingTowards(context.relativeMotion, context.state.getValue(DrillBlock.FACING)
 			.getOpposite());
 	}
 
 	@Override
-	public Vector3d getActiveAreaOffset(MovementContext context) {
-		return Vector3d.of(context.state.get(DrillBlock.FACING)
-			.getDirectionVec()).scale(.65f);
+	public Vec3 getActiveAreaOffset(MovementContext context) {
+		return Vec3.atLowerCornerOf(context.state.getValue(DrillBlock.FACING)
+			.getNormal()).scale(.65f);
 	}
 
 	@Override
 	@Environment(value = EnvType.CLIENT)
 	public void renderInContraption(MovementContext context, PlacementSimulationWorld renderWorld,
-		ContraptionMatrices matrices, IRenderTypeBuffer buffer) {
+		ContraptionMatrices matrices, MultiBufferSource buffer) {
 		if (!Backend.getInstance().canUseInstancing())
 			DrillRenderer.renderInContraption(context, renderWorld, matrices, buffer);
 	}
@@ -58,7 +57,7 @@ public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 	}
 
 	@Override
-	public boolean canBreak(World world, BlockPos breakingPos, BlockState state) {
+	public boolean canBreak(Level world, BlockPos breakingPos, BlockState state) {
 		return super.canBreak(world, breakingPos, state) && !state.getCollisionShape(world, breakingPos)
 			.isEmpty();
 	}

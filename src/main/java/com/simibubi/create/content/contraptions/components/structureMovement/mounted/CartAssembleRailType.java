@@ -1,18 +1,16 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.mounted;
 
 import java.util.function.Supplier;
-
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.utility.Lang;
 import com.tterrag.registrate.util.entry.BlockEntry;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.util.IStringSerializable;
-
-public enum CartAssembleRailType implements IStringSerializable {
+public enum CartAssembleRailType implements StringRepresentable {
 	
 	REGULAR(Blocks.RAIL),
 	POWERED_RAIL(Blocks.POWERED_RAIL),
@@ -48,7 +46,7 @@ public enum CartAssembleRailType implements IStringSerializable {
 	}
 	
 	@Override
-	public String getString() {
+	public String getSerializedName() {
 		return Lang.asId(name());
 	}
 

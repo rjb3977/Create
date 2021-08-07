@@ -5,6 +5,7 @@ import static com.simibubi.create.foundation.utility.AngleHelper.getShortestAngl
 import static com.simibubi.create.foundation.utility.AngleHelper.rad;
 
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
+import com.simibubi.create.content.contraptions.components.clock.CuckooClockTileEntity.Animation;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.gui.widgets.InterpolatedChasingValue;
 import com.simibubi.create.foundation.gui.widgets.InterpolatedValue;
@@ -13,17 +14,16 @@ import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 
 import com.simibubi.create.lib.helper.DamageSourceHelper;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class CuckooClockTileEntity extends KineticTileEntity {
 
@@ -39,13 +39,13 @@ public class CuckooClockTileEntity extends KineticTileEntity {
 		PIG, CREEPER, SURPRISE, NONE;
 	}
 
-	public CuckooClockTileEntity(TileEntityType<? extends CuckooClockTileEntity> type) {
+	public CuckooClockTileEntity(BlockEntityType<? extends CuckooClockTileEntity> type) {
 		super(type);
 		animationType = Animation.NONE;
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		super.fromTag(state, compound, clientPacket);
 		if (clientPacket && compound.contains("Animation")) {
 			animationType = NBTHelper.readEnum(compound, "Animation", Animation.class);
@@ -55,7 +55,7 @@ public class CuckooClockTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		if (clientPacket && sendAnimationUpdate)
 			NBTHelper.writeEnum(compound, "Animation", animationType);
 		sendAnimationUpdate = false;
@@ -69,24 +69,24 @@ public class CuckooClockTileEntity extends KineticTileEntity {
 			return;
 
 
-		boolean isNatural = world.getDimension().isNatural();
-		int dayTime = (int) ((world.getDayTime() * (isNatural ? 1 : 24)) % 24000);
+		boolean isNatural = level.dimensionType().natural();
+		int dayTime = (int) ((level.getDayTime() * (isNatural ? 1 : 24)) % 24000);
 		int hours = (dayTime / 1000 + 6) % 24;
 		int minutes = (dayTime % 1000) * 60 / 1000;
 
 		if (!isNatural) {
-			if (world.isRemote) {
+			if (level.isClientSide) {
 				moveHands(hours, minutes);
 
 				if (AnimationTickHolder.getTicks() % 6 == 0)
-					playSound(SoundEvents.BLOCK_NOTE_BLOCK_HAT, 1 / 16f, 2f);
+					playSound(SoundEvents.NOTE_BLOCK_HAT, 1 / 16f, 2f);
 				else if (AnimationTickHolder.getTicks() % 3 == 0)
-					playSound(SoundEvents.BLOCK_NOTE_BLOCK_HAT, 1 / 16f, 1.5f);
+					playSound(SoundEvents.NOTE_BLOCK_HAT, 1 / 16f, 1.5f);
 			}
 			return;
 		}
 
-		if (!world.isRemote) {
+		if (!level.isClientSide) {
 			if (animationType == Animation.NONE) {
 				if (hours == 12 && minutes < 5)
 					startAnimation(Animation.PIG);
@@ -99,23 +99,23 @@ public class CuckooClockTileEntity extends KineticTileEntity {
 					animationType = Animation.NONE;
 
 				if (animationType == Animation.SURPRISE && animationProgress.value == 50) {
-					Vector3d center = VecHelper.getCenterOf(pos);
-					world.destroyBlock(pos, false);
-					world.createExplosion(null, CUCKOO_SURPRISE, null, center.x, center.y, center.z, 3, false,
-						Explosion.Mode.BREAK);
+					Vec3 center = VecHelper.getCenterOf(worldPosition);
+					level.destroyBlock(worldPosition, false);
+					level.explode(null, CUCKOO_SURPRISE, null, center.x, center.y, center.z, 3, false,
+						Explosion.BlockInteraction.BREAK);
 				}
 
 			}
 		}
 
-		if (world.isRemote) {
+		if (level.isClientSide) {
 			moveHands(hours, minutes);
 
 			if (animationType == Animation.NONE) {
 				if (AnimationTickHolder.getTicks() % 32 == 0)
-					playSound(SoundEvents.BLOCK_NOTE_BLOCK_HAT, 1 / 16f, 2f);
+					playSound(SoundEvents.NOTE_BLOCK_HAT, 1 / 16f, 2f);
 				else if (AnimationTickHolder.getTicks() % 16 == 0)
-					playSound(SoundEvents.BLOCK_NOTE_BLOCK_HAT, 1 / 16f, 1.5f);
+					playSound(SoundEvents.NOTE_BLOCK_HAT, 1 / 16f, 1.5f);
 			} else {
 
 				boolean isSurprise = animationType == Animation.SURPRISE;
@@ -127,29 +127,29 @@ public class CuckooClockTileEntity extends KineticTileEntity {
 				// sounds
 
 				if (value == 1)
-					playSound(SoundEvents.BLOCK_NOTE_BLOCK_CHIME, 2, .5f);
+					playSound(SoundEvents.NOTE_BLOCK_CHIME, 2, .5f);
 				if (value == 21)
-					playSound(SoundEvents.BLOCK_NOTE_BLOCK_CHIME, 2, 0.793701f);
+					playSound(SoundEvents.NOTE_BLOCK_CHIME, 2, 0.793701f);
 
 				if (value > 30 && isSurprise) {
-					Vector3d pos = VecHelper.offsetRandomly(VecHelper.getCenterOf(this.pos), world.rand, .5f);
-					world.addParticle(ParticleTypes.LARGE_SMOKE, pos.x, pos.y, pos.z, 0, 0, 0);
+					Vec3 pos = VecHelper.offsetRandomly(VecHelper.getCenterOf(this.worldPosition), level.random, .5f);
+					level.addParticle(ParticleTypes.LARGE_SMOKE, pos.x, pos.y, pos.z, 0, 0, 0);
 				}
 				if (value == 40 && isSurprise)
-					playSound(SoundEvents.ENTITY_TNT_PRIMED, 1f, 1f);
+					playSound(SoundEvents.TNT_PRIMED, 1f, 1f);
 
 				int step = isSurprise ? 3 : 15;
 				for (int phase = 30; phase <= 60; phase += step) {
 					if (value == phase - step / 3)
-						playSound(SoundEvents.BLOCK_CHEST_OPEN, 1 / 16f, 2f);
+						playSound(SoundEvents.CHEST_OPEN, 1 / 16f, 2f);
 					if (value == phase) {
 						if (animationType == Animation.PIG)
-							playSound(SoundEvents.ENTITY_PIG_AMBIENT, 1 / 4f, 1f);
+							playSound(SoundEvents.PIG_AMBIENT, 1 / 4f, 1f);
 						else
-							playSound(SoundEvents.ENTITY_CREEPER_HURT, 1 / 4f, 3f);
+							playSound(SoundEvents.CREEPER_HURT, 1 / 4f, 3f);
 					}
 					if (value == phase + step / 3)
-						playSound(SoundEvents.BLOCK_CHEST_CLOSE, 1 / 16f, 2f);
+						playSound(SoundEvents.CHEST_CLOSE, 1 / 16f, 2f);
 
 				}
 
@@ -168,7 +168,7 @@ public class CuckooClockTileEntity extends KineticTileEntity {
 		sendAnimationUpdate = true;
 
 		if (animation == Animation.CREEPER)
-			AllTriggers.triggerForNearbyPlayers(AllTriggers.CUCKOO, world, pos, 10);
+			AllTriggers.triggerForNearbyPlayers(AllTriggers.CUCKOO, level, worldPosition, 10);
 
 		sendData();
 	}
@@ -185,8 +185,8 @@ public class CuckooClockTileEntity extends KineticTileEntity {
 	}
 
 	private void playSound(SoundEvent sound, float volume, float pitch) {
-		Vector3d vec = VecHelper.getCenterOf(pos);
-		world.playSound(vec.x, vec.y, vec.z, sound, SoundCategory.BLOCKS, volume, pitch, false);
+		Vec3 vec = VecHelper.getCenterOf(worldPosition);
+		level.playLocalSound(vec.x, vec.y, vec.z, sound, SoundSource.BLOCKS, volume, pitch, false);
 	}
 
 	@Override

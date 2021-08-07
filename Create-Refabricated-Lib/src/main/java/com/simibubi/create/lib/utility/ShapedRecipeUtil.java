@@ -1,8 +1,7 @@
 package com.simibubi.create.lib.utility;
 
 import com.simibubi.create.lib.extensions.ShapedRecipeExtensions;
-
-import net.minecraft.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 
 public class ShapedRecipeUtil {
 	public static void setCraftingSize(int width, int height) {

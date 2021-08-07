@@ -11,6 +11,6 @@ import net.minecraft.client.Minecraft;
 @Environment(EnvType.CLIENT)
 public class MinecraftClientUtil {
 	public static Locale getLocale() {
-		return ((LanguageExtensions) Minecraft.getInstance().getLanguageManager().getCurrentLanguage()).create$getJavaLocale();
+		return ((LanguageExtensions) Minecraft.getInstance().getLanguageManager().getSelected()).create$getJavaLocale();
 	}
 }

@@ -7,7 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock.HeatLevel;
@@ -23,19 +26,14 @@ import com.simibubi.create.lib.lba.item.IItemHandler;
 
 import com.simibubi.create.lib.utility.TransferUtil;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.world.World;
-
 public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 
-	public static boolean match(BasinTileEntity basin, IRecipe<?> recipe) {
+	public static boolean match(BasinTileEntity basin, Recipe<?> recipe) {
 		FilteringBehaviour filter = basin.getFilter();
 		if (filter == null)
 			return false;
 
-		boolean filterTest = filter.test(recipe.getRecipeOutput());
+		boolean filterTest = filter.test(recipe.getResultItem());
 		if (recipe instanceof BasinRecipe) {
 			BasinRecipe basinRecipe = (BasinRecipe) recipe;
 			if (basinRecipe.getRollableResults()
@@ -52,11 +50,11 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 		return apply(basin, recipe, true);
 	}
 
-	public static boolean apply(BasinTileEntity basin, IRecipe<?> recipe) {
+	public static boolean apply(BasinTileEntity basin, Recipe<?> recipe) {
 		return apply(basin, recipe, false);
 	}
 
-	private static boolean apply(BasinTileEntity basin, IRecipe<?> recipe, boolean test) {
+	private static boolean apply(BasinTileEntity basin, Recipe<?> recipe, boolean test) {
 		boolean isBasinRecipe = recipe instanceof BasinRecipe;
 		IItemHandler availableItems = TransferUtil.getItemHandler(basin)
 			.orElse(null);
@@ -67,9 +65,9 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 		if (availableItems == null || availableFluids == null)
 			return false;
 
-		HeatLevel heat = BasinTileEntity.getHeatLevelOf(basin.getWorld()
-			.getBlockState(basin.getPos()
-				.down(1)));
+		HeatLevel heat = BasinTileEntity.getHeatLevelOf(basin.getLevel()
+			.getBlockState(basin.getBlockPos()
+				.below(1)));
 		if (isBasinRecipe && !((BasinRecipe) recipe).getRequiredHeat()
 			.testBlazeBurner(heat))
 			return false;
@@ -78,7 +76,7 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 		List<FluidStack> recipeOutputFluids = new ArrayList<>();
 
 		List<Ingredient> ingredients = new LinkedList<>(recipe.getIngredients());
-		ingredients.sort(Comparator.comparingInt(i -> i.getMatchingStacks().length));
+		ingredients.sort(Comparator.comparingInt(i -> i.getItems().length));
 		List<FluidIngredient> fluidIngredients =
 			isBasinRecipe ? ((BasinRecipe) recipe).getFluidIngredients() : Collections.emptyList();
 
@@ -101,13 +99,13 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 					if (!ingredient.test(extracted))
 						continue;
 					// Catalyst items are never consumed
-					if (extracted.getItem().hasContainerItem() && extracted.getItem().getContainerItem()
+					if (extracted.getItem().hasCraftingRemainingItem() && extracted.getItem().getCraftingRemainingItem()
 						.equals(extracted.getItem()))
 						continue Ingredients;
 					if (!simulate)
 						availableItems.extractItem(slot, 1, false);
-					else if (extracted.getItem().hasContainerItem())
-						recipeOutputItems.add(new ItemStack(extracted.getItem().getContainerItem()));
+					else if (extracted.getItem().hasCraftingRemainingItem())
+						recipeOutputItems.add(new ItemStack(extracted.getItem().getCraftingRemainingItem()));
 					extractedItemsFromSlot[slot]++;
 					continue Ingredients;
 				}
@@ -155,7 +153,7 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 					recipeOutputItems.addAll(((BasinRecipe) recipe).rollResults());
 					recipeOutputFluids.addAll(((BasinRecipe) recipe).getFluidResults());
 				} else
-					recipeOutputItems.add(recipe.getRecipeOutput());
+					recipeOutputItems.add(recipe.getResultItem());
 			}
 
 			if (!basin.acceptOutputs(recipeOutputItems, recipeOutputFluids, simulate))
@@ -165,10 +163,10 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 		return true;
 	}
 
-	public static BasinRecipe convertShapeless(IRecipe<?> recipe) {
+	public static BasinRecipe convertShapeless(Recipe<?> recipe) {
 		BasinRecipe basinRecipe =
 			new ProcessingRecipeBuilder<>(BasinRecipe::new, recipe.getId()).withItemIngredients(recipe.getIngredients())
-				.withSingleItemOutput(recipe.getRecipeOutput())
+				.withSingleItemOutput(recipe.getResultItem())
 				.build();
 		return basinRecipe;
 	}
@@ -207,7 +205,7 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 	}
 
 	@Override
-	public boolean matches(SmartInventory inv, @Nonnull World worldIn) {
+	public boolean matches(SmartInventory inv, @Nonnull Level worldIn) {
 		return false;
 	}
 

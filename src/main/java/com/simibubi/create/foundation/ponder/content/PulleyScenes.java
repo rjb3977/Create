@@ -7,10 +7,9 @@ import com.simibubi.create.foundation.ponder.Selection;
 import com.simibubi.create.foundation.ponder.elements.InputWindowElement;
 import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.utility.Pointing;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
 
 public class PulleyScenes {
 
@@ -123,7 +122,7 @@ public class PulleyScenes {
 
 		scene.world.showSection(util.select.position(pulleyPos), Direction.SOUTH);
 		ElementLink<WorldSectionElement> glass =
-			scene.world.showIndependentSection(util.select.position(pulleyPos.down()), Direction.UP);
+			scene.world.showIndependentSection(util.select.position(pulleyPos.below()), Direction.UP);
 		scene.idle(20);
 
 		scene.world.toggleRedstonePower(redstoneStuff);
@@ -152,7 +151,7 @@ public class PulleyScenes {
 		scene.world.hideSection(util.select.position(flowerPos), Direction.DOWN);
 		scene.idle(40);
 
-		scene.world.setBlock(flowerPos, Blocks.BLUE_ORCHID.getDefaultState(), false);
+		scene.world.setBlock(flowerPos, Blocks.BLUE_ORCHID.defaultBlockState(), false);
 		scene.world.showSection(util.select.position(flowerPos), Direction.DOWN);
 		scene.overlay.showCenteredScrollInput(pulleyPos, Direction.UP, 60);
 		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(pulleyPos), Pointing.DOWN).scroll()

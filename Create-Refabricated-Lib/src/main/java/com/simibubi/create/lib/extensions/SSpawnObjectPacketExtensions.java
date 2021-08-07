@@ -1,7 +1,7 @@
 package com.simibubi.create.lib.extensions;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public interface SSpawnObjectPacketExtensions {
-	PacketBuffer create$getExtraDataBuf();
+	FriendlyByteBuf create$getExtraDataBuf();
 }

@@ -2,9 +2,9 @@ package com.simibubi.create.lib.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeGenerationSettings;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
 
 public interface BiomeLoadingCallback {
 	public static final Event<BiomeLoadingCallback> EVENT = EventFactory.createArrayBacked(BiomeLoadingCallback.class, callbacks -> (key, category, generation) -> {
@@ -14,5 +14,5 @@ public interface BiomeLoadingCallback {
 		return generation;
 	});
 
-	BiomeGenerationSettings.Builder onBiomeLoad(ResourceLocation key, Biome.Category category, BiomeGenerationSettings.Builder generation);
+	BiomeGenerationSettings.Builder onBiomeLoad(ResourceLocation key, Biome.BiomeCategory category, BiomeGenerationSettings.Builder generation);
 }

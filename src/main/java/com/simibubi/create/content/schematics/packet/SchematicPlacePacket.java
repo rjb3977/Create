@@ -10,16 +10,14 @@ import com.simibubi.create.content.schematics.item.SchematicItem;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.gen.feature.template.PlacementSettings;
-import net.minecraft.world.gen.feature.template.Template;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class SchematicPlacePacket implements C2SPacket {
 
@@ -31,32 +29,32 @@ public class SchematicPlacePacket implements C2SPacket {
 		this.stack = stack;
 	}
 
-	public void read(PacketBuffer buffer) {
-		stack = buffer.readItemStack();
+	public void read(FriendlyByteBuf buffer) {
+		stack = buffer.readItem();
 	}
 
-	public void write(PacketBuffer buffer) {
-		buffer.writeItemStack(stack);
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeItem(stack);
 	}
 
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, ResponseTarget responseTarget) {
 		server.execute(() -> {
 			if (player == null)
 				return;
 
-			World world = player.getServerWorld();
+			Level world = player.getLevel();
 			SchematicPrinter printer = new SchematicPrinter();
-			printer.loadSchematic(stack, world, !player.canUseCommandBlock());
+			printer.loadSchematic(stack, world, !player.canUseGameMasterBlocks());
 
 			while (printer.advanceCurrentPos()) {
 				if (!printer.shouldPlaceCurrent(world))
 					continue;
 
 				printer.handleCurrentTarget((pos, state, tile) -> {
-					CompoundNBT tileData = tile != null ? tile.write(new CompoundNBT()) : null;
+					CompoundTag tileData = tile != null ? tile.save(new CompoundTag()) : null;
 					BlockHelper.placeSchematicBlock(world, state, pos, null, tileData);
 				}, (pos, entity) -> {
-					world.addEntity(entity);
+					world.addFreshEntity(entity);
 				});
 			}
 		});

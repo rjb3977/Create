@@ -1,9 +1,9 @@
 package com.simibubi.create.foundation.utility.worldWrappers.chunk;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 
-public class WrappedChunkSection extends ChunkSection {
+public class WrappedChunkSection extends LevelChunkSection {
 
     public WrappedChunk owner;
 
@@ -14,9 +14,9 @@ public class WrappedChunkSection extends ChunkSection {
     public WrappedChunkSection(WrappedChunk owner, int yBase) {
         super(yBase);
         this.owner = owner;
-        this.xStart = owner.pos.getXStart();
+        this.xStart = owner.pos.getMinBlockX();
         this.yStart = yBase;
-        this.zStart = owner.pos.getZStart();
+        this.zStart = owner.pos.getMinBlockZ();
     }
 
     @Override

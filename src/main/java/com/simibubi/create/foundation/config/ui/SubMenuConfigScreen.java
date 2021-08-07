@@ -13,7 +13,7 @@ import org.lwjgl.glfw.GLFW;
 import com.electronwill.nightconfig.core.AbstractConfig;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.ui.ConfigScreenList.LabeledEntry;
 import com.simibubi.create.foundation.config.ui.entries.BooleanEntry;
@@ -35,13 +35,12 @@ import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.lib.config.Config;
 import com.simibubi.create.lib.config.ConfigValue;
 import com.simibubi.create.lib.mixin.accessor.AbstractListAccessor;
-
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.TextComponent;
 
 public class SubMenuConfigScreen extends ConfigScreen {
 
@@ -145,7 +144,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 				.withCallback((x, y) ->
 						new ConfirmationScreen()
 								.centered()
-								.withText(ITextProperties.plain("Resetting all settings of the " + config.name + " config. Are you sure?"))
+								.withText(FormattedText.of("Resetting all settings of the " + config.name + " config. Are you sure?"))
 								.withAction(success -> {
 									if (success)
 										resetConfig();
@@ -154,8 +153,8 @@ public class SubMenuConfigScreen extends ConfigScreen {
 				);
 
 		resetAll.showingElement(AllIcons.I_CONFIG_RESET.asStencil().withElementRenderer(BoxWidget.gradientFactory.apply(resetAll)));
-		resetAll.getToolTip().add(new StringTextComponent("Reset All"));
-		resetAll.getToolTip().addAll(TooltipHelper.cutStringTextComponent("Click here to reset all settings to their default value.", TextFormatting.GRAY, TextFormatting.GRAY));
+		resetAll.getToolTip().add(new TextComponent("Reset All"));
+		resetAll.getToolTip().addAll(TooltipHelper.cutStringTextComponent("Click here to reset all settings to their default value.", ChatFormatting.GRAY, ChatFormatting.GRAY));
 
 		saveChanges = new BoxWidget(listL - 30, yCenter - 25, 20, 20)
 				.withPadding(2, 2)
@@ -165,7 +164,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 
 					new ConfirmationScreen()
 							.centered()
-							.withText(ITextProperties.plain("Saving " + changes.size() + " changed value" + (changes.size() != 1 ? "s" : "") + ""))
+							.withText(FormattedText.of("Saving " + changes.size() + " changed value" + (changes.size() != 1 ? "s" : "") + ""))
 							.withAction(success -> {
 								if (success)
 									saveChanges();
@@ -173,8 +172,8 @@ public class SubMenuConfigScreen extends ConfigScreen {
 							.open(this);
 				});
 		saveChanges.showingElement(AllIcons.I_CONFIG_SAVE.asStencil().withElementRenderer(BoxWidget.gradientFactory.apply(saveChanges)));
-		saveChanges.getToolTip().add(new StringTextComponent("Save Changes"));
-		saveChanges.getToolTip().addAll(TooltipHelper.cutStringTextComponent("Click here to save your current changes.", TextFormatting.GRAY, TextFormatting.GRAY));
+		saveChanges.getToolTip().add(new TextComponent("Save Changes"));
+		saveChanges.getToolTip().addAll(TooltipHelper.cutStringTextComponent("Click here to save your current changes.", ChatFormatting.GRAY, ChatFormatting.GRAY));
 
 		discardChanges = new BoxWidget(listL - 30, yCenter + 5, 20, 20)
 				.withPadding(2, 2)
@@ -184,7 +183,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 
 					new ConfirmationScreen()
 							.centered()
-							.withText(ITextProperties.plain("Discarding " + changes.size() + " unsaved change" + (changes.size() != 1 ? "s" : "") + ""))
+							.withText(FormattedText.of("Discarding " + changes.size() + " unsaved change" + (changes.size() != 1 ? "s" : "") + ""))
 							.withAction(success -> {
 								if (success)
 									clearChanges();
@@ -192,21 +191,21 @@ public class SubMenuConfigScreen extends ConfigScreen {
 							.open(this);
 				});
 		discardChanges.showingElement(AllIcons.I_CONFIG_DISCARD.asStencil().withElementRenderer(BoxWidget.gradientFactory.apply(discardChanges)));
-		discardChanges.getToolTip().add(new StringTextComponent("Discard Changes"));
-		discardChanges.getToolTip().addAll(TooltipHelper.cutStringTextComponent("Click here to discard all the changes you made.", TextFormatting.GRAY, TextFormatting.GRAY));
+		discardChanges.getToolTip().add(new TextComponent("Discard Changes"));
+		discardChanges.getToolTip().addAll(TooltipHelper.cutStringTextComponent("Click here to discard all the changes you made.", ChatFormatting.GRAY, ChatFormatting.GRAY));
 
 		goBack = new BoxWidget(listL - 30, yCenter + 65, 20, 20)
 				.withPadding(2, 2)
 				.withCallback(this::attemptBackstep);
 		goBack.showingElement(AllIcons.I_CONFIG_BACK.asStencil().withElementRenderer(BoxWidget.gradientFactory.apply(goBack)));
-		goBack.getToolTip().add(new StringTextComponent("Go Back"));
+		goBack.getToolTip().add(new TextComponent("Go Back"));
 
 		widgets.add(resetAll);
 		widgets.add(saveChanges);
 		widgets.add(discardChanges);
 		widgets.add(goBack);
 
-		list = new ConfigScreenList(client, listWidth, height - 60, 45, height - 15, 40);
+		list = new ConfigScreenList(minecraft, listWidth, height - 60, 45, height - 15, 40);
 		list.setLeftPos(this.width / 2 - ((AbstractListAccessor) list).getWidth() / 2);
 
 		children.add(list);
@@ -264,11 +263,11 @@ public class SubMenuConfigScreen extends ConfigScreen {
 		//extras for server configs
 		if (config == AllConfigs.CLIENT.config)
 			return;
-		if (client.isSingleplayer())
+		if (minecraft.hasSingleplayerServer())
 			return;
 
 		list.isForServer = true;
-		boolean canEdit = client != null && client.player != null && client.player.hasPermissionLevel(2);
+		boolean canEdit = minecraft != null && minecraft.player != null && minecraft.player.hasPermissions(2);
 
 		Couple<Color> red = Theme.p(Theme.Key.BUTTON_FAIL);
 		Couple<Color> green = Theme.p(Theme.Key.BUTTON_SUCCESS);
@@ -286,31 +285,31 @@ public class SubMenuConfigScreen extends ConfigScreen {
 			stencil.withStencilRenderer((ms, w, h, alpha) -> AllIcons.I_CONFIG_LOCKED.draw(ms, 0, 0));
 			stencil.withElementRenderer((ms, w, h, alpha) -> UIRenderHelper.angledGradient(ms, 90, 8, 0, 16, 16, red));
 			serverLocked.withBorderColors(red);
-			serverLocked.getToolTip().add(new StringTextComponent("Locked").formatted(TextFormatting.BOLD));
-			serverLocked.getToolTip().addAll(TooltipHelper.cutStringTextComponent("You do not have enough permissions to edit the server config. You can still look at the current values here though.", TextFormatting.GRAY, TextFormatting.GRAY));
+			serverLocked.getToolTip().add(new TextComponent("Locked").withStyle(ChatFormatting.BOLD));
+			serverLocked.getToolTip().addAll(TooltipHelper.cutStringTextComponent("You do not have enough permissions to edit the server config. You can still look at the current values here though.", ChatFormatting.GRAY, ChatFormatting.GRAY));
 		} else {
 			stencil.withStencilRenderer((ms, w, h, alpha) -> AllIcons.I_CONFIG_UNLOCKED.draw(ms, 0, 0));
 			stencil.withElementRenderer((ms, w, h, alpha) -> UIRenderHelper.angledGradient(ms, 90, 8, 0, 16, 16, green));
 			serverLocked.withBorderColors(green);
-			serverLocked.getToolTip().add(new StringTextComponent("Unlocked").formatted(TextFormatting.BOLD));
-			serverLocked.getToolTip().addAll(TooltipHelper.cutStringTextComponent("You have enough permissions to edit the server config. Changes you make here will be synced with the server when you save them.", TextFormatting.GRAY, TextFormatting.GRAY));
+			serverLocked.getToolTip().add(new TextComponent("Unlocked").withStyle(ChatFormatting.BOLD));
+			serverLocked.getToolTip().addAll(TooltipHelper.cutStringTextComponent("You have enough permissions to edit the server config. Changes you make here will be synced with the server when you save them.", ChatFormatting.GRAY, ChatFormatting.GRAY));
 		}
 
 		widgets.add(serverLocked);
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		super.renderWindow(ms, mouseX, mouseY, partialTicks);
 
 		int x = width / 2;
-		drawCenteredString(ms, client.fontRenderer, ConfigScreen.modID + " > " + type.toString().toLowerCase(Locale.ROOT) + " > " + title, x, 15, Theme.i(Theme.Key.TEXT));
+		drawCenteredString(ms, minecraft.font, ConfigScreen.modID + " > " + type.toString().toLowerCase(Locale.ROOT) + " > " + title, x, 15, Theme.i(Theme.Key.TEXT));
 
 		list.render(ms, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
-	protected void renderWindowForeground(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindowForeground(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		super.renderWindowForeground(ms, mouseX, mouseY, partialTicks);
 	}
 
@@ -323,7 +322,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 
 	@Nullable
 	@Override
-	public IGuiEventListener getFocused() {
+	public GuiEventListener getFocused() {
 		if (ConfigScreenList.currentText != null)
 			return ConfigScreenList.currentText;
 
@@ -382,7 +381,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 
 	public void showLeavingPrompt(Consumer<ConfirmationScreen.Response> action) {
 		new ConfirmationScreen().centered()
-				.addText(ITextProperties.plain("Leaving with " + changes.size() + " unsaved change"
+				.addText(FormattedText.of("Leaving with " + changes.size() + " unsaved change"
 						+ (changes.size() != 1 ? "s" : "") + " for this config"))
 				.withThreeActions(action)
 				.open(this);

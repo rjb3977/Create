@@ -11,11 +11,11 @@ import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationW
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class MovementBehaviour {
 
@@ -29,8 +29,8 @@ public abstract class MovementBehaviour {
 
 	public void visitNewPosition(MovementContext context, BlockPos pos) {}
 
-	public Vector3d getActiveAreaOffset(MovementContext context) {
-		return Vector3d.ZERO;
+	public Vec3 getActiveAreaOffset(MovementContext context) {
+		return Vec3.ZERO;
 	}
 
 	public void dropItem(MovementContext context, ItemStack stack) {
@@ -38,11 +38,11 @@ public abstract class MovementBehaviour {
 		if (remainder.isEmpty())
 			return;
 
-		Vector3d vec = context.position;
+		Vec3 vec = context.position;
 		ItemEntity itemEntity = new ItemEntity(context.world, vec.x, vec.y, vec.z, remainder);
-		itemEntity.setMotion(context.motion.add(0, 0.5f, 0)
-			.scale(context.world.rand.nextFloat() * .3f));
-		context.world.addEntity(itemEntity);
+		itemEntity.setDeltaMovement(context.motion.add(0, 0.5f, 0)
+			.scale(context.world.random.nextFloat() * .3f));
+		context.world.addFreshEntity(itemEntity);
 	}
 
 	public void stopMoving(MovementContext context) {
@@ -63,7 +63,7 @@ public abstract class MovementBehaviour {
 
 	@Environment(EnvType.CLIENT)
 	public void renderInContraption(MovementContext context, PlacementSimulationWorld renderWorld,
-		ContraptionMatrices matrices, IRenderTypeBuffer buffer) {}
+		ContraptionMatrices matrices, MultiBufferSource buffer) {}
 
 	@Environment(EnvType.CLIENT)
 	@Nullable
@@ -71,6 +71,6 @@ public abstract class MovementBehaviour {
 		return null;
 	}
 
-	public void onSpeedChanged(MovementContext context, Vector3d oldMotion, Vector3d motion) {
+	public void onSpeedChanged(MovementContext context, Vec3 oldMotion, Vec3 motion) {
 	}
 }

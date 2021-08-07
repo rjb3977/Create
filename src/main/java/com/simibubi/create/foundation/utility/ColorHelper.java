@@ -4,11 +4,9 @@ import java.awt.Color;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
-
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
 
 public class ColorHelper {
 
@@ -38,7 +36,7 @@ public class ColorHelper {
 		int prevAlphaChannel = (color >> 24) & 0xFF;
 		if (prevAlphaChannel > 0)
 			alpha *= prevAlphaChannel / 256f;
-		int alphaChannel = (int) (0xFF * MathHelper.clamp(alpha, 0, 1));
+		int alphaChannel = (int) (0xFF * Mth.clamp(alpha, 0, 1));
 		return (color & 0xFFFFFF) | alphaChannel << 24;
 	}
 
@@ -105,11 +103,11 @@ public class ColorHelper {
 		RenderSystem.color4f(1, 1, 1, 1);
 	}
 
-	public static Vector3d getRGB(int color) {
+	public static Vec3 getRGB(int color) {
 		int r = (color >> 16) & 0xFF;
 		int g = (color >> 8) & 0xFF;
 		int b = color & 0xFF;
-		return new Vector3d(r, g, b).scale(1 / 256d);
+		return new Vec3(r, g, b).scale(1 / 256d);
 	}
 
 	public static int colorFromUUID(UUID uuid) {

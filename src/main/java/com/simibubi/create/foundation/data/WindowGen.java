@@ -19,43 +19,43 @@ import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.WoodType;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.entity.EntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.WoodType;
 
 public class WindowGen {
 
 	private static final CreateRegistrate REGISTRATE = Create.registrate();
 
 	private static FabricBlockSettings glassProperties(FabricBlockSettings p) {
-		return p.allowsSpawning(WindowGen::never)
-			.solidBlock(WindowGen::never)
-			.suffocates(WindowGen::never)
-			.blockVision(WindowGen::never);
+		return p.isValidSpawn(WindowGen::never)
+			.isRedstoneConductor(WindowGen::never)
+			.isSuffocating(WindowGen::never)
+			.isViewBlocking(WindowGen::never);
 	}
 
-	private static boolean never(BlockState p_235436_0_, IBlockReader p_235436_1_, BlockPos p_235436_2_) {
+	private static boolean never(BlockState p_235436_0_, BlockGetter p_235436_1_, BlockPos p_235436_2_) {
 		return false;
 	}
 
-	private static Boolean never(BlockState p_235427_0_, IBlockReader p_235427_1_, BlockPos p_235427_2_,
+	private static Boolean never(BlockState p_235427_0_, BlockGetter p_235427_1_, BlockPos p_235427_2_,
 		EntityType<?> p_235427_3_) {
 		return false;
 	}
 
 	public static BlockEntry<WindowBlock> woodenWindowBlock(WoodType woodType, Block planksBlock) {
-		return woodenWindowBlock(woodType, planksBlock, () -> RenderType::getCutoutMipped);
+		return woodenWindowBlock(woodType, planksBlock, () -> RenderType::cutoutMipped);
 	}
 
-	public static BlockEntry<WindowBlock> customWindowBlock(String name, Supplier<? extends IItemProvider> ingredient,
+	public static BlockEntry<WindowBlock> customWindowBlock(String name, Supplier<? extends ItemLike> ingredient,
 		CTSpriteShiftEntry ct, Supplier<Supplier<RenderType>> renderType) {
 		NonNullFunction<String, ResourceLocation> end_texture = n -> Create.asResource(palettesDir() + name + "_end");
 		NonNullFunction<String, ResourceLocation> side_texture = n -> Create.asResource(palettesDir() + n);
@@ -64,7 +64,7 @@ public class WindowGen {
 
 	public static BlockEntry<WindowBlock> woodenWindowBlock(WoodType woodType, Block planksBlock,
 		Supplier<Supplier<RenderType>> renderType) {
-		String woodName = woodType.getName();
+		String woodName = woodType.name();
 		String name = woodName + "_window";
 		NonNullFunction<String, ResourceLocation> end_texture =
 			$ -> new ResourceLocation("block/" + woodName + "_planks");
@@ -73,7 +73,7 @@ public class WindowGen {
 			side_texture);
 	}
 
-	public static BlockEntry<WindowBlock> windowBlock(String name, Supplier<? extends IItemProvider> ingredient,
+	public static BlockEntry<WindowBlock> windowBlock(String name, Supplier<? extends ItemLike> ingredient,
 		CTSpriteShiftEntry ct, Supplier<Supplier<RenderType>> renderType,
 		NonNullFunction<String, ResourceLocation> endTexture, NonNullFunction<String, ResourceLocation> sideTexture) {
 		return REGISTRATE.block(name, WindowBlock::new)
@@ -99,7 +99,7 @@ public class WindowGen {
 	public static BlockEntry<ConnectedGlassBlock> framedGlass(String name, ConnectedTextureBehaviour behaviour) {
 		return REGISTRATE.block(name, ConnectedGlassBlock::new)
 			.onRegister(connectedTextures(behaviour))
-			.addLayer(() -> RenderType::getTranslucent)
+			.addLayer(() -> RenderType::translucent)
 			.initialProperties(() -> Blocks.GLASS)
 			.properties(WindowGen::glassProperties)
 //			.loot((t, g) -> t.registerSilkTouch(g))
@@ -119,7 +119,7 @@ public class WindowGen {
 		ResourceLocation sideTexture = Create.asResource(palettesDir() + "framed_glass");
 		ResourceLocation itemSideTexture = Create.asResource(palettesDir() + name);
 		ResourceLocation topTexture = Create.asResource(palettesDir() + "framed_glass_pane_top");
-		Supplier<Supplier<RenderType>> renderType = () -> RenderType::getTranslucent;
+		Supplier<Supplier<RenderType>> renderType = () -> RenderType::translucent;
 		return connectedGlassPane(name, parent, ctshift, sideTexture, itemSideTexture, topTexture, renderType);
 	}
 
@@ -132,12 +132,12 @@ public class WindowGen {
 
 	public static BlockEntry<ConnectedGlassPaneBlock> woodenWindowPane(WoodType woodType,
 		Supplier<? extends Block> parent) {
-		return woodenWindowPane(woodType, parent, () -> RenderType::getCutoutMipped);
+		return woodenWindowPane(woodType, parent, () -> RenderType::cutoutMipped);
 	}
 
 	public static BlockEntry<ConnectedGlassPaneBlock> woodenWindowPane(WoodType woodType,
 		Supplier<? extends Block> parent, Supplier<Supplier<RenderType>> renderType) {
-		String woodName = woodType.getName();
+		String woodName = woodType.name();
 		String name = woodName + "_window";
 		ResourceLocation topTexture = new ResourceLocation("block/" + woodName + "_planks");
 		ResourceLocation sideTexture = Create.asResource(palettesDir() + name);

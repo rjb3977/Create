@@ -2,7 +2,8 @@ package com.simibubi.create.content.contraptions.fluids.tank;
 
 import java.util.List;
 import java.util.function.Consumer;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.lba.fluid.IFluidHandler;
@@ -10,12 +11,10 @@ import com.simibubi.create.lib.utility.FluidUtil;
 
 import alexiil.mc.lib.attributes.Simulation;
 import alexiil.mc.lib.attributes.fluid.FixedFluidInvView;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.text.ITextComponent;
 
 public class CreativeFluidTankTileEntity extends FluidTankTileEntity implements IFluidHandler {
 
-	public CreativeFluidTankTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public CreativeFluidTankTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 
@@ -25,7 +24,7 @@ public class CreativeFluidTankTileEntity extends FluidTankTileEntity implements 
 	}
 
 	@Override
-	public boolean addToGoggleTooltip(List<ITextComponent> tooltip, boolean isPlayerSneaking) {
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		return false;
 	}
 

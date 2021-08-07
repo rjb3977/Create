@@ -12,19 +12,19 @@ import com.tterrag.registrate.util.entry.RegistryEntry;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.NonNullList;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 
-public abstract class CreateItemGroupBase extends ItemGroup {
+public abstract class CreateItemGroupBase extends CreativeModeTab {
 
 	public CreateItemGroupBase(String id) {
 		super(getGroupCountSafe(), Create.ID + "." + id);
@@ -32,7 +32,7 @@ public abstract class CreateItemGroupBase extends ItemGroup {
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void fill(NonNullList<ItemStack> items) {
+	public void fillItemList(NonNullList<ItemStack> items) {
 		addItems(items, true);
 		addBlocks(items);
 		addItems(items, false);
@@ -44,7 +44,7 @@ public abstract class CreateItemGroupBase extends ItemGroup {
 			Block def = entry.get();
 			Item item = def.asItem();
 			if (item != Items.AIR)
-				def.fillItemGroup(this, items);
+				def.fillItemCategory(this, items);
 		}
 	}
 
@@ -52,17 +52,17 @@ public abstract class CreateItemGroupBase extends ItemGroup {
 	public void addItems(NonNullList<ItemStack> items, boolean specialItems) {
 		Minecraft mc = Minecraft.getInstance();
 		ItemRenderer itemRenderer = mc.getItemRenderer();
-		ClientWorld world = mc.world;
+		ClientLevel world = mc.level;
 
 		for (RegistryEntry<? extends Item> entry : getItems()) {
 			Item item = entry.get();
 			if (item instanceof BlockItem)
 				continue;
 			ItemStack stack = new ItemStack(item);
-			IBakedModel model = itemRenderer.getItemModelWithOverrides(stack, world, null);
+			BakedModel model = itemRenderer.getModel(stack, world, null);
 			if (model.isGui3d() != specialItems)
 				continue;
-			item.fillItemGroup(this, items);
+			item.fillItemCategory(this, items);
 		}
 	}
 

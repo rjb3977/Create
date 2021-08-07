@@ -1,7 +1,7 @@
 package com.simibubi.create.foundation.utility;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 
 public class AngleHelper {
 
@@ -9,7 +9,7 @@ public class AngleHelper {
 	 * Legacy method. See {@link #horizontalAngleNew(Direction)} for new method.
 	 */
 	public static float horizontalAngle(Direction facing) {
-		float angle = facing.getHorizontalAngle();
+		float angle = facing.toYRot();
 		if (facing.getAxis() == Axis.X)
 			angle = -angle;
 		return angle;
@@ -22,7 +22,7 @@ public class AngleHelper {
 		if (facing.getAxis().isVertical()) {
 			return 0;
 		}
-		float angle = facing.getHorizontalAngle();
+		float angle = facing.toYRot();
 		if (facing.getAxis() == Axis.X)
 			angle = -angle;
 		return angle;

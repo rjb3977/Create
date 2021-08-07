@@ -3,11 +3,10 @@ package com.simibubi.create.content.curiosities.zapper.terrainzapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.world.phys.Vec3;
 
 public class CuboidBrush extends ShapedBrush {
 
@@ -26,8 +25,8 @@ public class CuboidBrush extends ShapedBrush {
 		if (updateShape) {
 			BlockPos zero = BlockPos.ZERO;
 			positions = BlockPos
-				.getAllInBox(zero.add((param0 - 1) / -2, (param1 - 1) / -2, (param2 - 1) / -2),
-					zero.add((param0) / 2, (param1) / 2, (param2) / 2))
+				.betweenClosedStream(zero.offset((param0 - 1) / -2, (param1 - 1) / -2, (param2 - 1) / -2),
+					zero.offset((param0) / 2, (param1) / 2, (param2) / 2))
 				.map(BlockPos::new)
 				.collect(Collectors.toList());
 		}
@@ -44,7 +43,7 @@ public class CuboidBrush extends ShapedBrush {
 	}
 
 	@Override
-	public BlockPos getOffset(Vector3d ray, Direction face, PlacementOptions option) {
+	public BlockPos getOffset(Vec3 ray, Direction face, PlacementOptions option) {
 		if (option == PlacementOptions.Merged)
 			return BlockPos.ZERO;
 
@@ -54,8 +53,8 @@ public class CuboidBrush extends ShapedBrush {
 		int y = (param1 + (param1 == 0 ? 0 : offset)) / 2;
 		int z = (param2 + (param2 == 0 ? 0 : offset)) / 2;
 
-		return BlockPos.ZERO.offset(face, face.getAxis()
-			.getCoordinate(x, y, z) * (option == PlacementOptions.Attached ? 1 : -1));
+		return BlockPos.ZERO.relative(face, face.getAxis()
+			.choose(x, y, z) * (option == PlacementOptions.Attached ? 1 : -1));
 	}
 
 	@Override

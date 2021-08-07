@@ -2,7 +2,8 @@ package com.simibubi.create.content.contraptions.fluids;
 
 import java.lang.ref.WeakReference;
 import java.util.function.Predicate;
-
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.BlockFace;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
@@ -10,8 +11,6 @@ import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 
 public abstract class FlowSource {
 
@@ -50,9 +49,9 @@ public abstract class FlowSource {
 
 	public abstract boolean isEndpoint();
 
-	public void manageSource(World world) {}
+	public void manageSource(Level world) {}
 
-	public void whileFlowPresent(World world, boolean pulling) {}
+	public void whileFlowPresent(Level world, boolean pulling) {}
 
 	public IFluidHandler provideHandler() {
 		return null;
@@ -66,10 +65,10 @@ public abstract class FlowSource {
 			fluidHandler = null;
 		}
 
-		public void manageSource(World world) {
+		public void manageSource(Level world) {
 			if (fluidHandler!= null)
 				return;
-			TileEntity tileEntity = world.getTileEntity(location.getConnectedPos());
+			BlockEntity tileEntity = world.getBlockEntity(location.getConnectedPos());
 			if (tileEntity != null)
 				if (tileEntity instanceof IFluidHandler)
 					fluidHandler = (IFluidHandler) tileEntity;
@@ -96,7 +95,7 @@ public abstract class FlowSource {
 		}
 
 		@Override
-		public void manageSource(World world) {
+		public void manageSource(Level world) {
 			if (cached != null && cached.get() != null && !cached.get().tileEntity.isRemoved())
 				return;
 			cached = null;

@@ -3,10 +3,9 @@ package com.simibubi.create.foundation.utility;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 
 public class Iterate {
 
@@ -21,7 +20,7 @@ public class Iterate {
 	private static Direction[] getHorizontals() {
 		Direction[] directions = new Direction[4];
 		for (int i = 0; i < 4; i++)
-			directions[i] = Direction.byHorizontalIndex(i);
+			directions[i] = Direction.from2DDataValue(i);
 		return directions;
 	}
 
@@ -38,10 +37,10 @@ public class Iterate {
 	}
 
 	public static List<BlockPos> hereAndBelow(BlockPos pos) {
-		return Arrays.asList(pos, pos.down());
+		return Arrays.asList(pos, pos.below());
 	}
 
 	public static List<BlockPos> hereBelowAndAbove(BlockPos pos) {
-		return Arrays.asList(pos, pos.down(), pos.up());
+		return Arrays.asList(pos, pos.below(), pos.above());
 	}
 }

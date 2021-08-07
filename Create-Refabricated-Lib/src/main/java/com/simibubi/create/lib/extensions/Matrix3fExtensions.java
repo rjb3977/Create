@@ -1,8 +1,7 @@
 package com.simibubi.create.lib.extensions;
 
+import com.mojang.math.Matrix3f;
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.util.math.vector.Matrix3f;
 
 public interface Matrix3fExtensions {
 	float[] create$writeMatrix();

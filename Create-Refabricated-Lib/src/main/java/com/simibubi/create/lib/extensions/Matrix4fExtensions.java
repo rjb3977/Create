@@ -1,10 +1,9 @@
 package com.simibubi.create.lib.extensions;
 
+import com.mojang.math.Matrix4f;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.util.math.vector.Matrix4f;
 
 public interface Matrix4fExtensions {
 	void create$set(@NotNull Matrix4f other);

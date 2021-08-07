@@ -8,17 +8,16 @@ import com.jozufozu.flywheel.backend.instancing.ITickableInstance;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.mojang.math.Quaternion;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.relays.encased.ShaftInstance;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.util.Mth;
 
 public class DeployerInstance extends ShaftInstance implements IDynamicInstance, ITickableInstance {
 
@@ -68,7 +67,7 @@ public class DeployerInstance extends ShaftInstance implements IDynamicInstance,
 
         float newProgress = getProgress(AnimationTickHolder.getPartialTicks());
 
-        if (!newHand && MathHelper.epsilonEquals(newProgress, progress)) return;
+        if (!newHand && Mth.equal(newProgress, progress)) return;
 
         progress = newProgress;
         newHand = false;
@@ -117,8 +116,8 @@ public class DeployerInstance extends ShaftInstance implements IDynamicInstance,
     private void updatePosition() {
         float handLength = currentHand == AllBlockPartials.DEPLOYER_HAND_POINTING ? 0
                 : currentHand == AllBlockPartials.DEPLOYER_HAND_HOLDING ? 4 / 16f : 3 / 16f;
-        float distance = Math.min(MathHelper.clamp(progress, 0, 1) * (tile.reach + handLength), 21 / 16f);
-        Vector3i facingVec = facing.getDirectionVec();
+        float distance = Math.min(Mth.clamp(progress, 0, 1) * (tile.reach + handLength), 21 / 16f);
+        Vec3i facingVec = facing.getNormal();
         BlockPos blockPos = getInstancePosition();
 
         float x = blockPos.getX() + ((float) facingVec.getX()) * distance;
@@ -131,12 +130,12 @@ public class DeployerInstance extends ShaftInstance implements IDynamicInstance,
 
     static void updateRotation(OrientedData pole, OrientedData hand, float yRot, float zRot, float zRotPole) {
 
-        Quaternion q = Direction.SOUTH.getUnitVector().getDegreesQuaternion(zRot);
-        q.multiply(Direction.UP.getUnitVector().getDegreesQuaternion(yRot));
+        Quaternion q = Direction.SOUTH.step().rotationDegrees(zRot);
+        q.mul(Direction.UP.step().rotationDegrees(yRot));
 
         hand.setRotation(q);
 
-        q.multiply(Direction.SOUTH.getUnitVector().getDegreesQuaternion(zRotPole));
+        q.mul(Direction.SOUTH.step().rotationDegrees(zRotPole));
 
         pole.setRotation(q);
     }

@@ -1,7 +1,12 @@
 package com.simibubi.create.content.contraptions.processing;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -11,17 +16,10 @@ import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends ForgeRegistryEntry<IRecipeSerializer<?>>*/
-	implements IRecipeSerializer<T> {
+	implements RecipeSerializer<T> {
 
 	private final ProcessingRecipeFactory<T> factory;
 
@@ -34,7 +32,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		JsonArray jsonOutputs = new JsonArray();
 
 		recipe.getIngredients()
-			.forEach(i -> jsonIngredients.add(i.serialize()));
+			.forEach(i -> jsonIngredients.add(i.toJson()));
 		recipe.getFluidIngredients()
 			.forEach(i -> jsonIngredients.add(i.serialize()));
 
@@ -64,16 +62,16 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		NonNullList<ProcessingOutput> results = NonNullList.create();
 		NonNullList<FluidStack> fluidResults = NonNullList.create();
 
-		for (JsonElement je : JSONUtils.getJsonArray(json, "ingredients")) {
+		for (JsonElement je : GsonHelper.getAsJsonArray(json, "ingredients")) {
 			if (FluidIngredient.isFluidIngredient(je))
 				fluidIngredients.add(FluidIngredient.deserialize(je));
 			else
-				ingredients.add(Ingredient.deserialize(je));
+				ingredients.add(Ingredient.fromJson(je));
 		}
 
-		for (JsonElement je : JSONUtils.getJsonArray(json, "results")) {
+		for (JsonElement je : GsonHelper.getAsJsonArray(json, "results")) {
 			JsonObject jsonObject = je.getAsJsonObject();
-			if (JSONUtils.hasField(jsonObject, "fluid"))
+			if (GsonHelper.isValidNode(jsonObject, "fluid"))
 				fluidResults.add(FluidHelper.deserializeFluidStack(jsonObject));
 			else
 				results.add(ProcessingOutput.deserialize(je));
@@ -84,22 +82,22 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 			.withFluidIngredients(fluidIngredients)
 			.withFluidOutputs(fluidResults);
 
-		if (JSONUtils.hasField(json, "processingTime"))
-			builder.duration(JSONUtils.getInt(json, "processingTime"));
-		if (JSONUtils.hasField(json, "heatRequirement"))
-			builder.requiresHeat(HeatCondition.deserialize(JSONUtils.getString(json, "heatRequirement")));
+		if (GsonHelper.isValidNode(json, "processingTime"))
+			builder.duration(GsonHelper.getAsInt(json, "processingTime"));
+		if (GsonHelper.isValidNode(json, "heatRequirement"))
+			builder.requiresHeat(HeatCondition.deserialize(GsonHelper.getAsString(json, "heatRequirement")));
 
 		return builder.build();
 	}
 
-	protected void writeToBuffer(PacketBuffer buffer, T recipe) {
+	protected void writeToBuffer(FriendlyByteBuf buffer, T recipe) {
 		NonNullList<Ingredient> ingredients = recipe.getIngredients();
 		NonNullList<FluidIngredient> fluidIngredients = recipe.getFluidIngredients();
 		NonNullList<ProcessingOutput> outputs = recipe.getRollableResults();
 		NonNullList<FluidStack> fluidOutputs = recipe.getFluidResults();
 
 		buffer.writeVarInt(ingredients.size());
-		ingredients.forEach(i -> i.write(buffer));
+		ingredients.forEach(i -> i.toNetwork(buffer));
 		buffer.writeVarInt(fluidIngredients.size());
 		fluidIngredients.forEach(i -> i.write(buffer));
 
@@ -113,7 +111,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 			.ordinal());
 	}
 
-	protected T readFromBuffer(ResourceLocation recipeId, PacketBuffer buffer) {
+	protected T readFromBuffer(ResourceLocation recipeId, FriendlyByteBuf buffer) {
 		NonNullList<Ingredient> ingredients = NonNullList.create();
 		NonNullList<FluidIngredient> fluidIngredients = NonNullList.create();
 		NonNullList<ProcessingOutput> results = NonNullList.create();
@@ -121,7 +119,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 
 		int size = buffer.readVarInt();
 		for (int i = 0; i < size; i++)
-			ingredients.add(Ingredient.read(buffer));
+			ingredients.add(Ingredient.fromNetwork(buffer));
 
 		size = buffer.readVarInt();
 		for (int i = 0; i < size; i++)
@@ -149,17 +147,17 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 	}
 
 	@Override
-	public final T read(ResourceLocation id, JsonObject json) {
+	public final T fromJson(ResourceLocation id, JsonObject json) {
 		return readFromJson(id, json);
 	}
 
 	@Override
-	public final void write(PacketBuffer buffer, T recipe) {
+	public final void write(FriendlyByteBuf buffer, T recipe) {
 		writeToBuffer(buffer, recipe);
 	}
 
 	@Override
-	public final T read(ResourceLocation id, PacketBuffer buffer) {
+	public final T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
 		return readFromBuffer(id, buffer);
 	}
 

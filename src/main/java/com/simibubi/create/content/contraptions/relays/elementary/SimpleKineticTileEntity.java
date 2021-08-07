@@ -1,19 +1,17 @@
 package com.simibubi.create.content.contraptions.relays.elementary;
 
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.content.contraptions.base.IRotate;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
-
 public class SimpleKineticTileEntity extends KineticTileEntity {
 
-	public SimpleKineticTileEntity(TileEntityType<? extends SimpleKineticTileEntity> type) {
+	public SimpleKineticTileEntity(BlockEntityType<? extends SimpleKineticTileEntity> type) {
 		super(type);
 	}
 
@@ -34,10 +32,10 @@ public class SimpleKineticTileEntity extends KineticTileEntity {
 		if (!ICogWheel.isLargeCog(state))
 			return super.addPropagationLocations(block, state, neighbours);
 
-		BlockPos.getAllInBox(new BlockPos(-1, -1, -1), new BlockPos(1, 1, 1))
+		BlockPos.betweenClosedStream(new BlockPos(-1, -1, -1), new BlockPos(1, 1, 1))
 			.forEach(offset -> {
-				if (offset.distanceSq(0, 0, 0, false) == BlockPos.ZERO.distanceSq(1, 1, 0, false))
-					neighbours.add(pos.add(offset));
+				if (offset.distSqr(0, 0, 0, false) == BlockPos.ZERO.distSqr(1, 1, 0, false))
+					neighbours.add(worldPosition.offset(offset));
 			});
 		return neighbours;
 	}

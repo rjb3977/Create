@@ -5,32 +5,30 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.GrassPathBlock;
+import net.minecraft.world.level.block.SeaPickleBlock;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.TurtleEggBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 
 import com.simibubi.create.lib.helper.AbstractMinecartEntityHelper;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FarmlandBlock;
-import net.minecraft.block.GrassPathBlock;
-import net.minecraft.block.SeaPickleBlock;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.block.TurtleEggBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.SlabType;
-import net.minecraft.tileentity.TileEntity;
 
 public class ItemRequirement {
 
@@ -73,7 +71,7 @@ public class ItemRequirement {
 	}
 
 
-	public static ItemRequirement of(BlockState state, TileEntity te) {
+	public static ItemRequirement of(BlockState state, BlockEntity te) {
 		Block block = state.getBlock();
 
 		ItemRequirement baseRequirement;
@@ -94,20 +92,20 @@ public class ItemRequirement {
 		if (block == Blocks.AIR)
 			return NONE;
 
-		Item item = BlockItem.BLOCK_TO_ITEM.getOrDefault(state.getBlock(), Items.AIR);
+		Item item = BlockItem.BY_BLOCK.getOrDefault(state.getBlock(), Items.AIR);
 
 		// double slab needs two items
-		if (state.contains(BlockStateProperties.SLAB_TYPE) && state.get(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE)
+		if (state.hasProperty(BlockStateProperties.SLAB_TYPE) && state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE)
 			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(item, 2)));
 		if (block instanceof TurtleEggBlock)
-			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(item, state.get(TurtleEggBlock.EGGS).intValue())));
+			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(item, state.getValue(TurtleEggBlock.EGGS).intValue())));
 		if (block instanceof SeaPickleBlock)
-			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(item, state.get(SeaPickleBlock.PICKLES).intValue())));
-		if (block instanceof SnowBlock)
-			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(item, state.get(SnowBlock.LAYERS).intValue())));
+			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(item, state.getValue(SeaPickleBlock.PICKLES).intValue())));
+		if (block instanceof SnowLayerBlock)
+			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(item, state.getValue(SnowLayerBlock.LAYERS).intValue())));
 		if (block instanceof GrassPathBlock)
 			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(Items.GRASS_BLOCK)));
-		if (block instanceof FarmlandBlock)
+		if (block instanceof FarmBlock)
 			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(new ItemStack(Items.DIRT)));
 
 		return item == Items.AIR ? INVALID : new ItemRequirement(ItemUseType.CONSUME, item);
@@ -120,9 +118,9 @@ public class ItemRequirement {
 			return ((ISpecialEntityItemRequirement) entity).getRequiredItems();
 
 		if (type == EntityType.ITEM_FRAME) {
-			ItemFrameEntity ife = (ItemFrameEntity) entity;
+			ItemFrame ife = (ItemFrame) entity;
 			ItemStack frame = new ItemStack(Items.ITEM_FRAME);
-			ItemStack displayedItem = ife.getDisplayedItem();
+			ItemStack displayedItem = ife.getItem();
 			if (displayedItem.isEmpty())
 				return new ItemRequirement(ItemUseType.CONSUME, Items.ITEM_FRAME);
 			return new ItemRequirement(ItemUseType.CONSUME, Arrays.asList(frame, displayedItem));
@@ -133,20 +131,20 @@ public class ItemRequirement {
 
 		if (type == EntityType.ARMOR_STAND) {
 			List<ItemStack> requirements = new ArrayList<>();
-			ArmorStandEntity armorStandEntity = (ArmorStandEntity) entity;
-			armorStandEntity.getEquipmentAndArmor().forEach(requirements::add);
+			ArmorStand armorStandEntity = (ArmorStand) entity;
+			armorStandEntity.getAllSlots().forEach(requirements::add);
 			requirements.add(new ItemStack(Items.ARMOR_STAND));
 			return new ItemRequirement(ItemUseType.CONSUME, requirements);
 		}
 
-		if (entity instanceof AbstractMinecartEntity) {
-			AbstractMinecartEntity minecartEntity = (AbstractMinecartEntity) entity;
+		if (entity instanceof AbstractMinecart) {
+			AbstractMinecart minecartEntity = (AbstractMinecart) entity;
 			return new ItemRequirement(ItemUseType.CONSUME, AbstractMinecartEntityHelper.getCartItem(minecartEntity).getItem());
 		}
 
-		if (entity instanceof BoatEntity) {
-			BoatEntity boatEntity = (BoatEntity) entity;
-			return new ItemRequirement(ItemUseType.CONSUME, boatEntity.getItemBoat());
+		if (entity instanceof Boat) {
+			Boat boatEntity = (Boat) entity;
+			return new ItemRequirement(ItemUseType.CONSUME, boatEntity.getDropItem());
 		}
 
 		if (type == EntityType.END_CRYSTAL)

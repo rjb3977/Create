@@ -1,9 +1,8 @@
 package com.simibubi.create.lib.helper;
 
+import com.mojang.math.Matrix3f;
 import com.simibubi.create.lib.extensions.Matrix3fExtensions;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.util.math.vector.Matrix3f;
 
 public final class Matrix3fHelper {
 

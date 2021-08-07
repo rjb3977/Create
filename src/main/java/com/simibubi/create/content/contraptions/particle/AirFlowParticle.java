@@ -7,45 +7,44 @@ import com.simibubi.create.content.contraptions.components.fan.IAirCurrentSource
 import com.simibubi.create.content.contraptions.processing.InWorldProcessing;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SimpleAnimatedParticle;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BlockParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 public class AirFlowParticle extends SimpleAnimatedParticle {
 
 	private final IAirCurrentSource source;
 
-	protected AirFlowParticle(ClientWorld world, IAirCurrentSource source, double x, double y, double z,
-							  IAnimatedSprite sprite) {
-		super(world, x, y, z, sprite, world.rand.nextFloat() * .5f);
+	protected AirFlowParticle(ClientLevel world, IAirCurrentSource source, double x, double y, double z,
+							  SpriteSet sprite) {
+		super(world, x, y, z, sprite, world.random.nextFloat() * .5f);
 		this.source = source;
-		this.particleScale *= 0.75F;
-		this.maxAge = 40;
-		canCollide = false;
+		this.quadSize *= 0.75F;
+		this.lifetime = 40;
+		hasPhysics = false;
 		selectSprite(7);
-		Vector3d offset = VecHelper.offsetRandomly(Vector3d.ZERO, Create.RANDOM, .25f);
-		this.setPosition(posX + offset.x, posY + offset.y, posZ + offset.z);
-		this.prevPosX = posX;
-		this.prevPosY = posY;
-		this.prevPosZ = posZ;
-		setAlphaF(.25f);
+		Vec3 offset = VecHelper.offsetRandomly(Vec3.ZERO, Create.RANDOM, .25f);
+		this.setPos(x + offset.x, y + offset.y, z + offset.z);
+		this.xo = x;
+		this.yo = y;
+		this.zo = z;
+		setAlpha(.25f);
 	}
 
 	@Nonnull
-	public IParticleRenderType getRenderType() {
-		return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+	public ParticleRenderType getRenderType() {
+		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
 	}
 
 	@Override
@@ -54,43 +53,43 @@ public class AirFlowParticle extends SimpleAnimatedParticle {
 			dissipate();
 			return;
 		}
-		this.prevPosX = this.posX;
-		this.prevPosY = this.posY;
-		this.prevPosZ = this.posZ;
-		if (this.age++ >= this.maxAge) {
-			this.setExpired();
+		this.xo = this.x;
+		this.yo = this.y;
+		this.zo = this.z;
+		if (this.age++ >= this.lifetime) {
+			this.remove();
 		} else {
-			if (source.getAirCurrent() == null || !source.getAirCurrent().bounds.grow(.25f).contains(posX, posY, posZ)) {
+			if (source.getAirCurrent() == null || !source.getAirCurrent().bounds.inflate(.25f).contains(x, y, z)) {
 				dissipate();
 				return;
 			}
 
-			Vector3d directionVec = Vector3d.of(source.getAirCurrent().direction.getDirectionVec());
-			Vector3d motion = directionVec.scale(1 / 8f);
+			Vec3 directionVec = Vec3.atLowerCornerOf(source.getAirCurrent().direction.getNormal());
+			Vec3 motion = directionVec.scale(1 / 8f);
 			if (!source.getAirCurrent().pushing)
 				motion = motion.scale(-1);
 
-			double distance = new Vector3d(posX, posY, posZ).subtract(VecHelper.getCenterOf(source.getAirCurrentPos()))
-					.mul(directionVec).length() - .5f;
+			double distance = new Vec3(x, y, z).subtract(VecHelper.getCenterOf(source.getAirCurrentPos()))
+					.multiply(directionVec).length() - .5f;
 			if (distance > source.getAirCurrent().maxDistance + 1 || distance < -.25f) {
 				dissipate();
 				return;
 			}
 			motion = motion.scale(source.getAirCurrent().maxDistance - (distance - 1f)).scale(.5f);
-			selectSprite((int) MathHelper.clamp((distance / source.getAirCurrent().maxDistance) * 8 + world.rand.nextInt(4),
+			selectSprite((int) Mth.clamp((distance / source.getAirCurrent().maxDistance) * 8 + level.random.nextInt(4),
 					0, 7));
 
 			morphType(distance);
 
-			motionX = motion.x;
-			motionY = motion.y;
-			motionZ = motion.z;
+			xd = motion.x;
+			yd = motion.y;
+			zd = motion.z;
 
 			if (this.onGround) {
-				this.motionX *= 0.7;
-				this.motionZ *= 0.7;
+				this.xd *= 0.7;
+				this.zd *= 0.7;
 			}
-			this.move(this.motionX, this.motionY, this.motionZ);
+			this.move(this.xd, this.yd, this.zd);
 
 		}
 
@@ -102,71 +101,71 @@ public class AirFlowParticle extends SimpleAnimatedParticle {
 		InWorldProcessing.Type type = source.getAirCurrent().getSegmentAt((float) distance);
 
 		if (type == InWorldProcessing.Type.SPLASHING) {
-			setColor(ColorHelper.mixColors(0x4499FF, 0x2277FF, world.rand.nextFloat()));
-			setAlphaF(1f);
-			selectSprite(world.rand.nextInt(3));
-			if (world.rand.nextFloat() < 1 / 32f)
-				world.addParticle(ParticleTypes.BUBBLE, posX, posY, posZ, motionX * .125f, motionY * .125f,
-						motionZ * .125f);
-			if (world.rand.nextFloat() < 1 / 32f)
-				world.addParticle(ParticleTypes.BUBBLE_POP, posX, posY, posZ, motionX * .125f, motionY * .125f,
-						motionZ * .125f);
+			setColor(ColorHelper.mixColors(0x4499FF, 0x2277FF, level.random.nextFloat()));
+			setAlpha(1f);
+			selectSprite(level.random.nextInt(3));
+			if (level.random.nextFloat() < 1 / 32f)
+				level.addParticle(ParticleTypes.BUBBLE, x, y, z, xd * .125f, yd * .125f,
+						zd * .125f);
+			if (level.random.nextFloat() < 1 / 32f)
+				level.addParticle(ParticleTypes.BUBBLE_POP, x, y, z, xd * .125f, yd * .125f,
+						zd * .125f);
 		}
 
 		if (type == InWorldProcessing.Type.SMOKING) {
-			setColor(ColorHelper.mixColors(0x0, 0x555555, world.rand.nextFloat()));
-			setAlphaF(1f);
-			selectSprite(world.rand.nextInt(3));
-			if (world.rand.nextFloat() < 1 / 32f)
-				world.addParticle(ParticleTypes.SMOKE, posX, posY, posZ, motionX * .125f, motionY * .125f,
-						motionZ * .125f);
-			if (world.rand.nextFloat() < 1 / 32f)
-				world.addParticle(ParticleTypes.LARGE_SMOKE, posX, posY, posZ, motionX * .125f, motionY * .125f,
-						motionZ * .125f);
+			setColor(ColorHelper.mixColors(0x0, 0x555555, level.random.nextFloat()));
+			setAlpha(1f);
+			selectSprite(level.random.nextInt(3));
+			if (level.random.nextFloat() < 1 / 32f)
+				level.addParticle(ParticleTypes.SMOKE, x, y, z, xd * .125f, yd * .125f,
+						zd * .125f);
+			if (level.random.nextFloat() < 1 / 32f)
+				level.addParticle(ParticleTypes.LARGE_SMOKE, x, y, z, xd * .125f, yd * .125f,
+						zd * .125f);
 		}
 
 		if (type == InWorldProcessing.Type.BLASTING) {
-			setColor(ColorHelper.mixColors(0xFF4400, 0xFF8855, world.rand.nextFloat()));
-			setAlphaF(.5f);
-			selectSprite(world.rand.nextInt(3));
-			if (world.rand.nextFloat() < 1 / 32f)
-				world.addParticle(ParticleTypes.FLAME, posX, posY, posZ, motionX * .25f, motionY * .25f,
-						motionZ * .25f);
-			if (world.rand.nextFloat() < 1 / 16f)
-				world.addParticle(new BlockParticleData(ParticleTypes.BLOCK, Blocks.LAVA.getDefaultState()), posX, posY,
-						posZ, motionX * .25f, motionY * .25f, motionZ * .25f);
+			setColor(ColorHelper.mixColors(0xFF4400, 0xFF8855, level.random.nextFloat()));
+			setAlpha(.5f);
+			selectSprite(level.random.nextInt(3));
+			if (level.random.nextFloat() < 1 / 32f)
+				level.addParticle(ParticleTypes.FLAME, x, y, z, xd * .25f, yd * .25f,
+						zd * .25f);
+			if (level.random.nextFloat() < 1 / 16f)
+				level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.LAVA.defaultBlockState()), x, y,
+						z, xd * .25f, yd * .25f, zd * .25f);
 		}
 
 		if (type == null) {
 			setColor(0xEEEEEE);
-			setAlphaF(.25f);
+			setAlpha(.25f);
 			setSize(.2f, .2f);
 		}
 	}
 
 	private void dissipate() {
-		setExpired();
+		remove();
 	}
 
-	public int getBrightnessForRender(float partialTick) {
-		BlockPos blockpos = new BlockPos(this.posX, this.posY, this.posZ);
-		return this.world.isBlockPresent(blockpos) ? WorldRenderer.getLightmapCoordinates(world, blockpos) : 0;
+	public int getLightColor(float partialTick) {
+		BlockPos blockpos = new BlockPos(this.x, this.y, this.z);
+		return this.level.isLoaded(blockpos) ? LevelRenderer.getLightColor(level, blockpos) : 0;
 	}
 
 	private void selectSprite(int index) {
-		setSprite(field_217584_C.get(index, 8));
+		setSprite(sprites.get(index, 8));
 	}
 
-	public static class Factory implements IParticleFactory<AirFlowParticleData> {
-		private final IAnimatedSprite spriteSet;
+	public static class Factory implements ParticleProvider<AirFlowParticleData> {
+		private final SpriteSet spriteSet;
 
-		public Factory(IAnimatedSprite animatedSprite) {
+		public Factory(SpriteSet animatedSprite) {
 			this.spriteSet = animatedSprite;
 		}
 
-		public Particle makeParticle(AirFlowParticleData data, ClientWorld worldIn, double x, double y, double z,
+		public Particle makeParticle(AirFlowParticleData data, ClientLevel worldIn, double x, double y, double z,
 				double xSpeed, double ySpeed, double zSpeed) {
-			TileEntity te = worldIn.getTileEntity(new BlockPos(data.posX, data.posY, data.posZ));
+			BlockEntity te = worldIn.getBlockEntity(new BlockPos(data.posX, data.posY, data.posZ));
 			if (!(te instanceof IAirCurrentSource))
 				te = null;
 			return new AirFlowParticle(worldIn, (IAirCurrentSource) te, x, y, z, this.spriteSet);

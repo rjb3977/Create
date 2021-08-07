@@ -5,10 +5,10 @@ import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class GlueEffectPacket implements S2CPacket {
 
@@ -24,25 +24,25 @@ public class GlueEffectPacket implements S2CPacket {
 		this.fullBlock = fullBlock;
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		pos = buffer.readBlockPos();
-		direction = Direction.byIndex(buffer.readByte());
+		direction = Direction.from3DDataValue(buffer.readByte());
 		fullBlock = buffer.readBoolean();
 	}
 
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(pos);
-		buffer.writeByte(direction.getIndex());
+		buffer.writeByte(direction.get3DDataValue());
 		buffer.writeBoolean(fullBlock);
 	}
 
 	@Environment(EnvType.CLIENT)
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client.execute(() -> {
 			Minecraft mc = Minecraft.getInstance();
-			if (!mc.player.getBlockPos().withinDistance(pos, 100))
+			if (!mc.player.blockPosition().closerThan(pos, 100))
 				return;
-			SuperGlueItem.spawnParticles(mc.world, pos, direction, fullBlock);
+			SuperGlueItem.spawnParticles(mc.level, pos, direction, fullBlock);
 		});
 	}
 

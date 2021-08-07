@@ -4,10 +4,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.simibubi.create.lib.extensions.ServerPlayerEntityExtensions;
+import net.minecraft.server.level.ServerPlayer;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public abstract class ServerPlayerEntityMixin implements ServerPlayerEntityExtensions {
 	@Unique
 	public boolean create$isFake = false;

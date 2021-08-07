@@ -1,9 +1,8 @@
 package com.simibubi.create.content.curiosities.symmetry;
 
 import java.util.Random;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.curiosities.symmetry.mirror.EmptyMirror;
 import com.simibubi.create.content.curiosities.symmetry.mirror.SymmetryMirror;
@@ -12,72 +11,72 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.particles.RedstoneParticleData;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class SymmetryHandler {
 
 	private static int tickCounter = 0;
 
-	public static ActionResultType onBlockPlaced(ItemUseContext context) {
-		if (context.getWorld()
-			.isRemote())
-			return ActionResultType.PASS;
-		if (!(context.getPlayer() instanceof PlayerEntity))
-			return ActionResultType.PASS;
+	public static InteractionResult onBlockPlaced(UseOnContext context) {
+		if (context.getLevel()
+			.isClientSide())
+			return InteractionResult.PASS;
+		if (!(context.getPlayer() instanceof Player))
+			return InteractionResult.PASS;
 
-		PlayerEntity player = (PlayerEntity) context.getPlayer();
-		PlayerInventory inv = player.inventory;
-		for (int i = 0; i < PlayerInventory.getHotbarSize(); i++) {
-			if (!inv.getStackInSlot(i)
+		Player player = (Player) context.getPlayer();
+		Inventory inv = player.inventory;
+		for (int i = 0; i < Inventory.getSelectionSize(); i++) {
+			if (!inv.getItem(i)
 				.isEmpty()
-				&& inv.getStackInSlot(i)
+				&& inv.getItem(i)
 					.getItem() == AllItems.WAND_OF_SYMMETRY.get()) {
-				SymmetryWandItem.apply(player.world, inv.getStackInSlot(i), player, context.getPos(),
-					context.getWorld().getBlockState(context.getPos()));
+				SymmetryWandItem.apply(player.level, inv.getItem(i), player, context.getClickedPos(),
+					context.getLevel().getBlockState(context.getClickedPos()));
 			}
 		}
-		return ActionResultType.PASS;
+		return InteractionResult.PASS;
 	}
 
-	public static void onBlockDestroyed(World world, PlayerEntity player, BlockPos pos, BlockState state, TileEntity te) {
-		PlayerInventory inv = player.inventory;
-		for (int i = 0; i < PlayerInventory.getHotbarSize(); i++) {
-			if (!inv.getStackInSlot(i)
-				.isEmpty() && AllItems.WAND_OF_SYMMETRY.isIn(inv.getStackInSlot(i))) {
-				SymmetryWandItem.remove(player.world, inv.getStackInSlot(i), player, pos);
+	public static void onBlockDestroyed(Level world, Player player, BlockPos pos, BlockState state, BlockEntity te) {
+		Inventory inv = player.inventory;
+		for (int i = 0; i < Inventory.getSelectionSize(); i++) {
+			if (!inv.getItem(i)
+				.isEmpty() && AllItems.WAND_OF_SYMMETRY.isIn(inv.getItem(i))) {
+				SymmetryWandItem.remove(player.level, inv.getItem(i), player, pos);
 			}
 		}
 	}
 
 	@Environment(EnvType.CLIENT)
 	public static void render(WorldRenderContext worldRenderContext) {
-		MatrixStack ms = worldRenderContext.matrixStack();
+		PoseStack ms = worldRenderContext.matrixStack();
 
 		Minecraft mc = Minecraft.getInstance();
-		ClientPlayerEntity player = mc.player;
+		LocalPlayer player = mc.player;
 
-		for (int i = 0; i < PlayerInventory.getHotbarSize(); i++) {
-			ItemStack stackInSlot = player.inventory.getStackInSlot(i);
+		for (int i = 0; i < Inventory.getSelectionSize(); i++) {
+			ItemStack stackInSlot = player.inventory.getItem(i);
 			if (!AllItems.WAND_OF_SYMMETRY.isIn(stackInSlot))
 				continue;
 			if (!SymmetryWandItem.isEnabled(stackInSlot))
@@ -90,48 +89,48 @@ public class SymmetryHandler {
 
 			float yShift = 0;
 			double speed = 1 / 16d;
-			yShift = MathHelper.sin((float) (AnimationTickHolder.getRenderTime() * speed)) / 5f;
+			yShift = Mth.sin((float) (AnimationTickHolder.getRenderTime() * speed)) / 5f;
 
-			IRenderTypeBuffer.Impl buffer = Minecraft.getInstance()
-				.getBufferBuilders()
-				.getEntityVertexConsumers();
-			ActiveRenderInfo info = mc.gameRenderer.getActiveRenderInfo();
-			Vector3d view = info.getProjectedView();
+			MultiBufferSource.BufferSource buffer = Minecraft.getInstance()
+				.renderBuffers()
+				.bufferSource();
+			Camera info = mc.gameRenderer.getMainCamera();
+			Vec3 view = info.getPosition();
 
-			ms.push();
-			ms.translate(-view.getX(), -view.getY(), -view.getZ());
+			ms.pushPose();
+			ms.translate(-view.x(), -view.y(), -view.z());
 			ms.translate(pos.getX(), pos.getY(), pos.getZ());
 			ms.translate(0, yShift + .2f, 0);
 			mirror.applyModelTransform(ms);
-			IBakedModel model = mirror.getModel()
+			BakedModel model = mirror.getModel()
 				.get();
-			IVertexBuilder builder = buffer.getBuffer(RenderType.getSolid());
+			VertexConsumer builder = buffer.getBuffer(RenderType.solid());
 
-			mc.getBlockRendererDispatcher()
-				.getBlockModelRenderer()
-				.render(player.world, model, Blocks.AIR.getDefaultState(), pos, ms, builder, true,
-					player.world.getRandom(), MathHelper.getPositionRandom(pos), OverlayTexture.DEFAULT_UV
+			mc.getBlockRenderer()
+				.getModelRenderer()
+				.tesselateBlock(player.level, model, Blocks.AIR.defaultBlockState(), pos, ms, builder, true,
+					player.level.getRandom(), Mth.getSeed(pos), OverlayTexture.NO_OVERLAY
 					);
 
-			buffer.draw();
-			ms.pop();
+			buffer.endBatch();
+			ms.popPose();
 		}
 	}
 
 	@Environment(EnvType.CLIENT)
 	public static void onClientTick(Minecraft mc) {
-		ClientPlayerEntity player = mc.player;
+		LocalPlayer player = mc.player;
 
-		if (mc.world == null)
+		if (mc.level == null)
 			return;
-		if (mc.isGamePaused())
+		if (mc.isPaused())
 			return;
 
 		tickCounter++;
 
 		if (tickCounter % 10 == 0) {
-			for (int i = 0; i < PlayerInventory.getHotbarSize(); i++) {
-				ItemStack stackInSlot = player.inventory.getStackInSlot(i);
+			for (int i = 0; i < Inventory.getSelectionSize(); i++) {
+				ItemStack stackInSlot = player.inventory.getItem(i);
 
 				if (stackInSlot != null && AllItems.WAND_OF_SYMMETRY.isIn(stackInSlot)
 					&& SymmetryWandItem.isEnabled(stackInSlot)) {
@@ -144,10 +143,10 @@ public class SymmetryHandler {
 					double offsetX = (r.nextDouble() - 0.5) * 0.3;
 					double offsetZ = (r.nextDouble() - 0.5) * 0.3;
 
-					Vector3d pos = mirror.getPosition()
+					Vec3 pos = mirror.getPosition()
 						.add(0.5 + offsetX, 1 / 4d, 0.5 + offsetZ);
-					Vector3d speed = new Vector3d(0, r.nextDouble() * 1 / 8f, 0);
-					mc.world.addParticle(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, speed.x, speed.y, speed.z);
+					Vec3 speed = new Vec3(0, r.nextDouble() * 1 / 8f, 0);
+					mc.level.addParticle(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, speed.x, speed.y, speed.z);
 				}
 			}
 		}
@@ -156,31 +155,31 @@ public class SymmetryHandler {
 
 	public static void drawEffect(BlockPos from, BlockPos to) {
 		double density = 0.8f;
-		Vector3d start = Vector3d.of(from).add(0.5, 0.5, 0.5);
-		Vector3d end = Vector3d.of(to).add(0.5, 0.5, 0.5);
-		Vector3d diff = end.subtract(start);
+		Vec3 start = Vec3.atLowerCornerOf(from).add(0.5, 0.5, 0.5);
+		Vec3 end = Vec3.atLowerCornerOf(to).add(0.5, 0.5, 0.5);
+		Vec3 diff = end.subtract(start);
 
-		Vector3d step = diff.normalize()
+		Vec3 step = diff.normalize()
 			.scale(density);
 		int steps = (int) (diff.length() / step.length());
 
 		Random r = new Random();
 		for (int i = 3; i < steps - 1; i++) {
-			Vector3d pos = start.add(step.scale(i));
-			Vector3d speed = new Vector3d(0, r.nextDouble() * -40f, 0);
+			Vec3 pos = start.add(step.scale(i));
+			Vec3 speed = new Vec3(0, r.nextDouble() * -40f, 0);
 
-			Minecraft.getInstance().world.addParticle(new RedstoneParticleData(1, 1, 1, 1), pos.x, pos.y, pos.z,
+			Minecraft.getInstance().level.addParticle(new DustParticleOptions(1, 1, 1, 1), pos.x, pos.y, pos.z,
 				speed.x, speed.y, speed.z);
 		}
 
-		Vector3d speed = new Vector3d(0, r.nextDouble() * 1 / 32f, 0);
-		Vector3d pos = start.add(step.scale(2));
-		Minecraft.getInstance().world.addParticle(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, speed.x, speed.y,
+		Vec3 speed = new Vec3(0, r.nextDouble() * 1 / 32f, 0);
+		Vec3 pos = start.add(step.scale(2));
+		Minecraft.getInstance().level.addParticle(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, speed.x, speed.y,
 			speed.z);
 
-		speed = new Vector3d(0, r.nextDouble() * 1 / 32f, 0);
+		speed = new Vec3(0, r.nextDouble() * 1 / 32f, 0);
 		pos = start.add(step.scale(steps));
-		Minecraft.getInstance().world.addParticle(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, speed.x, speed.y,
+		Minecraft.getInstance().level.addParticle(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, speed.x, speed.y,
 			speed.z);
 	}
 

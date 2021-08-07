@@ -5,19 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.gui.IInteractionChecker;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.utility.IPartialSafeNBT;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-
-public abstract class SmartTileEntity extends SyncedTileEntity implements ITickableTileEntity, IPartialSafeNBT, IInteractionChecker {
+public abstract class SmartTileEntity extends SyncedTileEntity implements TickableBlockEntity, IPartialSafeNBT, IInteractionChecker {
 
 	private final Map<BehaviourType<?>, TileEntityBehaviour> behaviours;
 	// Internally maintained to be identical to behaviorMap.values() in order to improve iteration performance.
@@ -30,7 +28,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements ITicka
 	// Used for simulating this TE in a client-only setting
 	private boolean virtualMode;
 
-	public SmartTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public SmartTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 		behaviours = new HashMap<>();
 		initialized = false;
@@ -55,7 +53,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements ITicka
 
 	@Override
 	public void tick() {
-		if (!initialized && hasWorld()) {
+		if (!initialized && hasLevel()) {
 			initialize();
 			initialized = true;
 		}
@@ -74,31 +72,31 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements ITicka
 	}
 
 	@Override
-	public final CompoundNBT write(CompoundNBT compound) {
+	public final CompoundTag save(CompoundTag compound) {
 		write(compound, false);
 		return compound;
 	}
 
 	@Override
-	public final CompoundNBT writeToClient(CompoundNBT compound) {
+	public final CompoundTag writeToClient(CompoundTag compound) {
 		write(compound, true);
 		return compound;
 	}
 
 	@Override
-	public final void readClientUpdate(BlockState state, CompoundNBT tag) {
+	public final void readClientUpdate(BlockState state, CompoundTag tag) {
 		fromTag(state, tag, true);
 	}
 
 	@Override
-	public final void fromTag(BlockState state, CompoundNBT tag) {
+	public final void load(BlockState state, CompoundTag tag) {
 		fromTag(state, tag, false);
 	}
 
 	/**
 	 * Hook only these in future subclasses of STE
 	 */
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		if (firstNbtRead) {
 			firstNbtRead = false;
 			ArrayList<TileEntityBehaviour> list = new ArrayList<>();
@@ -107,21 +105,21 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements ITicka
 
 			updateBehaviorList();
 		}
-		super.fromTag(state, compound);
+		super.load(state, compound);
 		behaviourList.forEach(tb -> tb.read(compound, clientPacket));
 	}
 
 	/**
 	 * Hook only these in future subclasses of STE
 	 */
-	protected void write(CompoundNBT compound, boolean clientPacket) {
-		super.write(compound);
+	protected void write(CompoundTag compound, boolean clientPacket) {
+		super.save(compound);
 		behaviourList.forEach(tb -> tb.write(compound, clientPacket));
 	}
 
 	@Override
-	public void writeSafe(CompoundNBT compound, boolean clientPacket) {
-		super.write(compound);
+	public void writeSafe(CompoundTag compound, boolean clientPacket) {
+		super.save(compound);
 		behaviourList.forEach(tb -> {
 			if (tb.isSafeNBT())
 				tb.write(compound, clientPacket);
@@ -137,9 +135,9 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements ITicka
 	}
 
 	@Override
-	public void remove() {
+	public void setRemoved() {
 		forEachBehaviour(TileEntityBehaviour::remove);
-		super.remove();
+		super.setRemoved();
 	}
 
 	public void setLazyTickRate(int slowTickRate) {
@@ -201,11 +199,11 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements ITicka
 	}
 
 	@Override
-	public boolean canPlayerUse(PlayerEntity player) {
-		if (world == null || world.getTileEntity(pos) != this) {
+	public boolean canPlayerUse(Player player) {
+		if (level == null || level.getBlockEntity(worldPosition) != this) {
 			return false;
 		}
-		return player.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
+		return player.distanceToSqr(worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D) <= 64.0D;
 	}
 
 }

@@ -14,15 +14,14 @@ import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeFactory;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 
@@ -50,12 +49,12 @@ public class SequencedAssemblyRecipeBuilder {
 		return this;
 	}
 
-	public SequencedAssemblyRecipeBuilder require(IItemProvider ingredient) {
-		return require(Ingredient.fromItems(ingredient));
+	public SequencedAssemblyRecipeBuilder require(ItemLike ingredient) {
+		return require(Ingredient.of(ingredient));
 	}
 
-	public SequencedAssemblyRecipeBuilder require(ITag.INamedTag<Item> tag) {
-		return require(Ingredient.fromTag(tag));
+	public SequencedAssemblyRecipeBuilder require(Tag.Named<Item> tag) {
+		return require(Ingredient.of(tag));
 	}
 
 	public SequencedAssemblyRecipeBuilder require(Ingredient ingredient) {
@@ -63,7 +62,7 @@ public class SequencedAssemblyRecipeBuilder {
 		return this;
 	}
 
-	public SequencedAssemblyRecipeBuilder transitionTo(IItemProvider item) {
+	public SequencedAssemblyRecipeBuilder transitionTo(ItemLike item) {
 		recipe.transitionalItem = new ProcessingOutput(new ItemStack(item), 1);
 		return this;
 	}
@@ -73,7 +72,7 @@ public class SequencedAssemblyRecipeBuilder {
 		return this;
 	}
 
-	public SequencedAssemblyRecipeBuilder addOutput(IItemProvider item, float weight) {
+	public SequencedAssemblyRecipeBuilder addOutput(ItemLike item, float weight) {
 		return addOutput(new ItemStack(item), weight);
 	}
 
@@ -82,11 +81,11 @@ public class SequencedAssemblyRecipeBuilder {
 		return this;
 	}
 
-	public void build(Consumer<IFinishedRecipe> consumer) {
+	public void build(Consumer<FinishedRecipe> consumer) {
 		consumer.accept(new DataGenResult(recipe, recipeConditions));
 	}
 
-	public static class DataGenResult implements IFinishedRecipe {
+	public static class DataGenResult implements FinishedRecipe {
 
 		private List<ICondition> recipeConditions;
 		private SequencedAssemblyRecipeSerializer serializer;
@@ -102,7 +101,7 @@ public class SequencedAssemblyRecipeBuilder {
 		}
 
 		@Override
-		public void serialize(JsonObject json) {
+		public void serializeRecipeData(JsonObject json) {
 			serializer.write(json, recipe);
 			if (recipeConditions.isEmpty())
 				return;
@@ -113,22 +112,22 @@ public class SequencedAssemblyRecipeBuilder {
 		}
 
 		@Override
-		public ResourceLocation getID() {
+		public ResourceLocation getId() {
 			return id;
 		}
 
 		@Override
-		public IRecipeSerializer<?> getSerializer() {
+		public RecipeSerializer<?> getType() {
 			return serializer;
 		}
 
 		@Override
-		public JsonObject getAdvancementJson() {
+		public JsonObject serializeAdvancement() {
 			return null;
 		}
 
 		@Override
-		public ResourceLocation getAdvancementID() {
+		public ResourceLocation getAdvancementId() {
 			return null;
 		}
 

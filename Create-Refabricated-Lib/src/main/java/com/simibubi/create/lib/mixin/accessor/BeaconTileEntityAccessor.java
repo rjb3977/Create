@@ -1,14 +1,12 @@
 package com.simibubi.create.lib.mixin.accessor;
 
 import java.util.List;
-
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.tileentity.BeaconTileEntity;
-
-@Mixin(BeaconTileEntity.class)
+@Mixin(BeaconBlockEntity.class)
 public interface BeaconTileEntityAccessor {
 	@Accessor("beamSegments")
-	List<BeaconTileEntity.BeamSegment> create$beamSegments();
+	List<BeaconBlockEntity.BeaconBeamSection> create$beamSegments();
 }

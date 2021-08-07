@@ -1,65 +1,64 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 
 public class ContraptionMatrices {
-	public final MatrixStack entityStack;
-	public final MatrixStack contraptionStack;
+	public final PoseStack entityStack;
+	public final PoseStack contraptionStack;
 	public final Matrix4f entityMatrix;
 
-	public ContraptionMatrices(MatrixStack entityStack, AbstractContraptionEntity entity) {
+	public ContraptionMatrices(PoseStack entityStack, AbstractContraptionEntity entity) {
 		this.entityStack = entityStack;
-		this.contraptionStack = new MatrixStack();
+		this.contraptionStack = new PoseStack();
 		float partialTicks = AnimationTickHolder.getPartialTicks();
-		entity.doLocalTransforms(partialTicks, new MatrixStack[] { this.contraptionStack });
+		entity.doLocalTransforms(partialTicks, new PoseStack[] { this.contraptionStack });
 		entityMatrix = translateTo(entity, partialTicks);
 	}
 
-	public MatrixStack getFinalStack() {
-		MatrixStack finalStack = new MatrixStack();
+	public PoseStack getFinalStack() {
+		PoseStack finalStack = new PoseStack();
 		transform(finalStack, entityStack);
 		transform(finalStack, contraptionStack);
 		return finalStack;
 	}
 
 	public Matrix4f getFinalModel() {
-		Matrix4f finalModel = entityStack.peek().getModel().copy();
-		finalModel.multiply(contraptionStack.peek().getModel());
+		Matrix4f finalModel = entityStack.last().pose().copy();
+		finalModel.multiply(contraptionStack.last().pose());
 		return finalModel;
 	}
 
 	public Matrix3f getFinalNormal() {
-		Matrix3f finalNormal = entityStack.peek().getNormal().copy();
-		finalNormal.multiply(contraptionStack.peek().getNormal());
+		Matrix3f finalNormal = entityStack.last().normal().copy();
+		finalNormal.mul(contraptionStack.last().normal());
 		return finalNormal;
 	}
 
 	public Matrix4f getFinalLight() {
 		Matrix4f lightTransform = entityMatrix.copy();
-		lightTransform.multiply(contraptionStack.peek().getModel());
+		lightTransform.multiply(contraptionStack.last().pose());
 		return lightTransform;
 	}
 
 	public static Matrix4f translateTo(Entity entity, float partialTicks) {
-		double x = MathHelper.lerp(partialTicks, entity.lastTickPosX, entity.getX());
-		double y = MathHelper.lerp(partialTicks, entity.lastTickPosY, entity.getY());
-		double z = MathHelper.lerp(partialTicks, entity.lastTickPosZ, entity.getZ());
-		return Matrix4f.translate((float) x, (float) y, (float) z);
+		double x = Mth.lerp(partialTicks, entity.xOld, entity.getX());
+		double y = Mth.lerp(partialTicks, entity.yOld, entity.getY());
+		double z = Mth.lerp(partialTicks, entity.zOld, entity.getZ());
+		return Matrix4f.createTranslateMatrix((float) x, (float) y, (float) z);
 	}
 
-	public static void transform(MatrixStack ms, MatrixStack transform) {
-		ms.peek().getModel()
-			.multiply(transform.peek()
-			.getModel());
-		ms.peek().getNormal()
-			.multiply(transform.peek()
-			.getNormal());
+	public static void transform(PoseStack ms, PoseStack transform) {
+		ms.last().pose()
+			.multiply(transform.last()
+			.pose());
+		ms.last().normal()
+			.mul(transform.last()
+			.normal());
 	}
 }

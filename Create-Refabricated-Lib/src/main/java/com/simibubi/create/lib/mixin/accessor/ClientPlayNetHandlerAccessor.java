@@ -6,10 +6,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ClientPlayNetHandler.class)
+@Mixin(ClientPacketListener.class)
 public interface ClientPlayNetHandlerAccessor {
 	@Accessor("viewDistance")
 	int create$viewDistance();

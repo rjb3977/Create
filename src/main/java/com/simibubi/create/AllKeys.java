@@ -3,9 +3,9 @@ package com.simibubi.create;
 import org.lwjgl.glfw.GLFW;
 
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.gui.screens.Screen;
 
 public enum AllKeys {
 
@@ -15,7 +15,7 @@ public enum AllKeys {
 
 	;
 
-	private KeyBinding keybind;
+	private KeyMapping keybind;
 	private String description;
 	private int key;
 	private boolean modifiable;
@@ -28,7 +28,7 @@ public enum AllKeys {
 
 	public static void register() {
 		for (AllKeys key : values()) {
-			key.keybind = new KeyBinding(key.description, key.key, Create.NAME);
+			key.keybind = new KeyMapping(key.description, key.key, Create.NAME);
 			if (!key.modifiable)
 				continue;
 
@@ -36,31 +36,31 @@ public enum AllKeys {
 		}
 	}
 
-	public KeyBinding getKeybind() {
+	public KeyMapping getKeybind() {
 		return keybind;
 	}
 
 	public boolean isPressed() {
 		if (!modifiable)
 			return isKeyDown(key);
-		return keybind.isKeyDown();
+		return keybind.isDown();
 	}
 
 	public String getBoundKey() {
-		return keybind.getBoundKeyLocalizedText()
+		return keybind.getTranslatedKeyMessage()
 			.getString()
 			.toUpperCase();
 	}
 
 	public int getBoundCode() {
 		return KeyBindingHelper.getBoundKeyOf(keybind)
-			.getKeyCode();
+			.getValue();
 	}
 
 	public static boolean isKeyDown(int key) {
 		return GLFW.glfwGetKey(Minecraft.getInstance()
 			.getWindow()
-			.getHandle(), key) != 0;
+			.getWindow(), key) != 0;
 	}
 
 	public static boolean ctrlDown() {

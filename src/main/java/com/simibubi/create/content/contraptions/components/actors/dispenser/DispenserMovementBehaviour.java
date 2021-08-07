@@ -3,22 +3,20 @@ package com.simibubi.create.content.contraptions.components.actors.dispenser;
 import java.util.HashMap;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementContext;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.dispenser.IDispenseItemBehavior;
-import net.minecraft.dispenser.ProjectileDispenseBehavior;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
 
 public class DispenserMovementBehaviour extends DropperMovementBehaviour {
 	private static final HashMap<Item, IMovedDispenseItemBehaviour> MOVED_DISPENSE_ITEM_BEHAVIOURS = new HashMap<>();
@@ -43,7 +41,7 @@ public class DispenserMovementBehaviour extends DropperMovementBehaviour {
 
 		DispenseItemLocation location = getDispenseLocation(context);
 		if (location.isEmpty()) {
-			context.world.playEvent(1001, pos, 0);
+			context.world.levelEvent(1001, pos, 0);
 		} else {
 			ItemStack itemstack = getItemStackAt(location, context);
 			// Special dispense item behaviour for moving contraptions
@@ -60,18 +58,18 @@ public class DispenserMovementBehaviour extends DropperMovementBehaviour {
 					return;
 				}
 
-				IDispenseItemBehavior idispenseitembehavior = BEHAVIOUR_LOOKUP.getBehavior(itemstack);
-				if (idispenseitembehavior instanceof ProjectileDispenseBehavior) { // Projectile behaviours can be converted most of the time
-					IMovedDispenseItemBehaviour iMovedDispenseItemBehaviour = MovedProjectileDispenserBehaviour.of((ProjectileDispenseBehavior) idispenseitembehavior);
+				DispenseItemBehavior idispenseitembehavior = BEHAVIOUR_LOOKUP.getDispenseMethod(itemstack);
+				if (idispenseitembehavior instanceof AbstractProjectileDispenseBehavior) { // Projectile behaviours can be converted most of the time
+					IMovedDispenseItemBehaviour iMovedDispenseItemBehaviour = MovedProjectileDispenserBehaviour.of((AbstractProjectileDispenseBehavior) idispenseitembehavior);
 					setItemStackAt(location, iMovedDispenseItemBehaviour.dispense(itemstack, context, pos), context);
 					MOVED_PROJECTILE_DISPENSE_BEHAVIOURS.put(itemstack.getItem(), iMovedDispenseItemBehaviour); // buffer conversion if successful
 					return;
 				}
 
-				Vector3d facingVec = Vector3d.of(context.state.get(DispenserBlock.FACING).getDirectionVec());
+				Vec3 facingVec = Vec3.atLowerCornerOf(context.state.getValue(DispenserBlock.FACING).getNormal());
 				facingVec = context.rotation.apply(facingVec);
 				facingVec.normalize();
-				Direction clostestFacing = Direction.getFacingFromVector(facingVec.x, facingVec.y, facingVec.z);
+				Direction clostestFacing = Direction.getNearest(facingVec.x, facingVec.y, facingVec.z);
 				ContraptionBlockSource blockSource = new ContraptionBlockSource(context, pos, clostestFacing);
 
 				if (idispenseitembehavior.getClass() != DefaultDispenseItemBehavior.class) { // There is a dispense item behaviour registered for the vanilla dispenser
@@ -90,11 +88,11 @@ public class DispenserMovementBehaviour extends DropperMovementBehaviour {
 	@MethodsReturnNonnullByDefault
 	private static class DispenserLookup extends DispenserBlock {
 		protected DispenserLookup() {
-			super(Block.Properties.from(Blocks.DISPENSER));
+			super(Block.Properties.copy(Blocks.DISPENSER));
 		}
 
-		public IDispenseItemBehavior getBehavior(ItemStack itemStack) {
-			return super.getBehavior(itemStack);
+		public DispenseItemBehavior getDispenseMethod(ItemStack itemStack) {
+			return super.getDispenseMethod(itemStack);
 		}
 	}
 }

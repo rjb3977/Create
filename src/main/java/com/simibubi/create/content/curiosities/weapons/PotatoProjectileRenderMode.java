@@ -1,37 +1,37 @@
 package com.simibubi.create.content.curiosities.weapons;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class PotatoProjectileRenderMode {
 
 	@OnlyIn(Dist.CLIENT)
-	public abstract void transform(MatrixStack ms, PotatoProjectileEntity entity, float pt);
+	public abstract void transform(PoseStack ms, PotatoProjectileEntity entity, float pt);
 
 	public static class Billboard extends PotatoProjectileRenderMode {
 
 		@Override
 		@OnlyIn(Dist.CLIENT)
-		public void transform(MatrixStack ms, PotatoProjectileEntity entity, float pt) {
+		public void transform(PoseStack ms, PotatoProjectileEntity entity, float pt) {
 			Minecraft mc = Minecraft.getInstance();
-			Vector3d p1 = mc.getRenderViewEntity()
+			Vec3 p1 = mc.getCameraEntity()
 				.getEyePosition(pt);
-			Vector3d diff = entity.getBoundingBox()
+			Vec3 diff = entity.getBoundingBox()
 				.getCenter()
 				.subtract(p1);
 
 			MatrixStacker.of(ms)
-				.rotateY(AngleHelper.deg(MathHelper.atan2(diff.x, diff.z)))
+				.rotateY(AngleHelper.deg(Mth.atan2(diff.x, diff.z)))
 				.rotateX(180
-					+ AngleHelper.deg(MathHelper.atan2(diff.y, -MathHelper.sqrt(diff.x * diff.x + diff.z * diff.z))));
+					+ AngleHelper.deg(Mth.atan2(diff.y, -Mth.sqrt(diff.x * diff.x + diff.z * diff.z))));
 		}
 	}
 
@@ -39,11 +39,11 @@ public abstract class PotatoProjectileRenderMode {
 
 		@Override
 		@OnlyIn(Dist.CLIENT)
-		public void transform(MatrixStack ms, PotatoProjectileEntity entity, float pt) {
+		public void transform(PoseStack ms, PotatoProjectileEntity entity, float pt) {
 			super.transform(ms, entity, pt);
 			MatrixStacker.of(ms)
-				.rotateZ((entity.ticksExisted + pt) * 2 * entityRandom(entity, 16))
-				.rotateX((entity.ticksExisted + pt) * entityRandom(entity, 32));
+				.rotateZ((entity.tickCount + pt) * 2 * entityRandom(entity, 16))
+				.rotateX((entity.tickCount + pt) * entityRandom(entity, 32));
 		}
 	}
 
@@ -59,14 +59,14 @@ public abstract class PotatoProjectileRenderMode {
 
 		@Override
 		@OnlyIn(Dist.CLIENT)
-		public void transform(MatrixStack ms, PotatoProjectileEntity entity, float pt) {
-			Vector3d diff = entity.getMotion();
+		public void transform(PoseStack ms, PotatoProjectileEntity entity, float pt) {
+			Vec3 diff = entity.getDeltaMovement();
 			MatrixStacker.of(ms)
-				.rotateY(AngleHelper.deg(MathHelper.atan2(diff.x, diff.z)))
+				.rotateY(AngleHelper.deg(Mth.atan2(diff.x, diff.z)))
 				.rotateX(270
-					+ AngleHelper.deg(MathHelper.atan2(diff.y, -MathHelper.sqrt(diff.x * diff.x + diff.z * diff.z))));
+					+ AngleHelper.deg(Mth.atan2(diff.y, -Mth.sqrt(diff.x * diff.x + diff.z * diff.z))));
 			MatrixStacker.of(ms)
-				.rotateY((entity.ticksExisted + pt) * 20 * spin + entityRandom(entity, 360))
+				.rotateY((entity.tickCount + pt) * 20 * spin + entityRandom(entity, 360))
 				.rotateZ(-spriteAngleOffset);
 		}
 

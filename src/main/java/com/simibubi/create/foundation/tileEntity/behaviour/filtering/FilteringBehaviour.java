@@ -2,7 +2,14 @@ package com.simibubi.create.foundation.tileEntity.behaviour.filtering;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.content.logistics.item.filter.FilterItem;
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.networking.AllPackets;
@@ -15,22 +22,13 @@ import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-
 public class FilteringBehaviour extends TileEntityBehaviour {
 
 	public static BehaviourType<FilteringBehaviour> TYPE = new BehaviourType<>();
 
 	ValueBoxTransform slotPositioning;
 	boolean showCount;
-	Vector3d textShift;
+	Vec3 textShift;
 
 	private ItemStack filter;
 	public int count;
@@ -52,7 +50,7 @@ public class FilteringBehaviour extends TileEntityBehaviour {
 		callback = stack -> {
 		};
 		isActive = () -> true;
-		textShift = Vector3d.ZERO;
+		textShift = Vec3.ZERO;
 		count = 0;
 		ticksUntilScrollPacket = -1;
 		showCountPredicate = () -> showCount;
@@ -64,7 +62,7 @@ public class FilteringBehaviour extends TileEntityBehaviour {
 	public boolean isSafeNBT() { return true; }
 
 	@Override
-	public void write(CompoundNBT nbt, boolean clientPacket) {
+	public void write(CompoundTag nbt, boolean clientPacket) {
 		nbt.put("Filter", NBTSerializer.serializeNBT(getFilter()));
 
 		nbt.putInt("FilterAmount", count);
@@ -77,8 +75,8 @@ public class FilteringBehaviour extends TileEntityBehaviour {
 	}
 
 	@Override
-	public void read(CompoundNBT nbt, boolean clientPacket) {
-		filter = ItemStack.read(nbt.getCompound("Filter"));
+	public void read(CompoundTag nbt, boolean clientPacket) {
+		filter = ItemStack.of(nbt.getCompound("Filter"));
 		count = nbt.getInt("FilterAmount");
 		if (nbt.contains("ForceScrollable")) {
 			scrollableValue = count;
@@ -91,7 +89,7 @@ public class FilteringBehaviour extends TileEntityBehaviour {
 	public void tick() {
 		super.tick();
 
-		if (!getWorld().isRemote)
+		if (!getWorld().isClientSide)
 			return;
 		if (ticksUntilScrollPacket == -1)
 			return;
@@ -134,7 +132,7 @@ public class FilteringBehaviour extends TileEntityBehaviour {
 		return this;
 	}
 
-	public FilteringBehaviour moveText(Vector3d shift) {
+	public FilteringBehaviour moveText(Vec3 shift) {
 		textShift = shift;
 		return this;
 	}
@@ -157,16 +155,16 @@ public class FilteringBehaviour extends TileEntityBehaviour {
 			: (filter.getItem() instanceof FilterItem) ? 0 : Math.min(stack.getCount(), stack.getMaxStackSize());
 		forceClientState = true;
 
-		tileEntity.markDirty();
+		tileEntity.setChanged();
 		tileEntity.sendData();
 	}
 
 	@Override
 	public void destroy() {
 		if (filter.getItem() instanceof FilterItem) {
-			Vector3d pos = VecHelper.getCenterOf(getPos());
-			World world = getWorld();
-			world.addEntity(new ItemEntity(world, pos.x, pos.y, pos.z, filter.copy()));
+			Vec3 pos = VecHelper.getCenterOf(getPos());
+			Level world = getWorld();
+			world.addFreshEntity(new ItemEntity(world, pos.x, pos.y, pos.z, filter.copy()));
 		}
 
 		super.destroy();
@@ -194,11 +192,11 @@ public class FilteringBehaviour extends TileEntityBehaviour {
 	}
 
 	public boolean test(ItemStack stack) {
-		return !isActive() || filter.isEmpty() || FilterItem.test(tileEntity.getWorld(), stack, filter);
+		return !isActive() || filter.isEmpty() || FilterItem.test(tileEntity.getLevel(), stack, filter);
 	}
 
 	public boolean test(FluidStack stack) {
-		return !isActive() || filter.isEmpty() || FilterItem.test(tileEntity.getWorld(), stack, filter);
+		return !isActive() || filter.isEmpty() || FilterItem.test(tileEntity.getLevel(), stack, filter);
 	}
 
 	@Override
@@ -206,9 +204,9 @@ public class FilteringBehaviour extends TileEntityBehaviour {
 		return TYPE;
 	}
 
-	public boolean testHit(Vector3d hit) {
+	public boolean testHit(Vec3 hit) {
 		BlockState state = tileEntity.getBlockState();
-		Vector3d localHit = hit.subtract(Vector3d.of(tileEntity.getPos()));
+		Vec3 localHit = hit.subtract(Vec3.atLowerCornerOf(tileEntity.getBlockPos()));
 		return slotPositioning.testHit(state, localHit);
 	}
 

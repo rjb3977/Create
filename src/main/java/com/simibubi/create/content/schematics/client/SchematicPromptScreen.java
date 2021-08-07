@@ -1,8 +1,7 @@
 package com.simibubi.create.content.schematics.client;
 
 import org.lwjgl.glfw.GLFW;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.foundation.gui.AbstractSimiScreen;
@@ -11,20 +10,19 @@ import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.GuiGameElement;
 import com.simibubi.create.foundation.gui.widgets.IconButton;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 public class SchematicPromptScreen extends AbstractSimiScreen {
 
 	private AllGuiTextures background;
 
-	private final ITextComponent convertLabel = Lang.translate("schematicAndQuill.convert");
-	private final ITextComponent abortLabel = Lang.translate("action.discard");
-	private final ITextComponent confirmLabel = Lang.translate("action.saveToFile");
+	private final Component convertLabel = Lang.translate("schematicAndQuill.convert");
+	private final Component abortLabel = Lang.translate("action.discard");
+	private final Component confirmLabel = Lang.translate("action.saveToFile");
 
-	private TextFieldWidget nameField;
+	private EditBox nameField;
 	private IconButton confirm;
 	private IconButton abort;
 	private IconButton convert;
@@ -43,11 +41,11 @@ public class SchematicPromptScreen extends AbstractSimiScreen {
 		int x = guiLeft;
 		int y = guiTop;
 
-		nameField = new TextFieldWidget(textRenderer, x + 49, y + 26, 131, 10, StringTextComponent.EMPTY);
+		nameField = new EditBox(font, x + 49, y + 26, 131, 10, TextComponent.EMPTY);
 		nameField.setTextColor(-1);
-		nameField.setDisabledTextColour(-1);
-		nameField.setEnableBackgroundDrawing(false);
-		nameField.setMaxStringLength(35);
+		nameField.setTextColorUneditable(-1);
+		nameField.setBordered(false);
+		nameField.setMaxLength(35);
 		nameField.changeFocus(true);
 
 		abort = new IconButton(x + 7, y + 53, AllIcons.I_TRASH);
@@ -69,12 +67,12 @@ public class SchematicPromptScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		int x = guiLeft;
 		int y = guiTop;
 
 		background.draw(ms, this, x, y);
-		drawCenteredText(ms, textRenderer, title, x + (background.width - 8) / 2, y + 3, 0xFFFFFF);
+		drawCenteredString(ms, font, title, x + (background.width - 8) / 2, y + 3, 0xFFFFFF);
 		GuiGameElement.of(AllItems.SCHEMATIC.asStack())
 				.at(x + 22, y + 23, 0)
 				.render(ms);
@@ -106,7 +104,7 @@ public class SchematicPromptScreen extends AbstractSimiScreen {
 		}
 		if (abort.isHovered()) {
 			CreateClient.SCHEMATIC_AND_QUILL_HANDLER.discard();
-			client.player.closeScreen();
+			minecraft.player.closeContainer();
 			return true;
 		}
 		if (convert.isHovered()) {
@@ -117,8 +115,8 @@ public class SchematicPromptScreen extends AbstractSimiScreen {
 	}
 
 	private void confirm(boolean convertImmediately) {
-		CreateClient.SCHEMATIC_AND_QUILL_HANDLER.saveSchematic(nameField.getText(), convertImmediately);
-		client.player.closeScreen();
+		CreateClient.SCHEMATIC_AND_QUILL_HANDLER.saveSchematic(nameField.getValue(), convertImmediately);
+		minecraft.player.closeContainer();
 	}
 
 }

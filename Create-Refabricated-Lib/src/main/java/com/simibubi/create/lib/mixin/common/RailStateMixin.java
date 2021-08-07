@@ -1,7 +1,12 @@
 package com.simibubi.create.lib.mixin.common;
 
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseRailBlock;
+import net.minecraft.world.level.block.RailState;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.RailShape;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,13 +21,6 @@ import com.simibubi.create.lib.block.SlopeCreationCheckingRail;
 import com.simibubi.create.lib.mixin.accessor.RailStateAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
-import net.minecraft.block.AbstractRailBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RailState;
-import net.minecraft.state.properties.RailShape;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 @Mixin(value = RailState.class, priority = 1501) // bigger number is applied first right?
 public abstract class RailStateMixin {
 	// I hate everything about this file so much
@@ -30,10 +28,10 @@ public abstract class RailStateMixin {
 	public boolean create$canMakeSlopes;
 	@Final
 	@Shadow
-	private World world;
+	private Level world;
 	@Final
 	@Shadow
-	private AbstractRailBlock block;
+	private BaseRailBlock block;
 	@Final
 	@Shadow
 	private BlockPos pos;
@@ -61,7 +59,7 @@ public abstract class RailStateMixin {
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/RailState;reset(Lnet/minecraft/state/properties/RailShape;)V", shift = At.Shift.BEFORE),
 			method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V")
-	public void create$RailState(World world, BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
+	public void create$RailState(Level world, BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
 		create$canMakeSlopes = true;
 		if (block instanceof SlopeCreationCheckingRail) {
 			create$canMakeSlopes = ((SlopeCreationCheckingRail) block).canMakeSlopes(blockState, world, pos);
@@ -114,21 +112,21 @@ public abstract class RailStateMixin {
 		}
 
 		if (railShape == RailShape.NORTH_SOUTH && create$canMakeSlopes) {
-			if (AbstractRailBlock.isRail(this.world, blockPos.up())) {
+			if (BaseRailBlock.isRail(this.world, blockPos.above())) {
 				railShape = RailShape.ASCENDING_NORTH;
 			}
 
-			if (AbstractRailBlock.isRail(this.world, blockPos2.up())) {
+			if (BaseRailBlock.isRail(this.world, blockPos2.above())) {
 				railShape = RailShape.ASCENDING_SOUTH;
 			}
 		}
 
 		if (railShape == RailShape.EAST_WEST && create$canMakeSlopes) {
-			if (AbstractRailBlock.isRail(this.world, blockPos4.up())) {
+			if (BaseRailBlock.isRail(this.world, blockPos4.above())) {
 				railShape = RailShape.ASCENDING_EAST;
 			}
 
-			if (AbstractRailBlock.isRail(this.world, blockPos3.up())) {
+			if (BaseRailBlock.isRail(this.world, blockPos3.above())) {
 				railShape = RailShape.ASCENDING_WEST;
 			}
 		}
@@ -137,8 +135,8 @@ public abstract class RailStateMixin {
 			railShape = RailShape.NORTH_SOUTH;
 		}
 
-		this.newState = this.newState.with(this.block.getShapeProperty(), railShape);
-		this.world.setBlockState(this.pos, this.newState, 3);
+		this.newState = this.newState.setValue(this.block.getShapeProperty(), railShape);
+		this.world.setBlock(this.pos, this.newState, 3);
 	}
 
 	/**
@@ -236,21 +234,21 @@ public abstract class RailStateMixin {
 		}
 
 		if (railShape2 == RailShape.NORTH_SOUTH && create$canMakeSlopes) {
-			if (AbstractRailBlock.isRail(this.world, blockPos.up())) {
+			if (BaseRailBlock.isRail(this.world, blockPos.above())) {
 				railShape2 = RailShape.ASCENDING_NORTH;
 			}
 
-			if (AbstractRailBlock.isRail(this.world, blockPos2.up())) {
+			if (BaseRailBlock.isRail(this.world, blockPos2.above())) {
 				railShape2 = RailShape.ASCENDING_SOUTH;
 			}
 		}
 
 		if (railShape2 == RailShape.EAST_WEST && create$canMakeSlopes) {
-			if (AbstractRailBlock.isRail(this.world, blockPos4.up())) {
+			if (BaseRailBlock.isRail(this.world, blockPos4.above())) {
 				railShape2 = RailShape.ASCENDING_EAST;
 			}
 
-			if (AbstractRailBlock.isRail(this.world, blockPos3.up())) {
+			if (BaseRailBlock.isRail(this.world, blockPos3.above())) {
 				railShape2 = RailShape.ASCENDING_WEST;
 			}
 		}
@@ -260,9 +258,9 @@ public abstract class RailStateMixin {
 		}
 
 		this.reset(railShape2);
-		this.newState = this.newState.with(this.block.getShapeProperty(), railShape2);
+		this.newState = this.newState.setValue(this.block.getShapeProperty(), railShape2);
 		if (bl2 || this.world.getBlockState(this.pos) != this.newState) {
-			this.world.setBlockState(this.pos, this.newState, 3);
+			this.world.setBlock(this.pos, this.newState, 3);
 
 			for (int i = 0; i < this.connectedRails.size(); ++i) {
 				RailState railState = this.createForAdjacent(this.connectedRails.get(i));

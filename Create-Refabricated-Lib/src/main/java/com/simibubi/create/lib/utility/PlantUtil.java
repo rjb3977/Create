@@ -1,13 +1,12 @@
 package com.simibubi.create.lib.utility;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CropsBlock;
-import net.minecraft.block.FlowerBlock;
-import net.minecraft.block.SaplingBlock;
 
 public class PlantUtil {
 	public static boolean isPlant(Block block) {
@@ -16,10 +15,10 @@ public class PlantUtil {
 
 	@Nullable
 	public static BlockState getPlant(Block block) {
-		if (block instanceof CropsBlock || block instanceof SaplingBlock || block instanceof FlowerBlock ||
+		if (block instanceof CropBlock || block instanceof SaplingBlock || block instanceof FlowerBlock ||
 			block == Blocks.DEAD_BUSH || block == Blocks.LILY_PAD || block == Blocks.RED_MUSHROOM ||
 			block == Blocks.BROWN_MUSHROOM || block == Blocks.NETHER_WART || block == Blocks.TALL_GRASS) {
-			return block.getDefaultState();
+			return block.defaultBlockState();
 		} else {
 			return null;
 		}

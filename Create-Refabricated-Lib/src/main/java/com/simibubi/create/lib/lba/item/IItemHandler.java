@@ -3,7 +3,7 @@ package com.simibubi.create.lib.lba.item;
 import alexiil.mc.lib.attributes.Simulation;
 import alexiil.mc.lib.attributes.item.ItemTransferable;
 import alexiil.mc.lib.attributes.item.filter.ItemFilter;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface IItemHandler extends ItemTransferable {
 	int getSlots();

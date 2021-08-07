@@ -1,13 +1,12 @@
 package com.simibubi.create.content.contraptions.fluids;
 
 import com.tterrag.registrate.fabric.SimpleFlowableFluid;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 public class VirtualFluid extends SimpleFlowableFluid {
 
@@ -16,23 +15,23 @@ public class VirtualFluid extends SimpleFlowableFluid {
 	}
 
 	@Override
-	public Fluid getStillFluid() {
-		return super.getStillFluid();
+	public Fluid getSource() {
+		return super.getSource();
 	}
 
 	@Override
-	public Fluid getFlowingFluid() {
+	public Fluid getFlowing() {
 		return this;
 	}
 
 	@Override
-	public Item getFilledBucket() {
+	public Item getBucket() {
 		return Items.AIR;
 	}
 
 	@Override
-	protected BlockState getBlockState(FluidState state) {
-		return Blocks.AIR.getDefaultState();
+	protected BlockState createLegacyBlock(FluidState state) {
+		return Blocks.AIR.defaultBlockState();
 	}
 
 	@Override
@@ -41,7 +40,7 @@ public class VirtualFluid extends SimpleFlowableFluid {
 	}
 
 	@Override
-	public int getLevel(FluidState p_207192_1_) {
+	public int getAmount(FluidState p_207192_1_) {
 		return 0;
 	}
 

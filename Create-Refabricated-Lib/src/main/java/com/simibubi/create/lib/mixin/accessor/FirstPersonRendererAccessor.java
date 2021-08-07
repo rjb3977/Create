@@ -5,11 +5,11 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.FirstPersonRenderer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
-@Mixin(FirstPersonRenderer.class)
+@Mixin(ItemInHandRenderer.class)
 public interface FirstPersonRendererAccessor {
 	@Accessor("itemStackMainHand")
 	ItemStack getItemStackMainHand();

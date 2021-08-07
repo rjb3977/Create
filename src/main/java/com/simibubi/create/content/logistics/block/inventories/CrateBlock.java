@@ -4,20 +4,19 @@ import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.contraptions.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.ProperDirectionalBlock;
 import com.simibubi.create.foundation.utility.Iterate;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CrateBlock extends ProperDirectionalBlock implements IWrenchable {
 
@@ -25,66 +24,66 @@ public class CrateBlock extends ProperDirectionalBlock implements IWrenchable {
 
 	public CrateBlock(Properties p_i48415_1_) {
 		super(p_i48415_1_);
-		setDefaultState(getDefaultState().with(FACING, Direction.UP)
-			.with(DOUBLE, false));
+		registerDefaultState(defaultBlockState().setValue(FACING, Direction.UP)
+			.setValue(DOUBLE, false));
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
 		return AllShapes.CRATE_BLOCK_SHAPE;
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 	
 	@Override
-	public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn,
+	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
 		BlockPos currentPos, BlockPos facingPos) {
 
-		boolean isDouble = stateIn.get(DOUBLE);
-		Direction blockFacing = stateIn.get(FACING);
-		boolean isFacingOther = facingState.getBlock() == this && facingState.get(DOUBLE)
-			&& facingState.get(FACING) == facing.getOpposite();
+		boolean isDouble = stateIn.getValue(DOUBLE);
+		Direction blockFacing = stateIn.getValue(FACING);
+		boolean isFacingOther = facingState.getBlock() == this && facingState.getValue(DOUBLE)
+			&& facingState.getValue(FACING) == facing.getOpposite();
 
 		if (!isDouble) {
 			if (!isFacingOther)
 				return stateIn;
-			return stateIn.with(DOUBLE, true)
-				.with(FACING, facing);
+			return stateIn.setValue(DOUBLE, true)
+				.setValue(FACING, facing);
 		}
 
 		if (facing != blockFacing)
 			return stateIn;
 		if (!isFacingOther)
-			return stateIn.with(DOUBLE, false);
+			return stateIn.setValue(DOUBLE, false);
 
 		return stateIn;
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		BlockPos pos = context.getPos();
-		World world = context.getWorld();
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		BlockPos pos = context.getClickedPos();
+		Level world = context.getLevel();
 
 		if (context.getPlayer() == null || !context.getPlayer()
-			.isSneaking()) {
+			.isShiftKeyDown()) {
 			for (Direction d : Iterate.directions) {
-				BlockState state = world.getBlockState(pos.offset(d));
-				if (state.getBlock() == this && !state.get(DOUBLE))
-					return getDefaultState().with(FACING, d)
-						.with(DOUBLE, true);
+				BlockState state = world.getBlockState(pos.relative(d));
+				if (state.getBlock() == this && !state.getValue(DOUBLE))
+					return defaultBlockState().setValue(FACING, d)
+						.setValue(DOUBLE, true);
 			}
 		}
 
-		Direction placedOnFace = context.getFace()
+		Direction placedOnFace = context.getClickedFace()
 			.getOpposite();
-		BlockState state = world.getBlockState(pos.offset(placedOnFace));
-		if (state.getBlock() == this && !state.get(DOUBLE))
-			return getDefaultState().with(FACING, placedOnFace)
-				.with(DOUBLE, true);
-		return getDefaultState();
+		BlockState state = world.getBlockState(pos.relative(placedOnFace));
+		if (state.getBlock() == this && !state.getValue(DOUBLE))
+			return defaultBlockState().setValue(FACING, placedOnFace)
+				.setValue(DOUBLE, true);
+		return defaultBlockState();
 	}
 
 	@Override
@@ -93,8 +92,8 @@ public class CrateBlock extends ProperDirectionalBlock implements IWrenchable {
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		super.fillStateContainer(builder.add(DOUBLE));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder.add(DOUBLE));
 	}
 
 }

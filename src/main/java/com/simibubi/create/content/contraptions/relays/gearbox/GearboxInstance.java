@@ -2,7 +2,10 @@ package com.simibubi.create.content.contraptions.relays.gearbox;
 
 import java.util.EnumMap;
 import java.util.Map;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.InstanceMaterial;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
@@ -11,11 +14,6 @@ import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileInstance;
 import com.simibubi.create.content.contraptions.base.RotatingData;
 import com.simibubi.create.foundation.utility.Iterate;
-
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.LightType;
 
 public class GearboxInstance extends KineticTileInstance<GearboxTileEntity> {
 
@@ -29,8 +27,8 @@ public class GearboxInstance extends KineticTileInstance<GearboxTileEntity> {
 
         final Direction.Axis boxAxis = blockState.get(BlockStateProperties.AXIS);
 
-        int blockLight = world.getLightLevel(LightType.BLOCK, pos);
-        int skyLight = world.getLightLevel(LightType.SKY, pos);
+        int blockLight = world.getLightLevel(LightLayer.BLOCK, pos);
+        int skyLight = world.getLightLevel(LightLayer.SKY, pos);
         updateSourceFacing();
 
         InstanceMaterial<RotatingData> rotatingMaterial = getRotatingMaterial();
@@ -44,7 +42,7 @@ public class GearboxInstance extends KineticTileInstance<GearboxTileEntity> {
 
 			RotatingData key = shaft.createInstance();
 
-			key.setRotationAxis(Direction.getFacingFromAxis(Direction.AxisDirection.POSITIVE, axis).getUnitVector())
+			key.setRotationAxis(Direction.get(Direction.AxisDirection.POSITIVE, axis).step())
 					.setRotationalSpeed(getSpeed(direction))
 					.setRotationOffset(getRotationOffset(axis)).setColor(tile)
 					.setPosition(getInstancePosition())
@@ -70,7 +68,7 @@ public class GearboxInstance extends KineticTileInstance<GearboxTileEntity> {
     protected void updateSourceFacing() {
         if (tile.hasSource()) {
             BlockPos source = tile.source.subtract(pos);
-            sourceFacing = Direction.getFacingFromVector(source.getX(), source.getY(), source.getZ());
+            sourceFacing = Direction.getNearest(source.getX(), source.getY(), source.getZ());
         } else {
             sourceFacing = null;
         }

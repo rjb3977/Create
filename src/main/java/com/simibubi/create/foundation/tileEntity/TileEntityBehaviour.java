@@ -2,13 +2,12 @@ package com.simibubi.create.foundation.tileEntity;
 
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class TileEntityBehaviour {
 
@@ -35,11 +34,11 @@ public abstract class TileEntityBehaviour {
 
 	}
 
-	public void read(CompoundNBT nbt, boolean clientPacket) {
+	public void read(CompoundTag nbt, boolean clientPacket) {
 
 	}
 
-	public void write(CompoundNBT nbt, boolean clientPacket) {
+	public void write(CompoundTag nbt, boolean clientPacket) {
 
 	}
 
@@ -77,25 +76,25 @@ public abstract class TileEntityBehaviour {
 	}
 
 	public BlockPos getPos() {
-		return tileEntity.getPos();
+		return tileEntity.getBlockPos();
 	}
 
-	public World getWorld() {
-		return tileEntity.getWorld();
+	public Level getWorld() {
+		return tileEntity.getLevel();
 	}
 
-	public static <T extends TileEntityBehaviour> T get(IBlockReader reader, BlockPos pos, BehaviourType<T> type) {
-		return get(reader.getTileEntity(pos), type);
+	public static <T extends TileEntityBehaviour> T get(BlockGetter reader, BlockPos pos, BehaviourType<T> type) {
+		return get(reader.getBlockEntity(pos), type);
 	}
 
-	public static <T extends TileEntityBehaviour> void destroy(IBlockReader reader, BlockPos pos,
+	public static <T extends TileEntityBehaviour> void destroy(BlockGetter reader, BlockPos pos,
 		BehaviourType<T> type) {
-		T behaviour = get(reader.getTileEntity(pos), type);
+		T behaviour = get(reader.getBlockEntity(pos), type);
 		if (behaviour != null)
 			behaviour.destroy();
 	}
 
-	public static <T extends TileEntityBehaviour> T get(TileEntity te, BehaviourType<T> type) {
+	public static <T extends TileEntityBehaviour> T get(BlockEntity te, BehaviourType<T> type) {
 		if (te == null)
 			return null;
 		if (!(te instanceof SmartTileEntity))

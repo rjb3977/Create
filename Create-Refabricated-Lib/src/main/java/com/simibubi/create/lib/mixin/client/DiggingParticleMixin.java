@@ -10,22 +10,22 @@ import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.DiggingParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.SpriteTexturedParticle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.particle.TerrainParticle;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 
 @Environment(EnvType.CLIENT)
-@Mixin(DiggingParticle.class)
-public abstract class DiggingParticleMixin extends SpriteTexturedParticle implements DiggingParticleExtensions {
+@Mixin(TerrainParticle.class)
+public abstract class DiggingParticleMixin extends TextureSheetParticle implements DiggingParticleExtensions {
 	@Final
 	@Shadow
 	private BlockState sourceState;
 
-	private DiggingParticleMixin(ClientWorld clientWorld, double d, double e, double f) {
+	private DiggingParticleMixin(ClientLevel clientWorld, double d, double e, double f) {
 		super(clientWorld, d, e, f);
 		throw new AssertionError("Create Refabricated's DiggingParticleMixin dummy constructor called!");
 	}
@@ -34,7 +34,7 @@ public abstract class DiggingParticleMixin extends SpriteTexturedParticle implem
 	@Unique
 	public Particle create$updateSprite(BlockPos pos) {
 		if (pos != null)
-			this.setSprite(Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture(sourceState));
+			this.setSprite(Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(sourceState));
 		return MixinHelper.cast(this);
 	}
 }

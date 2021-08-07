@@ -13,10 +13,10 @@ import com.simibubi.create.lib.event.MouseScrolledCallback;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MouseHelper;
+import net.minecraft.client.MouseHandler;
 
 @Environment(EnvType.CLIENT)
-@Mixin(MouseHelper.class)
+@Mixin(MouseHandler.class)
 public abstract class MouseHelperMixin {
 	// First return opcode is jumped over if condition is met.
 	@Inject(slice = @Slice(from = @At(value = "RETURN", ordinal = 0, shift = Shift.AFTER)), at = @At(value = "RETURN"), method = "mouseButtonCallback(JIII)V")

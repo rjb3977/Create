@@ -8,15 +8,14 @@ import com.simibubi.create.content.contraptions.components.structureMovement.Con
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionLighter;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionType;
 import com.simibubi.create.foundation.config.AllConfigs;
-
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.template.Template.BlockInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 
 public class BearingContraption extends Contraption {
 
@@ -33,8 +32,8 @@ public class BearingContraption extends Contraption {
 	}
 
 	@Override
-	public boolean assemble(World world, BlockPos pos) throws AssemblyException {
-		BlockPos offset = pos.offset(facing);
+	public boolean assemble(Level world, BlockPos pos) throws AssemblyException {
+		BlockPos offset = pos.relative(facing);
 		if (!searchMovedStructure(world, offset, null))
 			return false;
 		startMoving(world);
@@ -53,11 +52,11 @@ public class BearingContraption extends Contraption {
 
 	@Override
 	protected boolean isAnchoringBlockAt(BlockPos pos) {
-		return pos.equals(anchor.offset(facing.getOpposite()));
+		return pos.equals(anchor.relative(facing.getOpposite()));
 	}
 
 	@Override
-	public void addBlock(BlockPos pos, Pair<BlockInfo, TileEntity> capture) {
+	public void addBlock(BlockPos pos, Pair<StructureBlockInfo, BlockEntity> capture) {
 		BlockPos localPos = pos.subtract(anchor);
 		if (!getBlocks().containsKey(localPos) && AllBlockTags.WINDMILL_SAILS.matches(capture.getKey().state))
 			sailBlocks++;
@@ -65,17 +64,17 @@ public class BearingContraption extends Contraption {
 	}
 
 	@Override
-	public CompoundNBT writeNBT(boolean spawnPacket) {
-		CompoundNBT tag = super.writeNBT(spawnPacket);
+	public CompoundTag writeNBT(boolean spawnPacket) {
+		CompoundTag tag = super.writeNBT(spawnPacket);
 		tag.putInt("Sails", sailBlocks);
-		tag.putInt("Facing", facing.getIndex());
+		tag.putInt("Facing", facing.get3DDataValue());
 		return tag;
 	}
 
 	@Override
-	public void readNBT(World world, CompoundNBT tag, boolean spawnData) {
+	public void readNBT(Level world, CompoundTag tag, boolean spawnData) {
 		sailBlocks = tag.getInt("Sails");
-		facing = Direction.byIndex(tag.getInt("Facing"));
+		facing = Direction.from3DDataValue(tag.getInt("Facing"));
 		super.readNBT(world, tag, spawnData);
 	}
 

@@ -1,7 +1,11 @@
 package com.simibubi.create.lib.lba.fluid;
 
 import java.util.Optional;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.simibubi.create.lib.utility.FluidUtil;
@@ -10,24 +14,19 @@ import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
 import alexiil.mc.lib.attributes.fluid.volume.FluidKey;
 import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
 import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.registry.Registry;
 
 /**
  * Wrapper for FluidVolume to minimize needed changes
  */
 public class FluidStack extends FluidVolume {
 	public static final FluidStack EMPTY = new FluidStack(FluidKeys.EMPTY, FluidAmount.ZERO);
-	private CompoundNBT tag;
+	private CompoundTag tag;
 
 	public FluidStack(FluidKey key, FluidAmount amount) {
 		super(key, amount);
 	}
 
-	public FluidStack(FluidKey key, CompoundNBT tag) {
+	public FluidStack(FluidKey key, CompoundTag tag) {
 		super(key, tag);
 	}
 
@@ -43,7 +42,7 @@ public class FluidStack extends FluidVolume {
 		super(key, json);
 	}
 
-	public FluidStack(Fluid fluid, int amount, CompoundNBT nbt) {
+	public FluidStack(Fluid fluid, int amount, CompoundTag nbt) {
 		this(fluid, amount);
 		if (nbt != null) {
 			tag = nbt.copy();
@@ -62,7 +61,7 @@ public class FluidStack extends FluidVolume {
 		return this.getRawFluid() == other.getRawFluid() && this.amount() == other.amount();
 	}
 
-	public static FluidStack loadFluidStackFromNBT(CompoundNBT nbt) {
+	public static FluidStack loadFluidStackFromNBT(CompoundTag nbt) {
 		return (FluidStack) fromTag(nbt);
 	}
 
@@ -70,7 +69,7 @@ public class FluidStack extends FluidVolume {
 		this.setAmount(FluidUtil.millibucketsToFluidAmount(amount));
 	}
 
-	public CompoundNBT writeToNBT(CompoundNBT nbt) {
+	public CompoundTag writeToNBT(CompoundTag nbt) {
 		return toTag(nbt);
 	}
 
@@ -86,20 +85,20 @@ public class FluidStack extends FluidVolume {
 		setAmount(this.amount().sub(FluidUtil.millibucketsToFluidAmount(amount)));
 	}
 
-	public void writeToPacket(PacketBuffer buf) {
+	public void writeToPacket(FriendlyByteBuf buf) {
 		buf.writeResourceLocation(Registry.FLUID.getKey(getFluid()));
 		buf.writeVarInt(FluidUtil.fluidAmountToMillibuckets(getAmount_F()));
-		buf.writeCompoundTag(tag);
+		buf.writeNbt(tag);
 	}
 
-	public static FluidStack readFromPacket(PacketBuffer buf) {
-		Optional<Fluid> fluidOptional = Registry.FLUID.getOrEmpty(buf.readResourceLocation());
+	public static FluidStack readFromPacket(FriendlyByteBuf buf) {
+		Optional<Fluid> fluidOptional = Registry.FLUID.getOptional(buf.readResourceLocation());
 		Fluid fluid = fluidOptional.orElse(null);
 		if (fluid == null) {
 			// oh no
 		}
 		int amount = buf.readVarInt();
-		CompoundNBT tag = buf.readCompoundTag();
+		CompoundTag tag = buf.readNbt();
 		if (fluid == Fluids.EMPTY) return EMPTY;
 		return new FluidStack(fluid, amount, tag);
 	}

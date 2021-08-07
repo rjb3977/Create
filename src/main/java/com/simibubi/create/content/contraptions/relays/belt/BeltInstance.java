@@ -2,12 +2,15 @@ package com.simibubi.create.content.contraptions.relays.belt;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.LightLayer;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.base.KineticTileInstance;
@@ -16,11 +19,6 @@ import com.simibubi.create.foundation.block.render.SpriteShiftEntry;
 import com.simibubi.create.foundation.render.AllMaterialSpecs;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.item.DyeColor;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.world.LightType;
 
 public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
 
@@ -126,8 +124,8 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
 
         Direction.Axis axis = dir.getAxis();
 
-        Supplier<MatrixStack> ms = () -> {
-            MatrixStack modelTransform = new MatrixStack();
+        Supplier<PoseStack> ms = () -> {
+            PoseStack modelTransform = new PoseStack();
             MatrixStacker msr = MatrixStacker.of(modelTransform);
             msr.centre();
             if (axis == Direction.Axis.X)
@@ -155,7 +153,7 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
     private BeltData setup(BeltData key, boolean bottom, SpriteShiftEntry spriteShift) {
         boolean downward = beltSlope == BeltSlope.DOWNWARD;
         float rotX = (!diagonal && beltSlope != BeltSlope.HORIZONTAL ? 90 : 0) + (downward ? 180 : 0) + (sideways ? 90 : 0) + (vertical && alongZ ? 180 : 0);
-        float rotY = facing.getHorizontalAngle() + ((diagonal ^ alongX) && !downward ? 180 : 0) + (sideways && alongZ ? 180 : 0) + (vertical && alongX ? 90 : 0);
+        float rotY = facing.toYRot() + ((diagonal ^ alongX) && !downward ? 180 : 0) + (sideways && alongZ ? 180 : 0) + (vertical && alongX ? 90 : 0);
         float rotZ = (sideways ? 90 : 0) + (vertical && alongX ? 90 : 0);
 
         Quaternion q = new Quaternion(rotX, rotY, rotZ, true);
@@ -167,8 +165,8 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
 				.setRotationOffset(bottom ? 0.5f : 0f)
                 .setColor(tile)
                 .setPosition(getInstancePosition())
-                .setBlockLight(world.getLightLevel(LightType.BLOCK, pos))
-                .setSkyLight(world.getLightLevel(LightType.SKY, pos));
+                .setBlockLight(world.getLightLevel(LightLayer.BLOCK, pos))
+                .setSkyLight(world.getLightLevel(LightLayer.SKY, pos));
 
         return key;
     }

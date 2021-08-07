@@ -4,7 +4,7 @@ import com.jozufozu.flywheel.backend.instancing.ITickableInstance;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.jozufozu.flywheel.core.materials.ModelData;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.MatrixStacker;
@@ -20,7 +20,7 @@ public class AdjustableRepeaterInstance extends TileEntityInstance<AdjustableRep
 
         indicator = modelManager.getTransformMaterial().getModel(AllBlockPartials.FLEXPEATER_INDICATOR, blockState).createInstance();
 
-        MatrixStack ms = new MatrixStack();
+        PoseStack ms = new PoseStack();
         MatrixStacker.of(ms).translate(getInstancePosition());
 
         indicator

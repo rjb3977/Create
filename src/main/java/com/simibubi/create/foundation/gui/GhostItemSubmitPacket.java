@@ -2,11 +2,11 @@ package com.simibubi.create.foundation.gui;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.ItemStack;
 
 public class GhostItemSubmitPacket implements C2SPacket {
 
@@ -21,28 +21,28 @@ public class GhostItemSubmitPacket implements C2SPacket {
 	}
 
 	@Override
-	public void read(PacketBuffer buffer) {
-		item = buffer.readItemStack();
+	public void read(FriendlyByteBuf buffer) {
+		item = buffer.readItem();
 		slot = buffer.readInt();
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
-		buffer.writeItemStack(item);
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeItem(item);
 		buffer.writeInt(slot);
 	}
 
 	@Override
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, SimpleChannel.ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, SimpleChannel.ResponseTarget responseTarget) {
 		server
 				.execute(() -> {
 					if (player == null)
 						return;
 
-					if (player.openContainer instanceof GhostItemContainer) {
-						GhostItemContainer<?> c = (GhostItemContainer<?>) player.openContainer;
+					if (player.containerMenu instanceof GhostItemContainer) {
+						GhostItemContainer<?> c = (GhostItemContainer<?>) player.containerMenu;
 						c.ghostInventory.setStackInSlot(slot, item);
-						c.getSlot(36 + slot).onSlotChanged();
+						c.getSlot(36 + slot).setChanged();
 					}
 
 			});

@@ -4,10 +4,10 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 
 @Environment(EnvType.CLIENT)
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public abstract class WorldRendererMixin {
 //	@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/matrix/MatrixStack;push()V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILEXCEPTION,
 //			method = "Lnet/minecraft/client/renderer/WorldRenderer;render(Lcom/mojang/blaze3d/matrix/MatrixStack;FJZLnet/minecraft/client/renderer/ActiveRenderInfo;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/util/math/vector/Matrix4f;)V")

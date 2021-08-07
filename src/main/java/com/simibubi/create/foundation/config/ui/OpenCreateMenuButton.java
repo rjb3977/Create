@@ -3,8 +3,7 @@ package com.simibubi.create.foundation.config.ui;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.gui.ScreenOpener;
@@ -12,37 +11,37 @@ import com.simibubi.create.foundation.gui.mainMenu.CreateMainMenuScreen;
 
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.IngameMenuScreen;
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.item.ItemStack;
 
 public class OpenCreateMenuButton extends Button {
 
 	public static ItemStack icon = AllItems.GOGGLES.asStack();
 
 	public OpenCreateMenuButton(int x, int y) {
-		super(x, y, 20, 20, StringTextComponent.EMPTY, OpenCreateMenuButton::click);
+		super(x, y, 20, 20, TextComponent.EMPTY, OpenCreateMenuButton::click);
 	}
 
 	@Override
-	public void render(MatrixStack mstack, int mouseX, int mouseY, float pticks) {
+	public void render(PoseStack mstack, int mouseX, int mouseY, float pticks) {
 		super.render(mstack, mouseX, mouseY, pticks);
-		Minecraft.getInstance().getItemRenderer().renderItemIntoGUI(icon, x + 2, y + 2);
+		Minecraft.getInstance().getItemRenderer().renderGuiItem(icon, x + 2, y + 2);
 	}
 
 	public static void click(Button b) {
-		ScreenOpener.open(new CreateMainMenuScreen(Minecraft.getInstance().currentScreen));
+		ScreenOpener.open(new CreateMainMenuScreen(Minecraft.getInstance().screen));
 	}
 
 	public static class SingleMenuRow {
 		public final String left, right;
 		public SingleMenuRow(String left, String right) {
-			this.left = I18n.format(left);
-			this.right = I18n.format(right);
+			this.left = I18n.get(left);
+			this.right = I18n.get(right);
 		}
 		public SingleMenuRow(String center) {
 			this(center, center);
@@ -80,11 +79,11 @@ public class OpenCreateMenuButton extends Button {
 
 			MenuRows menu = null;
 			int rowIdx = 0, offsetX = 0;
-			if (gui instanceof MainMenuScreen) {
+			if (gui instanceof TitleScreen) {
 				menu = MenuRows.MAIN_MENU;
 				rowIdx = AllConfigs.CLIENT.mainMenuConfigButtonRow.get();
 				offsetX = AllConfigs.CLIENT.mainMenuConfigButtonOffsetX.get();
-			} else if (gui instanceof IngameMenuScreen) {
+			} else if (gui instanceof PauseScreen) {
 				menu = MenuRows.INGAME_MENU;
 				rowIdx = AllConfigs.CLIENT.ingameMenuConfigButtonRow.get();
 				offsetX = AllConfigs.CLIENT.ingameMenuConfigButtonOffsetX.get();

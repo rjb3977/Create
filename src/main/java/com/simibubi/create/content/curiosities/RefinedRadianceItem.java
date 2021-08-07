@@ -1,8 +1,8 @@
 package com.simibubi.create.content.curiosities;
 
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 
 public class RefinedRadianceItem extends NoGravMagicalDohickyItem {
 
@@ -11,14 +11,14 @@ public class RefinedRadianceItem extends NoGravMagicalDohickyItem {
 	}
 
 	@Override
-	public boolean hasEffect(ItemStack stack) {
+	public boolean isFoil(ItemStack stack) {
 		return true;
 	}
 
 	@Override
-	protected void onCreated(ItemEntity entity, CompoundNBT persistentData) {
+	protected void onCreated(ItemEntity entity, CompoundTag persistentData) {
 		super.onCreated(entity, persistentData);
-		entity.setMotion(entity.getMotion()
+		entity.setDeltaMovement(entity.getDeltaMovement()
 			.add(0, .15f, 0));
 	}
 

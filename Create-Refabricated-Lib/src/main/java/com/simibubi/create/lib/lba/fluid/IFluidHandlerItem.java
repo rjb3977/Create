@@ -1,9 +1,8 @@
 package com.simibubi.create.lib.lba.fluid;
 
 import com.simibubi.create.lib.utility.FluidUtil;
-
+import net.minecraft.world.item.ItemStack;
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.item.ItemStack;
 
 public interface IFluidHandlerItem {
 	default int getTanks() {

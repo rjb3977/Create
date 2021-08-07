@@ -21,33 +21,33 @@ import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
 	@Shadow
-	protected PlayerEntity attackingPlayer;
+	protected Player attackingPlayer;
 	@Unique
 	private DamageSource create$currentDamageSource;
 
-	public LivingEntityMixin(EntityType<?> entityType, World world) {
+	public LivingEntityMixin(EntityType<?> entityType, Level world) {
 		super(entityType, world);
 	}
 
 	@Shadow
-	public abstract ItemStack getHeldItem(Hand hand);
+	public abstract ItemStack getHeldItem(InteractionHand hand);
 
 	@Inject(method = "spawnDrops(Lnet/minecraft/util/DamageSource;)V", at = @At("HEAD"))
 	private void create$spawnDropsHEAD(DamageSource source, CallbackInfo ci) {
@@ -62,7 +62,7 @@ public abstract class LivingEntityMixin extends Entity {
 		if (modifiedLevel != 0) {
 			return modifiedLevel;
 		} else {
-			return EnchantmentHelper.getLootingModifier((LivingEntity) create$currentDamageSource.getTrueSource());
+			return EnchantmentHelper.getMobLooting((LivingEntity) create$currentDamageSource.getEntity());
 		}
 	}
 
@@ -76,12 +76,12 @@ public abstract class LivingEntityMixin extends Entity {
 	private void create$spawnDropsTAIL(DamageSource source, CallbackInfo ci) {
 		Collection<ItemEntity> drops = ((EntityExtensions) this).create$captureDrops(null);
 		if (!LivingEntityEvents.DROPS.invoker().onLivingEntityDrops(source, drops))
-			drops.forEach(e -> world.addEntity(e));
+			drops.forEach(e -> level.addFreshEntity(e));
 	}
 
 	@Environment(EnvType.CLIENT)
 	@Inject(method = "swingHand(Lnet/minecraft/util/Hand;Z)V", at = @At("HEAD"), cancellable = true)
-	private void create$swingHand(Hand hand, boolean bl, CallbackInfo ci) {
+	private void create$swingHand(InteractionHand hand, boolean bl, CallbackInfo ci) {
 		ItemStack stack = getHeldItem(hand);
 		if (!stack.isEmpty() && stack.getItem() instanceof EntitySwingListenerItem && ((EntitySwingListenerItem) stack.getItem())
 				.onEntitySwing(stack, (LivingEntity) (Object) this)) ci.cancel();
@@ -110,8 +110,8 @@ public abstract class LivingEntityMixin extends Entity {
 			method = "updateFallState(DZLnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;)V", cancellable = true)
 	protected void create$updateFallState(double d, boolean bl, BlockState blockState, BlockPos blockPos, CallbackInfo ci,
 										  float f, double e, int i) {
-		if (((BlockStateExtensions) blockState).create$addLandingEffects((ServerWorld) world, blockPos, blockState, MixinHelper.cast(this), i)) {
-			super.updateFallState(d, bl, blockState, blockPos);
+		if (((BlockStateExtensions) blockState).create$addLandingEffects((ServerLevel) level, blockPos, blockState, MixinHelper.cast(this), i)) {
+			super.checkFallDamage(d, bl, blockState, blockPos);
 			ci.cancel();
 		}
 	}
@@ -121,7 +121,7 @@ public abstract class LivingEntityMixin extends Entity {
 			method = "travel(Lnet/minecraft/util/math/vector/Vector3d;)V",
 			index = 7)
 	public float create$setSlipperiness(float t) {
-		return ((BlockStateExtensions) MixinHelper.<LivingEntity>cast(this).world.getBlockState(getVelocityAffectingPos()))
-				.create$getSlipperiness(MixinHelper.<LivingEntity>cast(this).world, getVelocityAffectingPos(), MixinHelper.<LivingEntity>cast(this));
+		return ((BlockStateExtensions) MixinHelper.<LivingEntity>cast(this).level.getBlockState(getBlockPosBelowThatAffectsMyMovement()))
+				.create$getSlipperiness(MixinHelper.<LivingEntity>cast(this).level, getBlockPosBelowThatAffectsMyMovement(), MixinHelper.<LivingEntity>cast(this));
 	}
 }

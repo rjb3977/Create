@@ -4,15 +4,15 @@ import com.simibubi.create.AllBlocks;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class EjectorPlacementPacket implements C2SPacket {
 
@@ -29,36 +29,36 @@ public class EjectorPlacementPacket implements C2SPacket {
 		this.facing = facing;
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		h = buffer.readInt();
 		v = buffer.readInt();
 		pos = buffer.readBlockPos();
-		facing = Direction.byIndex(buffer.readVarInt());
+		facing = Direction.from3DDataValue(buffer.readVarInt());
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(h);
 		buffer.writeInt(v);
 		buffer.writeBlockPos(pos);
-		buffer.writeVarInt(facing.getIndex());
+		buffer.writeVarInt(facing.get3DDataValue());
 	}
 
 	@Override
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, ResponseTarget responseTarget) {
 		server
 			.execute(() -> {
 				if (player == null)
 					return;
-				World world = player.world;
-				if (world == null || !world.isBlockPresent(pos))
+				Level world = player.level;
+				if (world == null || !world.isLoaded(pos))
 					return;
-				TileEntity tileEntity = world.getTileEntity(pos);
+				BlockEntity tileEntity = world.getBlockEntity(pos);
 				BlockState state = world.getBlockState(pos);
 				if (tileEntity instanceof EjectorTileEntity)
 					((EjectorTileEntity) tileEntity).setTarget(h, v);
 				if (AllBlocks.WEIGHTED_EJECTOR.has(state))
-					world.setBlockState(pos, state.with(EjectorBlock.HORIZONTAL_FACING, facing));
+					world.setBlockAndUpdate(pos, state.setValue(EjectorBlock.HORIZONTAL_FACING, facing));
 			});
 
 	}

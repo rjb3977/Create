@@ -5,14 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import com.simibubi.create.content.logistics.item.filter.ItemAttribute;
-
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
 public class FluidContentsAttribute implements ItemAttribute {
     public static final FluidContentsAttribute EMPTY = new FluidContentsAttribute(null);
@@ -47,7 +45,7 @@ public class FluidContentsAttribute implements ItemAttribute {
     }
 
     @Override
-    public void writeNBT(CompoundNBT nbt) {
+    public void writeNBT(CompoundTag nbt) {
         if (fluid == null)
             return;
         ResourceLocation id = Registry.FLUID.getKey(fluid);
@@ -57,8 +55,8 @@ public class FluidContentsAttribute implements ItemAttribute {
     }
 
     @Override
-    public ItemAttribute readNBT(CompoundNBT nbt) {
-        return nbt.contains("id") ? new FluidContentsAttribute(Registry.FLUID.getOrDefault(ResourceLocation.tryCreate(nbt.getString("id")))) : EMPTY;
+    public ItemAttribute readNBT(CompoundTag nbt) {
+        return nbt.contains("id") ? new FluidContentsAttribute(Registry.FLUID.get(ResourceLocation.tryParse(nbt.getString("id")))) : EMPTY;
     }
 
     private List<Fluid> extractFluids(ItemStack stack) {

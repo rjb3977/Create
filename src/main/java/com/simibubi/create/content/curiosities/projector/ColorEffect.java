@@ -5,14 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
+import net.minecraft.network.chat.Component;
+import com.mojang.math.Matrix4f;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.render.effects.ColorMatrices;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueBehaviour;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.text.ITextComponent;
 
 public class ColorEffect {
 	static final ArrayList<ColorEffect> all = new ArrayList<>();
@@ -91,8 +89,8 @@ public class ColorEffect {
 		return "" + value;
 	}
 
-	static List<ITextComponent> getOptions() {
-		List<ITextComponent> options = new ArrayList<>();
+	static List<Component> getOptions() {
+		List<Component> options = new ArrayList<>();
 		for (ColorEffect entry : all)
 			options.add(Lang.translate(entry.translationKey));
 		return options;

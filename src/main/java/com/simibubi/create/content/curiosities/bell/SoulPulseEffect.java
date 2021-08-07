@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import net.minecraft.entity.EntitySpawnPlacementRegistry;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
-import net.minecraft.world.spawner.WorldEntitySpawner;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SoulPulseEffect {
 
@@ -42,7 +41,7 @@ public class SoulPulseEffect {
 		return added == null;
 	}
 
-	public List<BlockPos> tick(World world) {
+	public List<BlockPos> tick(Level world) {
 		if (finished())
 			return null;
 
@@ -62,36 +61,36 @@ public class SoulPulseEffect {
 		return distance - ticks / TICKS_PER_LAYER - 1;
 	}
 
-	public List<BlockPos> getSoulSpawns(World world) {
+	public List<BlockPos> getSoulSpawns(Level world) {
 		if (world == null)
 			return new ArrayList<>();
 
-		return getLayer(currentLayerIdx()).map(p -> p.add(pos))
+		return getLayer(currentLayerIdx()).map(p -> p.offset(pos))
 				.filter(p -> canSpawnSoulAt(world, p))
 				.collect(Collectors.toList());
 	}
 
-	public static boolean canSpawnSoulAt(World world, BlockPos at) {
+	public static boolean canSpawnSoulAt(Level world, BlockPos at) {
 		EntityType<?> dummy = EntityType.ZOMBIE;
 		double dummyWidth = 0.2, dummyHeight = 0.75;
 		double w2 = dummyWidth / 2;
 
 		return world != null
-			&& WorldEntitySpawner.canCreatureTypeSpawnAtLocation(
-				EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, world, at, dummy)
-			&& world.getLightLevel(LightType.BLOCK, at) < 8
-			&& world.getBlockCollisions(null, new AxisAlignedBB(
+			&& NaturalSpawner.isSpawnPositionOk(
+				SpawnPlacements.Type.ON_GROUND, world, at, dummy)
+			&& world.getBrightness(LightLayer.BLOCK, at) < 8
+			&& world.getBlockCollisions(null, new AABB(
 				at.getX() + 0.5 - w2, at.getY(), at.getZ() + 0.5 - w2,
 				at.getX() + 0.5 + w2, at.getY() + dummyHeight, at.getZ() + 0.5 + w2
 			), (a,b) -> true).allMatch(VoxelShape::isEmpty);
 	}
 
-	public void spawnParticles(World world, BlockPos at) {
-		if (world == null || !world.isRemote)
+	public void spawnParticles(Level world, BlockPos at) {
+		if (world == null || !world.isClientSide)
 			return;
 
-		Vector3d p = Vector3d.of(at);
-		world.addOptionalParticle(new SoulParticle.Data(), p.x + 0.5, p.y + 0.5, p.z + 0.5, 0, 0, 0);
+		Vec3 p = Vec3.atLowerCornerOf(at);
+		world.addAlwaysVisibleParticle(new SoulParticle.Data(), p.x + 0.5, p.y + 0.5, p.z + 0.5, 0, 0, 0);
 		world.addParticle(new SoulBaseParticle.Data(), p.x + 0.5, p.y + 0.01, p.z + 0.5, 0, 0, 0);
 	}
 
@@ -105,7 +104,7 @@ public class SoulPulseEffect {
 				for (int z = 0; z < MAX_DISTANCE; z++) {
 					BlockPos candidate = new BlockPos(x, y, z);
 
-					int dist = (int) Math.round(Math.sqrt(candidate.distanceSq(0, 0, 0, false)));
+					int dist = (int) Math.round(Math.sqrt(candidate.distSqr(0, 0, 0, false)));
 					if (dist > MAX_DISTANCE)
 						continue;
 					if (dist <= 0)

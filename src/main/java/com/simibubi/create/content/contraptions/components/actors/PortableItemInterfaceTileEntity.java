@@ -6,15 +6,14 @@ import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.ItemStackUtil;
 import com.simibubi.create.lib.utility.LazyOptional;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class PortableItemInterfaceTileEntity extends PortableStorageInterfaceTileEntity {
 
 	protected LazyOptional<IItemHandlerModifiable> capability;
 
-	public PortableItemInterfaceTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public PortableItemInterfaceTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 		capability = LazyOptional.empty();
 	}

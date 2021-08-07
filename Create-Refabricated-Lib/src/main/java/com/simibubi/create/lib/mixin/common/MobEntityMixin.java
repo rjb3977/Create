@@ -8,16 +8,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.simibubi.create.lib.event.MobEntitySetTargetCallback;
 import com.simibubi.create.lib.item.EquipmentItem;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public abstract class MobEntityMixin {
 	@Inject(at = @At("HEAD"), method = "getSlotForItemStack(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/inventory/EquipmentSlotType;", cancellable = true)
-	private static void create$getSlotForItemStack(ItemStack itemStack, CallbackInfoReturnable<EquipmentSlotType> cir) {
+	private static void create$getSlotForItemStack(ItemStack itemStack, CallbackInfoReturnable<EquipmentSlot> cir) {
 		if (itemStack.getItem() instanceof EquipmentItem) {
 			cir.setReturnValue(((EquipmentItem) itemStack.getItem()).getEquipmentSlot(itemStack));
 		}
@@ -25,6 +24,6 @@ public abstract class MobEntityMixin {
 
 	@Inject(method = "setAttackTarget(Lnet/minecraft/entity/LivingEntity;)V", at = @At("TAIL"))
 	private void create$setTarget(LivingEntity target, CallbackInfo ci) {
-		MobEntitySetTargetCallback.EVENT.invoker().onMobEntitySetTarget((MobEntity) (Object) this, target);
+		MobEntitySetTargetCallback.EVENT.invoker().onMobEntitySetTarget((Mob) (Object) this, target);
 	}
 }

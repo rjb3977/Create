@@ -8,21 +8,21 @@ import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.content.contraptions.base.RotatedPillarKineticBlock;
 
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext.Builder;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.loot.LootContext.Builder;
+import net.minecraft.world.phys.HitResult;
 
 public class GearboxBlock extends RotatedPillarKineticBlock implements BlockPickInteractionAware {
 
@@ -31,51 +31,51 @@ public class GearboxBlock extends RotatedPillarKineticBlock implements BlockPick
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.GEARBOX.create();
 	}
 
 	@Override
-	public PushReaction getPushReaction(BlockState state) {
+	public PushReaction getPistonPushReaction(BlockState state) {
 		return PushReaction.PUSH_ONLY;
 	}
 
 	@Override
-	public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
-		super.fillItemGroup(group, items);
+	public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
+		super.fillItemCategory(group, items);
 		items.add(AllItems.VERTICAL_GEARBOX.asStack());
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public List<ItemStack> getDrops(BlockState state, Builder builder) {
-		if (state.get(AXIS).isVertical())
+		if (state.getValue(AXIS).isVertical())
 			return super.getDrops(state, builder);
 		return Arrays.asList(new ItemStack(AllItems.VERTICAL_GEARBOX.get()));
 	}
 
 	@Override
-	public ItemStack getPickedStack(BlockState state, IBlockReader world, BlockPos pos, PlayerEntity player, RayTraceResult target) {
-		if (state.get(AXIS).isVertical())
+	public ItemStack getPickedStack(BlockState state, BlockGetter world, BlockPos pos, Player player, HitResult target) {
+		if (state.getValue(AXIS).isVertical())
 //			return super.getPickBlock(state, target, world, pos, player);
-			return super.getItem(world, pos, state);
+			return super.getCloneItemStack(world, pos, state);
 		return new ItemStack(AllItems.VERTICAL_GEARBOX.get());
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		return getDefaultState().with(AXIS, Axis.Y);
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return defaultBlockState().setValue(AXIS, Axis.Y);
 	}
 
 	// IRotate:
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
-		return face.getAxis() != state.get(AXIS);
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
+		return face.getAxis() != state.getValue(AXIS);
 	}
 
 	@Override
 	public Axis getRotationAxis(BlockState state) {
-		return state.get(AXIS);
+		return state.getValue(AXIS);
 	}
 }

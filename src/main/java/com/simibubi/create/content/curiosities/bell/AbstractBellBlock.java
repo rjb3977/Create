@@ -3,21 +3,20 @@ package com.simibubi.create.content.curiosities.bell;
 import javax.annotation.Nullable;
 
 import com.simibubi.create.foundation.block.ITE;
-
-import net.minecraft.block.BellBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.properties.BellAttachment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.stats.Stats;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BellBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BellAttachType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public abstract class AbstractBellBlock<TE extends AbstractBellTileEntity> extends BellBlock implements ITE<TE> {
 
@@ -27,55 +26,55 @@ public abstract class AbstractBellBlock<TE extends AbstractBellTileEntity> exten
 
 	@Override
 	@Nullable
-	public TileEntity createNewTileEntity(IBlockReader block) {
+	public BlockEntity newBlockEntity(BlockGetter block) {
 		return null;
 	}
 
-	protected VoxelShape getShape(BlockState state) {
-		return VoxelShapes.fullCube();
+	protected VoxelShape getVoxelShape(BlockState state) {
+		return Shapes.block();
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext selection) {
-		return this.getShape(state);
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext selection) {
+		return this.getVoxelShape(state);
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext selection) {
-		return this.getShape(state);
+	public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext selection) {
+		return this.getVoxelShape(state);
 	}
 
 	@Override
-	public boolean ring(World world, BlockState state, BlockRayTraceResult hit, @Nullable PlayerEntity player, boolean flag) {
-		BlockPos pos = hit.getPos();
-		Direction direction = hit.getFace();
+	public boolean onHit(Level world, BlockState state, BlockHitResult hit, @Nullable Player player, boolean flag) {
+		BlockPos pos = hit.getBlockPos();
+		Direction direction = hit.getDirection();
 		if (direction == null)
-			direction = world.getBlockState(pos).get(field_220133_a);
+			direction = world.getBlockState(pos).getValue(FACING);
 
-		if (!this.canRingFrom(state, direction, hit.getHitVec().y - pos.getY()))
+		if (!this.isProperHit(state, direction, hit.getLocation().y - pos.getY()))
 			return false;
 
 		TE te = getTileEntity(world, pos);
 		if (te == null || !te.ring(world, pos, direction))
 			return false;
 
-		if (!world.isRemote) {
+		if (!world.isClientSide) {
 			playSound(world, pos);
 			if (player != null)
-				player.addStat(Stats.BELL_RING);
+				player.awardStat(Stats.BELL_RING);
 		}
 
 		return true;
 	}
 
-	public boolean canRingFrom(BlockState state, Direction hitDir, double heightChange) {
+	public boolean isProperHit(BlockState state, Direction hitDir, double heightChange) {
 		if (hitDir.getAxis() == Direction.Axis.Y)
 			return false;
 		if (heightChange > 0.8124)
 			return false;
 
-		Direction direction = state.get(field_220133_a);
-		BellAttachment bellAttachment = state.get(field_220134_b);
+		Direction direction = state.getValue(FACING);
+		BellAttachType bellAttachment = state.getValue(ATTACHMENT);
 		switch(bellAttachment) {
 			case FLOOR:
 			case CEILING:
@@ -88,6 +87,6 @@ public abstract class AbstractBellBlock<TE extends AbstractBellTileEntity> exten
 		}
 	}
 
-	public abstract void playSound(World world, BlockPos pos);
+	public abstract void playSound(Level world, BlockPos pos);
 
 }

@@ -7,14 +7,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.lib.event.FogEvents;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.vector.Vector3f;
 
 @Environment(EnvType.CLIENT)
 @Mixin(FogRenderer.class)
@@ -31,16 +31,16 @@ public abstract class FogRendererMixin {
 
 	@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;clearColor(FFFF)V"),
 			method = "render(Lnet/minecraft/client/renderer/ActiveRenderInfo;FLnet/minecraft/client/world/ClientWorld;IF)V")
-	private static void render(ActiveRenderInfo activeRenderInfo, float f, ClientWorld clientWorld, int i, float g, CallbackInfo ci) {
+	private static void render(Camera activeRenderInfo, float f, ClientLevel clientWorld, int i, float g, CallbackInfo ci) {
 		Vector3f color = FogEvents.SET_COLOR.invoker().setColor(activeRenderInfo, new Vector3f(red, green, blue));
-		red = color.getX();
-		green = color.getY();
-		blue = color.getZ();
+		red = color.x();
+		green = color.y();
+		blue = color.z();
 	}
 
 	@Inject(at = @At("HEAD"),
 			method = "applyFog(Lnet/minecraft/client/renderer/ActiveRenderInfo;Lnet/minecraft/client/renderer/FogRenderer$FogType;FZ)V", cancellable = true)
-	private static void applyFog(ActiveRenderInfo activeRenderInfo, FogRenderer.FogType fogType, float f, boolean bl, CallbackInfo ci) {
+	private static void applyFog(Camera activeRenderInfo, FogRenderer.FogMode fogType, float f, boolean bl, CallbackInfo ci) {
 		float density = FogEvents.SET_DENSITY.invoker().setDensity(activeRenderInfo, 0.1f);
 		if (density != 0.1f) {
 			RenderSystem.fogDensity(density);

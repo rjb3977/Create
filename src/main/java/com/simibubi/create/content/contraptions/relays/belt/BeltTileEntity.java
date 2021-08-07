@@ -2,8 +2,8 @@ package com.simibubi.create.content.contraptions.relays.belt;
 
 import static com.simibubi.create.content.contraptions.relays.belt.BeltPart.MIDDLE;
 import static com.simibubi.create.content.contraptions.relays.belt.BeltSlope.HORIZONTAL;
-import static net.minecraft.util.Direction.AxisDirection.NEGATIVE;
-import static net.minecraft.util.Direction.AxisDirection.POSITIVE;
+import static net.minecraft.core.Direction.AxisDirection.NEGATIVE;
+import static net.minecraft.core.Direction.AxisDirection.POSITIVE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,23 +36,23 @@ import com.tterrag.registrate.fabric.EnvExecutor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.IBlockDisplayReader;
-import net.minecraft.world.LightType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
 
 public class BeltTileEntity extends KineticTileEntity implements LightUpdateListener, RenderAttachmentBlockEntity {
 
@@ -67,7 +67,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	protected BeltInventory inventory;
 	protected ItemStackHandler itemHandler;
 
-	public CompoundNBT trackerUpdateTag;
+	public CompoundTag trackerUpdateTag;
 
 	// client
 	public byte[] light;
@@ -76,7 +76,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		NONE, ANDESITE, BRASS;
 	}
 
-	public BeltTileEntity(TileEntityType<? extends BeltTileEntity> type) {
+	public BeltTileEntity(BlockEntityType<? extends BeltTileEntity> type) {
 		super(type);
 		controller = BlockPos.ZERO;
 		itemHandler = null;
@@ -99,8 +99,8 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 
 		// Init belt
 		if (beltLength == 0)
-			BeltBlock.initBelt(world, pos);
-		if (!AllBlocks.BELT.has(world.getBlockState(pos)))
+			BeltBlock.initBelt(level, worldPosition);
+		if (!AllBlocks.BELT.has(level.getBlockState(worldPosition)))
 			return;
 
 		initializeItemHandler();
@@ -109,7 +109,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		if (!isController())
 			return;
 
-		if (light == null && world.isRemote) {
+		if (light == null && level.isClientSide) {
 			initializeLight();
 			LightUpdater.getInstance()
 				.startListening(getBeltVolume(), this);
@@ -128,7 +128,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		passengers.forEach((entity, info) -> {
 			boolean canBeTransported = BeltMovementHandler.canBeTransported(entity);
 			boolean leftTheBelt =
-				info.getTicksSinceLastCollision() > ((getBlockState().get(BeltBlock.SLOPE) != HORIZONTAL) ? 3 : 1);
+				info.getTicksSinceLastCollision() > ((getBlockState().getValue(BeltBlock.SLOPE) != HORIZONTAL) ? 3 : 1);
 			if (!canBeTransported || leftTheBelt) {
 				toRemove.add(entity);
 				return;
@@ -156,11 +156,11 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 //	}
 
 	protected void initializeItemHandler() {
-		if (world.isRemote || itemHandler != null)
+		if (level.isClientSide || itemHandler != null)
 			return;
-		if (!world.isBlockPresent(controller))
+		if (!level.isLoaded(controller))
 			return;
-		TileEntity te = world.getTileEntity(controller);
+		BlockEntity te = level.getBlockEntity(controller);
 		if (te == null || !(te instanceof BeltTileEntity))
 			return;
 		BeltInventory inventory = ((BeltTileEntity) te).getInventory();
@@ -180,15 +180,15 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 //	}
 
 	@Override
-	public void remove() {
-		super.remove();
+	public void setRemoved() {
+		super.setRemoved();
 		itemHandler = null;
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		if (controller != null)
-			compound.put("Controller", NBTUtil.writeBlockPos(controller));
+			compound.put("Controller", NbtUtils.writeBlockPos(controller));
 		compound.putBoolean("IsController", isController());
 		compound.putInt("Length", beltLength);
 		compound.putInt("Index", index);
@@ -203,18 +203,18 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		super.fromTag(state, compound, clientPacket);
 
 		if (compound.getBoolean("IsController"))
-			controller = pos;
+			controller = worldPosition;
 
 		color = compound.contains("Dye") ? Optional.of(NBTHelper.readEnum(compound, "Dye", DyeColor.class))
 			: Optional.empty();
 
 		if (!wasMoved) {
 			if (!isController())
-				controller = NBTUtil.readBlockPos(compound.getCompound("Controller"));
+				controller = NbtUtils.readBlockPos(compound.getCompound("Controller"));
 			trackerUpdateTag = compound;
 			beltLength = compound.getInt("Length");
 			index = compound.getInt("Index");
@@ -233,8 +233,8 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 			return;
 		if (!isVirtual())
 //			requestModelDataUpdate();
-		if (hasWorld())
-			world.notifyBlockUpdate(getPos(), getBlockState(), getBlockState(), 16);
+		if (hasLevel())
+			level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 16);
 	}
 
 	@Override
@@ -243,7 +243,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		beltLength = 0;
 		index = 0;
 		controller = null;
-		trackerUpdateTag = new CompoundNBT();
+		trackerUpdateTag = new CompoundTag();
 	}
 
 	public void applyColor(DyeColor colorIn) {
@@ -253,12 +253,12 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		} else if (color.isPresent() && color.get() == colorIn)
 			return;
 
-		for (BlockPos blockPos : BeltBlock.getBeltChain(world, getController())) {
-			BeltTileEntity belt = BeltHelper.getSegmentTE(world, blockPos);
+		for (BlockPos blockPos : BeltBlock.getBeltChain(level, getController())) {
+			BeltTileEntity belt = BeltHelper.getSegmentTE(level, blockPos);
 			if (belt == null)
 				continue;
 			belt.color = Optional.ofNullable(colorIn);
-			belt.markDirty();
+			belt.setChanged();
 			belt.sendData();
 			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(belt));
 		}
@@ -267,9 +267,9 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	public BeltTileEntity getControllerTE() {
 		if (controller == null)
 			return null;
-		if (!world.isBlockPresent(controller))
+		if (!level.isLoaded(controller))
 			return null;
-		TileEntity te = world.getTileEntity(controller);
+		BlockEntity te = level.getBlockEntity(controller);
 		if (te == null || !(te instanceof BeltTileEntity))
 			return null;
 		return (BeltTileEntity) te;
@@ -280,12 +280,12 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	}
 
 	public BlockPos getController() {
-		return controller == null ? pos : controller;
+		return controller == null ? worldPosition : controller;
 	}
 
 	public boolean isController() {
-		return controller != null && pos.getX() == controller.getX() && pos.getY() == controller.getY()
-			&& pos.getZ() == controller.getZ();
+		return controller != null && worldPosition.getX() == controller.getX() && worldPosition.getY() == controller.getY()
+			&& worldPosition.getZ() == controller.getZ();
 	}
 
 	public float getBeltMovementSpeed() {
@@ -294,7 +294,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 
 	public float getDirectionAwareBeltMovementSpeed() {
 		int offset = getBeltFacing().getAxisDirection()
-			.getOffset();
+			.getStep();
 		if (getBeltFacing().getAxis() == Axis.X)
 			offset *= -1;
 		return getBeltMovementSpeed() * offset;
@@ -303,7 +303,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	public boolean hasPulley() {
 		if (!AllBlocks.BELT.has(getBlockState()))
 			return false;
-		return getBlockState().get(BeltBlock.PART) != MIDDLE;
+		return getBlockState().getValue(BeltBlock.PART) != MIDDLE;
 	}
 
 	protected boolean isLastBelt() {
@@ -311,41 +311,41 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 			return false;
 
 		Direction direction = getBeltFacing();
-		if (getBlockState().get(BeltBlock.SLOPE) == BeltSlope.VERTICAL)
+		if (getBlockState().getValue(BeltBlock.SLOPE) == BeltSlope.VERTICAL)
 			return false;
 
-		BeltPart part = getBlockState().get(BeltBlock.PART);
+		BeltPart part = getBlockState().getValue(BeltBlock.PART);
 		if (part == MIDDLE)
 			return false;
 
 		boolean movingPositively = (getSpeed() > 0 == (direction.getAxisDirection()
-			.getOffset() == 1)) ^ direction.getAxis() == Axis.X;
+			.getStep() == 1)) ^ direction.getAxis() == Axis.X;
 		return part == BeltPart.START ^ movingPositively;
 	}
 
-	public Vector3i getMovementDirection(boolean firstHalf) {
+	public Vec3i getMovementDirection(boolean firstHalf) {
 		return this.getMovementDirection(firstHalf, false);
 	}
 
-	public Vector3i getBeltChainDirection() {
+	public Vec3i getBeltChainDirection() {
 		return this.getMovementDirection(true, true);
 	}
 
-	protected Vector3i getMovementDirection(boolean firstHalf, boolean ignoreHalves) {
+	protected Vec3i getMovementDirection(boolean firstHalf, boolean ignoreHalves) {
 		if (getSpeed() == 0)
 			return BlockPos.ZERO;
 
 		final BlockState blockState = getBlockState();
-		final Direction beltFacing = blockState.get(BlockStateProperties.HORIZONTAL_FACING);
-		final BeltSlope slope = blockState.get(BeltBlock.SLOPE);
-		final BeltPart part = blockState.get(BeltBlock.PART);
+		final Direction beltFacing = blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
+		final BeltSlope slope = blockState.getValue(BeltBlock.SLOPE);
+		final BeltPart part = blockState.getValue(BeltBlock.PART);
 		final Axis axis = beltFacing.getAxis();
 
-		Direction movementFacing = Direction.getFacingFromAxis(axis == Axis.X ? NEGATIVE : POSITIVE, axis);
-		boolean notHorizontal = blockState.get(BeltBlock.SLOPE) != HORIZONTAL;
+		Direction movementFacing = Direction.get(axis == Axis.X ? NEGATIVE : POSITIVE, axis);
+		boolean notHorizontal = blockState.getValue(BeltBlock.SLOPE) != HORIZONTAL;
 		if (getSpeed() < 0)
 			movementFacing = movementFacing.getOpposite();
-		Vector3i movement = movementFacing.getDirectionVec();
+		Vec3i movement = movementFacing.getNormal();
 
 		boolean slopeBeforeHalf = (part == BeltPart.END) == (beltFacing.getAxisDirection() == POSITIVE);
 		boolean onSlope = notHorizontal && (part == MIDDLE || slopeBeforeHalf == firstHalf || ignoreHalves);
@@ -354,17 +354,17 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		if (!onSlope)
 			return movement;
 
-		return new Vector3i(movement.getX(), movingUp ? 1 : -1, movement.getZ());
+		return new Vec3i(movement.getX(), movingUp ? 1 : -1, movement.getZ());
 	}
 
 	public Direction getMovementFacing() {
 		Axis axis = getBeltFacing().getAxis();
-		return Direction.getFacingFromAxisDirection(axis,
+		return Direction.fromAxisAndDirection(axis,
 			getBeltMovementSpeed() < 0 ^ axis == Axis.X ? NEGATIVE : POSITIVE);
 	}
 
 	protected Direction getBeltFacing() {
-		return getBlockState().get(BlockStateProperties.HORIZONTAL_FACING);
+		return getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
 	}
 
 	public BeltInventory getInventory() {
@@ -390,10 +390,10 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 			inventory.applyToEachWithin(index + .5f, maxDistanceFromCenter, processFunction);
 	}
 
-	private Vector3d getWorldPositionOf(TransportedItemStack transported) {
+	private Vec3 getWorldPositionOf(TransportedItemStack transported) {
 		BeltTileEntity controllerTE = getControllerTE();
 		if (controllerTE == null)
-			return Vector3d.ZERO;
+			return Vec3.ZERO;
 		return BeltHelper.getVectorForOffset(controllerTE, transported.beltPosition);
 	}
 
@@ -401,15 +401,15 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		if (casing == type)
 			return;
 		if (casing != CasingType.NONE)
-			world.playEvent(2001, pos,
-				Block.getStateId(casing == CasingType.ANDESITE ? AllBlocks.ANDESITE_CASING.getDefaultState()
+			level.levelEvent(2001, worldPosition,
+				Block.getId(casing == CasingType.ANDESITE ? AllBlocks.ANDESITE_CASING.getDefaultState()
 					: AllBlocks.BRASS_CASING.getDefaultState()));
 		casing = type;
 		boolean shouldBlockHaveCasing = type != CasingType.NONE;
 		BlockState blockState = getBlockState();
-		if (blockState.get(BeltBlock.CASING) != shouldBlockHaveCasing)
-			KineticTileEntity.switchToBlockState(world, pos, blockState.with(BeltBlock.CASING, shouldBlockHaveCasing));
-		markDirty();
+		if (blockState.getValue(BeltBlock.CASING) != shouldBlockHaveCasing)
+			KineticTileEntity.switchToBlockState(level, worldPosition, blockState.setValue(BeltBlock.CASING, shouldBlockHaveCasing));
+		setChanged();
 		sendData();
 	}
 
@@ -417,8 +417,8 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		if (getSpeed() == 0)
 			return false;
 		BlockState state = getBlockState();
-		if (state.contains(BeltBlock.SLOPE)
-			&& (state.get(BeltBlock.SLOPE) == BeltSlope.SIDEWAYS || state.get(BeltBlock.SLOPE) == BeltSlope.VERTICAL))
+		if (state.hasProperty(BeltBlock.SLOPE)
+			&& (state.getValue(BeltBlock.SLOPE) == BeltSlope.SIDEWAYS || state.getValue(BeltBlock.SLOPE) == BeltSlope.VERTICAL))
 			return false;
 		return getMovementFacing() != side.getOpposite();
 	}
@@ -434,7 +434,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		if (nextInventory == null)
 			return inserted;
 
-		TileEntity teAbove = world.getTileEntity(pos.up());
+		BlockEntity teAbove = level.getBlockEntity(worldPosition.above());
 		if (teAbove instanceof BrassTunnelTileEntity) {
 			BrassTunnelTileEntity tunnelTE = (BrassTunnelTileEntity) teAbove;
 			if (tunnelTE.hasDistributionBehaviour()) {
@@ -468,7 +468,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 			.isVertical()) {
 			if (movementFacing != side) {
 				transportedStack.sideOffset = side.getAxisDirection()
-					.getOffset() * .35f;
+					.getStep() * .35f;
 				if (side.getAxis() == Axis.X)
 					transportedStack.sideOffset *= -1;
 			} else
@@ -483,7 +483,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		BeltTunnelInteractionHandler.flapTunnel(nextInventory, index, side.getOpposite(), true);
 
 		nextInventory.addItem(transportedStack);
-		nextBeltController.markDirty();
+		nextBeltController.setChanged();
 		nextBeltController.sendData();
 		return empty;
 	}
@@ -495,8 +495,8 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 
 	@Override
 	protected boolean canPropagateDiagonally(IRotate block, BlockState state) {
-		return state.contains(BeltBlock.SLOPE)
-			&& (state.get(BeltBlock.SLOPE) == BeltSlope.UPWARD || state.get(BeltBlock.SLOPE) == BeltSlope.DOWNWARD);
+		return state.hasProperty(BeltBlock.SLOPE)
+			&& (state.getValue(BeltBlock.SLOPE) == BeltSlope.UPWARD || state.getValue(BeltBlock.SLOPE) == BeltSlope.DOWNWARD);
 	}
 
 	@Override
@@ -509,25 +509,25 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 
 	@Override
 	public boolean shouldRenderNormally() {
-		if (world == null)
+		if (level == null)
 			return isController();
 		BlockState state = getBlockState();
-		return state != null && state.contains(BeltBlock.PART) && state.get(BeltBlock.PART) == BeltPart.START;
+		return state != null && state.hasProperty(BeltBlock.PART) && state.getValue(BeltBlock.PART) == BeltPart.START;
 	}
 
 	@Override
-	public boolean onLightUpdate(IBlockDisplayReader world, LightType type, GridAlignedBB changed) {
-		if (this.removed) {
+	public boolean onLightUpdate(BlockAndTintGetter world, LightLayer type, GridAlignedBB changed) {
+		if (this.remove) {
 			return true;
 		}
 
 		GridAlignedBB beltVolume = getBeltVolume();
 
 		if (beltVolume.intersects(changed)) {
-			if (type == LightType.BLOCK)
+			if (type == LightLayer.BLOCK)
 				updateBlockLight();
 
-			if (type == LightType.SKY)
+			if (type == LightLayer.SKY)
 				updateSkyLight();
 		}
 
@@ -537,7 +537,7 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	private GridAlignedBB getBeltVolume() {
 		BlockPos endPos = BeltHelper.getPositionForOffset(this, beltLength - 1);
 
-		GridAlignedBB bb = GridAlignedBB.from(pos, endPos);
+		GridAlignedBB bb = GridAlignedBB.from(worldPosition, endPos);
 		bb.fixMinMax();
 		return bb;
 	}
@@ -546,40 +546,40 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		if (beltLength > 0) {
 			light = new byte[beltLength * 2];
 
-			Vector3i vec = getBeltFacing().getDirectionVec();
-			BeltSlope slope = getBlockState().get(BeltBlock.SLOPE);
+			Vec3i vec = getBeltFacing().getNormal();
+			BeltSlope slope = getBlockState().getValue(BeltBlock.SLOPE);
 			int verticality = slope == BeltSlope.DOWNWARD ? -1 : slope == BeltSlope.UPWARD ? 1 : 0;
 
-			BlockPos.Mutable pos = new BlockPos.Mutable(controller.getX(), controller.getY(), controller.getZ());
+			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(controller.getX(), controller.getY(), controller.getZ());
 			for (int i = 0; i < beltLength * 2; i += 2) {
-				light[i] = (byte) world.getLightLevel(LightType.BLOCK, pos);
-				light[i + 1] = (byte) world.getLightLevel(LightType.SKY, pos);
+				light[i] = (byte) level.getBrightness(LightLayer.BLOCK, pos);
+				light[i + 1] = (byte) level.getBrightness(LightLayer.SKY, pos);
 				pos.move(vec.getX(), verticality, vec.getZ());
 			}
 		}
 	}
 
 	private void updateBlockLight() {
-		Vector3i vec = getBeltFacing().getDirectionVec();
-		BeltSlope slope = getBlockState().get(BeltBlock.SLOPE);
+		Vec3i vec = getBeltFacing().getNormal();
+		BeltSlope slope = getBlockState().getValue(BeltBlock.SLOPE);
 		int verticality = slope == BeltSlope.DOWNWARD ? -1 : slope == BeltSlope.UPWARD ? 1 : 0;
 
-		BlockPos.Mutable pos = new BlockPos.Mutable(controller.getX(), controller.getY(), controller.getZ());
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(controller.getX(), controller.getY(), controller.getZ());
 		for (int i = 0; i < beltLength * 2; i += 2) {
-			light[i] = (byte) world.getLightLevel(LightType.BLOCK, pos);
+			light[i] = (byte) level.getBrightness(LightLayer.BLOCK, pos);
 
 			pos.move(vec.getX(), verticality, vec.getZ());
 		}
 	}
 
 	private void updateSkyLight() {
-		Vector3i vec = getBeltFacing().getDirectionVec();
-		BeltSlope slope = getBlockState().get(BeltBlock.SLOPE);
+		Vec3i vec = getBeltFacing().getNormal();
+		BeltSlope slope = getBlockState().getValue(BeltBlock.SLOPE);
 		int verticality = slope == BeltSlope.DOWNWARD ? -1 : slope == BeltSlope.UPWARD ? 1 : 0;
 
-		BlockPos.Mutable pos = new BlockPos.Mutable(controller.getX(), controller.getY(), controller.getZ());
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(controller.getX(), controller.getY(), controller.getZ());
 		for (int i = 1; i < beltLength * 2; i += 2) {
-			light[i] = (byte) world.getLightLevel(LightType.SKY, pos);
+			light[i] = (byte) level.getBrightness(LightLayer.SKY, pos);
 
 			pos.move(vec.getX(), verticality, vec.getZ());
 		}

@@ -1,13 +1,13 @@
 package com.simibubi.create.lib.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ToolItem;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface HarvestableBlock {
-	boolean canHarvestBlock(BlockState state, IBlockReader world, BlockPos pos, PlayerEntity player);
+	boolean canHarvestBlock(BlockState state, BlockGetter world, BlockPos pos, Player player);
 
-	boolean isToolEffective(BlockState state, ToolItem tool);
+	boolean isToolEffective(BlockState state, DiggerItem tool);
 }

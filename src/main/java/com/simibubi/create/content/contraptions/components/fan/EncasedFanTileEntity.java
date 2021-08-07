@@ -1,7 +1,14 @@
 package com.simibubi.create.content.contraptions.components.fan;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllTags.AllBlockTags;
 import com.simibubi.create.content.contraptions.base.GeneratingKineticTileEntity;
@@ -10,15 +17,6 @@ import com.simibubi.create.content.logistics.block.chute.ChuteTileEntity;
 import com.simibubi.create.foundation.config.AllConfigs;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 @MethodsReturnNonnullByDefault
 public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements IAirCurrentSource {
@@ -30,7 +28,7 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 	protected boolean updateAirFlow;
 	protected boolean updateGenerator;
 
-	public EncasedFanTileEntity(TileEntityType<? extends EncasedFanTileEntity> type) {
+	public EncasedFanTileEntity(BlockEntityType<? extends EncasedFanTileEntity> type) {
 		super(type);
 		isGenerator = false;
 		airCurrent = new AirCurrent(this);
@@ -39,7 +37,7 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		super.fromTag(state, compound, clientPacket);
 		if (!wasMoved)
 			isGenerator = compound.getBoolean("Generating");
@@ -48,7 +46,7 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putBoolean("Generating", isGenerator);
 		super.write(compound, clientPacket);
 	}
@@ -79,11 +77,11 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 		if (!AllBlocks.ENCASED_FAN.has(blockState))
 			shouldGenerate = false;
 
-		if (shouldGenerate && blockState.get(EncasedFanBlock.FACING) != Direction.DOWN)
+		if (shouldGenerate && blockState.getValue(EncasedFanBlock.FACING) != Direction.DOWN)
 			shouldGenerate = false;
 
 		if (shouldGenerate)
-			shouldGenerate = world != null && world.isBlockPowered(pos) && world.isBlockPresent(pos.down()) && blockBelowIsHot();
+			shouldGenerate = level != null && level.hasNeighborSignal(worldPosition) && level.isLoaded(worldPosition.below()) && blockBelowIsHot();
 
 		if (shouldGenerate == isGenerator)
 			return;
@@ -92,19 +90,19 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 	}
 
 	public boolean blockBelowIsHot() {
-		if (world == null)
+		if (level == null)
 			return false;
-		BlockState checkState = world.getBlockState(pos.down());
+		BlockState checkState = level.getBlockState(worldPosition.below());
 
 		if (!checkState.getBlock()
-			.isIn(AllBlockTags.FAN_HEATERS.tag))
+			.is(AllBlockTags.FAN_HEATERS.tag))
 			return false;
 
-		if (checkState.contains(BlazeBurnerBlock.HEAT_LEVEL) && !checkState.get(BlazeBurnerBlock.HEAT_LEVEL)
+		if (checkState.hasProperty(BlazeBurnerBlock.HEAT_LEVEL) && !checkState.getValue(BlazeBurnerBlock.HEAT_LEVEL)
 			.isAtLeast(BlazeBurnerBlock.HeatLevel.FADING))
 			return false;
 
-		if (checkState.contains(BlockStateProperties.LIT) && !checkState.get(BlockStateProperties.LIT))
+		if (checkState.hasProperty(BlockStateProperties.LIT) && !checkState.getValue(BlockStateProperties.LIT))
 			return false;
 
 		return true;
@@ -117,19 +115,19 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 
 	@Nullable
 	@Override
-	public World getAirCurrentWorld() {
-		return world;
+	public Level getAirCurrentWorld() {
+		return level;
 	}
 
 	@Override
 	public BlockPos getAirCurrentPos() {
-		return pos;
+		return worldPosition;
 	}
 
 	@Override
 	public Direction getAirflowOriginSide() {
 		return this.getBlockState()
-			.get(EncasedFanBlock.FACING);
+			.getValue(EncasedFanBlock.FACING);
 	}
 
 	@Override
@@ -137,14 +135,14 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 		float speed = getSpeed();
 		if (speed == 0)
 			return null;
-		Direction facing = getBlockState().get(BlockStateProperties.FACING);
+		Direction facing = getBlockState().getValue(BlockStateProperties.FACING);
 		speed = convertToDirection(speed, facing);
 		return speed > 0 ? facing : facing.getOpposite();
 	}
 
 	@Override
 	public boolean isSourceRemoved() {
-		return removed;
+		return remove;
 	}
 
 	@Override
@@ -155,11 +153,11 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 	}
 
 	public void updateChute() {
-		Direction direction = getBlockState().get(EncasedFanBlock.FACING);
+		Direction direction = getBlockState().getValue(EncasedFanBlock.FACING);
 		if (!direction.getAxis()
 			.isVertical())
 			return;
-		TileEntity poweredChute = world.getTileEntity(pos.offset(direction));
+		BlockEntity poweredChute = level.getBlockEntity(worldPosition.relative(direction));
 		if (!(poweredChute instanceof ChuteTileEntity))
 			return;
 		ChuteTileEntity chuteTE = (ChuteTileEntity) poweredChute;
@@ -177,7 +175,7 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 	public void tick() {
 		super.tick();
 
-		boolean server = !world.isRemote || isVirtual();
+		boolean server = !level.isClientSide || isVirtual();
 
 		if (server && airCurrentUpdateCooldown-- <= 0) {
 			airCurrentUpdateCooldown = AllConfigs.SERVER.kinetics.fanBlockCheckRate.get();

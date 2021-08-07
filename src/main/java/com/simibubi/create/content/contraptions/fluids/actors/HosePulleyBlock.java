@@ -7,18 +7,17 @@ import com.simibubi.create.content.contraptions.fluids.pipes.FluidPipeBlock;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.Iterate;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HosePulleyBlock extends HorizontalKineticBlock implements ITE<HosePulleyTileEntity> {
 
@@ -28,50 +27,50 @@ public class HosePulleyBlock extends HorizontalKineticBlock implements ITE<HoseP
 
 	@Override
 	public Axis getRotationAxis(BlockState state) {
-		return state.get(HORIZONTAL_FACING)
-			.rotateY()
+		return state.getValue(HORIZONTAL_FACING)
+			.getClockWise()
 			.getAxis();
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		Direction preferredHorizontalFacing = getPreferredHorizontalFacing(context);
-		return this.getDefaultState()
-			.with(HORIZONTAL_FACING,
-				preferredHorizontalFacing != null ? preferredHorizontalFacing.rotateYCCW()
-					: context.getPlacementHorizontalFacing()
+		return this.defaultBlockState()
+			.setValue(HORIZONTAL_FACING,
+				preferredHorizontalFacing != null ? preferredHorizontalFacing.getCounterClockWise()
+					: context.getHorizontalDirection()
 						.getOpposite());
 	}
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
-		return state.get(HORIZONTAL_FACING)
-			.rotateY() == face;
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
+		return state.getValue(HORIZONTAL_FACING)
+			.getClockWise() == face;
 	}
 
-	public static boolean hasPipeTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
-		return state.get(HORIZONTAL_FACING)
-			.rotateYCCW() == face;
+	public static boolean hasPipeTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
+		return state.getValue(HORIZONTAL_FACING)
+			.getCounterClockWise() == face;
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.HOSE_PULLEY.create();
 	}
 
 	@Override
-	public Direction getPreferredHorizontalFacing(BlockItemUseContext context) {
+	public Direction getPreferredHorizontalFacing(BlockPlaceContext context) {
 		Direction fromParent = super.getPreferredHorizontalFacing(context);
 		if (fromParent != null)
 			return fromParent;
 
 		Direction prefferedSide = null;
 		for (Direction facing : Iterate.horizontalDirections) {
-			BlockPos pos = context.getPos()
-				.offset(facing);
-			BlockState blockState = context.getWorld()
+			BlockPos pos = context.getClickedPos()
+				.relative(facing);
+			BlockState blockState = context.getLevel()
 				.getBlockState(pos);
-			if (FluidPipeBlock.canConnectTo(context.getWorld(), pos, blockState, facing))
+			if (FluidPipeBlock.canConnectTo(context.getLevel(), pos, blockState, facing))
 				if (prefferedSide != null && prefferedSide.getAxis() != facing.getAxis()) {
 					prefferedSide = null;
 					break;
@@ -82,20 +81,20 @@ public class HosePulleyBlock extends HorizontalKineticBlock implements ITE<HoseP
 	}
 
 	@Override
-	public void onReplaced(BlockState p_196243_1_, World world, BlockPos pos, BlockState p_196243_4_,
+	public void onRemove(BlockState p_196243_1_, Level world, BlockPos pos, BlockState p_196243_4_,
 		boolean p_196243_5_) {
-		if (p_196243_1_.getBlock().hasBlockEntity()
-			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.getBlock().hasBlockEntity())) {
+		if (p_196243_1_.getBlock().isEntityBlock()
+			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.getBlock().isEntityBlock())) {
 			TileEntityBehaviour.destroy(world, pos, FluidDrainingBehaviour.TYPE);
 			TileEntityBehaviour.destroy(world, pos, FluidFillingBehaviour.TYPE);
-			world.removeTileEntity(pos);
+			world.removeBlockEntity(pos);
 		}
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-		return AllShapes.PULLEY.get(state.get(HORIZONTAL_FACING)
-			.rotateY()
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+		return AllShapes.PULLEY.get(state.getValue(HORIZONTAL_FACING)
+			.getClockWise()
 			.getAxis());
 	}
 

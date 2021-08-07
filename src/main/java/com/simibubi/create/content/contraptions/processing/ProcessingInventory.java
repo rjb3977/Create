@@ -1,11 +1,9 @@
 package com.simibubi.create.content.contraptions.processing;
 
 import java.util.function.Consumer;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import org.jetbrains.annotations.NotNull;
 
 public class ProcessingInventory extends ItemStackHandler {
@@ -48,14 +46,14 @@ public class ProcessingInventory extends ItemStackHandler {
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		ItemStack insertItem = super.insertItem(slot, stack, simulate);
-		if (slot == 0 && !ItemStack.areItemStacksEqual(insertItem, stack))
+		if (slot == 0 && !ItemStack.matches(insertItem, stack))
 			callback.accept(getStackInSlot(slot));
 		return insertItem;
 	}
 
 	@Override
-	public CompoundNBT serializeNBT() {
-		CompoundNBT nbt = super.serializeNBT();
+	public CompoundTag serializeNBT() {
+		CompoundTag nbt = super.serializeNBT();
 		nbt.putFloat("ProcessingTime", remainingTime);
 		nbt.putFloat("RecipeTime", recipeDuration);
 		nbt.putBoolean("AppliedRecipe", appliedRecipe);
@@ -63,7 +61,7 @@ public class ProcessingInventory extends ItemStackHandler {
 	}
 
 	@Override
-	public void deserializeNBT(CompoundNBT nbt) {
+	public void deserializeNBT(CompoundTag nbt) {
 		remainingTime = nbt.getFloat("ProcessingTime");
 		recipeDuration = nbt.getFloat("RecipeTime");
 		appliedRecipe = nbt.getBoolean("AppliedRecipe");

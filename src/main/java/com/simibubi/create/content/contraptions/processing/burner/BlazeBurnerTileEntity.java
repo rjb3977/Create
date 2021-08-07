@@ -12,15 +12,14 @@ import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 
 public class BlazeBurnerTileEntity extends SmartTileEntity {
@@ -39,7 +38,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	FuelType activeFuel;
 	LerpedFloat headAngle;
 
-	public BlazeBurnerTileEntity(TileEntityType<? extends BlazeBurnerTileEntity> tileEntityTypeIn) {
+	public BlazeBurnerTileEntity(BlockEntityType<? extends BlazeBurnerTileEntity> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 		activeFuel = FuelType.NONE;
 		remainingBurnTime = 0;
@@ -49,7 +48,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if (world.isRemote) {
+		if (level.isClientSide) {
 			tickRotation();
 			spawnParticles(getHeatLevelFromBlock(), 1);
 			return;
@@ -73,7 +72,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	}
 
 	private void tickRotation() {
-		ClientPlayerEntity player = Minecraft.getInstance().player;
+		LocalPlayer player = Minecraft.getInstance().player;
 		float target = 0;
 		if (player != null) {
 			double x = player.getX();
@@ -82,9 +81,9 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 				x = -4;
 				z = -10;
 			}
-			double dx = x - (getPos().getX() + 0.5);
-			double dz = z - (getPos().getZ() + 0.5);
-			target = AngleHelper.deg(-MathHelper.atan2(dz, dx)) - 90;
+			double dx = x - (getBlockPos().getX() + 0.5);
+			double dz = z - (getBlockPos().getZ() + 0.5);
+			target = AngleHelper.deg(-Mth.atan2(dz, dx)) - 90;
 		}
 		target = headAngle.getValue() + AngleHelper.getShortestAngleDiff(headAngle.getValue(), target);
 		headAngle.chase(target, .25f, Chaser.exp(5));
@@ -95,14 +94,14 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	public void addBehaviours(List<TileEntityBehaviour> behaviours) {}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putInt("fuelLevel", activeFuel.ordinal());
 		compound.putInt("burnTimeRemaining", remainingBurnTime);
 		super.write(compound, clientPacket);
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		activeFuel = FuelType.values()[compound.getInt("fuelLevel")];
 		remainingBurnTime = compound.getInt("burnTimeRemaining");
 		super.fromTag(state, compound, clientPacket);
@@ -133,7 +132,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 		if (newFuel == activeFuel) {
 			if (remainingBurnTime + newBurnTime > maxHeatCapacity && !forceOverflow)
 				return false;
-			newBurnTime = MathHelper.clamp(remainingBurnTime + newBurnTime, 0, maxHeatCapacity);
+			newBurnTime = Mth.clamp(remainingBurnTime + newBurnTime, 0, maxHeatCapacity);
 		}
 
 		if (simulate)
@@ -142,7 +141,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 		activeFuel = newFuel;
 		remainingBurnTime = newBurnTime;
 
-		if (world.isRemote) {
+		if (level.isClientSide) {
 			HeatLevel level = getHeatLevelFromFuelType(newFuel);
 			for (int i = 0; i < 20; i++)
 				spawnParticles(level, 1 + (.25 * (i / 4)));
@@ -162,7 +161,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 		HeatLevel inTE = getHeatLevelFromFuelType(activeFuel);
 		if (inBlockState == inTE)
 			return;
-		world.setBlockState(pos, getBlockState().with(BlazeBurnerBlock.HEAT_LEVEL, inTE));
+		level.setBlockAndUpdate(worldPosition, getBlockState().setValue(BlazeBurnerBlock.HEAT_LEVEL, inTE));
 		notifyUpdate();
 	}
 
@@ -184,12 +183,12 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	}
 
 	private void spawnParticles(HeatLevel heatLevel, double burstMult) {
-		if (world == null)
+		if (level == null)
 			return;
 		if (heatLevel == BlazeBurnerBlock.HeatLevel.NONE)
 			return;
 
-		Random r = world.getRandom();
+		Random r = level.getRandom();
 		switch (heatLevel) {
 		case SMOULDERING:
 			if (r.nextDouble() > 0.25)
@@ -217,18 +216,18 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	}
 
 	private void spawnParticle(HeatLevel heatLevel, float scale, int avgAge, boolean hot, double speed, double spread) {
-		Random random = world.getRandom();
-		Vector3d color = randomColor(heatLevel);
-		world.addOptionalParticle(
+		Random random = level.getRandom();
+		Vec3 color = randomColor(heatLevel);
+		level.addAlwaysVisibleParticle(
 			new CubeParticleData((float) color.x, (float) color.y, (float) color.z, scale, avgAge, hot),
-			(double) pos.getX() + 0.5D + (random.nextDouble() * 2.0 - 1D) * spread,
-			(double) pos.getY() + 0.6D + (random.nextDouble() / 4.0),
-			(double) pos.getZ() + 0.5D + (random.nextDouble() * 2.0 - 1D) * spread, 0.0D, speed, 0.0D);
+			(double) worldPosition.getX() + 0.5D + (random.nextDouble() * 2.0 - 1D) * spread,
+			(double) worldPosition.getY() + 0.6D + (random.nextDouble() / 4.0),
+			(double) worldPosition.getZ() + 0.5D + (random.nextDouble() * 2.0 - 1D) * spread, 0.0D, speed, 0.0D);
 	}
 
-	private static Vector3d randomColor(BlazeBurnerBlock.HeatLevel heatLevel) {
+	private static Vec3 randomColor(BlazeBurnerBlock.HeatLevel heatLevel) {
 		if (heatLevel == BlazeBurnerBlock.HeatLevel.NONE)
-			return new Vector3d(0, 0, 0);
+			return new Vec3(0, 0, 0);
 		return ColorHelper.getRGB(heatParticleColors[heatLevel.ordinal() - 1][(int) (Math.random() * 4)]);
 	}
 

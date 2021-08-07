@@ -6,7 +6,15 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.relays.belt.BeltHelper;
 import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
@@ -26,16 +34,6 @@ import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 
 public class DepotBehaviour extends TileEntityBehaviour {
 
@@ -75,20 +73,20 @@ public class DepotBehaviour extends TileEntityBehaviour {
 	public void tick() {
 		super.tick();
 
-		World world = tileEntity.getWorld();
+		Level world = tileEntity.getLevel();
 
 		for (Iterator<TransportedItemStack> iterator = incoming.iterator(); iterator.hasNext();) {
 			TransportedItemStack ts = iterator.next();
 			if (!tick(ts))
 				continue;
-			if (world.isRemote && !tileEntity.isVirtual())
+			if (world.isClientSide && !tileEntity.isVirtual())
 				continue;
 			if (heldItem == null) {
 				heldItem = ts;
 			} else {
 				if (!ItemHelper.canItemStackAmountsStack(heldItem.stack, ts.stack)) {
-					Vector3d vec = VecHelper.getCenterOf(tileEntity.getPos());
-					InventoryHelper.spawnItemStack(tileEntity.getWorld(), vec.x, vec.y + .5f, vec.z, ts.stack);
+					Vec3 vec = VecHelper.getCenterOf(tileEntity.getBlockPos());
+					Containers.dropItemStack(tileEntity.getLevel(), vec.x, vec.y + .5f, vec.z, ts.stack);
 				} else {
 					heldItem.stack.grow(ts.stack.getCount());
 				}
@@ -102,15 +100,15 @@ public class DepotBehaviour extends TileEntityBehaviour {
 		if (!tick(heldItem))
 			return;
 
-		BlockPos pos = tileEntity.getPos();
+		BlockPos pos = tileEntity.getBlockPos();
 
-		if (world.isRemote)
+		if (world.isClientSide)
 			return;
 		if (handleBeltFunnelOutput())
 			return;
 
 		BeltProcessingBehaviour processingBehaviour =
-			TileEntityBehaviour.get(world, pos.up(2), BeltProcessingBehaviour.TYPE);
+			TileEntityBehaviour.get(world, pos.above(2), BeltProcessingBehaviour.TYPE);
 		if (processingBehaviour == null)
 			return;
 		if (!heldItem.locked && BeltProcessingBehaviour.isBlocked(world, pos))
@@ -127,7 +125,7 @@ public class DepotBehaviour extends TileEntityBehaviour {
 		}
 
 		heldItem.locked = result == ProcessingResult.HOLD;
-		if (heldItem.locked != wasLocked || !ItemStack.areItemStacksEqual(previousItem, heldItem.stack))
+		if (heldItem.locked != wasLocked || !ItemStack.matches(previousItem, heldItem.stack))
 			tileEntity.sendData();
 	}
 
@@ -144,7 +142,7 @@ public class DepotBehaviour extends TileEntityBehaviour {
 	}
 
 	private boolean handleBeltFunnelOutput() {
-		BlockState funnel = getWorld().getBlockState(getPos().up());
+		BlockState funnel = getWorld().getBlockState(getPos().above());
 		Direction funnelFacing = AbstractFunnelBlock.getFunnelFacing(funnel);
 		if (funnelFacing == null || !canFunnelsPullFrom.test(funnelFacing.getOpposite()))
 			return false;
@@ -188,7 +186,7 @@ public class DepotBehaviour extends TileEntityBehaviour {
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		if (heldItem != null)
 			compound.put("HeldItem", heldItem.serializeNBT());
 		compound.put("OutputBuffer", processingOutputBuffer.serializeNBT());
@@ -197,13 +195,13 @@ public class DepotBehaviour extends TileEntityBehaviour {
 	}
 
 	@Override
-	public void read(CompoundNBT compound, boolean clientPacket) {
+	public void read(CompoundTag compound, boolean clientPacket) {
 		heldItem = null;
 		if (compound.contains("HeldItem"))
 			heldItem = TransportedItemStack.read(compound.getCompound("HeldItem"));
 		processingOutputBuffer.deserializeNBT(compound.getCompound("OutputBuffer"));
 		if (canMergeItems()) {
-			ListNBT list = compound.getList("Incoming", NBT.TAG_COMPOUND);
+			ListTag list = compound.getList("Incoming", NBT.TAG_COMPOUND);
 			incoming = NBTHelper.readCompoundList(list, TransportedItemStack::read);
 		}
 	}
@@ -355,8 +353,8 @@ public class DepotBehaviour extends TileEntityBehaviour {
 				continue;
 			}
 			ItemStack remainder = ItemHandlerHelper.insertItemStacked(processingOutputBuffer, added.stack, false);
-			Vector3d vec = VecHelper.getCenterOf(tileEntity.getPos());
-			InventoryHelper.spawnItemStack(tileEntity.getWorld(), vec.x, vec.y + .5f, vec.z, remainder);
+			Vec3 vec = VecHelper.getCenterOf(tileEntity.getBlockPos());
+			Containers.dropItemStack(tileEntity.getLevel(), vec.x, vec.y + .5f, vec.z, remainder);
 		}
 
 		if (dirty)
@@ -375,9 +373,9 @@ public class DepotBehaviour extends TileEntityBehaviour {
 		return true;
 	}
 
-	private Vector3d getWorldPositionOf(TransportedItemStack transported) {
-		Vector3d offsetVec = new Vector3d(.5f, 14 / 16f, .5f);
-		return offsetVec.add(Vector3d.of(tileEntity.getPos()));
+	private Vec3 getWorldPositionOf(TransportedItemStack transported) {
+		Vec3 offsetVec = new Vec3(.5f, 14 / 16f, .5f);
+		return offsetVec.add(Vec3.atLowerCornerOf(tileEntity.getBlockPos()));
 	}
 
 	@Override

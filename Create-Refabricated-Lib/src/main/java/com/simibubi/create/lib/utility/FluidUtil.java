@@ -2,7 +2,7 @@ package com.simibubi.create.lib.utility;
 
 import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
 import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.world.level.material.Fluid;
 
 public class FluidUtil {
 	public static FluidAmount millibucketsToFluidAmount(int millibuckets) {

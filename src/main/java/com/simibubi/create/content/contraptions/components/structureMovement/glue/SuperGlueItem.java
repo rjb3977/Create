@@ -4,24 +4,23 @@ import com.simibubi.create.foundation.utility.VecHelper;
 
 import com.simibubi.create.lib.helper.CustomDurabilityPropertyHelper;
 import com.simibubi.create.lib.item.CustomMaxCountItem;
-
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.ItemParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class SuperGlueItem extends Item implements CustomMaxCountItem {
 
@@ -30,7 +29,7 @@ public class SuperGlueItem extends Item implements CustomMaxCountItem {
 	}
 
 	@Override
-	public boolean isDamageable() {
+	public boolean canBeDepleted() {
 		return true;
 	}
 
@@ -45,62 +44,62 @@ public class SuperGlueItem extends Item implements CustomMaxCountItem {
 	}
 
 	@Override
-	public ActionResultType onItemUse(ItemUseContext context) {
-		BlockPos blockpos = context.getPos();
-		Direction direction = context.getFace();
-		BlockPos blockpos1 = blockpos.offset(direction);
-		PlayerEntity playerentity = context.getPlayer();
-		ItemStack itemstack = context.getItem();
+	public InteractionResult useOn(UseOnContext context) {
+		BlockPos blockpos = context.getClickedPos();
+		Direction direction = context.getClickedFace();
+		BlockPos blockpos1 = blockpos.relative(direction);
+		Player playerentity = context.getPlayer();
+		ItemStack itemstack = context.getItemInHand();
 
 		if (playerentity == null || !this.canPlace(playerentity, direction, itemstack, blockpos1))
-			return ActionResultType.FAIL;
+			return InteractionResult.FAIL;
 
-		World world = context.getWorld();
+		Level world = context.getLevel();
 		SuperGlueEntity entity = new SuperGlueEntity(world, blockpos1, direction);
-		CompoundNBT compoundnbt = itemstack.getTag();
+		CompoundTag compoundnbt = itemstack.getTag();
 		if (compoundnbt != null)
-			EntityType.applyItemNBT(world, playerentity, entity, compoundnbt);
+			EntityType.updateCustomEntityTag(world, playerentity, entity, compoundnbt);
 
 		if (!entity.onValidSurface())
-			return ActionResultType.FAIL;
+			return InteractionResult.FAIL;
 
-		if (!world.isRemote) {
+		if (!world.isClientSide) {
 			entity.playPlaceSound();
-			world.addEntity(entity);
+			world.addFreshEntity(entity);
 		}
-		itemstack.damageItem(1, playerentity, SuperGlueItem::onBroken);
+		itemstack.hurtAndBreak(1, playerentity, SuperGlueItem::onBroken);
 
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
-	public static void onBroken(PlayerEntity player) {
+	public static void onBroken(Player player) {
 
 	}
 
-	protected boolean canPlace(PlayerEntity entity, Direction facing, ItemStack stack, BlockPos pos) {
-		return !World.isOutsideBuildHeight(pos) && entity.canPlayerEdit(pos, facing, stack);
+	protected boolean canPlace(Player entity, Direction facing, ItemStack stack, BlockPos pos) {
+		return !Level.isOutsideBuildHeight(pos) && entity.mayUseItemAt(pos, facing, stack);
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static void spawnParticles(World world, BlockPos pos, Direction direction, boolean fullBlock) {
-		Vector3d vec = Vector3d.of(direction.getDirectionVec());
-		Vector3d plane = VecHelper.axisAlingedPlaneOf(vec);
-		Vector3d facePos = VecHelper.getCenterOf(pos)
+	public static void spawnParticles(Level world, BlockPos pos, Direction direction, boolean fullBlock) {
+		Vec3 vec = Vec3.atLowerCornerOf(direction.getNormal());
+		Vec3 plane = VecHelper.axisAlingedPlaneOf(vec);
+		Vec3 facePos = VecHelper.getCenterOf(pos)
 			.add(vec.scale(.5f));
 
-		float distance = fullBlock ? 1f : .25f + .25f * (world.rand.nextFloat() - .5f);
+		float distance = fullBlock ? 1f : .25f + .25f * (world.random.nextFloat() - .5f);
 		plane = plane.scale(distance);
 		ItemStack stack = new ItemStack(Items.SLIME_BALL);
 
 		for (int i = fullBlock ? 40 : 15; i > 0; i--) {
-			Vector3d offset = VecHelper.rotate(plane, 360 * world.rand.nextFloat(), direction.getAxis());
-			Vector3d motion = offset.normalize()
+			Vec3 offset = VecHelper.rotate(plane, 360 * world.random.nextFloat(), direction.getAxis());
+			Vec3 motion = offset.normalize()
 				.scale(1 / 16f);
 			if (fullBlock)
-				offset = new Vector3d(MathHelper.clamp(offset.x, -.5, .5), MathHelper.clamp(offset.y, -.5, .5),
-					MathHelper.clamp(offset.z, -.5, .5));
-			Vector3d particlePos = facePos.add(offset);
-			world.addParticle(new ItemParticleData(ParticleTypes.ITEM, stack), particlePos.x, particlePos.y,
+				offset = new Vec3(Mth.clamp(offset.x, -.5, .5), Mth.clamp(offset.y, -.5, .5),
+					Mth.clamp(offset.z, -.5, .5));
+			Vec3 particlePos = facePos.add(offset);
+			world.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), particlePos.x, particlePos.y,
 				particlePos.z, motion.x, motion.y, motion.z);
 		}
 

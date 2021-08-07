@@ -3,17 +3,15 @@ package com.simibubi.create.content.logistics.item.filter.attribute.astralsorcer
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
 import com.simibubi.create.content.logistics.item.filter.ItemAttribute;
-
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.TranslationTextComponent;
 
 public class AstralSorceryAmuletAttribute implements ItemAttribute {
     String enchName;
@@ -26,9 +24,9 @@ public class AstralSorceryAmuletAttribute implements ItemAttribute {
 
     @Override
     public boolean appliesTo(ItemStack itemStack) {
-        for (INBT trait : extractTraitList(itemStack)) {
-            if(((CompoundNBT) trait).getString("ench").equals(this.enchName)
-                    && ((CompoundNBT)trait).getInt("type") == this.enchType)
+        for (Tag trait : extractTraitList(itemStack)) {
+            if(((CompoundTag) trait).getString("ench").equals(this.enchName)
+                    && ((CompoundTag)trait).getInt("type") == this.enchType)
                 return true;
         }
         return false;
@@ -36,7 +34,7 @@ public class AstralSorceryAmuletAttribute implements ItemAttribute {
 
     @Override
     public List<ItemAttribute> listAttributesOf(ItemStack itemStack) {
-        ListNBT traits = extractTraitList(itemStack);
+        ListTag traits = extractTraitList(itemStack);
         List<ItemAttribute> atts = new ArrayList<>();
         for (int i = 0; i < traits.size(); i++) {
             atts.add(new AstralSorceryAmuletAttribute(
@@ -55,9 +53,9 @@ public class AstralSorceryAmuletAttribute implements ItemAttribute {
     public Object[] getTranslationParameters() {
         String something = "";
 
-        Optional<Enchantment> enchant = Registry.ENCHANTMENT.getOrEmpty(ResourceLocation.tryCreate(enchName));
+        Optional<Enchantment> enchant = Registry.ENCHANTMENT.getOptional(ResourceLocation.tryParse(enchName));
         if(enchant.isPresent()) {
-            something = new TranslationTextComponent(enchant.get().getName()).getString();
+            something = new TranslatableComponent(enchant.get().getDescriptionId()).getString();
         }
 
         if(enchType == 1) something = "existing " + something;
@@ -66,17 +64,17 @@ public class AstralSorceryAmuletAttribute implements ItemAttribute {
     }
 
     @Override
-    public void writeNBT(CompoundNBT nbt) {
+    public void writeNBT(CompoundTag nbt) {
         nbt.putString("enchName", this.enchName);
         nbt.putInt("enchType", this.enchType);
     }
 
     @Override
-    public ItemAttribute readNBT(CompoundNBT nbt) {
+    public ItemAttribute readNBT(CompoundTag nbt) {
         return new AstralSorceryAmuletAttribute(nbt.getString("enchName"), nbt.getInt("enchType"));
     }
 
-    private ListNBT extractTraitList(ItemStack stack) {
-        return stack.getTag() != null ? stack.getTag().getCompound("astralsorcery").getList("amuletEnchantments", 10) : new ListNBT();
+    private ListTag extractTraitList(ItemStack stack) {
+        return stack.getTag() != null ? stack.getTag().getCompound("astralsorcery").getList("amuletEnchantments", 10) : new ListTag();
     }
 }

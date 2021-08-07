@@ -5,11 +5,10 @@ import java.util.Vector;
 import com.jozufozu.flywheel.backend.instancing.IInstanceRendered;
 import com.simibubi.create.foundation.render.effects.FilterSphere;
 import com.simibubi.create.foundation.tileEntity.SyncedTileEntity;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Constants;
 
 public class ChromaticProjectorTileEntity extends SyncedTileEntity implements IInstanceRendered {
@@ -31,13 +30,13 @@ public class ChromaticProjectorTileEntity extends SyncedTileEntity implements II
 	public boolean gMask = true;
 	public boolean bMask = true;
 
-	public ChromaticProjectorTileEntity(TileEntityType<?> te) {
+	public ChromaticProjectorTileEntity(BlockEntityType<?> te) {
 		super(te);
 	}
 
 	public FilterSphere getFilter() {
 
-		BlockPos pos = getPos();
+		BlockPos pos = getBlockPos();
 		FilterSphere sphere = new FilterSphere();
 
 		sphere.x = (float) (pos.getX() + 0.5);
@@ -93,8 +92,8 @@ public class ChromaticProjectorTileEntity extends SyncedTileEntity implements II
 	}
 
 	@Override
-	public CompoundNBT write(CompoundNBT tag) {
-		super.write(tag);
+	public CompoundTag save(CompoundTag tag) {
+		super.save(tag);
 
 		tag.put("filters", FilterStep.writeAll(stages));
 
@@ -117,8 +116,8 @@ public class ChromaticProjectorTileEntity extends SyncedTileEntity implements II
 	}
 
 	@Override
-	public void fromTag(BlockState state, CompoundNBT tag) {
-		super.fromTag(state, tag);
+	public void load(BlockState state, CompoundTag tag) {
+		super.load(state, tag);
 
 		stages = FilterStep.readAll(tag.getList("filters", Constants.NBT.TAG_COMPOUND));
 

@@ -7,18 +7,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.FireworkRocketItem;
+import net.minecraft.world.item.FireworkStarItem;
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.content.logistics.item.filter.ItemAttribute;
 import com.simibubi.create.lib.utility.TagUtil;
-
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.FireworkRocketItem;
-import net.minecraft.item.FireworkStarItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.TranslationTextComponent;
 
 public class ColorAttribute implements ItemAttribute {
 	public static final ColorAttribute EMPTY = new ColorAttribute(DyeColor.PURPLE);
@@ -40,7 +38,7 @@ public class ColorAttribute implements ItemAttribute {
 	}
 
 	private Collection<DyeColor> findMatchingDyeColors(ItemStack stack) {
-		CompoundNBT nbt = stack.getTag();
+		CompoundTag nbt = stack.getTag();
 
 		DyeColor color = TagUtil.getColorFromStack(stack);
 
@@ -49,7 +47,7 @@ public class ColorAttribute implements ItemAttribute {
 
 		Set<DyeColor> colors = new HashSet<>();
 		if (stack.getItem() instanceof FireworkRocketItem && nbt != null) {
-			ListNBT listnbt = nbt.getCompound("Fireworks").getList("Explosions", 10);
+			ListTag listnbt = nbt.getCompound("Fireworks").getList("Explosions", 10);
 			for (int i = 0; i < listnbt.size(); i++) {
 				colors.addAll(getFireworkStarColors(listnbt.getCompound(i)));
 			}
@@ -59,12 +57,12 @@ public class ColorAttribute implements ItemAttribute {
 			colors.addAll(getFireworkStarColors(nbt.getCompound("Explosion")));
 		}
 
-		Arrays.stream(DyeColor.values()).filter(c -> Registry.ITEM.getKey(stack.getItem()).getPath().startsWith(c.getTranslationKey() + "_")).forEach(colors::add);
+		Arrays.stream(DyeColor.values()).filter(c -> Registry.ITEM.getKey(stack.getItem()).getPath().startsWith(c.getName() + "_")).forEach(colors::add);
 
 		return colors;
 	}
 
-	private Collection<DyeColor> getFireworkStarColors(CompoundNBT compound) {
+	private Collection<DyeColor> getFireworkStarColors(CompoundTag compound) {
 		Set<DyeColor> colors = new HashSet<>();
 		Arrays.stream(compound.getIntArray("Colors")).mapToObj(DyeColor::byFireworkColor).forEach(colors::add);
 		Arrays.stream(compound.getIntArray("FadeColors")).mapToObj(DyeColor::byFireworkColor).forEach(colors::add);
@@ -78,16 +76,16 @@ public class ColorAttribute implements ItemAttribute {
 
 	@Override
 	public Object[] getTranslationParameters() {
-		return new Object[]{new TranslationTextComponent(color.getTranslationKey()).getUnformattedComponentText()};
+		return new Object[]{new TranslatableComponent(color.getName()).getContents()};
 	}
 
 	@Override
-	public void writeNBT(CompoundNBT nbt) {
+	public void writeNBT(CompoundTag nbt) {
 		nbt.putInt("id", color.getId());
 	}
 
 	@Override
-	public ItemAttribute readNBT(CompoundNBT nbt) {
+	public ItemAttribute readNBT(CompoundTag nbt) {
 		return nbt.contains("id") ?
 			new ColorAttribute(DyeColor.byId(nbt.getInt("id")))
 			: EMPTY;

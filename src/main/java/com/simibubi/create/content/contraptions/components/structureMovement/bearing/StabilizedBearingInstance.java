@@ -2,17 +2,16 @@ package com.simibubi.create.content.contraptions.components.structureMovement.be
 
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementContext;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ActorInstance;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class StabilizedBearingInstance extends ActorInstance {
 
@@ -27,8 +26,8 @@ public class StabilizedBearingInstance extends ActorInstance {
 
 		BlockState blockState = context.state;
 
-		facing = blockState.get(BlockStateProperties.FACING);
-		rotationAxis = Direction.getFacingFromAxis(Direction.AxisDirection.POSITIVE, facing.getAxis()).getUnitVector();
+		facing = blockState.getValue(BlockStateProperties.FACING);
+		rotationAxis = Direction.get(Direction.AxisDirection.POSITIVE, facing.getAxis()).step();
 
 		blockOrientation = BearingInstance.getBlockStateOrientation(facing);
 
@@ -43,9 +42,9 @@ public class StabilizedBearingInstance extends ActorInstance {
 	public void beginFrame() {
 		float counterRotationAngle = StabilizedBearingMovementBehaviour.getCounterRotationAngle(context, facing, AnimationTickHolder.getPartialTicks());
 
-		Quaternion rotation = rotationAxis.getDegreesQuaternion(counterRotationAngle);
+		Quaternion rotation = rotationAxis.rotationDegrees(counterRotationAngle);
 
-		rotation.multiply(blockOrientation);
+		rotation.mul(blockOrientation);
 
 		topInstance.setRotation(rotation);
 	}

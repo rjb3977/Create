@@ -1,7 +1,18 @@
 package com.simibubi.create.content.curiosities.tools;
 
 import java.util.UUID;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
@@ -12,19 +23,6 @@ import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.lib.item.CustomDurabilityBarItem;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 import com.simibubi.create.foundation.config.AllConfigs;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Rarity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.LazyValue;
 
 public class ExtendoGripItem extends Item implements IBackTankRechargeable, CustomDurabilityBarItem {
 	private static DamageSource lastActiveDamageSource;
@@ -38,16 +36,16 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 		new AttributeModifier(UUID.fromString("8f7dbdb2-0d0d-458a-aa40-ac7633691f66"), "Range modifier", 5,
 			AttributeModifier.Operation.ADDITION);
 
-	static LazyValue<Multimap<Attribute, AttributeModifier>> rangeModifier = new LazyValue<>(() ->
+	static LazyLoadedValue<Multimap<Attribute, AttributeModifier>> rangeModifier = new LazyLoadedValue<>(() ->
 	// Holding an ExtendoGrip
 	ImmutableMultimap.of(ReachEntityAttributes.REACH, singleRangeAttributeModifier));
 
-	static LazyValue<Multimap<Attribute, AttributeModifier>> doubleRangeModifier = new LazyValue<>(() ->
+	static LazyLoadedValue<Multimap<Attribute, AttributeModifier>> doubleRangeModifier = new LazyLoadedValue<>(() ->
 	// Holding two ExtendoGrips o.O
 	ImmutableMultimap.of(ReachEntityAttributes.REACH, doubleRangeAttributeModifier));
 
 	public ExtendoGripItem(Properties properties) {
-		super(properties.maxStackSize(1)
+		super(properties.stacksTo(1)
 			.rarity(Rarity.UNCOMMON));
 	}
 
@@ -55,14 +53,14 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 	public static final String DUAL_EXTENDO_MARKER = "createDualExtendo";
 
 	public static void holdingExtendoGripIncreasesRange(LivingEntity entity) {
-		if (!(entity instanceof PlayerEntity))
+		if (!(entity instanceof Player))
 			return;
 
-		PlayerEntity player = (PlayerEntity) entity;
+		Player player = (Player) entity;
 
-		CompoundNBT persistentData = ExtraDataUtil.getExtraData(player);
-		boolean inOff = isActiveExtendoGrip(player.getHeldItemOffhand());
-		boolean inMain = isActiveExtendoGrip(player.getHeldItemMainhand());
+		CompoundTag persistentData = ExtraDataUtil.getExtraData(player);
+		boolean inOff = isActiveExtendoGrip(player.getOffhandItem());
+		boolean inMain = isActiveExtendoGrip(player.getMainHandItem());
 		boolean holdingDualExtendo = inOff && inMain;
 		boolean holdingExtendo = inOff ^ inMain;
 		holdingExtendo &= !holdingDualExtendo;
@@ -72,13 +70,13 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 		if (holdingExtendo != wasHoldingExtendo) {
 			if (!holdingExtendo) {
 				player.getAttributes()
-					.removeModifiers(rangeModifier.getValue());
+					.removeAttributeModifiers(rangeModifier.get());
 				persistentData.remove(EXTENDO_MARKER);
 			} else {
-				if (player instanceof ServerPlayerEntity)
-					AllTriggers.EXTENDO.trigger((ServerPlayerEntity) player);
+				if (player instanceof ServerPlayer)
+					AllTriggers.EXTENDO.trigger((ServerPlayer) player);
 				player.getAttributes()
-					.addTemporaryModifiers(rangeModifier.getValue());
+					.addTransientAttributeModifiers(rangeModifier.get());
 				persistentData.putBoolean(EXTENDO_MARKER, true);
 			}
 		}
@@ -86,13 +84,13 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 		if (holdingDualExtendo != wasHoldingDualExtendo) {
 			if (!holdingDualExtendo) {
 				player.getAttributes()
-					.removeModifiers(doubleRangeModifier.getValue());
+					.removeAttributeModifiers(doubleRangeModifier.get());
 				persistentData.remove(DUAL_EXTENDO_MARKER);
 			} else {
-				if (player instanceof ServerPlayerEntity)
-					AllTriggers.GIGA_EXTENDO.trigger((ServerPlayerEntity) player);
+				if (player instanceof ServerPlayer)
+					AllTriggers.GIGA_EXTENDO.trigger((ServerPlayer) player);
 				player.getAttributes()
-					.addTemporaryModifiers(doubleRangeModifier.getValue());
+					.addTransientAttributeModifiers(doubleRangeModifier.get());
 				persistentData.putBoolean(DUAL_EXTENDO_MARKER, true);
 			}
 		}
@@ -163,8 +161,8 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void consumeDurabilityOnPlace(EntityPlaceEvent event) {
 		Entity entity = event.getEntity();
-		if (entity instanceof PlayerEntity)
-			findAndDamageExtendoGrip((PlayerEntity) entity);
+		if (entity instanceof Player)
+			findAndDamageExtendoGrip((Player) entity);
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
@@ -172,17 +170,17 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 //		findAndDamageExtendoGrip(event.getPlayer());
 	}
 
-	private static void findAndDamageExtendoGrip(PlayerEntity player) {
+	private static void findAndDamageExtendoGrip(Player player) {
 		if (player == null)
 			return;
-		if (player.world.isRemote)
+		if (player.level.isClientSide)
 			return;
-		ItemStack main = player.getHeldItemMainhand();
-		ItemStack off = player.getHeldItemOffhand();
+		ItemStack main = player.getMainHandItem();
+		ItemStack off = player.getOffhandItem();
 		for (ItemStack stack : new ItemStack[]{main, off}) {
 			if (isActiveExtendoGrip(stack)) {
 				if (!BackTankUtil.canAbsorbDamage(player, ((IBackTankRechargeable) stack.getItem()).maxUses()))
-					stack.damageItem(1, player, p -> {});
+					stack.hurtAndBreak(1, player, p -> {});
 			}
 		}
 	}
@@ -208,7 +206,7 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 	}
 
 	@Override
-	public boolean isDamageable() {
+	public boolean canBeDepleted() {
 		return true;
 	}
 
@@ -225,16 +223,16 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 		DamageSource source = event.getSource();
 		if (source == null)
 			return;
-		Entity trueSource = source.getTrueSource();
-		if (trueSource instanceof PlayerEntity)
-			findAndDamageExtendoGrip((PlayerEntity) trueSource);
+		Entity trueSource = source.getEntity();
+		if (trueSource instanceof Player)
+			findAndDamageExtendoGrip((Player) trueSource);
 	}
 
-	public static float attacksByExtendoGripHaveMoreKnockback(float strength, PlayerEntity player) {
+	public static float attacksByExtendoGripHaveMoreKnockback(float strength, Player player) {
 //		if (lastActiveDamageSource == null)
 //			return strength;
-		Entity entity = lastActiveDamageSource.getImmediateSource();
-		if (!(entity instanceof PlayerEntity))
+		Entity entity = lastActiveDamageSource.getDirectEntity();
+		if (!(entity instanceof Player))
 			return strength;
 		if (!isHoldingExtendoGrip(player))
 			return strength;
@@ -289,12 +287,12 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 //	}
 
 	public static boolean isActiveExtendoGrip(ItemStack stack) {
-		return AllItems.EXTENDO_GRIP.isIn(stack) && stack.getDamage() != stack.getMaxDamage() - 1;
+		return AllItems.EXTENDO_GRIP.isIn(stack) && stack.getDamageValue() != stack.getMaxDamage() - 1;
 	}
 
-	public static boolean isHoldingExtendoGrip(PlayerEntity player) {
-		boolean inOff = isActiveExtendoGrip(player.getHeldItemOffhand());
-		boolean inMain = isActiveExtendoGrip(player.getHeldItemMainhand());
+	public static boolean isHoldingExtendoGrip(Player player) {
+		boolean inOff = isActiveExtendoGrip(player.getOffhandItem());
+		boolean inMain = isActiveExtendoGrip(player.getMainHandItem());
 		boolean holdingGrip = inOff || inMain;
 		return holdingGrip;
 	}

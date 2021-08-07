@@ -2,10 +2,8 @@ package com.simibubi.create.foundation.ponder;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.resources.ResourceLocation;
 import com.simibubi.create.foundation.ponder.content.PonderTag;
-
-import net.minecraft.util.ResourceLocation;
 
 public class PonderStoryBoardEntry {
 

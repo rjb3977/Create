@@ -1,16 +1,14 @@
 package com.simibubi.create.foundation.worldgen;
 
 import java.util.Optional;
-
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration.Predicates;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.ConfigBase;
 import com.simibubi.create.lib.config.Config;
 import com.simibubi.create.lib.config.ConfigGroup;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
-
-import net.minecraft.block.Block;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.OreFeatureConfig.FillerBlockType;
 
 public class ConfigDrivenFeatureEntry extends ConfigBase {
 
@@ -53,11 +51,11 @@ public class ConfigDrivenFeatureEntry extends ConfigBase {
 
 	private ConfiguredFeature<?, ?> createFeature() {
 		ConfigDrivenOreFeatureConfig config =
-				new ConfigDrivenOreFeatureConfig(FillerBlockType.BASE_STONE_OVERWORLD, block.get()
-						.getDefaultState(), id);
+				new ConfigDrivenOreFeatureConfig(Predicates.NATURAL_STONE, block.get()
+						.defaultBlockState(), id);
 
-		return ConfigDrivenOreFeature.INSTANCE.configure(config)
-				.decorate(ConfigDrivenDecorator.INSTANCE.configure(config));
+		return ConfigDrivenOreFeature.INSTANCE.configured(config)
+				.decorated(ConfigDrivenDecorator.INSTANCE.configured(config));
 	}
 
 	public void addToConfig() {

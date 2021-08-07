@@ -4,16 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import com.simibubi.create.content.logistics.item.filter.ItemAttribute;
-
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.TranslationTextComponent;
 
 public class EnchantAttribute implements ItemAttribute {
     public static final EnchantAttribute EMPTY = new EnchantAttribute(null);
@@ -43,12 +41,12 @@ public class EnchantAttribute implements ItemAttribute {
     public Object[] getTranslationParameters() {
         String parameter = "";
         if(enchantment != null)
-            parameter = new TranslationTextComponent(enchantment.getName()).getString();
+            parameter = new TranslatableComponent(enchantment.getDescriptionId()).getString();
         return new Object[] { parameter };
     }
 
     @Override
-    public void writeNBT(CompoundNBT nbt) {
+    public void writeNBT(CompoundTag nbt) {
         if (enchantment == null)
             return;
         ResourceLocation id = Registry.ENCHANTMENT.getKey(enchantment);
@@ -58,7 +56,7 @@ public class EnchantAttribute implements ItemAttribute {
     }
 
     @Override
-    public ItemAttribute readNBT(CompoundNBT nbt) {
-        return nbt.contains("id") ? new EnchantAttribute(Registry.ENCHANTMENT.getOrDefault(ResourceLocation.tryCreate(nbt.getString("id")))) : EMPTY;
+    public ItemAttribute readNBT(CompoundTag nbt) {
+        return nbt.contains("id") ? new EnchantAttribute(Registry.ENCHANTMENT.get(ResourceLocation.tryParse(nbt.getString("id")))) : EMPTY;
     }
 }

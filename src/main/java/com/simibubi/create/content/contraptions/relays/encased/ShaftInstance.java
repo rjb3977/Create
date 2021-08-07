@@ -3,8 +3,7 @@ package com.simibubi.create.content.contraptions.relays.encased;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.base.SingleRotatingInstance;
-
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class ShaftInstance extends SingleRotatingInstance {
 

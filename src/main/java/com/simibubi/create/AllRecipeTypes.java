@@ -2,7 +2,13 @@ package com.simibubi.create;
 
 import java.util.Optional;
 import java.util.function.Supplier;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import com.simibubi.create.compat.jei.ConversionRecipe;
 import com.simibubi.create.content.contraptions.components.crafter.MechanicalCraftingRecipe;
 import com.simibubi.create.content.contraptions.components.crusher.CrushingRecipe;
@@ -24,14 +30,6 @@ import com.simibubi.create.content.curiosities.tools.SandPaperPolishingRecipe;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.utility.ShapedRecipeUtil;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-
 public enum AllRecipeTypes {
 
 	MECHANICAL_CRAFTING(MechanicalCraftingRecipe.Serializer::new),
@@ -52,16 +50,16 @@ public enum AllRecipeTypes {
 
 	;
 
-	public IRecipeSerializer<?> serializer;
-	public Supplier<IRecipeSerializer<?>> supplier;
-	public IRecipeType<? extends IRecipe<? extends IInventory>> type;
+	public RecipeSerializer<?> serializer;
+	public Supplier<RecipeSerializer<?>> supplier;
+	public RecipeType<? extends Recipe<? extends Container>> type;
 
-	AllRecipeTypes(Supplier<IRecipeSerializer<?>> supplier) {
+	AllRecipeTypes(Supplier<RecipeSerializer<?>> supplier) {
 		this(supplier, null);
 	}
 
-	AllRecipeTypes(Supplier<IRecipeSerializer<?>> supplier,
-		IRecipeType<? extends IRecipe<? extends IInventory>> existingType) {
+	AllRecipeTypes(Supplier<RecipeSerializer<?>> supplier,
+		RecipeType<? extends Recipe<? extends Container>> existingType) {
 		this.supplier = supplier;
 		this.type = existingType;
 	}
@@ -79,26 +77,26 @@ public enum AllRecipeTypes {
 		}
 	}
 
-	private static <T extends IRecipe<?>> IRecipeType<T> customType(String id) {
-		return Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(Create.ID, id), new IRecipeType<T>() {
+	private static <T extends Recipe<?>> RecipeType<T> customType(String id) {
+		return Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(Create.ID, id), new RecipeType<T>() {
 			public String toString() {
 				return Create.ID + ":" + id;
 			}
 		});
 	}
 
-	private static Supplier<IRecipeSerializer<?>> processingSerializer(
+	private static Supplier<RecipeSerializer<?>> processingSerializer(
 		ProcessingRecipeFactory<? extends ProcessingRecipe<?>> factory) {
 		return () -> new ProcessingRecipeSerializer<>(factory);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends IRecipeType<?>> T getType() {
+	public <T extends RecipeType<?>> T getType() {
 		return (T) type;
 	}
 
-	public <C extends IInventory, T extends IRecipe<C>> Optional<T> find(C inv, World world) {
+	public <C extends Container, T extends Recipe<C>> Optional<T> find(C inv, Level world) {
 		return world.getRecipeManager()
-			.getRecipe(getType(), inv, world);
+			.getRecipeFor(getType(), inv, world);
 	}
 }

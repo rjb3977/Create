@@ -1,9 +1,24 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
-import static net.minecraft.block.HorizontalBlock.HORIZONTAL_FACING;
+import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CocoaBlock;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.KelpBlock;
+import net.minecraft.world.level.block.KelpPlantBlock;
+import net.minecraft.world.level.block.SugarCaneBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.jozufozu.flywheel.backend.Backend;
@@ -16,28 +31,11 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CocoaBlock;
-import net.minecraft.block.CropsBlock;
-import net.minecraft.block.KelpBlock;
-import net.minecraft.block.KelpTopBlock;
-import net.minecraft.block.SugarCaneBlock;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.Property;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-
 public class HarvesterMovementBehaviour extends MovementBehaviour {
 
 	@Override
 	public boolean isActive(MovementContext context) {
-		return !VecHelper.isVecPointingTowards(context.relativeMotion, context.state.get(HORIZONTAL_FACING)
+		return !VecHelper.isVecPointingTowards(context.relativeMotion, context.state.getValue(FACING)
 			.getOpposite());
 	}
 
@@ -54,25 +52,25 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 
 	@Override
 	public void renderInContraption(MovementContext context, PlacementSimulationWorld renderWorld,
-		ContraptionMatrices matrices, IRenderTypeBuffer buffers) {
+		ContraptionMatrices matrices, MultiBufferSource buffers) {
 		if (!Backend.getInstance().canUseInstancing())
 			HarvesterRenderer.renderInContraption(context, renderWorld, matrices, buffers);
 	}
 
 	@Override
-	public Vector3d getActiveAreaOffset(MovementContext context) {
-		return Vector3d.of(context.state.get(HORIZONTAL_FACING)
-			.getDirectionVec())
+	public Vec3 getActiveAreaOffset(MovementContext context) {
+		return Vec3.atLowerCornerOf(context.state.getValue(FACING)
+			.getNormal())
 			.scale(.45);
 	}
 
 	@Override
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
-		World world = context.world;
+		Level world = context.world;
 		BlockState stateVisited = world.getBlockState(pos);
 		boolean notCropButCuttable = false;
 
-		if (world.isRemote)
+		if (world.isClientSide)
 			return;
 
 		if (!isValidCrop(world, pos, stateVisited)) {
@@ -85,19 +83,19 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 		MutableBoolean seedSubtracted = new MutableBoolean(notCropButCuttable);
 		BlockState state = stateVisited;
 		BlockHelper.destroyBlock(world, pos, 1, stack -> {
-			if (!seedSubtracted.getValue() && stack.isItemEqual(new ItemStack(state.getBlock()))) {
+			if (!seedSubtracted.getValue() && stack.sameItem(new ItemStack(state.getBlock()))) {
 				stack.shrink(1);
 				seedSubtracted.setTrue();
 			}
 			dropItem(context, stack);
 		});
 
-		world.setBlockState(pos, cutCrop(world, pos, stateVisited));
+		world.setBlockAndUpdate(pos, cutCrop(world, pos, stateVisited));
 	}
 
-	private boolean isValidCrop(World world, BlockPos pos, BlockState state) {
-		if (state.getBlock() instanceof CropsBlock) {
-			CropsBlock crop = (CropsBlock) state.getBlock();
+	private boolean isValidCrop(Level world, BlockPos pos, BlockState state) {
+		if (state.getBlock() instanceof CropBlock) {
+			CropBlock crop = (CropBlock) state.getBlock();
 			if (!crop.isMaxAge(state))
 				return false;
 			return true;
@@ -108,10 +106,10 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 				if (!(property instanceof IntegerProperty))
 					continue;
 				if (!property.getName()
-					.equals(BlockStateProperties.AGE_0_1.getName()))
+					.equals(BlockStateProperties.AGE_1.getName()))
 					continue;
-				if (((IntegerProperty) property).getAllowedValues()
-					.size() - 1 != state.get((IntegerProperty) property)
+				if (((IntegerProperty) property).getPossibleValues()
+					.size() - 1 != state.getValue((IntegerProperty) property)
 						.intValue())
 					continue;
 				return true;
@@ -121,50 +119,50 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 		return false;
 	}
 
-	private boolean isValidOther(World world, BlockPos pos, BlockState state) {
-		if (state.getBlock() instanceof CropsBlock)
+	private boolean isValidOther(Level world, BlockPos pos, BlockState state) {
+		if (state.getBlock() instanceof CropBlock)
 			return false;
 		if (state.getBlock() instanceof SugarCaneBlock)
 			return true;
 
 		if (state.getCollisionShape(world, pos)
 			.isEmpty() || state.getBlock() instanceof CocoaBlock) {
-			if (state.getBlock() instanceof KelpBlock)
+			if (state.getBlock() instanceof KelpPlantBlock)
 				return true;
-			if (state.getBlock() instanceof KelpTopBlock)
+			if (state.getBlock() instanceof KelpBlock)
 				return true;
 
 			for (Property<?> property : state.getProperties()) {
 				if (!(property instanceof IntegerProperty))
 					continue;
 				if (!property.getName()
-					.equals(BlockStateProperties.AGE_0_1.getName()))
+					.equals(BlockStateProperties.AGE_1.getName()))
 					continue;
 				return false;
 			}
 
-			if (state.getBlock() instanceof CropsBlock) // todo: see if this is a good replacement
+			if (state.getBlock() instanceof CropBlock) // todo: see if this is a good replacement
 				return true;
 		}
 
 		return false;
 	}
 
-	private BlockState cutCrop(World world, BlockPos pos, BlockState state) {
+	private BlockState cutCrop(Level world, BlockPos pos, BlockState state) {
 		Block block = state.getBlock();
-		if (block instanceof CropsBlock) {
-			CropsBlock crop = (CropsBlock) block;
-			return crop.withAge(0);
+		if (block instanceof CropBlock) {
+			CropBlock crop = (CropBlock) block;
+			return crop.getStateForAge(0);
 		}
 		if (block == Blocks.SWEET_BERRY_BUSH) {
-			return state.with(BlockStateProperties.AGE_0_3, Integer.valueOf(1));
+			return state.setValue(BlockStateProperties.AGE_3, Integer.valueOf(1));
 		}
 		if (block == Blocks.SUGAR_CANE || block == Blocks.KELP) {
 			if (state.getFluidState()
 					.isEmpty())
-				return Blocks.AIR.getDefaultState();
+				return Blocks.AIR.defaultBlockState();
 			return state.getFluidState()
-					.getBlockState();
+					.createLegacyBlock();
 		}
 		if (state.getCollisionShape(world, pos)
 				.isEmpty() || block instanceof CocoaBlock) {
@@ -172,17 +170,17 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 				if (!(property instanceof IntegerProperty))
 					continue;
 				if (!property.getName()
-						.equals(BlockStateProperties.AGE_0_1.getName()))
+						.equals(BlockStateProperties.AGE_1.getName()))
 					continue;
-				return state.with((IntegerProperty) property, Integer.valueOf(0));
+				return state.setValue((IntegerProperty) property, Integer.valueOf(0));
 			}
 		}
 
 		if (state.getFluidState()
 			.isEmpty())
-			return Blocks.AIR.getDefaultState();
+			return Blocks.AIR.defaultBlockState();
 		return state.getFluidState()
-			.getBlockState();
+			.createLegacyBlock();
 	}
 
 }

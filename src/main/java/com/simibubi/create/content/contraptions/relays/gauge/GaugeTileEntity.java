@@ -1,15 +1,13 @@
 package com.simibubi.create.content.contraptions.relays.gauge;
 
 import java.util.List;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.text.ITextComponent;
 
 public class GaugeTileEntity extends KineticTileEntity implements IHaveGoggleInformation {
 
@@ -18,19 +16,19 @@ public class GaugeTileEntity extends KineticTileEntity implements IHaveGoggleInf
 	public float prevDialState;
 	public int color;
 
-	public GaugeTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public GaugeTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putFloat("Value", dialTarget);
 		compound.putInt("Color", color);
 		super.write(compound, clientPacket);
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		dialTarget = compound.getFloat("Value");
 		color = compound.getInt("Color");
 		super.fromTag(state, compound, clientPacket);
@@ -41,13 +39,13 @@ public class GaugeTileEntity extends KineticTileEntity implements IHaveGoggleInf
 		super.tick();
 		prevDialState = dialState;
 		dialState += (dialTarget - dialState) * .125f;
-		if (dialState > 1 && world.rand.nextFloat() < 1 / 2f)
-			dialState -= (dialState - 1) * world.rand.nextFloat();
+		if (dialState > 1 && level.random.nextFloat() < 1 / 2f)
+			dialState -= (dialState - 1) * level.random.nextFloat();
 	}
 
 	@Override
-	public boolean addToGoggleTooltip(List<ITextComponent> tooltip, boolean isPlayerSneaking) {
-		tooltip.add(componentSpacing.copy().append(Lang.translate("gui.gauge.info_header")));
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		tooltip.add(componentSpacing.plainCopy().append(Lang.translate("gui.gauge.info_header")));
 
 		return true;
 	}

@@ -1,24 +1,23 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.bearing;
 
 import java.util.List;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import com.simibubi.create.content.contraptions.components.structureMovement.bearing.WindmillBearingTileEntity.RotationDirection;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.INamedIconOptions;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollOptionBehaviour;
 import com.simibubi.create.foundation.utility.Lang;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.MathHelper;
-
 public class WindmillBearingTileEntity extends MechanicalBearingTileEntity {
 
 	protected ScrollOptionBehaviour<RotationDirection> movementDirection;
 	protected float lastGeneratedSpeed;
 
-	public WindmillBearingTileEntity(TileEntityType<? extends MechanicalBearingTileEntity> type) {
+	public WindmillBearingTileEntity(BlockEntityType<? extends MechanicalBearingTileEntity> type) {
 		super(type);
 	}
 
@@ -42,7 +41,7 @@ public class WindmillBearingTileEntity extends MechanicalBearingTileEntity {
 		if (movedContraption == null)
 			return lastGeneratedSpeed;
 		int sails = ((BearingContraption) movedContraption.getContraption()).getSailBlocks() / 8;
-		return MathHelper.clamp(sails, 1, 16) * getAngleSpeedDirection();
+		return Mth.clamp(sails, 1, 16) * getAngleSpeedDirection();
 	}
 
 	@Override
@@ -56,13 +55,13 @@ public class WindmillBearingTileEntity extends MechanicalBearingTileEntity {
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putFloat("LastGenerated", lastGeneratedSpeed);
 		super.write(compound, clientPacket);
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		if (!wasMoved)
 			lastGeneratedSpeed = compound.getFloat("LastGenerated");
 		super.fromTag(state, compound, clientPacket);
@@ -82,7 +81,7 @@ public class WindmillBearingTileEntity extends MechanicalBearingTileEntity {
 	private void onDirectionChanged() {
 		if (!running)
 			return;
-		if (!world.isRemote)
+		if (!level.isClientSide)
 			updateGeneratedRotation();
 	}
 

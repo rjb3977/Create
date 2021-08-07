@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.fluids;
 
-import static net.minecraft.state.properties.BlockStateProperties.HONEY_LEVEL;
-import static net.minecraft.state.properties.BlockStateProperties.WATERLOGGED;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.LEVEL_HONEY;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
 import java.util.List;
 
@@ -16,22 +16,22 @@ import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
@@ -40,29 +40,29 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 public class OpenEndedPipe extends FlowSource {
 
-	World world;
+	Level world;
 	BlockPos pos;
-	AxisAlignedBB aoe;
+	AABB aoe;
 
 	private OpenEndFluidHandler fluidHandler;
 	private BlockPos outputPos;
 	private boolean wasPulling;
 
 	private FluidStack cachedFluid;
-	private List<EffectInstance> cachedEffects;
+	private List<MobEffectInstance> cachedEffects;
 
 	public OpenEndedPipe(BlockFace face) {
 		super(face);
 		fluidHandler = new OpenEndFluidHandler();
 		outputPos = face.getConnectedPos();
 		pos = face.getPos();
-		aoe = new AxisAlignedBB(outputPos).expand(0, -1, 0);
+		aoe = new AABB(outputPos).expandTowards(0, -1, 0);
 		if (face.getFace() == Direction.DOWN)
-			aoe = aoe.expand(0, -1, 0);
+			aoe = aoe.expandTowards(0, -1, 0);
 	}
 
 	@Override
-	public void manageSource(World world) {
+	public void manageSource(Level world) {
 		this.world = world;
 	}
 
@@ -75,13 +75,13 @@ public class OpenEndedPipe extends FlowSource {
 
 		BlockState state = world.getBlockState(outputPos);
 		FluidState fluidState = state.getFluidState();
-		boolean waterlog = state.contains(WATERLOGGED);
+		boolean waterlog = state.hasProperty(WATERLOGGED);
 
-		if (state.contains(HONEY_LEVEL) && state.get(HONEY_LEVEL) >= 5) {
+		if (state.hasProperty(LEVEL_HONEY) && state.getValue(LEVEL_HONEY) >= 5) {
 			if (!simulate)
-				world.setBlockState(outputPos, state.with(HONEY_LEVEL, 0), 3);
+				world.setBlock(outputPos, state.setValue(LEVEL_HONEY, 0), 3);
 			return new FluidStack(AllFluids.HONEY.get()
-				.getStillFluid(), 250);
+				.getSource(), 250);
 		}
 
 		if (!waterlog && !state.getMaterial()
@@ -90,7 +90,7 @@ public class OpenEndedPipe extends FlowSource {
 		if (fluidState.isEmpty() || !fluidState.isSource())
 			return empty;
 
-		FluidStack stack = new FluidStack(fluidState.getFluid(), 1000);
+		FluidStack stack = new FluidStack(fluidState.getType(), 1000);
 
 		if (simulate)
 			return stack;
@@ -98,13 +98,13 @@ public class OpenEndedPipe extends FlowSource {
 		AllTriggers.triggerForNearbyPlayers(AllTriggers.PIPE_SPILL, world, pos, 5);
 
 		if (waterlog) {
-			world.setBlockState(outputPos, state.with(WATERLOGGED, false), 3);
-			world.getPendingFluidTicks()
+			world.setBlock(outputPos, state.setValue(WATERLOGGED, false), 3);
+			world.getLiquidTicks()
 				.scheduleTick(outputPos, Fluids.WATER, 1);
 			return stack;
 		}
-		world.setBlockState(outputPos, fluidState.getBlockState()
-			.with(FlowingFluidBlock.LEVEL, 14), 3);
+		world.setBlock(outputPos, fluidState.createLegacyBlock()
+			.setValue(LiquidBlock.LEVEL, 14), 3);
 		return stack;
 	}
 
@@ -116,7 +116,7 @@ public class OpenEndedPipe extends FlowSource {
 
 		BlockState state = world.getBlockState(outputPos);
 		FluidState fluidState = state.getFluidState();
-		boolean waterlog = state.contains(WATERLOGGED);
+		boolean waterlog = state.hasProperty(WATERLOGGED);
 
 		if (!waterlog && !state.getMaterial()
 			.isReplaceable())
@@ -129,7 +129,7 @@ public class OpenEndedPipe extends FlowSource {
 			return true;
 		}
 
-		if (!fluidState.isEmpty() && fluidState.getFluid() != fluid.getFluid()) {
+		if (!fluidState.isEmpty() && fluidState.getType() != fluid.getFluid()) {
 			FluidReactions.handlePipeSpillCollision(world, outputPos, fluid.getFluid(), fluidState);
 			return false;
 		}
@@ -141,59 +141,59 @@ public class OpenEndedPipe extends FlowSource {
 		if (simulate)
 			return true;
 
-		if (world.getDimension()
-			.isUltrawarm()
+		if (world.dimensionType()
+			.ultraWarm()
 			&& fluid.getFluid()
 				.isIn(FluidTags.WATER)) {
 			int i = outputPos.getX();
 			int j = outputPos.getY();
 			int k = outputPos.getZ();
-			world.playSound(null, i, j, k, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.5F,
-				2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
+			world.playSound(null, i, j, k, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+				2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
 			return true;
 		}
 
 		AllTriggers.triggerForNearbyPlayers(AllTriggers.PIPE_SPILL, world, pos, 5);
 
 		if (waterlog) {
-			world.setBlockState(outputPos, state.with(WATERLOGGED, true), 3);
-			world.getPendingFluidTicks()
+			world.setBlock(outputPos, state.setValue(WATERLOGGED, true), 3);
+			world.getLiquidTicks()
 				.scheduleTick(outputPos, Fluids.WATER, 1);
 			return true;
 		}
-		world.setBlockState(outputPos, fluid.getFluid()
+		world.setBlock(outputPos, fluid.getFluid()
 			.getDefaultState()
 			.getBlockState(), 3);
 		return true;
 	}
 
-	private boolean canApplyEffects(World world, FluidStack fluid) {
+	private boolean canApplyEffects(Level world, FluidStack fluid) {
 		Fluid fluidType = fluid.getFluid();
-		if (fluidType.isEquivalentTo(AllFluids.POTION.get()))
+		if (fluidType.isSame(AllFluids.POTION.get()))
 			return true;
 		if (Tags.Fluids.MILK.contains(fluidType))
 			return true;
 		return false;
 	}
 
-	private void applyEffects(World world, FluidStack fluid) {
+	private void applyEffects(Level world, FluidStack fluid) {
 		Fluid fluidType = fluid.getFluid();
 
-		if (fluidType.isEquivalentTo(AllFluids.POTION.get()))
+		if (fluidType.isSame(AllFluids.POTION.get()))
 			applyPotionEffects(world, fluid);
 
 		if (Tags.Fluids.MILK.contains(fluidType)) {
 			if (world.getGameTime() % 5 != 0)
 				return;
 			List<LivingEntity> list =
-				world.getEntitiesWithinAABB(LivingEntity.class, aoe, LivingEntity::canBeHitWithPotion);
+				world.getEntitiesOfClass(LivingEntity.class, aoe, LivingEntity::isAffectedByPotions);
 			ItemStack curativeItem = new ItemStack(Items.MILK_BUCKET);
 			for (LivingEntity livingentity : list)
 				livingentity.curePotionEffects(curativeItem);
 		}
 	}
 
-	private void applyPotionEffects(World world, FluidStack fluid) {
+	private void applyPotionEffects(Level world, FluidStack fluid) {
 		if (cachedFluid == null || cachedEffects == null || !fluid.isFluidEqual(cachedFluid)) {
 //			FluidStack copy = fluid.copy();
 //			copy.setAmount(250);
@@ -205,15 +205,15 @@ public class OpenEndedPipe extends FlowSource {
 			return;
 
 		List<LivingEntity> list =
-			world.getEntitiesWithinAABB(LivingEntity.class, aoe, LivingEntity::canBeHitWithPotion);
+			world.getEntitiesOfClass(LivingEntity.class, aoe, LivingEntity::isAffectedByPotions);
 		for (LivingEntity livingentity : list) {
-			for (EffectInstance effectinstance : cachedEffects) {
-				Effect effect = effectinstance.getPotion();
-				if (effect.isInstant()) {
-					effect.affectEntity(null, null, livingentity, effectinstance.getAmplifier(), 0.5D);
+			for (MobEffectInstance effectinstance : cachedEffects) {
+				MobEffect effect = effectinstance.getEffect();
+				if (effect.isInstantenous()) {
+					effect.applyInstantenousEffect(null, null, livingentity, effectinstance.getAmplifier(), 0.5D);
 					continue;
 				}
-				livingentity.addPotionEffect(new EffectInstance(effectinstance));
+				livingentity.addEffect(new MobEffectInstance(effectinstance));
 			}
 		}
 	}
@@ -223,15 +223,15 @@ public class OpenEndedPipe extends FlowSource {
 //		return fluidHandler;
 //	}
 
-	public CompoundNBT serializeNBT() {
-		CompoundNBT compound = new CompoundNBT();
+	public CompoundTag serializeNBT() {
+		CompoundTag compound = new CompoundTag();
 		fluidHandler.writeToNBT(compound);
 		compound.putBoolean("Pulling", wasPulling);
 		compound.put("Location", location.serializeNBT());
 		return compound;
 	}
 
-	public static OpenEndedPipe fromNBT(CompoundNBT compound, BlockPos tilePos) {
+	public static OpenEndedPipe fromNBT(CompoundTag compound, BlockPos tilePos) {
 		BlockFace fromNBT = BlockFace.fromNBT(compound.getCompound("Location"));
 		OpenEndedPipe oep = new OpenEndedPipe(new BlockFace(tilePos, fromNBT.getFace()));
 		oep.fluidHandler.readFromNBT(compound);

@@ -1,34 +1,33 @@
 package com.simibubi.create.content.contraptions.relays.advanced.sequencer;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-
 import com.simibubi.create.foundation.networking.TileEntityConfigurationPacket;
 import com.simibubi.create.lib.utility.Constants.NBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ConfigureSequencedGearshiftPacket extends TileEntityConfigurationPacket<SequencedGearshiftTileEntity> {
 
-	private ListNBT instructions;
+	private ListTag instructions;
 
 	protected ConfigureSequencedGearshiftPacket() {}
 
-	public ConfigureSequencedGearshiftPacket(BlockPos pos, ListNBT instructions) {
+	public ConfigureSequencedGearshiftPacket(BlockPos pos, ListTag instructions) {
 		super(pos);
 		this.instructions = instructions;
 	}
 
 	@Override
-	protected void readSettings(PacketBuffer buffer) {
-		instructions = buffer.readCompoundTag().getList("data", NBT.TAG_COMPOUND);
+	protected void readSettings(FriendlyByteBuf buffer) {
+		instructions = buffer.readNbt().getList("data", NBT.TAG_COMPOUND);
 	}
 
 	@Override
-	protected void writeSettings(PacketBuffer buffer) {
-		CompoundNBT tag = new CompoundNBT();
+	protected void writeSettings(FriendlyByteBuf buffer) {
+		CompoundTag tag = new CompoundTag();
 		tag.put("data", instructions);
-		buffer.writeCompoundTag(tag);
+		buffer.writeNbt(tag);
 	}
 
 	@Override

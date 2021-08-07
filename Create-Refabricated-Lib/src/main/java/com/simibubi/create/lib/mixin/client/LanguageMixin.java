@@ -14,10 +14,10 @@ import com.simibubi.create.lib.extensions.LanguageExtensions;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.resources.Language;
+import net.minecraft.client.resources.language.LanguageInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(Language.class)
+@Mixin(LanguageInfo.class)
 public abstract class LanguageMixin implements LanguageExtensions {
 	@Shadow
 	@Final

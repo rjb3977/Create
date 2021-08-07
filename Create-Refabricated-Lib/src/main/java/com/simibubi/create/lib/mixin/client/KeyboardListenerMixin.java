@@ -11,10 +11,10 @@ import com.simibubi.create.lib.event.KeyInputCallback;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.KeyboardListener;
+import net.minecraft.client.KeyboardHandler;
 
 @Environment(EnvType.CLIENT)
-@Mixin(KeyboardListener.class)
+@Mixin(KeyboardHandler.class)
 public abstract class KeyboardListenerMixin {
 	// First return opcode is jumped over if condition is met.
 	@Inject(slice = @Slice(from = @At(value = "RETURN", ordinal = 0, shift = Shift.AFTER)), at = @At(value = "RETURN"), method = "onKeyEvent(JIIII)V")

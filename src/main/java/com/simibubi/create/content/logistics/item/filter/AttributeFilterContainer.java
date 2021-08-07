@@ -2,25 +2,23 @@ package com.simibubi.create.content.logistics.item.filter;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import com.simibubi.create.AllContainerTypes;
 import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.lba.item.SlotItemHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
 
 public class AttributeFilterContainer extends AbstractFilterContainer {
 
@@ -31,15 +29,15 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 	WhitelistMode whitelistMode;
 	List<Pair<ItemAttribute, Boolean>> selectedAttributes;
 
-	public AttributeFilterContainer(ContainerType<?> type, int id, PlayerInventory inv, PacketBuffer extraData) {
+	public AttributeFilterContainer(MenuType<?> type, int id, Inventory inv, FriendlyByteBuf extraData) {
 		super(type, id, inv, extraData);
 	}
 
-	public AttributeFilterContainer(ContainerType<?> type, int id, PlayerInventory inv, ItemStack stack) {
+	public AttributeFilterContainer(MenuType<?> type, int id, Inventory inv, ItemStack stack) {
 		super(type, id, inv, stack);
 	}
 
-	public static AttributeFilterContainer create(int id, PlayerInventory inv, ItemStack stack) {
+	public static AttributeFilterContainer create(int id, Inventory inv, ItemStack stack) {
 		return new AttributeFilterContainer(AllContainerTypes.ATTRIBUTE_FILTER.get(), id, inv, stack);
 	}
 
@@ -48,11 +46,11 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 	}
 
 	@Override
-	protected void init(PlayerInventory inv, ItemStack contentHolder) {
+	protected void init(Inventory inv, ItemStack contentHolder) {
 		super.init(inv, contentHolder);
 		ItemStack stack = new ItemStack(Items.NAME_TAG);
-		stack.setDisplayName(
-				new StringTextComponent("Selected Tags").formatted(TextFormatting.RESET, TextFormatting.BLUE));
+		stack.setHoverName(
+				new TextComponent("Selected Tags").withStyle(ChatFormatting.RESET, ChatFormatting.BLUE));
 		ghostInventory.setStackInSlot(1, stack);
 	}
 
@@ -71,7 +69,7 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 		this.addSlot(new SlotItemHandler(ghostInventory, 0, 16, 22));
 		this.addSlot(new SlotItemHandler(ghostInventory, 1, 22, 57) {
 			@Override
-			public boolean canTakeStack(PlayerEntity playerIn) {
+			public boolean canTakeStack(Player playerIn) {
 				return false;
 			}
 		});
@@ -88,28 +86,28 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 	}
 
 	@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+	public ItemStack clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
 		if (slotId == 37)
 			return ItemStack.EMPTY;
-		return super.slotClick(slotId, dragType, clickTypeIn, player);
+		return super.clicked(slotId, dragType, clickTypeIn, player);
 	}
 
 	@Override
-	public boolean canDragIntoSlot(Slot slotIn) {
-		if (slotIn.slotNumber == 37)
+	public boolean canDragTo(Slot slotIn) {
+		if (slotIn.index == 37)
 			return false;
-		return super.canDragIntoSlot(slotIn);
+		return super.canDragTo(slotIn);
 	}
 
 	@Override
-	public boolean canMergeSlot(ItemStack stack, Slot slotIn) {
-		if (slotIn.slotNumber == 37)
+	public boolean canTakeItemForPickAll(ItemStack stack, Slot slotIn) {
+		if (slotIn.index == 37)
 			return false;
-		return super.canMergeSlot(stack, slotIn);
+		return super.canTakeItemForPickAll(stack, slotIn);
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerIn, int index) {
+	public ItemStack quickMoveStack(Player playerIn, int index) {
 		if (index == 37)
 			return ItemStack.EMPTY;
 		if (index == 36) {
@@ -117,7 +115,7 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 			return ItemStack.EMPTY;
 		}
 		if (index < 36) {
-			ItemStack stackToInsert = playerInventory.getStackInSlot(index);
+			ItemStack stackToInsert = playerInventory.getItem(index);
 			ItemStack copy = stackToInsert.copy();
 			copy.setCount(1);
 			ghostInventory.setStackInSlot(0, copy);
@@ -130,10 +128,10 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 		selectedAttributes = new ArrayList<>();
 		whitelistMode = WhitelistMode.values()[filterItem.getOrCreateTag()
 			.getInt("WhitelistMode")];
-		ListNBT attributes = filterItem.getOrCreateTag()
+		ListTag attributes = filterItem.getOrCreateTag()
 			.getList("MatchedAttributes", NBT.TAG_COMPOUND);
 		attributes.forEach(inbt -> {
-			CompoundNBT compound = (CompoundNBT) inbt;
+			CompoundTag compound = (CompoundTag) inbt;
 			selectedAttributes.add(Pair.of(ItemAttribute.fromNBT(compound), compound.getBoolean("Inverted")));
 		});
 	}
@@ -143,11 +141,11 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 		super.saveData(filterItem);
 		filterItem.getOrCreateTag()
 				.putInt("WhitelistMode", whitelistMode.ordinal());
-		ListNBT attributes = new ListNBT();
+		ListTag attributes = new ListTag();
 		selectedAttributes.forEach(at -> {
 			if (at == null)
 				return;
-			CompoundNBT compoundNBT = new CompoundNBT();
+			CompoundTag compoundNBT = new CompoundTag();
 			at.getFirst()
 					.serializeNBT(compoundNBT);
 			compoundNBT.putBoolean("Inverted", at.getSecond());

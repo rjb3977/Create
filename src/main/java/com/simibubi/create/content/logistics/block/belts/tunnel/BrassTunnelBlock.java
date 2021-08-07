@@ -3,45 +3,44 @@ package com.simibubi.create.content.logistics.block.belts.tunnel;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
-
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BrassTunnelBlock extends BeltTunnelBlock {
 
-	public BrassTunnelBlock(AbstractBlock.Properties properties) {
+	public BrassTunnelBlock(BlockBehaviour.Properties properties) {
 		super(properties);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.BRASS_TUNNEL.create();
 	}
 
 	@Override
-	public BlockState updatePostPlacement(BlockState state, Direction facing, BlockState facingState, IWorld worldIn,
+	public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor worldIn,
 		BlockPos currentPos, BlockPos facingPos) {
-		return super.updatePostPlacement(state, facing, facingState, worldIn, currentPos, facingPos);
+		return super.updateShape(state, facing, facingState, worldIn, currentPos, facingPos);
 	}
 
 	@Override
-	public void onReplaced(BlockState p_196243_1_, World p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
+	public void onRemove(BlockState p_196243_1_, Level p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
 		boolean p_196243_5_) {
-		if (p_196243_1_.getBlock().hasBlockEntity()
-			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.getBlock().hasBlockEntity())) {
+		if (p_196243_1_.getBlock().isEntityBlock()
+			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.getBlock().isEntityBlock())) {
 			TileEntityBehaviour.destroy(p_196243_2_, p_196243_3_, FilteringBehaviour.TYPE);
 			withTileEntityDo(p_196243_2_, p_196243_3_, te -> {
 				if (te instanceof BrassTunnelTileEntity)
-					Block.spawnAsEntity(p_196243_2_, p_196243_3_, ((BrassTunnelTileEntity) te).stackToDistribute);
+					Block.popResource(p_196243_2_, p_196243_3_, ((BrassTunnelTileEntity) te).stackToDistribute);
 			});
-			p_196243_2_.removeTileEntity(p_196243_3_);
+			p_196243_2_.removeBlockEntity(p_196243_3_);
 		}
 	}
 

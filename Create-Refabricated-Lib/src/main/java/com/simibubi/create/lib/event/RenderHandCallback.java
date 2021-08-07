@@ -1,13 +1,12 @@
 package com.simibubi.create.lib.event;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 
 public interface RenderHandCallback {
 	public static final Event<RenderHandCallback> EVENT = EventFactory.createArrayBacked(RenderHandCallback.class, callbacks -> (player, hand, stack, matrices, vertexConsumers, tickDelta, pitch, swingProgress, equipProgress, light) -> {
@@ -19,5 +18,5 @@ public interface RenderHandCallback {
 		return false;
 	});
 
-	boolean onRenderHand(AbstractClientPlayerEntity player, Hand hand, ItemStack stack, MatrixStack matrices, IRenderTypeBuffer vertexConsumers, float tickDelta, float pitch, float swingProgress, float equipProgress, int light);
+	boolean onRenderHand(AbstractClientPlayer player, InteractionHand hand, ItemStack stack, PoseStack matrices, MultiBufferSource vertexConsumers, float tickDelta, float pitch, float swingProgress, float equipProgress, int light);
 }

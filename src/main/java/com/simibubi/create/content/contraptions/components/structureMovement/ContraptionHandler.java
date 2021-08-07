@@ -6,7 +6,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.WorldAttached;
 import com.simibubi.create.lib.utility.Constants.NBT;
@@ -14,11 +18,6 @@ import com.simibubi.create.lib.utility.ExtraDataUtil;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 
 public class ContraptionHandler {
 
@@ -32,12 +31,12 @@ public class ContraptionHandler {
 		queuedAdditions = new WorldAttached<>(() -> ObjectLists.synchronize(new ObjectArrayList<>()));
 	}
 
-	public static void tick(World world) {
+	public static void tick(Level world) {
 		Map<Integer, WeakReference<AbstractContraptionEntity>> map = loadedContraptions.get(world);
 		List<AbstractContraptionEntity> queued = queuedAdditions.get(world);
 
 		for (AbstractContraptionEntity contraptionEntity : queued)
-			map.put(contraptionEntity.getEntityId(), new WeakReference<>(contraptionEntity));
+			map.put(contraptionEntity.getId(), new WeakReference<>(contraptionEntity));
 		queued.clear();
 
 		Collection<WeakReference<AbstractContraptionEntity>> values = map.values();
@@ -52,21 +51,21 @@ public class ContraptionHandler {
 		}
 	}
 
-	public static void addSpawnedContraptionsToCollisionList(Entity entity, World world) {
+	public static void addSpawnedContraptionsToCollisionList(Entity entity, Level world) {
 		if (entity instanceof AbstractContraptionEntity)
 			queuedAdditions.get(world)
 				.add((AbstractContraptionEntity) entity);
 	}
 
-	public static void entitiesWhoJustDismountedGetSentToTheRightLocation(LivingEntity entityLiving, World world) {
-		if (world.isRemote)
+	public static void entitiesWhoJustDismountedGetSentToTheRightLocation(LivingEntity entityLiving, Level world) {
+		if (world.isClientSide)
 			return;
-		CompoundNBT data = ExtraDataUtil.getExtraData(entityLiving);
+		CompoundTag data = ExtraDataUtil.getExtraData(entityLiving);
 		if (!data.contains("ContraptionDismountLocation"))
 			return;
-		Vector3d position = VecHelper.readNBT(data.getList("ContraptionDismountLocation", NBT.TAG_DOUBLE));
-		if (entityLiving.getRidingEntity() == null)
-			entityLiving.setPositionAndUpdate(position.x, position.y, position.z);
+		Vec3 position = VecHelper.readNBT(data.getList("ContraptionDismountLocation", NBT.TAG_DOUBLE));
+		if (entityLiving.getVehicle() == null)
+			entityLiving.teleportTo(position.x, position.y, position.z);
 		data.remove("ContraptionDismountLocation");
 	}
 

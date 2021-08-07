@@ -11,9 +11,8 @@ import com.simibubi.create.foundation.utility.Lang;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
-
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.level.block.Block;
 
 public class PalettesVariantEntry {
 
@@ -36,7 +35,7 @@ public class PalettesVariantEntry {
 //						.apply(name)::accept);
 
 			if (pattern.isTranslucent())
-				builder.addLayer(() -> RenderType::getTranslucent);
+				builder.addLayer(() -> RenderType::translucent);
 			if (pattern == PaletteBlockPattern.COBBLESTONE)
 				builder.item().tag(AllTags.AllItemTags.COBBLESTONE.tag);
 			if (pattern.hasFoliage())

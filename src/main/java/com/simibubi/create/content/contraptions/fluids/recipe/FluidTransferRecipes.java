@@ -2,11 +2,9 @@ package com.simibubi.create.content.contraptions.fluids.recipe;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.foundation.utility.ISimpleReloadListener;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 
 public class FluidTransferRecipes {
 

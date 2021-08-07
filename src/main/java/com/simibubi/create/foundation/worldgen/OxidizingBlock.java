@@ -3,25 +3,23 @@ package com.simibubi.create.foundation.worldgen;
 import java.util.LinkedList;
 import java.util.OptionalDouble;
 import java.util.Random;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import com.simibubi.create.content.curiosities.tools.SandPaperItem;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.Iterate;
 
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 
 public class OxidizingBlock extends Block {
 
@@ -31,35 +29,35 @@ public class OxidizingBlock extends Block {
 	public OxidizingBlock(Properties properties, float chance) {
 		super(properties);
 		this.chance = chance;
-		setDefaultState(getDefaultState().with(OXIDIZATION, 0));
+		registerDefaultState(defaultBlockState().setValue(OXIDIZATION, 0));
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		super.fillStateContainer(builder.add(OXIDIZATION));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder.add(OXIDIZATION));
 	}
 
 	@Override
-	public boolean ticksRandomly(BlockState state) {
-		return super.ticksRandomly(state) || state.get(OXIDIZATION) < 7;
+	public boolean isRandomlyTicking(BlockState state) {
+		return super.isRandomlyTicking(state) || state.getValue(OXIDIZATION) < 7;
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
+	public void randomTick(BlockState state, ServerLevel worldIn, BlockPos pos, Random random) {
 		if (worldIn.getRandom()
 			.nextFloat() <= chance) {
-			int currentState = state.get(OXIDIZATION);
+			int currentState = state.getValue(OXIDIZATION);
 			boolean canIncrease = false;
 			LinkedList<Integer> neighbors = new LinkedList<>();
 			for (Direction facing : Iterate.directions) {
-				BlockPos neighbourPos = pos.offset(facing);
+				BlockPos neighbourPos = pos.relative(facing);
 				if (!LoadedCheckUtil.isAreaLoaded(worldIn, neighbourPos, 0))
 					continue;
-				if (!worldIn.isBlockPresent(neighbourPos))
+				if (!worldIn.isLoaded(neighbourPos))
 					continue;
 				BlockState neighborState = worldIn.getBlockState(neighbourPos);
-				if (neighborState.contains(OXIDIZATION) && neighborState.get(OXIDIZATION) != 0) {
-					neighbors.add(neighborState.get(OXIDIZATION));
+				if (neighborState.hasProperty(OXIDIZATION) && neighborState.getValue(OXIDIZATION) != 0) {
+					neighbors.add(neighborState.getValue(OXIDIZATION));
 				}
 				if (BlockHelper.hasBlockSolidSide(neighborState, worldIn, neighbourPos, facing.getOpposite())) {
 					continue;
@@ -71,22 +69,22 @@ public class OxidizingBlock extends Block {
 					.mapToInt(v -> v)
 					.average();
 				if (average.orElse(7d) >= currentState)
-					worldIn.setBlockState(pos, state.with(OXIDIZATION, Math.min(currentState + 1, 7)));
+					worldIn.setBlockAndUpdate(pos, state.setValue(OXIDIZATION, Math.min(currentState + 1, 7)));
 			}
 		}
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-		BlockRayTraceResult blockRayTraceResult) {
-		if (state.get(OXIDIZATION) > 0 && player.getHeldItem(hand)
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
+		BlockHitResult blockRayTraceResult) {
+		if (state.getValue(OXIDIZATION) > 0 && player.getItemInHand(hand)
 			.getItem() instanceof SandPaperItem) {
 			if (!player.isCreative())
-				player.getHeldItem(hand)
-					.damageItem(1, player, p -> p.sendBreakAnimation(p.getActiveHand()));
-			world.setBlockState(pos, state.with(OXIDIZATION, 0));
-			return ActionResultType.SUCCESS;
+				player.getItemInHand(hand)
+					.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(p.getUsedItemHand()));
+			world.setBlockAndUpdate(pos, state.setValue(OXIDIZATION, 0));
+			return InteractionResult.SUCCESS;
 		}
-		return ActionResultType.PASS;
+		return InteractionResult.PASS;
 	}
 }

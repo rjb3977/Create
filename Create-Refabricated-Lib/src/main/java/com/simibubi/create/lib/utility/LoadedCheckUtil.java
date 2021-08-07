@@ -1,10 +1,10 @@
 package com.simibubi.create.lib.utility;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
 
 public class LoadedCheckUtil {
-	public static boolean isAreaLoaded(IWorld world, BlockPos center, int range) {
-		return world.isAreaLoaded(center.add(-range, -range, -range), center.add(range, range, range));
+	public static boolean isAreaLoaded(LevelAccessor world, BlockPos center, int range) {
+		return world.hasChunksAt(center.offset(-range, -range, -range), center.offset(range, range, range));
 	}
 }

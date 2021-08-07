@@ -7,9 +7,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 
 @Mixin(Entity.class)
 public abstract class HeavyBootsOnEntityMixin {
@@ -19,7 +18,7 @@ public abstract class HeavyBootsOnEntityMixin {
 
 	@Inject(at = @At("HEAD"), method = "canSwim", cancellable = true)
 	public void noSwimmingWithHeavyBootsOn(CallbackInfoReturnable<Boolean> cir) {
-		CompoundNBT persistentData = ExtraDataUtil.getExtraData(MixinHelper.cast(this));
+		CompoundTag persistentData = ExtraDataUtil.getExtraData(MixinHelper.cast(this));
 		if (persistentData.contains("HeavyBoots"))
 			cir.setReturnValue(false);
 	}

@@ -1,8 +1,8 @@
 package com.simibubi.create.lib.extensions;
 
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
 
 public interface ModelManagerExtensions {
-	IBakedModel create$getModel(ResourceLocation id);
+	BakedModel create$getModel(ResourceLocation id);
 }

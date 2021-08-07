@@ -1,14 +1,12 @@
 package com.simibubi.create.foundation.item;
 
 import java.util.function.Consumer;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.foundation.tileEntity.SyncedTileEntity;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import com.simibubi.create.lib.utility.NBTSerializable;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 
 public class SmartInventory extends RecipeWrapper
 	implements IItemHandlerModifiableIntermediate, NBTSerializable {
@@ -112,12 +110,12 @@ public class SmartInventory extends RecipeWrapper
 	}
 
 	@Override
-	public CompoundNBT create$serializeNBT() {
+	public CompoundTag create$serializeNBT() {
 		return getInv().serializeNBT();
 	}
 
 	@Override
-	public void create$deserializeNBT(CompoundNBT nbt) {
+	public void create$deserializeNBT(CompoundTag nbt) {
 		getInv().deserializeNBT(nbt);
 	}
 

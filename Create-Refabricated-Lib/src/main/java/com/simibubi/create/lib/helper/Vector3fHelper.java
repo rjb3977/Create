@@ -1,9 +1,8 @@
 package com.simibubi.create.lib.helper;
 
+import com.mojang.math.Vector3f;
 import com.simibubi.create.lib.mixin.accessor.Vector3fAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.util.math.vector.Vector3f;
 
 public final class Vector3fHelper {
 	public static void setX(Vector3f vector, float x) {

@@ -5,25 +5,23 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-
-import net.minecraft.tags.ITag;
-import net.minecraft.util.ResourceLocation;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class NamedTag<T> implements ITag.INamedTag<T> {
+public class NamedTag<T> implements Tag.Named<T> {
 	private final ResourceLocation id;
-	private final ITag<T> tag;
+	private final Tag<T> tag;
 
-	public NamedTag(@Nullable ITag<T> tag, ResourceLocation id) {
+	public NamedTag(@Nullable Tag<T> tag, ResourceLocation id) {
 		this.tag = tag;
 		this.id = id;
 	}
 
 	@Override
-	public ResourceLocation getId() {
+	public ResourceLocation getName() {
 		return id;
 	}
 
@@ -35,9 +33,9 @@ public class NamedTag<T> implements ITag.INamedTag<T> {
 	}
 
 	@Override
-	public List<T> values() {
+	public List<T> getValues() {
 		if (tag == null)
 			return Collections.emptyList();
-		return tag.values();
+		return tag.getValues();
 	}
 }

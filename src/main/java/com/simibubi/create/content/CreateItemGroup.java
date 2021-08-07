@@ -1,11 +1,9 @@
 package com.simibubi.create.content;
 
 import java.util.EnumSet;
-
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.item.CreateItemGroupBase;
-
-import net.minecraft.item.ItemStack;
 
 public class CreateItemGroup extends CreateItemGroupBase {
 
@@ -19,7 +17,7 @@ public class CreateItemGroup extends CreateItemGroupBase {
 	}
 
 	@Override
-	public ItemStack createIcon() {
+	public ItemStack makeIcon() {
 		return AllBlocks.COGWHEEL.asStack();
 	}
 

@@ -3,7 +3,12 @@ package com.simibubi.create.foundation.tileEntity.behaviour.belt;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.logistics.block.funnel.BeltFunnelBlock;
 import com.simibubi.create.content.logistics.block.funnel.BeltFunnelBlock.Shape;
@@ -19,12 +24,6 @@ import com.simibubi.create.lib.utility.LazyOptional;
 import alexiil.mc.lib.attributes.SearchOptions;
 import alexiil.mc.lib.attributes.item.ItemAttributes;
 import alexiil.mc.lib.attributes.item.ItemInsertable;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 /**
  * Behaviour for TileEntities to which belts can transfer items directly in a
@@ -66,7 +65,7 @@ public class DirectBeltInputBehaviour extends TileEntityBehaviour {
 	}
 
 	private ItemStack defaultInsertionCallback(TransportedItemStack inserted, Direction side, boolean simulate) {
-		ItemInsertable insertable = ItemAttributes.INSERTABLE.getFirstOrNull(tileEntity.getWorld(), tileEntity.getPos(), SearchOptions.inDirection(side));
+		ItemInsertable insertable = ItemAttributes.INSERTABLE.getFirstOrNull(tileEntity.getLevel(), tileEntity.getBlockPos(), SearchOptions.inDirection(side));
 		LazyOptional<IItemHandler> lazy = insertable == null
 				? LazyOptional.empty()
 				: LazyOptional.of(() -> (IItemHandler) insertable);
@@ -105,20 +104,20 @@ public class DirectBeltInputBehaviour extends TileEntityBehaviour {
 
 	@Nullable
 	public ItemStack tryExportingToBeltFunnel(ItemStack stack, @Nullable Direction side, boolean simulate) {
-		BlockPos funnelPos = tileEntity.getPos()
-			.up();
-		World world = getWorld();
+		BlockPos funnelPos = tileEntity.getBlockPos()
+			.above();
+		Level world = getWorld();
 		BlockState funnelState = world.getBlockState(funnelPos);
 		if (!(funnelState.getBlock() instanceof BeltFunnelBlock))
 			return null;
-		if (funnelState.get(BeltFunnelBlock.SHAPE) != Shape.PULLING)
+		if (funnelState.getValue(BeltFunnelBlock.SHAPE) != Shape.PULLING)
 			return null;
 		if (side != null && FunnelBlock.getFunnelFacing(funnelState) != side)
 			return null;
-		TileEntity te = world.getTileEntity(funnelPos);
+		BlockEntity te = world.getBlockEntity(funnelPos);
 		if (!(te instanceof FunnelTileEntity))
 			return null;
-		if (funnelState.get(BeltFunnelBlock.POWERED))
+		if (funnelState.getValue(BeltFunnelBlock.POWERED))
 			return stack;
 		ItemStack insert = FunnelBlock.tryInsert(world, funnelPos, stack, simulate);
 		if (insert.getCount() != stack.getCount() && !simulate)

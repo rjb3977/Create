@@ -60,13 +60,13 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Food;
-import net.minecraft.item.Item;
-import net.minecraft.item.Rarity;
-import net.minecraft.tags.ITag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 
 public class AllItems {
 
@@ -101,27 +101,27 @@ public class AllItems {
 		.register();
 
 	public static final ItemEntry<Item> BAR_OF_CHOCOLATE = REGISTRATE.item("bar_of_chocolate", Item::new)
-		.properties(p -> p.food(new Food.Builder().hunger(6)
-			.saturation(0.3F)
+		.properties(p -> p.food(new FoodProperties.Builder().nutrition(6)
+			.saturationMod(0.3F)
 			.build()))
 		.lang("Bar of Chocolate")
 		.register();
 
 	public static final ItemEntry<Item> SWEET_ROLL = REGISTRATE.item("sweet_roll", Item::new)
-		.properties(p -> p.food(new Food.Builder().hunger(6)
-			.saturation(0.8F)
+		.properties(p -> p.food(new FoodProperties.Builder().nutrition(6)
+			.saturationMod(0.8F)
 			.build()))
 		.register();
 
 	public static final ItemEntry<Item> CHOCOLATE_BERRIES = REGISTRATE.item("chocolate_glazed_berries", Item::new)
-		.properties(p -> p.food(new Food.Builder().hunger(7)
-			.saturation(0.8F)
+		.properties(p -> p.food(new FoodProperties.Builder().nutrition(7)
+			.saturationMod(0.8F)
 			.build()))
 		.register();
 
 	public static final ItemEntry<Item> HONEYED_APPLE = REGISTRATE.item("honeyed_apple", Item::new)
-		.properties(p -> p.food(new Food.Builder().hunger(8)
-			.saturation(0.8F)
+		.properties(p -> p.food(new FoodProperties.Builder().nutrition(8)
+			.saturationMod(0.8F)
 			.build()))
 		.register();
 
@@ -248,20 +248,20 @@ public class AllItems {
 
 	public static final ItemEntry<ExtendoGripItem> EXTENDO_GRIP = REGISTRATE.item("extendo_grip", ExtendoGripItem::new)
 		.transform(CreateRegistrate.customRenderedItem(() -> ExtendoGripModel::new))
-			.properties(p -> p.maxDamage(ExtendoGripItem.MAX_DAMAGE))
+			.properties(p -> p.durability(ExtendoGripItem.MAX_DAMAGE))
 //		.model(AssetLookup.itemModelWithPartials())
 		.register();
 
 	public static final ItemEntry<LinkedControllerItem> LINKED_CONTROLLER =
 		REGISTRATE.item("linked_controller", LinkedControllerItem::new)
-			.properties(p -> (FabricItemSettings) p.maxStackSize(1))
+			.properties(p -> (FabricItemSettings) p.stacksTo(1))
 			.transform(CreateRegistrate.customRenderedItem(() -> LinkedControllerModel::new))
 //			.model(AssetLookup.itemModelWithPartials())
 			.register();
 
 	public static final ItemEntry<PotatoCannonItem> POTATO_CANNON =
 		REGISTRATE.item("potato_cannon", PotatoCannonItem::new)
-			.properties(p -> (FabricItemSettings) p.maxStackSize(1).maxDamage(PotatoCannonItem.MAX_DAMAGE))
+			.properties(p -> (FabricItemSettings) p.stacksTo(1).durability(PotatoCannonItem.MAX_DAMAGE))
 			.transform(CreateRegistrate.customRenderedItem(() -> PotatoCannonModel::new))
 //			.model(AssetLookup.itemModelWithPartials())
 			.register();
@@ -345,7 +345,7 @@ public class AllItems {
 	}
 
 	@SafeVarargs
-	private static ItemEntry<Item> taggedIngredient(String name, ITag.INamedTag<Item>... tags) {
+	private static ItemEntry<Item> taggedIngredient(String name, Tag.Named<Item>... tags) {
 		return REGISTRATE.item(name, Item::new)
 //			.tag(tags)
 			.register();

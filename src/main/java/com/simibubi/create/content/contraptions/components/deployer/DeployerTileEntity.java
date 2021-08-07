@@ -7,7 +7,26 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.ClipContext.Block;
+import net.minecraft.world.level.ClipContext.Fluid;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.AllBlocks;
@@ -33,27 +52,6 @@ import com.simibubi.create.lib.utility.LazyOptional;
 
 import com.simibubi.create.lib.utility.NBTSerializer;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceContext.BlockMode;
-import net.minecraft.util.math.RayTraceContext.FluidMode;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.server.ServerWorld;
-
 public class DeployerTileEntity extends KineticTileEntity {
 
 	protected State state;
@@ -67,7 +65,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 	protected FilteringBehaviour filtering;
 	protected boolean redstoneLocked;
 	private LazyOptional<IItemHandlerModifiable> invHandler;
-	private ListNBT deferredInventoryList;
+	private ListTag deferredInventoryList;
 
 	private LerpedFloat animatedOffset;
 
@@ -81,7 +79,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 		PUNCH, USE
 	}
 
-	public DeployerTileEntity(TileEntityType<? extends DeployerTileEntity> type) {
+	public DeployerTileEntity(BlockEntityType<? extends DeployerTileEntity> type) {
 		super(type);
 		state = State.WAITING;
 		mode = Mode.USE;
@@ -105,28 +103,28 @@ public class DeployerTileEntity extends KineticTileEntity {
 	@Override
 	public void initialize() {
 		super.initialize();
-		if (!world.isRemote) {
-			player = new DeployerFakePlayer((ServerWorld) world);
+		if (!level.isClientSide) {
+			player = new DeployerFakePlayer((ServerLevel) level);
 			if (deferredInventoryList != null) {
-				player.inventory.read(deferredInventoryList);
+				player.inventory.load(deferredInventoryList);
 				deferredInventoryList = null;
-				heldItem = player.getHeldItemMainhand();
+				heldItem = player.getMainHandItem();
 				sendData();
 			}
-			Vector3d initialPos = VecHelper.getCenterOf(pos.offset(getBlockState().get(FACING)));
-			player.setPosition(initialPos.x, initialPos.y, initialPos.z);
+			Vec3 initialPos = VecHelper.getCenterOf(worldPosition.relative(getBlockState().getValue(FACING)));
+			player.setPos(initialPos.x, initialPos.y, initialPos.z);
 		}
 		invHandler = LazyOptional.of(this::createHandler);
 	}
 
 	protected void onExtract(ItemStack stack) {
-		player.setHeldItem(Hand.MAIN_HAND, stack.copy());
+		player.setItemInHand(InteractionHand.MAIN_HAND, stack.copy());
 		sendData();
-		markDirty();
+		setChanged();
 	}
 
 	protected int getTimerSpeed() {
-		return (int) (getSpeed() == 0 ? 0 : MathHelper.clamp(Math.abs(getSpeed() * 2), 8, 512));
+		return (int) (getSpeed() == 0 ? 0 : Mth.clamp(Math.abs(getSpeed() * 2), 8, 512));
 	}
 
 	@Override
@@ -135,9 +133,9 @@ public class DeployerTileEntity extends KineticTileEntity {
 
 		if (getSpeed() == 0)
 			return;
-		if (!world.isRemote && player != null && player.blockBreakingProgress != null) {
-			if (world.isAirBlock(player.blockBreakingProgress.getKey())) {
-				world.sendBlockBreakProgress(player.getEntityId(), player.blockBreakingProgress.getKey(), -1);
+		if (!level.isClientSide && player != null && player.blockBreakingProgress != null) {
+			if (level.isEmptyBlock(player.blockBreakingProgress.getKey())) {
+				level.destroyBlockProgress(player.getId(), player.blockBreakingProgress.getKey(), -1);
 				player.blockBreakingProgress = null;
 			}
 		}
@@ -145,10 +143,10 @@ public class DeployerTileEntity extends KineticTileEntity {
 			timer -= getTimerSpeed();
 			return;
 		}
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
 
-		ItemStack stack = player.getHeldItemMainhand();
+		ItemStack stack = player.getMainHandItem();
 		if (state == State.WAITING) {
 			if (!overflowItems.isEmpty()) {
 				timer = getTimerSpeed() * 10;
@@ -156,15 +154,15 @@ public class DeployerTileEntity extends KineticTileEntity {
 			}
 
 			boolean changed = false;
-			for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+			for (int i = 0; i < player.inventory.getContainerSize(); i++) {
 				if (overflowItems.size() > 10)
 					break;
-				ItemStack item = player.inventory.getStackInSlot(i);
+				ItemStack item = player.inventory.getItem(i);
 				if (item.isEmpty())
 					continue;
 				if (item != stack || !filtering.test(item)) {
 					overflowItems.add(item);
-					player.inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+					player.inventory.setItem(i, ItemStack.EMPTY);
 					changed = true;
 				}
 			}
@@ -175,8 +173,8 @@ public class DeployerTileEntity extends KineticTileEntity {
 				return;
 			}
 
-			Direction facing = getBlockState().get(FACING);
-			if (mode == Mode.USE && !DeployerHandler.shouldActivate(stack, world, pos.offset(facing, 2), facing)) {
+			Direction facing = getBlockState().getValue(FACING);
+			if (mode == Mode.USE && !DeployerHandler.shouldActivate(stack, level, worldPosition.relative(facing, 2), facing)) {
 				timer = getTimerSpeed() * 10;
 				return;
 			}
@@ -213,15 +211,15 @@ public class DeployerTileEntity extends KineticTileEntity {
 
 	protected void start() {
 		state = State.EXPANDING;
-		Vector3d movementVector = getMovementVector();
-		Vector3d rayOrigin = VecHelper.getCenterOf(pos)
+		Vec3 movementVector = getMovementVector();
+		Vec3 rayOrigin = VecHelper.getCenterOf(worldPosition)
 			.add(movementVector.scale(3 / 2f));
-		Vector3d rayTarget = VecHelper.getCenterOf(pos)
+		Vec3 rayTarget = VecHelper.getCenterOf(worldPosition)
 			.add(movementVector.scale(5 / 2f));
-		RayTraceContext rayTraceContext =
-			new RayTraceContext(rayOrigin, rayTarget, BlockMode.OUTLINE, FluidMode.NONE, player);
-		BlockRayTraceResult result = world.rayTraceBlocks(rayTraceContext);
-		reach = (float) (.5f + Math.min(result.getHitVec()
+		ClipContext rayTraceContext =
+			new ClipContext(rayOrigin, rayTarget, Block.OUTLINE, Fluid.NONE, player);
+		BlockHitResult result = level.clip(rayTraceContext);
+		reach = (float) (.5f + Math.min(result.getLocation()
 			.subtract(rayOrigin)
 			.length(), .75f));
 		timer = 1000;
@@ -229,17 +227,17 @@ public class DeployerTileEntity extends KineticTileEntity {
 	}
 
 	public boolean startBoop(Direction facing) {
-		if (!world.isAirBlock(pos.offset(facing, 1)) || !world.isAirBlock(pos.offset(facing, 2)))
+		if (!level.isEmptyBlock(worldPosition.relative(facing, 1)) || !level.isEmptyBlock(worldPosition.relative(facing, 2)))
 			return false;
-		BlockPos otherDeployer = pos.offset(facing, 4);
-		if (!world.isBlockPresent(otherDeployer))
+		BlockPos otherDeployer = worldPosition.relative(facing, 4);
+		if (!level.isLoaded(otherDeployer))
 			return false;
-		TileEntity otherTile = world.getTileEntity(otherDeployer);
+		BlockEntity otherTile = level.getBlockEntity(otherDeployer);
 		if (!(otherTile instanceof DeployerTileEntity))
 			return false;
 		DeployerTileEntity deployerTile = (DeployerTileEntity) otherTile;
-		if (world.getBlockState(otherDeployer)
-			.get(FACING)
+		if (level.getBlockState(otherDeployer)
+			.getValue(FACING)
 			.getOpposite() != facing || deployerTile.mode != Mode.PUNCH)
 			return false;
 
@@ -252,7 +250,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 	}
 
 	public void triggerBoop() {
-		TileEntity otherTile = world.getTileEntity(pos.offset(getBlockState().get(FACING), 4));
+		BlockEntity otherTile = level.getBlockEntity(worldPosition.relative(getBlockState().getValue(FACING), 4));
 		if (!(otherTile instanceof DeployerTileEntity))
 			return;
 
@@ -270,37 +268,37 @@ public class DeployerTileEntity extends KineticTileEntity {
 		deployerTile.sendData();
 
 		// award nearby players
-		List<ServerPlayerEntity> players =
-			world.getEntitiesWithinAABB(ServerPlayerEntity.class, new AxisAlignedBB(pos).grow(9));
+		List<ServerPlayer> players =
+			level.getEntitiesOfClass(ServerPlayer.class, new AABB(worldPosition).inflate(9));
 		players.forEach(AllTriggers.DEPLOYER_BOOP::trigger);
 	}
 
 	protected void activate() {
-		Vector3d movementVector = getMovementVector();
-		Direction direction = getBlockState().get(FACING);
-		Vector3d center = VecHelper.getCenterOf(pos);
-		BlockPos clickedPos = pos.offset(direction, 2);
-		player.rotationYaw = direction.getHorizontalAngle();
-		player.rotationPitch = direction == Direction.UP ? -90 : direction == Direction.DOWN ? 90 : 0;
+		Vec3 movementVector = getMovementVector();
+		Direction direction = getBlockState().getValue(FACING);
+		Vec3 center = VecHelper.getCenterOf(worldPosition);
+		BlockPos clickedPos = worldPosition.relative(direction, 2);
+		player.yRot = direction.toYRot();
+		player.xRot = direction == Direction.UP ? -90 : direction == Direction.DOWN ? 90 : 0;
 
 		if (direction == Direction.DOWN
-			&& TileEntityBehaviour.get(world, clickedPos, TransportedItemStackHandlerBehaviour.TYPE) != null)
+			&& TileEntityBehaviour.get(level, clickedPos, TransportedItemStackHandlerBehaviour.TYPE) != null)
 			return; // Belt processing handled in BeltDeployerCallbacks
 
 		DeployerHandler.activate(player, center, clickedPos, movementVector, mode);
 		if (player != null)
-			heldItem = player.getHeldItemMainhand();
+			heldItem = player.getMainHandItem();
 	}
 
-	protected Vector3d getMovementVector() {
+	protected Vec3 getMovementVector() {
 		if (!AllBlocks.DEPLOYER.has(getBlockState()))
-			return Vector3d.ZERO;
-		return Vector3d.of(getBlockState().get(FACING)
-			.getDirectionVec());
+			return Vec3.ZERO;
+		return Vec3.atLowerCornerOf(getBlockState().getValue(FACING)
+			.getNormal());
 	}
 
 	@Override
-	protected void fromTag(BlockState blockState, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState blockState, CompoundTag compound, boolean clientPacket) {
 		state = NBTHelper.readEnum(compound, "State", State.class);
 		mode = NBTHelper.readEnum(compound, "Mode", Mode.class);
 		timer = compound.getInt("Timer");
@@ -309,31 +307,31 @@ public class DeployerTileEntity extends KineticTileEntity {
 		deferredInventoryList = compound.getList("Inventory", Constants.NBT.TAG_COMPOUND);
 		overflowItems = NBTHelper.readItemList(compound.getList("Overflow", Constants.NBT.TAG_COMPOUND));
 		if (compound.contains("HeldItem"))
-			heldItem = ItemStack.read(compound.getCompound("HeldItem"));
+			heldItem = ItemStack.of(compound.getCompound("HeldItem"));
 		super.fromTag(blockState, compound, clientPacket);
 
 		if (!clientPacket)
 			return;
 		reach = compound.getFloat("Reach");
 		if (compound.contains("Particle")) {
-			ItemStack particleStack = ItemStack.read(compound.getCompound("Particle"));
-			SandPaperItem.spawnParticles(VecHelper.getCenterOf(pos)
-				.add(getMovementVector().scale(reach + 1)), particleStack, this.world);
+			ItemStack particleStack = ItemStack.of(compound.getCompound("Particle"));
+			SandPaperItem.spawnParticles(VecHelper.getCenterOf(worldPosition)
+				.add(getMovementVector().scale(reach + 1)), particleStack, this.level);
 		}
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		NBTHelper.writeEnum(compound, "Mode", mode);
 		NBTHelper.writeEnum(compound, "State", state);
 		compound.putInt("Timer", timer);
 		compound.putBoolean("Powered", redstoneLocked);
 
 		if (player != null) {
-			ListNBT invNBT = new ListNBT();
-			player.inventory.write(invNBT);
+			ListTag invNBT = new ListTag();
+			player.inventory.save(invNBT);
 			compound.put("Inventory", invNBT);
-			compound.put("HeldItem", player.getHeldItemMainhand().serializeNBT());
+			compound.put("HeldItem", player.getMainHandItem().serializeNBT());
 			compound.put("Overflow", NBTHelper.writeItemList(overflowItems));
 		} else if (deferredInventoryList != null) {
 			compound.put("Inventory", deferredInventoryList);
@@ -346,7 +344,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 		compound.putFloat("Reach", reach);
 		if (player == null)
 			return;
-		compound.put("HeldItem", NBTSerializer.serializeNBT(player.getHeldItemMainhand()));
+		compound.put("HeldItem", NBTSerializer.serializeNBT(player.getMainHandItem()));
 		if (player.spawnedItemEffects != null) {
 			compound.put("Particle", NBTSerializer.serializeNBT(player.spawnedItemEffects));
 			player.spawnedItemEffects = null;
@@ -359,9 +357,9 @@ public class DeployerTileEntity extends KineticTileEntity {
 	}
 
 	public void redstoneUpdate() {
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
-		boolean blockPowered = world.isBlockPowered(pos);
+		boolean blockPowered = level.hasNeighborSignal(worldPosition);
 		if (blockPowered == redstoneLocked)
 			return;
 		redstoneLocked = blockPowered;
@@ -379,15 +377,15 @@ public class DeployerTileEntity extends KineticTileEntity {
 //	}
 
 	@Override
-	public void remove() {
-		super.remove();
+	public void setRemoved() {
+		super.setRemoved();
 		if (invHandler != null)
 			invHandler.invalidate();
 	}
 
 	public void changeMode() {
 		mode = mode == Mode.PUNCH ? Mode.USE : Mode.PUNCH;
-		markDirty();
+		setChanged();
 		sendData();
 	}
 
@@ -399,7 +397,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 //	}
 
 	@Override
-	public boolean addToTooltip(List<ITextComponent> tooltip, boolean isPlayerSneaking) {
+	public boolean addToTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		if (super.addToTooltip(tooltip, isPlayerSneaking))
 			return true;
 		if (getSpeed() == 0)
@@ -429,7 +427,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 			progress = (timer - partialTicks * timerSpeed) / 1000f;
 		float handLength = handPose == AllBlockPartials.DEPLOYER_HAND_POINTING ? 0
 			: handPose == AllBlockPartials.DEPLOYER_HAND_HOLDING ? 4 / 16f : 3 / 16f;
-		float distance = Math.min(MathHelper.clamp(progress, 0, 1) * (reach + handLength), 21 / 16f);
+		float distance = Math.min(Mth.clamp(progress, 0, 1) * (reach + handLength), 21 / 16f);
 
 		return distance;
 	}
@@ -442,24 +440,24 @@ public class DeployerTileEntity extends KineticTileEntity {
 	SandPaperInv sandpaperInv = new SandPaperInv(ItemStack.EMPTY);
 
 	@Nullable
-	public IRecipe<?> getRecipe(ItemStack stack) {
+	public Recipe<?> getRecipe(ItemStack stack) {
 		if (player == null)
 			return null;
-		ItemStack heldItemMainhand = player.getHeldItemMainhand();
+		ItemStack heldItemMainhand = player.getMainHandItem();
 		if (heldItemMainhand.getItem() instanceof SandPaperItem) {
 			sandpaperInv.setInventorySlotContents(0, stack);
-			return AllRecipeTypes.SANDPAPER_POLISHING.find(sandpaperInv, world)
+			return AllRecipeTypes.SANDPAPER_POLISHING.find(sandpaperInv, level)
 				.orElse(null);
 		}
 		recipeInv.setInventorySlotContents(0, stack);
 		recipeInv.setInventorySlotContents(1, heldItemMainhand);
 
-		Optional<DeployerApplicationRecipe> assemblyRecipe = SequencedAssemblyRecipe.getRecipe(world, recipeInv,
+		Optional<DeployerApplicationRecipe> assemblyRecipe = SequencedAssemblyRecipe.getRecipe(level, recipeInv,
 			AllRecipeTypes.DEPLOYING.getType(), DeployerApplicationRecipe.class);
 		if (assemblyRecipe.isPresent())
 			return assemblyRecipe.get();
 
-		return AllRecipeTypes.DEPLOYING.find(recipeInv, world)
+		return AllRecipeTypes.DEPLOYING.find(recipeInv, level)
 			.orElse(null);
 	}
 

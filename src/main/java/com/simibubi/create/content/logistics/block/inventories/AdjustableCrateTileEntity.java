@@ -7,28 +7,25 @@ import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Containers;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraft.util.text.StringTextComponent;
 
-public class AdjustableCrateTileEntity extends CrateTileEntity implements INamedContainerProvider {
+public class AdjustableCrateTileEntity extends CrateTileEntity implements MenuProvider {
 
 	public class Inv extends ItemStackHandler {
 		public Inv() {
@@ -54,7 +51,7 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements INamed
 		@Override
 		protected void onContentsChanged(int slot) {
 			super.onContentsChanged(slot);
-			markDirty();
+			setChanged();
 
 			itemCount = 0;
 			for (int i = 0; i < getSlots(); i++) {
@@ -68,7 +65,7 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements INamed
 	public int itemCount;
 	protected LazyOptional<IItemHandler> invHandler;
 
-	public AdjustableCrateTileEntity(TileEntityType<?> type) {
+	public AdjustableCrateTileEntity(BlockEntityType<?> type) {
 		super(type);
 		allowedAmount = 512;
 		itemCount = 10;
@@ -77,14 +74,14 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements INamed
 	}
 
 	@Override
-	public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
+	public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
 		return AdjustableCrateContainer.create(id, inventory, this);
 	}
 
 	public AdjustableCrateTileEntity getOtherCrate() {
 		if (!AllBlocks.ADJUSTABLE_CRATE.has(getBlockState()))
 			return null;
-		TileEntity tileEntity = world.getTileEntity(pos.offset(getFacing()));
+		BlockEntity tileEntity = level.getBlockEntity(worldPosition.relative(getFacing()));
 		if (tileEntity instanceof AdjustableCrateTileEntity)
 			return (AdjustableCrateTileEntity) tileEntity;
 		return null;
@@ -145,11 +142,11 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements INamed
 	}
 
 	private void drop(int slot) {
-		InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), inventory.getStackInSlot(slot));
+		Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), inventory.getStackInSlot(slot));
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putBoolean("Main", true);
 		compound.putInt("AllowedAmount", allowedAmount);
 		compound.put("Inventory", inventory.serializeNBT());
@@ -157,25 +154,25 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements INamed
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		allowedAmount = compound.getInt("AllowedAmount");
 		inventory.deserializeNBT(compound.getCompound("Inventory"));
 		super.fromTag(state, compound, clientPacket);
 	}
 
 	@Override
-	public ITextComponent getDisplayName() {
+	public Component getDisplayName() {
 		return Lang.translate("gui.adjustable_crate.title");
 	}
 
-	public void sendToContainer(PacketBuffer buffer) {
-		buffer.writeBlockPos(getPos());
-		buffer.writeCompoundTag(getUpdateTag());
+	public void sendToContainer(FriendlyByteBuf buffer) {
+		buffer.writeBlockPos(getBlockPos());
+		buffer.writeNbt(getUpdateTag());
 	}
 
 	@Override
-	public void remove() {
-		super.remove();
+	public void setRemoved() {
+		super.setRemoved();
 		invHandler.invalidate();
 	}
 

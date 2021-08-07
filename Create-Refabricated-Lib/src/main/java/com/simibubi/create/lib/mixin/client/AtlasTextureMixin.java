@@ -15,17 +15,17 @@ import com.simibubi.create.lib.utility.TextureStitchUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 @Environment(EnvType.CLIENT)
-@Mixin(AtlasTexture.class)
+@Mixin(TextureAtlas.class)
 public abstract class AtlasTextureMixin {
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/IProfiler;endStartSection(Ljava/lang/String;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILEXCEPTION,
 			method = "stitch(Lnet/minecraft/resources/IResourceManager;Ljava/util/stream/Stream;Lnet/minecraft/profiler/IProfiler;I)Lnet/minecraft/client/renderer/texture/AtlasTexture$SheetData;")
-	public void create$stitch(IResourceManager iResourceManager, Stream<ResourceLocation> stream, IProfiler iProfiler, int i, CallbackInfoReturnable<AtlasTexture.SheetData> cir, Set<ResourceLocation> set) {
+	public void create$stitch(ResourceManager iResourceManager, Stream<ResourceLocation> stream, ProfilerFiller iProfiler, int i, CallbackInfoReturnable<TextureAtlas.Preparations> cir, Set<ResourceLocation> set) {
 		OnTextureStitchCallback.EVENT.invoker().onModelRegistry(new TextureStitchUtil(MixinHelper.cast(this), set));
 	}
 }

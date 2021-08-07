@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.components.motor;
 
 import java.util.List;
-
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.base.GeneratingKineticTileEntity;
 import com.simibubi.create.foundation.config.AllConfigs;
@@ -11,14 +11,12 @@ import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollVal
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueBehaviour.StepContext;
 import com.simibubi.create.foundation.utility.Lang;
 
-import net.minecraft.tileentity.TileEntityType;
-
 public class CreativeMotorTileEntity extends GeneratingKineticTileEntity {
 
 	public static final int DEFAULT_SPEED = 16;
 	protected ScrollValueBehaviour generatedSpeed;
 
-	public CreativeMotorTileEntity(TileEntityType<? extends CreativeMotorTileEntity> type) {
+	public CreativeMotorTileEntity(BlockEntityType<? extends CreativeMotorTileEntity> type) {
 		super(type);
 	}
 
@@ -28,7 +26,7 @@ public class CreativeMotorTileEntity extends GeneratingKineticTileEntity {
 		Integer max = AllConfigs.SERVER.kinetics.maxMotorSpeed.get();
 
 		CenteredSideValueBoxTransform slot = new CenteredSideValueBoxTransform(
-			(motor, side) -> motor.get(CreativeMotorBlock.FACING) == side.getOpposite());
+			(motor, side) -> motor.getValue(CreativeMotorBlock.FACING) == side.getOpposite());
 
 		generatedSpeed = new ScrollValueBehaviour(Lang.translate("generic.speed"), this, slot);
 		generatedSpeed.between(-max, max);
@@ -51,7 +49,7 @@ public class CreativeMotorTileEntity extends GeneratingKineticTileEntity {
 	public float getGeneratedSpeed() {
 		if (!AllBlocks.CREATIVE_MOTOR.has(getBlockState()))
 			return 0;
-		return convertToDirection(generatedSpeed.getValue(), getBlockState().get(CreativeMotorBlock.FACING));
+		return convertToDirection(generatedSpeed.getValue(), getBlockState().getValue(CreativeMotorBlock.FACING));
 	}
 
 	public static int step(StepContext context) {

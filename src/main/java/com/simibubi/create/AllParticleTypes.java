@@ -14,13 +14,13 @@ import com.simibubi.create.content.curiosities.bell.SoulParticle;
 import com.simibubi.create.foundation.utility.Lang;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.registry.Registry;
 
 public enum AllParticleTypes {
 
@@ -38,7 +38,7 @@ public enum AllParticleTypes {
 
 	private ParticleEntry<?> entry;
 
-	<D extends IParticleData> AllParticleTypes(Supplier<? extends ICustomParticleData<D>> typeFactory) {
+	<D extends ParticleOptions> AllParticleTypes(Supplier<? extends ICustomParticleData<D>> typeFactory) {
 		String asId = Lang.asId(this.name());
 		entry = new ParticleEntry<>(new ResourceLocation(Create.ID, asId), typeFactory);
 	}
@@ -52,7 +52,7 @@ public enum AllParticleTypes {
 
 	@Environment(EnvType.CLIENT)
 	public static void registerFactories() {
-		ParticleManager particles = Minecraft.getInstance().particles;
+		ParticleEngine particles = Minecraft.getInstance().particleEngine;
 		for (AllParticleTypes particle : values())
 			particle.entry.registerFactory(particles);
 	}
@@ -65,7 +65,7 @@ public enum AllParticleTypes {
 		return Lang.asId(name());
 	}
 
-	private class ParticleEntry<D extends IParticleData> {
+	private class ParticleEntry<D extends ParticleOptions> {
 		Supplier<? extends ICustomParticleData<D>> typeFactory;
 		ParticleType<D> type;
 		ResourceLocation id;
@@ -89,7 +89,7 @@ public enum AllParticleTypes {
 		}
 
 		@Environment(EnvType.CLIENT)
-		void registerFactory(ParticleManager particles) {
+		void registerFactory(ParticleEngine particles) {
 			typeFactory.get()
 				.register(getOrCreateType(), particles);
 		}

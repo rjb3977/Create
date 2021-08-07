@@ -15,19 +15,17 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.jozufozu.flywheel.util.VirtualEmptyModelData;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.render.backend.core.PartialModel;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockModelRenderer;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class SuperByteBufferCache {
 
@@ -49,7 +47,7 @@ public class SuperByteBufferCache {
 	}
 
 	public SuperByteBuffer renderPartial(PartialModel partial, BlockState referenceState,
-										 Supplier<MatrixStack> modelTransform) {
+										 Supplier<PoseStack> modelTransform) {
 		return get(Compartment.PARTIAL, partial,
 				() -> standardModelRender(partial.get(), referenceState, modelTransform.get()));
 	}
@@ -61,7 +59,7 @@ public class SuperByteBufferCache {
 	}
 
 	public SuperByteBuffer renderDirectionalPartial(PartialModel partial, BlockState referenceState, Direction dir,
-													Supplier<MatrixStack> modelTransform) {
+													Supplier<PoseStack> modelTransform) {
 		return get(Compartment.DIRECTIONAL_PARTIAL, Pair.of(dir, partial),
 				() -> standardModelRender(partial.get(), referenceState, modelTransform.get()));
 	}
@@ -101,31 +99,31 @@ public class SuperByteBufferCache {
 	}
 
 	private SuperByteBuffer standardBlockRender(BlockState renderedState) {
-		BlockRendererDispatcher dispatcher = Minecraft.getInstance()
-			.getBlockRendererDispatcher();
-		return standardModelRender(dispatcher.getModelForState(renderedState), renderedState);
+		BlockRenderDispatcher dispatcher = Minecraft.getInstance()
+			.getBlockRenderer();
+		return standardModelRender(dispatcher.getBlockModel(renderedState), renderedState);
 	}
 
-	private SuperByteBuffer standardModelRender(IBakedModel model, BlockState referenceState) {
-		return standardModelRender(model, referenceState, new MatrixStack());
+	private SuperByteBuffer standardModelRender(BakedModel model, BlockState referenceState) {
+		return standardModelRender(model, referenceState, new PoseStack());
 	}
 
-	private SuperByteBuffer standardModelRender(IBakedModel model, BlockState referenceState, MatrixStack ms) {
+	private SuperByteBuffer standardModelRender(BakedModel model, BlockState referenceState, PoseStack ms) {
 		BufferBuilder builder = getBufferBuilder(model, referenceState, ms);
 
 		return new SuperByteBuffer(builder);
 	}
 
-	public static BufferBuilder getBufferBuilder(IBakedModel model, BlockState referenceState, MatrixStack ms) {
+	public static BufferBuilder getBufferBuilder(BakedModel model, BlockState referenceState, PoseStack ms) {
 		Minecraft mc = Minecraft.getInstance();
-		BlockRendererDispatcher dispatcher = mc.getBlockRendererDispatcher();
-		BlockModelRenderer blockRenderer = dispatcher.getBlockModelRenderer();
+		BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
+		ModelBlockRenderer blockRenderer = dispatcher.getModelRenderer();
 		BufferBuilder builder = new BufferBuilder(512);
 
-		builder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+		builder.begin(GL11.GL_QUADS, DefaultVertexFormat.BLOCK);
 		VirtualRenderingStateManager.runVirtually(() -> blockRenderer.render(mc.world, model, referenceState, BlockPos.ZERO.up(255), ms, builder, true,
 				mc.world.rand, 42, OverlayTexture.DEFAULT_UV));
-		builder.finishDrawing();
+		builder.end();
 		return builder;
 	}
 

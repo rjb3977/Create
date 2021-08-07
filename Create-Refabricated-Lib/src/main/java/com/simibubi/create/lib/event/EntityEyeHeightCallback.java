@@ -2,7 +2,7 @@ package com.simibubi.create.lib.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 public interface EntityEyeHeightCallback {
 	public static final Event<EntityEyeHeightCallback> EVENT = EventFactory.createArrayBacked(EntityEyeHeightCallback.class, callbacks -> (entity) -> {

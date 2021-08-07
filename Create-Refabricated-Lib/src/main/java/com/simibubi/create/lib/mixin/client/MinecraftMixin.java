@@ -16,34 +16,34 @@ import com.simibubi.create.lib.event.RenderTickStartCallback;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.GameConfiguration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.main.GameConfig;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 
 @Environment(EnvType.CLIENT)
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 	@Shadow
-	public ClientWorld world;
+	public ClientLevel world;
 	@Shadow
-	public ClientPlayerEntity player;
+	public LocalPlayer player;
 
 	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;particles:Lnet/minecraft/client/particle/ParticleManager;", shift = Shift.AFTER), method = "<init>")
-	public void create$registerParticleManagers(GameConfiguration gameConfiguration, CallbackInfo ci) {
+	public void create$registerParticleManagers(GameConfig gameConfiguration, CallbackInfo ci) {
 		ParticleManagerRegistrationCallback.EVENT.invoker().onParticleManagerRegistration();
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/resources/SimpleReloadableResourceManager;<init>(Lnet/minecraft/resources/ResourcePackType;)V"),
 			method = "<init>(Lnet/minecraft/client/GameConfiguration;)V")
 	// should inject to right after the initialization of resourceManager
-	public void create$instanceRegistration(GameConfiguration args, CallbackInfo ci) {
+	public void create$instanceRegistration(GameConfig args, CallbackInfo ci) {
 		InstanceRegistrationCallback.EVENT.invoker().registerInstance();
 	}
 
 	@Inject(at = @At("HEAD"), method = "loadWorld(Lnet/minecraft/client/world/ClientWorld;)V")
-	public void create$onHeadJoinWorld(ClientWorld world, CallbackInfo ci) {
+	public void create$onHeadJoinWorld(ClientLevel world, CallbackInfo ci) {
 		if (this.world != null) {
 			ClientWorldEvents.UNLOAD.invoker().onWorldUnload((Minecraft) (Object) this, this.world);
 		}

@@ -5,17 +5,16 @@ import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.gantry.GantryCarriageBlock;
 import com.simibubi.create.content.contraptions.components.structureMovement.gantry.GantryCarriageTileEntity;
 import com.simibubi.create.foundation.utility.Iterate;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class GantryShaftTileEntity extends KineticTileEntity {
 
-	public GantryShaftTileEntity(TileEntityType<?> typeIn) {
+	public GantryShaftTileEntity(BlockEntityType<?> typeIn) {
 		super(typeIn);
 	}
 
@@ -23,16 +22,16 @@ public class GantryShaftTileEntity extends KineticTileEntity {
 		if (!canAssembleOn())
 			return;
 		for (Direction d : Iterate.directions) {
-			if (d.getAxis() == getBlockState().get(GantryShaftBlock.FACING)
+			if (d.getAxis() == getBlockState().getValue(GantryShaftBlock.FACING)
 					.getAxis())
 				continue;
-			BlockPos offset = pos.offset(d);
-			BlockState pinionState = world.getBlockState(offset);
+			BlockPos offset = worldPosition.relative(d);
+			BlockState pinionState = level.getBlockState(offset);
 			if (!AllBlocks.GANTRY_CARRIAGE.has(pinionState))
 				continue;
-			if (pinionState.get(GantryCarriageBlock.FACING) != d)
+			if (pinionState.getValue(GantryCarriageBlock.FACING) != d)
 				continue;
-			TileEntity tileEntity = world.getTileEntity(offset);
+			BlockEntity tileEntity = level.getBlockEntity(offset);
 			if (tileEntity instanceof GantryCarriageTileEntity)
 				((GantryCarriageTileEntity) tileEntity).queueAssembly();
 		}
@@ -52,37 +51,37 @@ public class GantryShaftTileEntity extends KineticTileEntity {
 
 		if (connectedViaAxes)
 			return defaultModifier;
-		if (!stateFrom.get(GantryShaftBlock.POWERED))
+		if (!stateFrom.getValue(GantryShaftBlock.POWERED))
 			return defaultModifier;
 		if (!AllBlocks.GANTRY_CARRIAGE.has(stateTo))
 			return defaultModifier;
 
-		Direction direction = Direction.getFacingFromVector(diff.getX(), diff.getY(), diff.getZ());
-		if (stateTo.get(GantryCarriageBlock.FACING) != direction)
+		Direction direction = Direction.getNearest(diff.getX(), diff.getY(), diff.getZ());
+		if (stateTo.getValue(GantryCarriageBlock.FACING) != direction)
 			return defaultModifier;
-		return GantryCarriageTileEntity.getGantryPinionModifier(stateFrom.get(GantryShaftBlock.FACING),
-			stateTo.get(GantryCarriageBlock.FACING));
+		return GantryCarriageTileEntity.getGantryPinionModifier(stateFrom.getValue(GantryShaftBlock.FACING),
+			stateTo.getValue(GantryCarriageBlock.FACING));
 	}
 
 	@Override
 	public boolean isCustomConnection(KineticTileEntity other, BlockState state, BlockState otherState) {
 		if (!AllBlocks.GANTRY_CARRIAGE.has(otherState))
 			return false;
-		final BlockPos diff = other.getPos()
-			.subtract(pos);
-		Direction direction = Direction.getFacingFromVector(diff.getX(), diff.getY(), diff.getZ());
-		return otherState.get(GantryCarriageBlock.FACING) == direction;
+		final BlockPos diff = other.getBlockPos()
+			.subtract(worldPosition);
+		Direction direction = Direction.getNearest(diff.getX(), diff.getY(), diff.getZ());
+		return otherState.getValue(GantryCarriageBlock.FACING) == direction;
 	}
 
 	public boolean canAssembleOn() {
 		BlockState blockState = getBlockState();
 		if (!AllBlocks.GANTRY_SHAFT.has(blockState))
 			return false;
-		if (blockState.get(GantryShaftBlock.POWERED))
+		if (blockState.getValue(GantryShaftBlock.POWERED))
 			return false;
 		float speed = getPinionMovementSpeed();
 
-		switch (blockState.get(GantryShaftBlock.PART)) {
+		switch (blockState.getValue(GantryShaftBlock.PART)) {
 		case END:
 			return speed < 0;
 		case MIDDLE:
@@ -99,7 +98,7 @@ public class GantryShaftTileEntity extends KineticTileEntity {
 		BlockState blockState = getBlockState();
 		if (!AllBlocks.GANTRY_SHAFT.has(blockState))
 			return 0;
-		return MathHelper.clamp(convertToLinear(-getSpeed()), -.49f, .49f);
+		return Mth.clamp(convertToLinear(-getSpeed()), -.49f, .49f);
 	}
 
 	@Override

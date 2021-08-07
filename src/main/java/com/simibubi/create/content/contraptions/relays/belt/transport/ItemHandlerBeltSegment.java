@@ -3,8 +3,7 @@ package com.simibubi.create.content.contraptions.relays.belt.transport;
 import org.jetbrains.annotations.NotNull;
 
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
-
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemHandlerBeltSegment extends ItemStackHandler {
 
@@ -38,7 +37,7 @@ public class ItemHandlerBeltSegment extends ItemStackHandler {
 				newStack.beltPosition = offset + .5f + (beltInventory.beltMovementPositive ? -1 : 1) / 16f;
 				newStack.prevBeltPosition = newStack.beltPosition;
 				this.beltInventory.addItem(newStack);
-				this.beltInventory.belt.markDirty();
+				this.beltInventory.belt.setChanged();
 				this.beltInventory.belt.sendData();
 			}
 			return ItemStack.EMPTY;
@@ -55,7 +54,7 @@ public class ItemHandlerBeltSegment extends ItemStackHandler {
 		amount = Math.min(amount, transported.stack.getCount());
 		ItemStack extracted = simulate ? transported.stack.copy().split(amount) : transported.stack.split(amount);
 		if (!simulate) {
-			this.beltInventory.belt.markDirty();
+			this.beltInventory.belt.setChanged();
 			this.beltInventory.belt.sendData();
 		}
 		return extracted;

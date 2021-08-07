@@ -1,17 +1,16 @@
 package com.simibubi.create.content.curiosities.bell;
 
+import com.mojang.math.Quaternion;
 import com.simibubi.create.AllParticleTypes;
-
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleType;
 
 public class SoulParticle extends CustomRotationParticle {
 
-	private final IAnimatedSprite animatedSprite;
+	private final SpriteSet animatedSprite;
 
 	protected int startTicks;
 	protected int endTicks;
@@ -32,21 +31,21 @@ public class SoulParticle extends CustomRotationParticle {
 
 	protected AnimationStage animationStage;
 
-	public SoulParticle(ClientWorld worldIn, double x, double y, double z, double vx, double vy, double vz,
-						IAnimatedSprite spriteSet) {
+	public SoulParticle(ClientLevel worldIn, double x, double y, double z, double vx, double vy, double vz,
+						SpriteSet spriteSet) {
 		super(worldIn, x, y, z, spriteSet, 0);
 		this.animatedSprite = spriteSet;
-		this.particleScale = 0.5f;
-		this.setSize(this.particleScale, this.particleScale);
+		this.quadSize = 0.5f;
+		this.setSize(this.quadSize, this.quadSize);
 
-		this.loopLength = loopFrames + (int) (this.rand.nextFloat() * 5f - 4f);
-		this.startTicks = startFrames + (int) (this.rand.nextFloat() * 5f - 4f);
-		this.endTicks = endFrames + (int) (this.rand.nextFloat() * 5f - 4f);
-		this.numLoops = (int)(1f + this.rand.nextFloat() * 2f);
+		this.loopLength = loopFrames + (int) (this.random.nextFloat() * 5f - 4f);
+		this.startTicks = startFrames + (int) (this.random.nextFloat() * 5f - 4f);
+		this.endTicks = endFrames + (int) (this.random.nextFloat() * 5f - 4f);
+		this.numLoops = (int)(1f + this.random.nextFloat() * 2f);
 
 		this.setFrame(0);
-		this.field_21507 = true; // disable movement
-		this.mirror = this.rand.nextBoolean();
+		this.stoppedByCollision = true; // disable movement
+		this.mirror = this.random.nextBoolean();
 
 		this.animationStage = new StartAnimation(this);
 	}
@@ -57,9 +56,9 @@ public class SoulParticle extends CustomRotationParticle {
 
 		animationStage = animationStage.getNext();
 
-		BlockPos pos = new BlockPos(posX, posY, posZ);
-		if (animationStage == null || !SoulPulseEffect.canSpawnSoulAt(world, pos))
-			setExpired();
+		BlockPos pos = new BlockPos(x, y, z);
+		if (animationStage == null || !SoulPulseEffect.canSpawnSoulAt(level, pos))
+			remove();
 	}
 
 	public void setFrame(int frame) {
@@ -68,8 +67,8 @@ public class SoulParticle extends CustomRotationParticle {
 	}
 
 	@Override
-	public Quaternion getCustomRotation(ActiveRenderInfo camera, float partialTicks) {
-		return new Quaternion(0, -camera.getYaw(), 0, true);
+	public Quaternion getCustomRotation(Camera camera, float partialTicks) {
+		return new Quaternion(0, -camera.getYRot(), 0, true);
 	}
 
 	public static class Data extends BasicParticleData<SoulParticle> {

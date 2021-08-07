@@ -1,12 +1,13 @@
 package com.simibubi.create.content.contraptions.relays.gauge;
 
 import java.util.ArrayList;
-
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.materials.ModelData;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.relays.encased.ShaftInstance;
@@ -15,14 +16,11 @@ import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MathHelper;
-
 public abstract class GaugeInstance extends ShaftInstance implements IDynamicInstance {
 
     protected final ArrayList<DialFace> faces;
 
-    protected MatrixStack ms;
+    protected PoseStack ms;
 
     protected GaugeInstance(MaterialManager<?> dispatcher, KineticTileEntity tile) {
         super(dispatcher, tile);
@@ -35,11 +33,11 @@ public abstract class GaugeInstance extends ShaftInstance implements IDynamicIns
         Instancer<ModelData> dialModel = getTransformMaterial().getModel(AllBlockPartials.GAUGE_DIAL, blockState);
         Instancer<ModelData> headModel = getHeadModel();
 
-        ms = new MatrixStack();
+        ms = new PoseStack();
         MatrixStacker msr = MatrixStacker.of(ms);
         msr.translate(getInstancePosition());
 
-        float progress = MathHelper.lerp(AnimationTickHolder.getPartialTicks(), gaugeTile.prevDialState, gaugeTile.dialState);
+        float progress = Mth.lerp(AnimationTickHolder.getPartialTicks(), gaugeTile.prevDialState, gaugeTile.dialState);
 
         for (Direction facing : Iterate.directions) {
             if (!gaugeBlock.shouldRenderHeadOnFace(world, pos, blockState, facing))
@@ -61,10 +59,10 @@ public abstract class GaugeInstance extends ShaftInstance implements IDynamicIns
     public void beginFrame() {
         GaugeTileEntity gaugeTile = (GaugeTileEntity) tile;
 
-        if (MathHelper.epsilonEquals(gaugeTile.prevDialState, gaugeTile.dialState))
+        if (Mth.equal(gaugeTile.prevDialState, gaugeTile.dialState))
             return;
 
-        float progress = MathHelper.lerp(AnimationTickHolder.getPartialTicks(), gaugeTile.prevDialState, gaugeTile.dialState);
+        float progress = Mth.lerp(AnimationTickHolder.getPartialTicks(), gaugeTile.prevDialState, gaugeTile.dialState);
 
         MatrixStacker msr = MatrixStacker.of(ms);
 
@@ -102,7 +100,7 @@ public abstract class GaugeInstance extends ShaftInstance implements IDynamicIns
         private void setupTransform(MatrixStacker msr, float progress) {
             float dialPivot = 5.75f / 16;
 
-            ms.push();
+            ms.pushPose();
             rotateToFace(msr);
 
             getSecond().setTransform(ms);
@@ -113,13 +111,13 @@ public abstract class GaugeInstance extends ShaftInstance implements IDynamicIns
 
             getFirst().setTransform(ms);
 
-            ms.pop();
+            ms.popPose();
         }
 
         private void updateTransform(MatrixStacker msr, float progress) {
             float dialPivot = 5.75f / 16;
 
-            ms.push();
+            ms.pushPose();
 
             rotateToFace(msr)
                     .translate(0, dialPivot, dialPivot)
@@ -128,12 +126,12 @@ public abstract class GaugeInstance extends ShaftInstance implements IDynamicIns
 
             getFirst().setTransform(ms);
 
-            ms.pop();
+            ms.popPose();
         }
 
         protected MatrixStacker rotateToFace(MatrixStacker msr) {
             return msr.centre()
-                      .rotate(Direction.UP, (float) ((-face.getHorizontalAngle() - 90) / 180 * Math.PI))
+                      .rotate(Direction.UP, (float) ((-face.toYRot() - 90) / 180 * Math.PI))
                       .unCentre();
         }
 

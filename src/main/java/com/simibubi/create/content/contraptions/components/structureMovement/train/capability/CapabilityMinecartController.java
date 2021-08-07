@@ -10,7 +10,15 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.components.structureMovement.train.CouplingHandler;
@@ -23,15 +31,6 @@ import com.tterrag.registrate.util.nullness.NonNullConsumer;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 
 public class CapabilityMinecartController implements NBTSerializable/*ICapabilitySerializable<CompoundNBT>*/ {
 
@@ -39,7 +38,7 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 
 	public static WorldAttached<Map<UUID, MinecartController>> loadedMinecartsByUUID;
 	public static WorldAttached<Set<UUID>> loadedMinecartsWithCoupling;
-	static WorldAttached<List<AbstractMinecartEntity>> queuedAdditions;
+	static WorldAttached<List<AbstractMinecart>> queuedAdditions;
 	static WorldAttached<List<UUID>> queuedUnloads;
 
 	/**
@@ -48,10 +47,10 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 	 */
 	public static class MinecartRemovalListener implements NonNullConsumer<LazyOptional<MinecartController>> {
 
-		private World world;
-		private AbstractMinecartEntity cart;
+		private Level world;
+		private AbstractMinecart cart;
 
-		public MinecartRemovalListener(World world, AbstractMinecartEntity cart) {
+		public MinecartRemovalListener(Level world, AbstractMinecart cart) {
 			this.world = world;
 			this.cart = cart;
 		}
@@ -80,10 +79,10 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 		queuedUnloads = new WorldAttached<>(() -> ObjectLists.synchronize(new ObjectArrayList<>()));
 	}
 
-	public static void tick(World world) {
+	public static void tick(Level world) {
 		List<UUID> toRemove = new ArrayList<>();
 		Map<UUID, MinecartController> carts = loadedMinecartsByUUID.get(world);
-		List<AbstractMinecartEntity> queued = queuedAdditions.get(world);
+		List<AbstractMinecart> queued = queuedAdditions.get(world);
 		List<UUID> queuedRemovals = queuedUnloads.get(world);
 		Set<UUID> cartsWithCoupling = loadedMinecartsWithCoupling.get(world);
 		Set<UUID> keySet = carts.keySet();
@@ -91,14 +90,14 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 		keySet.removeAll(queuedRemovals);
 		cartsWithCoupling.removeAll(queuedRemovals);
 
-		for (AbstractMinecartEntity cart : queued) {
-			UUID uniqueID = cart.getUniqueID();
+		for (AbstractMinecart cart : queued) {
+			UUID uniqueID = cart.getUUID();
 
-			if (world.isRemote && carts.containsKey(uniqueID)) {
+			if (world.isClientSide && carts.containsKey(uniqueID)) {
 				MinecartController minecartController = carts.get(uniqueID);
 				if (minecartController != null) {
-					AbstractMinecartEntity minecartEntity = minecartController.cart();
-					if (minecartEntity != null && minecartEntity.getEntityId() != cart.getEntityId())
+					AbstractMinecart minecartEntity = minecartController.cart();
+					if (minecartEntity != null && minecartEntity.getId() != cart.getId())
 						continue; // Away with you, Fake Entities!
 				}
 			}
@@ -113,7 +112,7 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 			if (controller.isLeadingCoupling())
 				cartsWithCoupling.add(uniqueID);
 
-			if (!world.isRemote && controller != null)
+			if (!world.isClientSide && controller != null)
 				controller.sendData();
 		}
 
@@ -135,7 +134,7 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 		keySet.removeAll(toRemove);
 	}
 
-	public static void onChunkUnloaded(World world, Chunk chunk) {
+	public static void onChunkUnloaded(Level world, LevelChunk chunk) {
 		ChunkPos chunkPos = chunk
 			.getPos();
 		Map<UUID, MinecartController> carts = loadedMinecartsByUUID.get(world);
@@ -144,25 +143,25 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 				continue;
 			if (!minecartController.isPresent())
 				continue;
-			AbstractMinecartEntity cart = minecartController.cart();
-			if (cart.chunkCoordX == chunkPos.x && cart.chunkCoordZ == chunkPos.z)
+			AbstractMinecart cart = minecartController.cart();
+			if (cart.xChunk == chunkPos.x && cart.zChunk == chunkPos.z)
 				queuedUnloads.get(world)
-					.add(cart.getUniqueID());
+					.add(cart.getUUID());
 		}
 	}
 
-	protected static void onCartRemoved(World world, AbstractMinecartEntity entity) {
+	protected static void onCartRemoved(Level world, AbstractMinecart entity) {
 		Map<UUID, MinecartController> carts = loadedMinecartsByUUID.get(world);
 		List<UUID> unloads = queuedUnloads.get(world);
-		UUID uniqueID = entity.getUniqueID();
+		UUID uniqueID = entity.getUUID();
 		if (!carts.containsKey(uniqueID) || unloads.contains(uniqueID))
 			return;
-		if (world.isRemote)
+		if (world.isClientSide)
 			return;
-		handleKilledMinecart(world, carts.get(uniqueID), entity.getPositionVec());
+		handleKilledMinecart(world, carts.get(uniqueID), entity.position());
 	}
 
-	protected static void handleKilledMinecart(World world, MinecartController controller, Vector3d removedPos) {
+	protected static void handleKilledMinecart(Level world, MinecartController controller, Vec3 removedPos) {
 		if (controller == null)
 			return;
 		for (boolean forward : Iterate.trueAndFalse) {
@@ -173,22 +172,22 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 			next.removeConnection(!forward);
 			if (controller.hasContraptionCoupling(forward))
 				continue;
-			AbstractMinecartEntity cart = next.cart();
+			AbstractMinecart cart = next.cart();
 			if (cart == null)
 				continue;
 
-			Vector3d itemPos = cart.getPositionVec()
+			Vec3 itemPos = cart.position()
 				.add(removedPos)
 				.scale(.5f);
 			ItemEntity itemEntity =
 				new ItemEntity(world, itemPos.x, itemPos.y, itemPos.z, AllItems.MINECART_COUPLING.asStack());
-			itemEntity.setDefaultPickupDelay();
-			world.addEntity(itemEntity);
+			itemEntity.setDefaultPickUpDelay();
+			world.addFreshEntity(itemEntity);
 		}
 	}
 
 	@Nullable
-	public static MinecartController getIfPresent(World world, UUID cartId) {
+	public static MinecartController getIfPresent(Level world, UUID cartId) {
 		Map<UUID, MinecartController> carts = loadedMinecartsByUUID.get(world);
 		if (carts == null)
 			return null;
@@ -202,7 +201,7 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 //	@CapabilityInject(MinecartController.class)
 //	public static Capability<MinecartController> MINECART_CONTROLLER_CAPABILITY = null;
 
-	public static void attach(AbstractMinecartEntity cart) {
+	public static void attach(AbstractMinecart cart) {
 //		Entity entity = event.getObject();
 //		if (!(entity instanceof AbstractMinecartEntity))
 //			return;
@@ -214,14 +213,14 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 			if (capability.cap.isPresent())
 				capability.cap.invalidate();
 		});
-		queuedAdditions.get(cart.getEntityWorld())
+		queuedAdditions.get(cart.getCommandSenderWorld())
 			.add(cart);
 	}
 
 	public static void startTracking(Entity entity) {
-		if (!(entity instanceof AbstractMinecartEntity))
+		if (!(entity instanceof AbstractMinecart))
 			return;
-		((MinecartController) MinecartAndRailUtil.getController((AbstractMinecartEntity) entity)).sendData();
+		((MinecartController) MinecartAndRailUtil.getController((AbstractMinecart) entity)).sendData();
 	}
 
 	public static void register() {
@@ -247,7 +246,7 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 	private final LazyOptional<MinecartController> cap;
 	private MinecartController handler;
 
-	public CapabilityMinecartController(AbstractMinecartEntity minecart) {
+	public CapabilityMinecartController(AbstractMinecart minecart) {
 		handler = new MinecartController(minecart);
 		cap = LazyOptional.of(() -> handler);
 	}
@@ -260,12 +259,12 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 //	}
 
 	@Override
-	public CompoundNBT create$serializeNBT() {
+	public CompoundTag create$serializeNBT() {
 		return handler.create$serializeNBT();
 	}
 
 	@Override
-	public void create$deserializeNBT(CompoundNBT nbt) {
+	public void create$deserializeNBT(CompoundTag nbt) {
 		handler.create$deserializeNBT(nbt);
 	}
 

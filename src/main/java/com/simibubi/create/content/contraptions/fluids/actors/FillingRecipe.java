@@ -16,12 +16,12 @@ import com.simibubi.create.foundation.utility.Lang;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
@@ -40,7 +40,7 @@ public class FillingRecipe extends ProcessingRecipe<RecipeWrapper> implements IA
 //	}
 
 	@Override
-	public boolean matches(RecipeWrapper iInventory, World world) {
+	public boolean matches(RecipeWrapper iInventory, Level world) {
 		return false;
 	}
 
@@ -75,18 +75,18 @@ public class FillingRecipe extends ProcessingRecipe<RecipeWrapper> implements IA
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public ITextComponent getDescriptionForAssembly() {
+	public Component getDescriptionForAssembly() {
 		List<FluidStack> matchingFluidStacks = fluidIngredients.get(0)
 			.getMatchingFluidStacks();
 		if (matchingFluidStacks.size() == 0)
-			return new StringTextComponent("Invalid");
+			return new TextComponent("Invalid");
 		return Lang.translate("recipe.assembly.spout_filling_fluid",
-			new TranslationTextComponent(matchingFluidStacks.get(0)
+			new TranslatableComponent(matchingFluidStacks.get(0)
 				.getTranslationKey()).getString());
 	}
 
 	@Override
-	public void addRequiredMachines(Set<IItemProvider> list) {
+	public void addRequiredMachines(Set<ItemLike> list) {
 		list.add(AllBlocks.SPOUT.get());
 	}
 

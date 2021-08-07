@@ -1,7 +1,10 @@
 package com.simibubi.create.lib.lba.fluid;
 
 import com.simibubi.create.lib.utility.FluidUtil;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import alexiil.mc.lib.attributes.AttributeList;
 import alexiil.mc.lib.attributes.AttributeProvider;
 import alexiil.mc.lib.attributes.Simulation;
@@ -10,17 +13,13 @@ import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
 import alexiil.mc.lib.attributes.fluid.filter.ConstantFluidFilter;
 import alexiil.mc.lib.attributes.fluid.impl.SimpleFixedFluidInv;
 import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 /**
  * Simple wrapper with helper methods
  */
 public class SimpleFluidTank extends SimpleFixedFluidInv implements AttributeProvider {
 	@Override
-	public void addAllAttributes(World world, BlockPos pos, BlockState state, AttributeList<?> to) {
+	public void addAllAttributes(Level world, BlockPos pos, BlockState state, AttributeList<?> to) {
 		to.offer(FluidAttributes.INVENTORY_BASED);
 	}
 
@@ -78,12 +77,12 @@ public class SimpleFluidTank extends SimpleFixedFluidInv implements AttributePro
 		return FluidUtil.fluidAmountToMillibuckets(getMaxAmount_F());
 	}
 
-	public SimpleFluidTank readFromNBT(CompoundNBT nbt) {
+	public SimpleFluidTank readFromNBT(CompoundTag nbt) {
 		fromTag(nbt);
 		return this;
 	}
 
-	public CompoundNBT writeToNBT(CompoundNBT nbt) {
+	public CompoundTag writeToNBT(CompoundTag nbt) {
 		return toTag(nbt);
 	}
 

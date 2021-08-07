@@ -3,30 +3,30 @@ package com.simibubi.create.lib.utility;
 import java.util.function.Consumer;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class NetworkUtil {
 
-	public static void openGUI(ServerPlayerEntity player, INamedContainerProvider containerProvider, Consumer<PacketBuffer> extraDataWriter) {
-		player.openContainer(new ExtendedScreenHandlerFactory() {
+	public static void openGUI(ServerPlayer player, MenuProvider containerProvider, Consumer<FriendlyByteBuf> extraDataWriter) {
+		player.openMenu(new ExtendedScreenHandlerFactory() {
 			@Override
-			public ITextComponent getDisplayName() {
+			public Component getDisplayName() {
 				return containerProvider.getDisplayName();
 			}
 
 			@Override
-			public Container createMenu(int arg0, PlayerInventory arg1, PlayerEntity arg2) {
+			public AbstractContainerMenu createMenu(int arg0, Inventory arg1, Player arg2) {
 				return containerProvider.createMenu(arg0, arg1, arg2);
 			}
 
 			@Override
-			public void writeScreenOpeningData(ServerPlayerEntity player, PacketBuffer buf) {
+			public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buf) {
 				extraDataWriter.accept(buf);
 			}
 		});

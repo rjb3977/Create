@@ -2,9 +2,10 @@ package com.simibubi.create.events;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
@@ -80,24 +81,22 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.MainWindow;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.Vec3;
 
 public class ClientEvents {
 
@@ -110,7 +109,7 @@ public class ClientEvents {
 	}
 
 	public static void onTick(Minecraft client) {
-		World world = client.world;
+		Level world = client.level;
 		if (!isGameActive())
 			return;
 
@@ -153,12 +152,12 @@ public class ClientEvents {
 		BlueprintOverlayRenderer.tick();
 	}
 
-	public static void onJoin(ClientPlayNetHandler handler, PacketSender sender, Minecraft client) {
+	public static void onJoin(ClientPacketListener handler, PacketSender sender, Minecraft client) {
 		CreateClient.checkGraphicsFanciness();
 	}
 
-	public static void onLoadWorld(Minecraft client, ClientWorld world) {
-		if (world.isRemote() && world instanceof ClientWorld && !(world instanceof WrappedClientWorld)) {
+	public static void onLoadWorld(Minecraft client, ClientLevel world) {
+		if (world.isClientSide() && world instanceof ClientLevel && !(world instanceof WrappedClientWorld)) {
 			CreateClient.invalidateRenderers();
 			AnimationTickHolder.reset();
 		}
@@ -171,8 +170,8 @@ public class ClientEvents {
 		IHaveGoggleInformation.numberFormat.update();
 	}
 
-	public static void onUnloadWorld(Minecraft client, ClientWorld world) {
-		if (world.isRemote()) {
+	public static void onUnloadWorld(Minecraft client, ClientLevel world) {
+		if (world.isClientSide()) {
 			CreateClient.invalidateRenderers();
 			CreateClient.SOUL_PULSE_EFFECT_HANDLER.refresh();
 			AnimationTickHolder.reset();
@@ -180,13 +179,13 @@ public class ClientEvents {
 	}
 
 	public static void onRenderWorld(WorldRenderContext event) {
-		Vector3d cameraPos = Minecraft.getInstance().gameRenderer.getActiveRenderInfo()
-				.getProjectedView();
+		Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera()
+				.getPosition();
 		float pt = AnimationTickHolder.getPartialTicks();
 
-		MatrixStack ms = event.matrixStack();
-		ms.push();
-		ms.translate(-cameraPos.getX(), -cameraPos.getY(), -cameraPos.getZ());
+		PoseStack ms = event.matrixStack();
+		ms.pushPose();
+		ms.translate(-cameraPos.x(), -cameraPos.y(), -cameraPos.z());
 		SuperRenderTypeBuffer buffer = SuperRenderTypeBuffer.getInstance();
 
 		CouplingRenderer.renderAll(ms, buffer);
@@ -198,16 +197,16 @@ public class ClientEvents {
 		buffer.draw();
 		RenderSystem.enableCull();
 
-		ms.pop();
+		ms.popPose();
 	}
 
-	public static void onRenderOverlay(MatrixStack stack, float partialTicks, MainWindow window, OverlayRenderCallback.Types type) {
+	public static void onRenderOverlay(PoseStack stack, float partialTicks, Window window, OverlayRenderCallback.Types type) {
 //		MatrixStack ms = event.getMatrixStack();
-		IRenderTypeBuffer.Impl buffers = Minecraft.getInstance()
-			.getBufferBuilders()
-			.getEntityVertexConsumers();
+		MultiBufferSource.BufferSource buffers = Minecraft.getInstance()
+			.renderBuffers()
+			.bufferSource();
 		int light = 0xF000F0;
-		int overlay = OverlayTexture.DEFAULT_UV;
+		int overlay = OverlayTexture.NO_OVERLAY;
 //		float pt = event.getPartialTicks();
 
 		if (type == OverlayRenderCallback.Types.AIR) {
@@ -220,7 +219,7 @@ public class ClientEvents {
 		onRenderHotbar(stack, buffers, light, overlay, partialTicks);
 	}
 
-	public static void onRenderHotbar(MatrixStack ms, IRenderTypeBuffer buffer, int light, int overlay,
+	public static void onRenderHotbar(PoseStack ms, MultiBufferSource buffer, int light, int overlay,
 		float partialTicks) {
 		CreateClient.SCHEMATIC_HANDLER.renderOverlay(ms, buffer, light, overlay, partialTicks);
 		LinkedControllerClientHandler.renderOverlay(ms, buffer, light, overlay, partialTicks);
@@ -233,19 +232,19 @@ public class ClientEvents {
 		return PonderTooltipHandler.handleTooltipColor(stack, originalBorderColorStart, originalBorderColorEnd);
 	}
 
-	public static void addToItemTooltip(ItemStack stack, ITooltipFlag iTooltipFlag, List<ITextComponent> itemTooltip) {
+	public static void addToItemTooltip(ItemStack stack, TooltipFlag iTooltipFlag, List<Component> itemTooltip) {
 		if (!AllConfigs.CLIENT.tooltips.get())
 			return;
 		if (Minecraft.getInstance().player == null)
 			return;
 
 		String translationKey = stack.getItem()
-			.getTranslationKey(stack);
+			.getDescriptionId(stack);
 		if (!translationKey.startsWith(itemPrefix) && !translationKey.startsWith(blockPrefix))
 			return;
 
 		if (TooltipHelper.hasTooltip(stack, Minecraft.getInstance().player)) {
-			List<ITextComponent> toolTip = new ArrayList<>();
+			List<Component> toolTip = new ArrayList<>();
 			toolTip.add(itemTooltip.remove(0));
 			TooltipHelper.getTooltip(stack)
 				.addInformation(toolTip);
@@ -255,10 +254,10 @@ public class ClientEvents {
 		if (stack.getItem() instanceof BlockItem) {
 			BlockItem item = (BlockItem) stack.getItem();
 			if (item.getBlock() instanceof IRotate || item.getBlock() instanceof EngineBlock) {
-				List<ITextComponent> kineticStats = ItemDescription.getKineticStats(item.getBlock());
+				List<Component> kineticStats = ItemDescription.getKineticStats(item.getBlock());
 				if (!kineticStats.isEmpty()) {
 					itemTooltip
-						.add(new StringTextComponent(""));
+						.add(new TextComponent(""));
 					itemTooltip
 						.addAll(kineticStats);
 				}
@@ -276,30 +275,30 @@ public class ClientEvents {
 	}
 
 	protected static boolean isGameActive() {
-		return !(Minecraft.getInstance().world == null || Minecraft.getInstance().player == null);
+		return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
 	}
 
-	public static float getFogDensity(ActiveRenderInfo info, float currentDensity) {
+	public static float getFogDensity(Camera info, float currentDensity) {
 //		ActiveRenderInfo info = event.getInfo();
-		FluidState fluidState = info.getFluidState();
+		FluidState fluidState = info.getFluidInCamera();
 		if (fluidState.isEmpty())
 			return currentDensity;
-		Fluid fluid = fluidState.getFluid();
+		Fluid fluid = fluidState.getType();
 
-		if (fluid.isEquivalentTo(AllFluids.CHOCOLATE.get())) {
+		if (fluid.isSame(AllFluids.CHOCOLATE.get())) {
 //			event.setDensity(5f);
 //			event.setCanceled(true);
 			return 5f;
 		}
 
-		if (fluid.isEquivalentTo(AllFluids.HONEY.get())) {
+		if (fluid.isSame(AllFluids.HONEY.get())) {
 //			event.setDensity(1.5f);
 //			event.setCanceled(true);
 			return 1.5f;
 		}
 
 		if (FluidHelper.isWater(fluid) && AllItems.DIVING_HELMET.get()
-			.isWornBy(Minecraft.getInstance().renderViewEntity)) {
+			.isWornBy(Minecraft.getInstance().cameraEntity)) {
 //			event.setDensity(0.010f);
 //			event.setCanceled(true);
 			return 0.010f;
@@ -307,21 +306,21 @@ public class ClientEvents {
 		return currentDensity;
 	}
 
-	public static Vector3f getFogColor(ActiveRenderInfo info, Vector3f currentColor) {
+	public static Vector3f getFogColor(Camera info, Vector3f currentColor) {
 //		ActiveRenderInfo info = event.getInfo();
-		FluidState fluidState = info.getFluidState();
+		FluidState fluidState = info.getFluidInCamera();
 		if (fluidState.isEmpty())
 			return currentColor;
-		Fluid fluid = fluidState.getFluid();
+		Fluid fluid = fluidState.getType();
 
-		if (fluid.isEquivalentTo(AllFluids.CHOCOLATE.get())) {
+		if (fluid.isSame(AllFluids.CHOCOLATE.get())) {
 //			event.setRed(98 / 256f);
 //			event.setGreen(32 / 256f);
 //			event.setBlue(32 / 256f);
 			return new Vector3f(98 / 256f, 32 / 256f, 32 / 256f);
 		}
 
-		if (fluid.isEquivalentTo(AllFluids.HONEY.get())) {
+		if (fluid.isSame(AllFluids.HONEY.get())) {
 //			event.setRed(234 / 256f);
 //			event.setGreen(174 / 256f);
 //			event.setBlue(47 / 256f);
@@ -330,8 +329,8 @@ public class ClientEvents {
 		return  currentColor;
 	}
 
-	public static void leftClickEmpty(ClientPlayerEntity player) {
-		ItemStack stack = player.getHeldItemMainhand();
+	public static void leftClickEmpty(LocalPlayer player) {
+		ItemStack stack = player.getMainHandItem();
 		if (stack.getItem() instanceof ZapperItem) {
 			AllPackets.channel.sendToServer(new LeftClickPacket());
 		}

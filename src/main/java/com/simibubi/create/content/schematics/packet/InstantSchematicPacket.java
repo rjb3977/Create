@@ -4,11 +4,11 @@ import com.simibubi.create.Create;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 public class InstantSchematicPacket implements C2SPacket {
 
@@ -24,26 +24,26 @@ public class InstantSchematicPacket implements C2SPacket {
 		this.bounds = bounds;
 	}
 
-	public void read(PacketBuffer buffer) {
-		name = buffer.readString(32767);
+	public void read(FriendlyByteBuf buffer) {
+		name = buffer.readUtf(32767);
 		origin = buffer.readBlockPos();
 		bounds = buffer.readBlockPos();
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
-		buffer.writeString(name);
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeUtf(name);
 		buffer.writeBlockPos(origin);
 		buffer.writeBlockPos(bounds);
 	}
 
 	@Override
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, ResponseTarget responseTarget) {
 		server
 				.execute(() -> {
 					if (player == null)
 					return;
-				Create.SCHEMATIC_RECEIVER.handleInstantSchematic(player, name, player.world, origin, bounds);
+				Create.SCHEMATIC_RECEIVER.handleInstantSchematic(player, name, player.level, origin, bounds);
 			});
 	}
 

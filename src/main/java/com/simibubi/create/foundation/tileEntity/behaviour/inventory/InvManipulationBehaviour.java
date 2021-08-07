@@ -4,7 +4,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import com.google.common.base.Predicates;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
@@ -19,12 +24,6 @@ import com.simibubi.create.lib.utility.LazyOptional;
 import alexiil.mc.lib.attributes.SearchOptions;
 import alexiil.mc.lib.attributes.item.ItemAttributes;
 import alexiil.mc.lib.attributes.item.ItemTransferable;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 public class InvManipulationBehaviour extends TileEntityBehaviour {
 
@@ -102,7 +101,7 @@ public class InvManipulationBehaviour extends TileEntityBehaviour {
 		boolean shouldSimulate = simulateNext;
 		simulateNext = false;
 
-		if (getWorld().isRemote)
+		if (getWorld().isClientSide)
 			return ItemStack.EMPTY;
 		IItemHandler inventory = targetCapability.orElse(null);
 		if (inventory == null)
@@ -149,7 +148,7 @@ public class InvManipulationBehaviour extends TileEntityBehaviour {
 
 	@Override
 	public void onNeighborChanged(BlockPos neighborPos) {
-		BlockFace targetBlockFace = target.getTarget(getWorld(), tileEntity.getPos(), tileEntity.getBlockState());
+		BlockFace targetBlockFace = target.getTarget(getWorld(), tileEntity.getBlockPos(), tileEntity.getBlockState());
 		if (targetBlockFace.getConnectedPos().equals(neighborPos))
 			onHandlerInvalidated(targetCapability);
 	}
@@ -184,22 +183,22 @@ public class InvManipulationBehaviour extends TileEntityBehaviour {
 	}
 
 	public void findNewCapability() {
-		BlockFace targetBlockFace = target.getTarget(getWorld(), tileEntity.getPos(), tileEntity.getBlockState())
+		BlockFace targetBlockFace = target.getTarget(getWorld(), tileEntity.getBlockPos(), tileEntity.getBlockState())
 			.getOpposite();
 		BlockPos pos = targetBlockFace.getPos();
-		World world = getWorld();
+		Level world = getWorld();
 
 		targetCapability = LazyOptional.empty();
 
-		if (!world.isBlockPresent(pos))
+		if (!world.isLoaded(pos))
 			return;
-		TileEntity invTE = world.getTileEntity(pos);
+		BlockEntity invTE = world.getBlockEntity(pos);
 		if (invTE == null)
 			return;
 		// fixme: assume that if something is insertable, it is also extractable. probably a bad idea.
 		ItemTransferable transferable = (ItemTransferable) (bypassSided
-				? ItemAttributes.INSERTABLE.getFirstOrNull(invTE.getWorld(), invTE.getPos())
-				: ItemAttributes.INSERTABLE.getFirstOrNull(invTE.getWorld(), invTE.getPos(), SearchOptions.inDirection(targetBlockFace.getFace())));
+				? ItemAttributes.INSERTABLE.getFirstOrNull(invTE.getLevel(), invTE.getBlockPos())
+				: ItemAttributes.INSERTABLE.getFirstOrNull(invTE.getLevel(), invTE.getBlockPos(), SearchOptions.inDirection(targetBlockFace.getFace())));
 		targetCapability = transferable == null ? LazyOptional.empty() : LazyOptional.of(() -> (IItemHandler) transferable);
 		if (targetCapability.isPresent())
 			targetCapability.addListener(this::onHandlerInvalidated);
@@ -214,17 +213,17 @@ public class InvManipulationBehaviour extends TileEntityBehaviour {
 	public interface InterfaceProvider {
 
 		public static InterfaceProvider towardBlockFacing() {
-			return (w, p, s) -> new BlockFace(p, s.contains(BlockStateProperties.FACING) ? s.get(BlockStateProperties.FACING)
-				: s.get(BlockStateProperties.HORIZONTAL_FACING));
+			return (w, p, s) -> new BlockFace(p, s.hasProperty(BlockStateProperties.FACING) ? s.getValue(BlockStateProperties.FACING)
+				: s.getValue(BlockStateProperties.HORIZONTAL_FACING));
 		}
 
 		public static InterfaceProvider oppositeOfBlockFacing() {
 			return (w, p, s) -> new BlockFace(p,
-				(s.contains(BlockStateProperties.FACING) ? s.get(BlockStateProperties.FACING)
-					: s.get(BlockStateProperties.HORIZONTAL_FACING)).getOpposite());
+				(s.hasProperty(BlockStateProperties.FACING) ? s.getValue(BlockStateProperties.FACING)
+					: s.getValue(BlockStateProperties.HORIZONTAL_FACING)).getOpposite());
 		}
 
-		public BlockFace getTarget(World world, BlockPos pos, BlockState blockState);
+		public BlockFace getTarget(Level world, BlockPos pos, BlockState blockState);
 	}
 
 }

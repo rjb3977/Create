@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.lba.item;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class EmptyHandler extends ItemStackHandler implements IItemHandlerModifiable {
 	public static final ItemStackHandler INSTANCE = new EmptyHandler();

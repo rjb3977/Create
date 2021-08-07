@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.utility;
 
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
 
 /**
  * Interface to allow access to MinecartController class from lib
@@ -10,5 +10,5 @@ public interface MinecartController {
 	public class InitController {
 		public static MinecartController initController = null;
 	}
-	MinecartController create(AbstractMinecartEntity cart);
+	MinecartController create(AbstractMinecart cart);
 }

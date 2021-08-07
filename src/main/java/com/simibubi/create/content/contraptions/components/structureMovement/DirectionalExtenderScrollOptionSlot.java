@@ -1,16 +1,14 @@
 package com.simibubi.create.content.contraptions.components.structureMovement;
 
 import java.util.function.BiPredicate;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.tileEntity.behaviour.CenteredSideValueBoxTransform;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
 
 public class DirectionalExtenderScrollOptionSlot extends CenteredSideValueBoxTransform {
 
@@ -19,15 +17,15 @@ public class DirectionalExtenderScrollOptionSlot extends CenteredSideValueBoxTra
 	}
 
 	@Override
-	protected Vector3d getLocalOffset(BlockState state) {
+	protected Vec3 getLocalOffset(BlockState state) {
 		return super.getLocalOffset(state)
-				.add(Vector3d.of(state.get(BlockStateProperties.FACING).getDirectionVec()).scale(-2 / 16f));
+				.add(Vec3.atLowerCornerOf(state.getValue(BlockStateProperties.FACING).getNormal()).scale(-2 / 16f));
 	}
 
 	@Override
-	protected void rotate(BlockState state, MatrixStack ms) {
+	protected void rotate(BlockState state, PoseStack ms) {
 		if (!getSide().getAxis().isHorizontal())
-			MatrixStacker.of(ms).rotateY(AngleHelper.horizontalAngle(state.get(BlockStateProperties.FACING)) - 90);
+			MatrixStacker.of(ms).rotateY(AngleHelper.horizontalAngle(state.getValue(BlockStateProperties.FACING)) - 90);
 		super.rotate(state, ms);
 	}
 }

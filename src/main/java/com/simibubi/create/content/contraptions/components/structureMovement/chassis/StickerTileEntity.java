@@ -14,13 +14,11 @@ import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
 
 import com.tterrag.registrate.fabric.EnvExecutor;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -29,7 +27,7 @@ public class StickerTileEntity extends SmartTileEntity implements IInstanceRende
 	LerpedFloat piston;
 	boolean update;
 
-	public StickerTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public StickerTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 		piston = LerpedFloat.linear();
 		update = false;
@@ -41,26 +39,26 @@ public class StickerTileEntity extends SmartTileEntity implements IInstanceRende
 	@Override
 	public void initialize() {
 		super.initialize();
-		if (!world.isRemote)
+		if (!level.isClientSide)
 			return;
 		piston.startWithValue(isBlockStateExtended() ? 1 : 0);
 	}
 
 	public boolean isBlockStateExtended() {
 		BlockState blockState = getBlockState();
-		boolean extended = AllBlocks.STICKER.has(blockState) && blockState.get(StickerBlock.EXTENDED);
+		boolean extended = AllBlocks.STICKER.has(blockState) && blockState.getValue(StickerBlock.EXTENDED);
 		return extended;
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		if (!world.isRemote)
+		if (!level.isClientSide)
 			return;
 		piston.tickChaser();
 
 		if (isAttachedToBlock() && piston.getValue(0) != piston.getValue() && piston.getValue() == 1) {
-			SuperGlueItem.spawnParticles(world, pos, getBlockState().get(StickerBlock.FACING), true);
+			SuperGlueItem.spawnParticles(level, worldPosition, getBlockState().getValue(StickerBlock.FACING), true);
 			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> playSound(true));
 		}
 
@@ -79,12 +77,12 @@ public class StickerTileEntity extends SmartTileEntity implements IInstanceRende
 		BlockState blockState = getBlockState();
 		if (!AllBlocks.STICKER.has(blockState))
 			return false;
-		Direction direction = blockState.get(StickerBlock.FACING);
-		return SuperGlueEntity.isValidFace(world, pos.offset(direction), direction.getOpposite());
+		Direction direction = blockState.getValue(StickerBlock.FACING);
+		return SuperGlueEntity.isValidFace(level, worldPosition.relative(direction), direction.getOpposite());
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		super.fromTag(state, compound, clientPacket);
 		if (clientPacket)
 			update = true;
@@ -92,7 +90,7 @@ public class StickerTileEntity extends SmartTileEntity implements IInstanceRende
 
 	@Environment(EnvType.CLIENT)
 	public void playSound(boolean attach) {
-		AllSoundEvents.SLIME_ADDED.play(world, Minecraft.getInstance().player, pos, 0.35f, attach ? 0.75f : 0.2f);
+		AllSoundEvents.SLIME_ADDED.play(level, Minecraft.getInstance().player, worldPosition, 0.35f, attach ? 0.75f : 0.2f);
 	}
 
 }

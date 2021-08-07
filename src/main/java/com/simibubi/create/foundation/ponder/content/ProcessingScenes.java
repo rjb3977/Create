@@ -26,19 +26,18 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.Pointing;
 import com.simibubi.create.lib.utility.NBTSerializer;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.BlazeEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particles.ItemParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Blaze;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 
 public class ProcessingScenes {
 
@@ -64,7 +63,7 @@ public class ProcessingScenes {
 		scene.idle(10);
 		scene.world.showSection(util.select.position(millstone), Direction.DOWN);
 		scene.idle(10);
-		Vector3d millstoneTop = util.vector.topOf(millstone);
+		Vec3 millstoneTop = util.vector.topOf(millstone);
 		scene.overlay.showText(60)
 			.attachKeyFrame()
 			.text("Millstones process items by grinding them")
@@ -87,7 +86,7 @@ public class ProcessingScenes {
 		scene.idle(70);
 
 		ItemStack itemStack = new ItemStack(Items.WHEAT);
-		Vector3d entitySpawn = util.vector.topOf(millstone.up(3));
+		Vec3 entitySpawn = util.vector.topOf(millstone.above(3));
 
 		ElementLink<EntityElement> entity1 =
 			scene.world.createItemEntity(entitySpawn, util.vector.of(0, 0.2, 0), itemStack);
@@ -151,7 +150,7 @@ public class ProcessingScenes {
 		Selection kinetics2 = util.select.fromTo(0, 2, 5, 4, 2, 3);
 		Selection beltCog = util.select.position(5, 0, 1);
 		scene.world.setKineticSpeed(wheels, 0);
-		scene.world.setBlock(util.grid.at(2, 3, 2), Blocks.AIR.getDefaultState(), false);
+		scene.world.setBlock(util.grid.at(2, 3, 2), Blocks.AIR.defaultBlockState(), false);
 
 		scene.world.showSection(util.select.layer(0)
 			.substract(beltCog), Direction.UP);
@@ -173,7 +172,7 @@ public class ProcessingScenes {
 		scene.world.showSection(eWheel, Direction.SOUTH);
 		scene.idle(10);
 
-		Vector3d centerTop = util.vector.topOf(center);
+		Vec3 centerTop = util.vector.topOf(center);
 		scene.overlay.showText(60)
 			.attachKeyFrame()
 			.text("A pair of Crushing Wheels can grind items very effectively")
@@ -203,14 +202,14 @@ public class ProcessingScenes {
 
 		ItemStack input = new ItemStack(Items.GOLD_ORE);
 		ItemStack output = AllItems.CRUSHED_GOLD.asStack();
-		Vector3d entitySpawn = util.vector.topOf(center.up(2));
+		Vec3 entitySpawn = util.vector.topOf(center.above(2));
 
 		ElementLink<EntityElement> entity1 =
 			scene.world.createItemEntity(entitySpawn, util.vector.of(0, 0.2, 0), input);
 		scene.idle(18);
 		scene.world.modifyEntity(entity1, Entity::remove);
 		Emitter blockSpace =
-			Emitter.withinBlockSpace(new ItemParticleData(ParticleTypes.ITEM, input), util.vector.of(0, 0, 0));
+			Emitter.withinBlockSpace(new ItemParticleOption(ParticleTypes.ITEM, input), util.vector.of(0, 0, 0));
 		scene.effects.emitParticles(util.vector.centerOf(center)
 			.add(0, -0.2, 0), blockSpace, 3, 40);
 		scene.idle(10);
@@ -254,9 +253,9 @@ public class ProcessingScenes {
 				scene.world.createItemOnBelt(util.grid.at(4, 4, 2), Direction.EAST, input);
 			scene.idle(15);
 			if (i > 0) {
-				scene.world.createItemOnBelt(center.down(), Direction.UP, output);
+				scene.world.createItemOnBelt(center.below(), Direction.UP, output);
 				scene.idle(15);
-				scene.world.createItemOnBelt(center.down(), Direction.UP, output);
+				scene.world.createItemOnBelt(center.below(), Direction.UP, output);
 			}
 			scene.world.removeItemsFromBelt(util.grid.at(3, 3, 2));
 			if (i < 4)
@@ -294,7 +293,7 @@ public class ProcessingScenes {
 		scene.effects.indicateSuccess(pressPos);
 		scene.idle(10);
 
-		Vector3d pressSide = util.vector.blockSurface(pressPos, Direction.WEST);
+		Vec3 pressSide = util.vector.blockSurface(pressPos, Direction.WEST);
 		scene.overlay.showText(60)
 			.pointAt(pressSide)
 			.placeNearTarget()
@@ -308,7 +307,7 @@ public class ProcessingScenes {
 		scene.idle(50);
 		ItemStack copper = AllItems.COPPER_INGOT.asStack();
 		scene.world.createItemOnBeltLike(depotPos, Direction.NORTH, copper);
-		Vector3d depotCenter = util.vector.centerOf(depotPos.south());
+		Vec3 depotCenter = util.vector.centerOf(depotPos.south());
 		scene.overlay.showControls(new InputWindowElement(depotCenter, Pointing.UP).withItem(copper), 30);
 		scene.idle(10);
 
@@ -354,8 +353,8 @@ public class ProcessingScenes {
 		scene.idle(30);
 		scene.world.modifyTileEntity(pressPos, type,
 			pte -> pte.makePressingParticleEffect(depotCenter.add(0, 8 / 16f, 0), copper));
-		scene.world.removeItemsFromBelt(pressPos.down(2));
-		ingot = scene.world.createItemOnBelt(pressPos.down(2), Direction.UP, sheet);
+		scene.world.removeItemsFromBelt(pressPos.below(2));
+		ingot = scene.world.createItemOnBelt(pressPos.below(2), Direction.UP, sheet);
 		scene.world.stallBeltItem(ingot, true);
 		scene.idle(15);
 		scene.world.stallBeltItem(ingot, false);
@@ -365,8 +364,8 @@ public class ProcessingScenes {
 		scene.idle(30);
 		scene.world.modifyTileEntity(pressPos, type,
 			pte -> pte.makePressingParticleEffect(depotCenter.add(0, 8 / 16f, 0), copper));
-		scene.world.removeItemsFromBelt(pressPos.down(2));
-		ingot2 = scene.world.createItemOnBelt(pressPos.down(2), Direction.UP, sheet);
+		scene.world.removeItemsFromBelt(pressPos.below(2));
+		ingot2 = scene.world.createItemOnBelt(pressPos.below(2), Direction.UP, sheet);
 		scene.world.stallBeltItem(ingot2, true);
 		scene.idle(15);
 		scene.world.stallBeltItem(ingot2, false);
@@ -393,7 +392,7 @@ public class ProcessingScenes {
 
 		BlockPos basin = util.grid.at(1, 2, 2);
 		BlockPos pressPos = util.grid.at(1, 4, 2);
-		Vector3d basinSide = util.vector.blockSurface(basin, Direction.WEST);
+		Vec3 basinSide = util.vector.blockSurface(basin, Direction.WEST);
 
 		ItemStack blue = new ItemStack(Items.BLUE_DYE);
 		ItemStack red = new ItemStack(Items.RED_DYE);
@@ -432,7 +431,7 @@ public class ProcessingScenes {
 		scene.rotateCameraY(-30);
 		scene.idle(10);
 		scene.world.setBlock(util.grid.at(1, 1, 2), AllBlocks.BLAZE_BURNER.getDefaultState()
-			.with(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.KINDLED), true);
+			.setValue(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.KINDLED), true);
 		scene.idle(10);
 
 		scene.overlay.showText(80)
@@ -444,7 +443,7 @@ public class ProcessingScenes {
 		scene.rotateCameraY(30);
 
 		scene.idle(60);
-		Vector3d filterPos = util.vector.of(1, 2.75f, 2.5f);
+		Vec3 filterPos = util.vector.of(1, 2.75f, 2.5f);
 		scene.overlay.showFilterSlotInput(filterPos, 100);
 		scene.overlay.showText(120)
 			.pointAt(filterPos)
@@ -474,7 +473,7 @@ public class ProcessingScenes {
 
 		BlockPos basin = util.grid.at(1, 2, 2);
 		BlockPos pressPos = util.grid.at(1, 4, 2);
-		Vector3d basinSide = util.vector.blockSurface(basin, Direction.WEST);
+		Vec3 basinSide = util.vector.blockSurface(basin, Direction.WEST);
 
 		ItemStack copper = AllItems.COPPER_INGOT.asStack();
 		ItemStack copperBlock = AllBlocks.COPPER_BLOCK.asStack();
@@ -529,7 +528,7 @@ public class ProcessingScenes {
 		scene.rotateCameraY(-30);
 		scene.idle(10);
 		scene.world.setBlock(util.grid.at(1, 1, 2), AllBlocks.BLAZE_BURNER.getDefaultState()
-			.with(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.KINDLED), true);
+			.setValue(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.KINDLED), true);
 		scene.idle(10);
 
 		scene.overlay.showText(80)
@@ -541,7 +540,7 @@ public class ProcessingScenes {
 		scene.rotateCameraY(30);
 
 		scene.idle(60);
-		Vector3d filterPos = util.vector.of(1, 2.75f, 2.5f);
+		Vec3 filterPos = util.vector.of(1, 2.75f, 2.5f);
 		scene.overlay.showFilterSlotInput(filterPos, 100);
 		scene.overlay.showText(120)
 			.pointAt(filterPos)
@@ -559,37 +558,37 @@ public class ProcessingScenes {
 		BlockPos center = util.grid.at(2, 0, 2);
 
 		scene.world.createEntity(w -> {
-			BlazeEntity blazeEntity = EntityType.BLAZE.create(w);
-			Vector3d v = util.vector.topOf(center);
-			blazeEntity.setPos(v.x, v.y, v.z);
-			blazeEntity.prevRotationYaw = blazeEntity.rotationYaw = 180;
+			Blaze blazeEntity = EntityType.BLAZE.create(w);
+			Vec3 v = util.vector.topOf(center);
+			blazeEntity.setPosRaw(v.x, v.y, v.z);
+			blazeEntity.yRotO = blazeEntity.yRot = 180;
 			return blazeEntity;
 		});
 
 		scene.idle(20);
 		scene.overlay
-			.showControls(new InputWindowElement(util.vector.centerOf(center.up(2)), Pointing.DOWN).rightClick()
+			.showControls(new InputWindowElement(util.vector.centerOf(center.above(2)), Pointing.DOWN).rightClick()
 				.withItem(AllItems.EMPTY_BLAZE_BURNER.asStack()), 40);
 		scene.idle(10);
 		scene.overlay.showText(60)
 			.text("Right-click a Blaze with the empty burner to capture it")
 			.attachKeyFrame()
-			.pointAt(util.vector.blockSurface(center.up(2), Direction.WEST))
+			.pointAt(util.vector.blockSurface(center.above(2), Direction.WEST))
 			.placeNearTarget();
 		scene.idle(50);
 
-		scene.world.modifyEntities(BlazeEntity.class, Entity::remove);
+		scene.world.modifyEntities(Blaze.class, Entity::remove);
 		scene.idle(20);
 
 		scene.world.showSection(util.select.position(2, 1, 2), Direction.DOWN);
 		scene.idle(20);
-		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(center.up()), Pointing.DOWN).rightClick()
+		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(center.above()), Pointing.DOWN).rightClick()
 			.withItem(AllItems.EMPTY_BLAZE_BURNER.asStack()), 40);
 		scene.idle(10);
 		scene.overlay.showText(60)
 			.text("Alternatively, Blazes can be collected from their Spawners directly")
 			.attachKeyFrame()
-			.pointAt(util.vector.blockSurface(center.up(), Direction.WEST))
+			.pointAt(util.vector.blockSurface(center.above(), Direction.WEST))
 			.placeNearTarget();
 		scene.idle(50);
 		scene.world.hideSection(util.select.position(2, 1, 2), Direction.UP);
@@ -597,20 +596,20 @@ public class ProcessingScenes {
 		scene.world.showSection(util.select.position(1, 1, 2), Direction.DOWN);
 		scene.idle(20);
 
-		scene.world.modifyBlock(util.grid.at(1, 1, 2), s -> s.with(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.KINDLED),
+		scene.world.modifyBlock(util.grid.at(1, 1, 2), s -> s.setValue(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.KINDLED),
 			false);
 		scene.overlay.showText(70)
 			.text("You now have an ideal heat source for various machines")
 			.attachKeyFrame()
 			.pointAt(util.vector.blockSurface(center.west()
-				.up(), Direction.WEST))
+				.above(), Direction.WEST))
 			.placeNearTarget();
 		scene.idle(80);
 
 		scene.world.showSection(util.select.position(3, 1, 2), Direction.DOWN);
 		scene.idle(20);
 		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(center.east()
-			.up()), Pointing.DOWN).rightClick()
+			.above()), Pointing.DOWN).rightClick()
 				.withItem(new ItemStack(Items.FLINT_AND_STEEL)),
 			40);
 		scene.idle(7);
@@ -620,14 +619,14 @@ public class ProcessingScenes {
 			.text("For Aesthetic purposes, Empty Blaze Burners can also be lit using Flint and Steel")
 			.attachKeyFrame()
 			.pointAt(util.vector.blockSurface(center.east()
-				.up(), Direction.UP))
+				.above(), Direction.UP))
 			.placeNearTarget();
 		scene.idle(80);
 		scene.overlay.showText(60)
 			.colored(PonderPalette.RED)
 			.text("However, these are not suitable for industrial heating")
 			.pointAt(util.vector.blockSurface(center.east()
-				.up(), Direction.UP))
+				.above(), Direction.UP))
 			.placeNearTarget();
 		scene.idle(70);
 	}
@@ -641,7 +640,7 @@ public class ProcessingScenes {
 		BlockPos burner = util.grid.at(2, 1, 2);
 		scene.world.showSection(util.select.position(burner), Direction.DOWN);
 		scene.idle(10);
-		scene.world.showSection(util.select.position(burner.up()), Direction.DOWN);
+		scene.world.showSection(util.select.position(burner.above()), Direction.DOWN);
 		scene.idle(10);
 
 		scene.overlay.showText(70)
@@ -651,18 +650,18 @@ public class ProcessingScenes {
 			.placeNearTarget();
 		scene.idle(80);
 
-		scene.world.hideSection(util.select.position(burner.up()), Direction.UP);
+		scene.world.hideSection(util.select.position(burner.above()), Direction.UP);
 		scene.idle(20);
-		scene.world.setBlock(burner.up(), Blocks.AIR.getDefaultState(), false);
+		scene.world.setBlock(burner.above(), Blocks.AIR.defaultBlockState(), false);
 		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(burner), Pointing.DOWN).rightClick()
 			.withItem(new ItemStack(Items.OAK_PLANKS)), 15);
 		scene.idle(7);
-		scene.world.modifyBlock(burner, s -> s.with(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.FADING), false);
+		scene.world.modifyBlock(burner, s -> s.setValue(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.FADING), false);
 		scene.idle(15);
 		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(burner), Pointing.DOWN).rightClick()
 			.withItem(new ItemStack(Items.OAK_PLANKS)), 15);
 		scene.idle(7);
-		scene.world.modifyBlock(burner, s -> s.with(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.KINDLED), false);
+		scene.world.modifyBlock(burner, s -> s.setValue(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.KINDLED), false);
 		scene.idle(20);
 
 		scene.overlay.showText(70)
@@ -676,7 +675,7 @@ public class ProcessingScenes {
 		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(burner), Pointing.DOWN).rightClick()
 			.withItem(AllItems.BLAZE_CAKE.asStack()), 30);
 		scene.idle(7);
-		scene.world.modifyBlock(burner, s -> s.with(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.SEETHING), false);
+		scene.world.modifyBlock(burner, s -> s.setValue(BlazeBurnerBlock.HEAT_LEVEL, HeatLevel.SEETHING), false);
 		scene.idle(20);
 
 		scene.overlay.showText(80)
@@ -714,10 +713,10 @@ public class ProcessingScenes {
 		scene.world.showSection(util.select.position(1, 1, 2), Direction.DOWN);
 		scene.idle(10);
 		BlockPos basinPos = util.grid.at(1, 2, 2);
-		scene.world.modifyBlock(basinPos, s -> s.with(BasinBlock.FACING, Direction.DOWN), false);
+		scene.world.modifyBlock(basinPos, s -> s.setValue(BasinBlock.FACING, Direction.DOWN), false);
 		scene.world.showSection(util.select.position(basinPos), Direction.DOWN);
 		scene.idle(10);
-		Vector3d basinSide = util.vector.blockSurface(basinPos, Direction.WEST);
+		Vec3 basinSide = util.vector.blockSurface(basinPos, Direction.WEST);
 		scene.overlay.showText(80)
 			.attachKeyFrame()
 			.text("A Basin can hold Items and Fluids for Processing")
@@ -727,7 +726,7 @@ public class ProcessingScenes {
 
 		ItemStack stack = new ItemStack(Items.BRICK);
 		for (int i = 0; i < 4; i++) {
-			scene.world.createItemEntity(util.vector.centerOf(basinPos.up(3)), util.vector.of(0, 0, 0), stack);
+			scene.world.createItemEntity(util.vector.centerOf(basinPos.above(3)), util.vector.of(0, 0, 0), stack);
 			scene.idle(10);
 		}
 		scene.idle(10);
@@ -736,8 +735,8 @@ public class ProcessingScenes {
 		scene.idle(30);
 
 		for (Direction d : Iterate.horizontalDirections) {
-			scene.overlay.showOutline(PonderPalette.GREEN, new Object(), util.select.position(basinPos.down()
-				.offset(d)), 60);
+			scene.overlay.showOutline(PonderPalette.GREEN, new Object(), util.select.position(basinPos.below()
+				.relative(d)), 60);
 			scene.idle(4);
 		}
 
@@ -753,7 +752,7 @@ public class ProcessingScenes {
 			scene.world.showIndependentSection(util.select.position(3, 1, 1), Direction.EAST);
 		scene.world.moveSection(depot, util.vector.of(-2, 0, 0), 0);
 		scene.idle(10);
-		scene.world.modifyBlock(basinPos, s -> s.with(BasinBlock.FACING, Direction.NORTH), false);
+		scene.world.modifyBlock(basinPos, s -> s.setValue(BasinBlock.FACING, Direction.NORTH), false);
 		scene.idle(10);
 
 		scene.overlay.showText(80)
@@ -813,7 +812,7 @@ public class ProcessingScenes {
 					ia -> NBTSerializer.serializeNBT(ia.getValue())));
 		});
 		scene.idle(4);
-		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(basinPos.down()
+		scene.overlay.showControls(new InputWindowElement(util.vector.topOf(basinPos.below()
 			.north()), Pointing.RIGHT).withItem(new ItemStack(Items.BRICKS)), 30);
 
 		scene.overlay.showText(60)
@@ -826,7 +825,7 @@ public class ProcessingScenes {
 
 		scene.world.hideIndependentSection(depot, Direction.NORTH);
 		scene.idle(10);
-		scene.world.modifyBlock(basinPos, s -> s.with(BasinBlock.FACING, Direction.DOWN), false);
+		scene.world.modifyBlock(basinPos, s -> s.setValue(BasinBlock.FACING, Direction.DOWN), false);
 		scene.idle(20);
 
 		scene.overlay.showText(80)
@@ -878,7 +877,7 @@ public class ProcessingScenes {
 			.placeNearTarget();
 		scene.idle(80);
 
-		Vector3d filter = util.vector.of(2.5, 2.85, 2.5);
+		Vec3 filter = util.vector.of(2.5, 2.85, 2.5);
 		scene.overlay.showFilterSlotInput(filter, 80);
 		scene.overlay.showText(70)
 			.text("A Filter might be necessary to avoid pulling out un-processed items")

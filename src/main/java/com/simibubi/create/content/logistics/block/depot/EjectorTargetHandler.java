@@ -9,29 +9,28 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.VecHelper;
-
-import net.minecraft.block.BlockState;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.RedstoneParticleData;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.HitResult.Type;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class EjectorTargetHandler {
 
@@ -40,38 +39,38 @@ public class EjectorTargetHandler {
 	static long lastHoveredBlockPos = -1;
 	static EntityLauncher launcher;
 
-	public static ActionResultType rightClickingBlocksSelectsThem(PlayerEntity player, World world, Hand hand, BlockRayTraceResult traceResult) {
+	public static InteractionResult rightClickingBlocksSelectsThem(Player player, Level world, InteractionHand hand, BlockHitResult traceResult) {
 		if (currentItem == null)
-			return ActionResultType.PASS;
-		BlockPos pos = traceResult.getPos();
-		if (!world.isRemote)
-			return ActionResultType.PASS;
-		if (player == null || player.isSpectator() || !player.isSneaking())
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
+		BlockPos pos = traceResult.getBlockPos();
+		if (!world.isClientSide)
+			return InteractionResult.PASS;
+		if (player == null || player.isSpectator() || !player.isShiftKeyDown())
+			return InteractionResult.PASS;
 
 		String key = "weighted_ejector.target_set";
-		TextFormatting colour = TextFormatting.GOLD;
-		player.sendStatusMessage(Lang.translate(key).formatted(colour), true);
+		ChatFormatting colour = ChatFormatting.GOLD;
+		player.displayClientMessage(Lang.translate(key).withStyle(colour), true);
 		currentSelection = pos;
 		launcher = null;
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
-	public static ActionResultType leftClickingBlocksDeselectsThem(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
+	public static InteractionResult leftClickingBlocksDeselectsThem(Player player, Level world, InteractionHand hand, BlockPos pos, Direction direction) {
 		if (currentItem == null)
-			return ActionResultType.PASS;
-		if (!world.isRemote)
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
+		if (!world.isClientSide)
+			return InteractionResult.PASS;
 		if (!player
-			.isSneaking())
-			return ActionResultType.PASS;
+			.isShiftKeyDown())
+			return InteractionResult.PASS;
 		if (pos.equals(currentSelection)) {
 			currentSelection = null;
 			launcher = null;
-			return ActionResultType.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 
-		return ActionResultType.PASS;
+		return InteractionResult.PASS;
 	}
 
 	public static void flushSettings(BlockPos pos) {
@@ -81,27 +80,27 @@ public class EjectorTargetHandler {
 		int h = 0;
 		int v = 0;
 
-		ClientPlayerEntity player = Minecraft.getInstance().player;
+		LocalPlayer player = Minecraft.getInstance().player;
 		String key = "weighted_ejector.target_not_valid";
-		TextFormatting colour = TextFormatting.WHITE;
+		ChatFormatting colour = ChatFormatting.WHITE;
 
 		if (currentSelection == null)
 			key = "weighted_ejector.no_target";
 
 		Direction validTargetDirection = getValidTargetDirection(pos);
 		if (validTargetDirection == null) {
-			player.sendStatusMessage(Lang.translate(key).formatted(colour), true);
+			player.displayClientMessage(Lang.translate(key).withStyle(colour), true);
 			currentItem = null;
 			currentSelection = null;
 			return;
 		}
 
 		key = "weighted_ejector.targeting";
-		colour = TextFormatting.GREEN;
+		colour = ChatFormatting.GREEN;
 
-		player.sendStatusMessage(
+		player.displayClientMessage(
 			Lang.translate(key, currentSelection.getX(), currentSelection.getY(), currentSelection.getZ())
-				.formatted(colour),
+				.withStyle(colour),
 			true);
 
 		BlockPos diff = pos.subtract(currentSelection);
@@ -128,20 +127,20 @@ public class EjectorTargetHandler {
 			return null;
 
 		if (xDiff == 0)
-			return Direction.getFacingFromAxis(zDiff < 0 ? AxisDirection.NEGATIVE : AxisDirection.POSITIVE, Axis.Z);
+			return Direction.get(zDiff < 0 ? AxisDirection.NEGATIVE : AxisDirection.POSITIVE, Axis.Z);
 		if (zDiff == 0)
-			return Direction.getFacingFromAxis(xDiff < 0 ? AxisDirection.NEGATIVE : AxisDirection.POSITIVE, Axis.X);
+			return Direction.get(xDiff < 0 ? AxisDirection.NEGATIVE : AxisDirection.POSITIVE, Axis.X);
 
 		return null;
 	}
 
 	public static void tick() {
-		PlayerEntity player = Minecraft.getInstance().player;
+		Player player = Minecraft.getInstance().player;
 
 		if (player == null)
 			return;
 
-		ItemStack heldItemMainhand = player.getHeldItemMainhand();
+		ItemStack heldItemMainhand = player.getMainHandItem();
 		if (!AllBlocks.WEIGHTED_EJECTOR.isIn(heldItemMainhand)) {
 			currentItem = null;
 		} else {
@@ -158,23 +157,23 @@ public class EjectorTargetHandler {
 
 	protected static void drawArc() {
 		Minecraft mc = Minecraft.getInstance();
-		boolean wrench = AllItems.WRENCH.isIn(mc.player.getHeldItemMainhand());
+		boolean wrench = AllItems.WRENCH.isIn(mc.player.getMainHandItem());
 
 		if (currentSelection == null)
 			return;
 		if (currentItem == null && !wrench)
 			return;
 
-		RayTraceResult objectMouseOver = mc.objectMouseOver;
-		if (!(objectMouseOver instanceof BlockRayTraceResult))
+		HitResult objectMouseOver = mc.hitResult;
+		if (!(objectMouseOver instanceof BlockHitResult))
 			return;
-		BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) objectMouseOver;
+		BlockHitResult blockRayTraceResult = (BlockHitResult) objectMouseOver;
 		if (blockRayTraceResult.getType() == Type.MISS)
 			return;
 
-		BlockPos pos = blockRayTraceResult.getPos();
+		BlockPos pos = blockRayTraceResult.getBlockPos();
 		if (!wrench)
-			pos = pos.offset(blockRayTraceResult.getFace());
+			pos = pos.relative(blockRayTraceResult.getDirection());
 
 		int xDiff = currentSelection.getX() - pos.getX();
 		int yDiff = currentSelection.getY() - pos.getY();
@@ -182,12 +181,12 @@ public class EjectorTargetHandler {
 		int validX = Math.abs(zDiff) > Math.abs(xDiff) ? 0 : xDiff;
 		int validZ = Math.abs(zDiff) < Math.abs(xDiff) ? 0 : zDiff;
 
-		BlockPos validPos = currentSelection.add(validX, yDiff, validZ);
+		BlockPos validPos = currentSelection.offset(validX, yDiff, validZ);
 		Direction d = getValidTargetDirection(validPos);
 		if (d == null)
 			return;
-		if (launcher == null || lastHoveredBlockPos != pos.toLong()) {
-			lastHoveredBlockPos = pos.toLong();
+		if (launcher == null || lastHoveredBlockPos != pos.asLong()) {
+			lastHoveredBlockPos = pos.asLong();
 			launcher = new EntityLauncher(Math.abs(validX + validZ), yDiff);
 		}
 
@@ -196,18 +195,18 @@ public class EjectorTargetHandler {
 		double tickOffset = totalFlyingTicks / segments;
 		boolean valid = xDiff == validX && zDiff == validZ;
 		int intColor = valid ? 0x9ede73 : 0xff7171;
-		Vector3d color = ColorHelper.getRGB(intColor);
-		RedstoneParticleData data = new RedstoneParticleData((float) color.x, (float) color.y, (float) color.z, 1);
-		ClientWorld world = mc.world;
+		Vec3 color = ColorHelper.getRGB(intColor);
+		DustParticleOptions data = new DustParticleOptions((float) color.x, (float) color.y, (float) color.z, 1);
+		ClientLevel world = mc.level;
 
-		AxisAlignedBB bb = new AxisAlignedBB(0, 0, 0, 1, 0, 1).offset(currentSelection.add(-validX, -yDiff, -validZ));
+		AABB bb = new AABB(0, 0, 0, 1, 0, 1).move(currentSelection.offset(-validX, -yDiff, -validZ));
 		CreateClient.OUTLINER.chaseAABB("valid", bb)
 				.colored(intColor)
 				.lineWidth(1 / 16f);
 
 		for (int i = 0; i < segments; i++) {
 			double ticks = ((AnimationTickHolder.getRenderTime() / 3) % tickOffset) + i * tickOffset;
-			Vector3d vec = launcher.getGlobalPos(ticks, d, pos)
+			Vec3 vec = launcher.getGlobalPos(ticks, d, pos)
 					.add(xDiff - validX, 0, zDiff - validZ);
 			world.addParticle(data, vec.x, vec.y, vec.z, 0, 0, 0);
 		}
@@ -216,25 +215,25 @@ public class EjectorTargetHandler {
 	private static void checkForWrench(ItemStack heldItem) {
 		if (!AllItems.WRENCH.isIn(heldItem))
 			return;
-		RayTraceResult objectMouseOver = Minecraft.getInstance().objectMouseOver;
-		if (!(objectMouseOver instanceof BlockRayTraceResult))
+		HitResult objectMouseOver = Minecraft.getInstance().hitResult;
+		if (!(objectMouseOver instanceof BlockHitResult))
 			return;
-		BlockRayTraceResult result = (BlockRayTraceResult) objectMouseOver;
-		BlockPos pos = result.getPos();
+		BlockHitResult result = (BlockHitResult) objectMouseOver;
+		BlockPos pos = result.getBlockPos();
 
-		TileEntity te = Minecraft.getInstance().world.getTileEntity(pos);
+		BlockEntity te = Minecraft.getInstance().level.getBlockEntity(pos);
 		if (!(te instanceof EjectorTileEntity)) {
 			lastHoveredBlockPos = -1;
 			currentSelection = null;
 			return;
 		}
 
-		if (lastHoveredBlockPos == -1 || lastHoveredBlockPos != pos.toLong()) {
+		if (lastHoveredBlockPos == -1 || lastHoveredBlockPos != pos.asLong()) {
 			EjectorTileEntity ejector = (EjectorTileEntity) te;
 			if (!ejector.getTargetPosition()
-				.equals(ejector.getPos()))
+				.equals(ejector.getBlockPos()))
 				currentSelection = ejector.getTargetPosition();
-			lastHoveredBlockPos = pos.toLong();
+			lastHoveredBlockPos = pos.asLong();
 			launcher = null;
 		}
 
@@ -243,15 +242,15 @@ public class EjectorTargetHandler {
 	}
 
 	private static void drawOutline(BlockPos selection) {
-		World world = Minecraft.getInstance().world;
+		Level world = Minecraft.getInstance().level;
 		if (currentSelection == null)
 			return;
 
 		BlockPos pos = currentSelection;
 		BlockState state = world.getBlockState(pos);
 		VoxelShape shape = state.getShape(world, pos);
-		AxisAlignedBB boundingBox = shape.isEmpty() ? new AxisAlignedBB(BlockPos.ZERO) : shape.getBoundingBox();
-		CreateClient.OUTLINER.showAABB("target", boundingBox.offset(pos))
+		AABB boundingBox = shape.isEmpty() ? new AABB(BlockPos.ZERO) : shape.bounds();
+		CreateClient.OUTLINER.showAABB("target", boundingBox.move(pos))
 				.colored(0xffcb74)
 				.lineWidth(1 / 16f);
 	}

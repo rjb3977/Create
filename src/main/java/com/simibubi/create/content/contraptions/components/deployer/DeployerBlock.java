@@ -1,7 +1,22 @@
 package com.simibubi.create.content.contraptions.components.deployer;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
@@ -12,23 +27,6 @@ import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBe
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class DeployerBlock extends DirectionalAxisKineticBlock implements ITE<DeployerTileEntity> {
@@ -38,72 +36,72 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements ITE<De
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.DEPLOYER.create();
 	}
 
 	@Override
-	public PushReaction getPushReaction(BlockState state) {
+	public PushReaction getPistonPushReaction(BlockState state) {
 		return PushReaction.NORMAL;
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-		return AllShapes.CASING_12PX.get(state.get(FACING));
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+		return AllShapes.CASING_12PX.get(state.getValue(FACING));
 	}
 
 	@Override
-	public ActionResultType onWrenched(BlockState state, ItemUseContext context) {
-		if (context.getFace() == state.get(FACING)) {
-			if (!context.getWorld().isRemote)
-				withTileEntityDo(context.getWorld(), context.getPos(), DeployerTileEntity::changeMode);
-			return ActionResultType.SUCCESS;
+	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
+		if (context.getClickedFace() == state.getValue(FACING)) {
+			if (!context.getLevel().isClientSide)
+				withTileEntityDo(context.getLevel(), context.getClickedPos(), DeployerTileEntity::changeMode);
+			return InteractionResult.SUCCESS;
 		}
 		return super.onWrenched(state, context);
 	}
 
 	@Override
-	public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock().hasBlockEntity() && state.getBlock() != newState.getBlock()) {
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+		if (state.getBlock().isEntityBlock() && state.getBlock() != newState.getBlock()) {
 			withTileEntityDo(worldIn, pos, te -> {
 				if (te.player != null && !isMoving) {
-					te.player.inventory.dropAllItems();
-					te.overflowItems.forEach(itemstack -> te.player.dropItem(itemstack, true, false));
+					te.player.inventory.dropAll();
+					te.overflowItems.forEach(itemstack -> te.player.drop(itemstack, true, false));
 					te.player.remove();
 					te.player = null;
 				}
 			});
 
 			TileEntityBehaviour.destroy(worldIn, pos, FilteringBehaviour.TYPE);
-			worldIn.removeTileEntity(pos);
+			worldIn.removeBlockEntity(pos);
 		}
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-		BlockRayTraceResult hit) {
-		ItemStack heldByPlayer = player.getHeldItem(handIn)
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
+		BlockHitResult hit) {
+		ItemStack heldByPlayer = player.getItemInHand(handIn)
 			.copy();
 		if (AllItems.WRENCH.isIn(heldByPlayer))
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
-		if (hit.getFace() != state.get(FACING))
-			return ActionResultType.PASS;
-		if (worldIn.isRemote)
-			return ActionResultType.SUCCESS;
+		if (hit.getDirection() != state.getValue(FACING))
+			return InteractionResult.PASS;
+		if (worldIn.isClientSide)
+			return InteractionResult.SUCCESS;
 
 		withTileEntityDo(worldIn, pos, te -> {
-			ItemStack heldByDeployer = te.player.getHeldItemMainhand()
+			ItemStack heldByDeployer = te.player.getMainHandItem()
 				.copy();
 			if (heldByDeployer.isEmpty() && heldByPlayer.isEmpty())
 				return;
 
-			player.setHeldItem(handIn, heldByDeployer);
-			te.player.setHeldItem(Hand.MAIN_HAND, heldByPlayer);
+			player.setItemInHand(handIn, heldByDeployer);
+			te.player.setItemInHand(InteractionHand.MAIN_HAND, heldByPlayer);
 			te.sendData();
 		});
 
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
@@ -112,19 +110,19 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements ITE<De
 	}
 
 	@Override
-	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
-		super.onBlockAdded(state, world, pos, oldState, isMoving);
+	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
+		super.onPlace(state, world, pos, oldState, isMoving);
 		withTileEntityDo(world, pos, DeployerTileEntity::redstoneUpdate);
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World world, BlockPos pos, Block p_220069_4_,
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block p_220069_4_,
 		BlockPos p_220069_5_, boolean p_220069_6_) {
 		withTileEntityDo(world, pos, DeployerTileEntity::redstoneUpdate);
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

@@ -1,17 +1,15 @@
 package com.simibubi.create.content.logistics.block.inventories;
 
 import java.util.List;
-
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.AxisDirection;
-
 public abstract class CrateTileEntity extends SmartTileEntity {
 
-	public CrateTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public CrateTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 
@@ -19,11 +17,11 @@ public abstract class CrateTileEntity extends SmartTileEntity {
 	public void addBehaviours(List<TileEntityBehaviour> behaviours) {}
 
 	public boolean isDoubleCrate() {
-		return getBlockState().get(AdjustableCrateBlock.DOUBLE);
+		return getBlockState().getValue(AdjustableCrateBlock.DOUBLE);
 	}
 
 	public boolean isSecondaryCrate() {
-		if (!hasWorld())
+		if (!hasLevel())
 			return false;
 		if (!(getBlockState().getBlock() instanceof CrateBlock))
 			return false;
@@ -31,7 +29,7 @@ public abstract class CrateTileEntity extends SmartTileEntity {
 	}
 	
 	public Direction getFacing() {
-		return getBlockState().get(AdjustableCrateBlock.FACING);
+		return getBlockState().getValue(AdjustableCrateBlock.FACING);
 	}
 
 }

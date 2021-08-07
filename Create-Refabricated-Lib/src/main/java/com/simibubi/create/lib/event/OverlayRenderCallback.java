@@ -1,10 +1,9 @@
 package com.simibubi.create.lib.event;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.MainWindow;
 
 public interface OverlayRenderCallback {
 	public static final Event<OverlayRenderCallback> EVENT = EventFactory.createArrayBacked(OverlayRenderCallback.class, callbacks -> (stack, partialTicks, window, type) -> {
@@ -13,7 +12,7 @@ public interface OverlayRenderCallback {
 		}
 	});
 
-	void onOverlayRender(MatrixStack stack, float partialTicks, MainWindow window, Types type);
+	void onOverlayRender(PoseStack stack, float partialTicks, Window window, Types type);
 
 	enum Types {
 		AIR,

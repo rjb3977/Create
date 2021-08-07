@@ -1,7 +1,8 @@
 package com.simibubi.create.foundation.tileEntity.behaviour.fluid;
 
 import java.util.function.Consumer;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.simibubi.create.foundation.fluid.CombinedTankWrapper;
@@ -18,8 +19,6 @@ import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
 
 public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 
@@ -89,7 +88,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 	@Override
 	public void initialize() {
 		super.initialize();
-		if (getWorld().isRemote)
+		if (getWorld().isClientSide)
 			return;
 		foreach(ts -> {
 			ts.fluidLevel.forceNextSync();
@@ -133,7 +132,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 	protected void updateFluids() {
 		fluidUpdateCallback.run();
 		tileEntity.sendData();
-		tileEntity.markDirty();
+		tileEntity.setChanged();
 	}
 
 	@Override
@@ -171,15 +170,15 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 	}
 
 	@Override
-	public void write(CompoundNBT nbt, boolean clientPacket) {
+	public void write(CompoundTag nbt, boolean clientPacket) {
 		super.write(nbt, clientPacket);
-		ListNBT tanksNBT = new ListNBT();
+		ListTag tanksNBT = new ListTag();
 		foreach(ts -> tanksNBT.add(ts.writeNBT()));
 		nbt.put(getType().getName() + "Tanks", tanksNBT);
 	}
 
 	@Override
-	public void read(CompoundNBT nbt, boolean clientPacket) {
+	public void read(CompoundTag nbt, boolean clientPacket) {
 		super.read(nbt, clientPacket);
 		MutableInt index = new MutableInt(0);
 		NBTHelper.iterateCompoundList(nbt.getList(getType().getName() + "Tanks", NBT.TAG_COMPOUND), c -> {
@@ -240,10 +239,10 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 		}
 
 		public void onFluidStackChanged() {
-			if (!tileEntity.hasWorld())
+			if (!tileEntity.hasLevel())
 				return;
 			fluidLevel.chase(tank.getFluidAmount() / (float) tank.getCapacity(), .25, Chaser.EXP);
-			if (!getWorld().isRemote)
+			if (!getWorld().isClientSide)
 				sendDataLazily();
 			if (tileEntity.isVirtual() && !tank.getFluid()
 				.isEmpty())
@@ -262,14 +261,14 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 			return fluidLevel.getValue(partialTicks) * tank.getCapacity();
 		}
 
-		public CompoundNBT writeNBT() {
-			CompoundNBT compound = new CompoundNBT();
-			compound.put("TankContent", tank.writeToNBT(new CompoundNBT()));
+		public CompoundTag writeNBT() {
+			CompoundTag compound = new CompoundTag();
+			compound.put("TankContent", tank.writeToNBT(new CompoundTag()));
 			compound.put("Level", fluidLevel.writeNBT());
 			return compound;
 		}
 
-		public void readNBT(CompoundNBT compound, boolean clientPacket) {
+		public void readNBT(CompoundTag compound, boolean clientPacket) {
 			tank.readFromNBT(compound.getCompound("TankContent"));
 			fluidLevel.readNBT(compound.getCompound("Level"), clientPacket);
 			if (!tank.getFluid()

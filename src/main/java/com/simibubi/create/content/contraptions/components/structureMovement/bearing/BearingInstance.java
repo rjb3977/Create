@@ -4,16 +4,15 @@ import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.BackHalfShaftInstance;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class BearingInstance<B extends KineticTileEntity & IBearingTileEntity> extends BackHalfShaftInstance implements IDynamicInstance {
 	final B bearing;
@@ -28,7 +27,7 @@ public class BearingInstance<B extends KineticTileEntity & IBearingTileEntity> e
 		this.bearing = tile;
 
 		Direction facing = blockState.get(BlockStateProperties.FACING);
-		rotationAxis = Direction.getFacingFromAxis(Direction.AxisDirection.POSITIVE, axis).getUnitVector();
+		rotationAxis = Direction.get(Direction.AxisDirection.POSITIVE, axis).step();
 
 		blockOrientation = getBlockStateOrientation(facing);
 
@@ -44,9 +43,9 @@ public class BearingInstance<B extends KineticTileEntity & IBearingTileEntity> e
 	public void beginFrame() {
 
 		float interpolatedAngle = bearing.getInterpolatedAngle(AnimationTickHolder.getPartialTicks() - 1);
-		Quaternion rot = rotationAxis.getDegreesQuaternion(interpolatedAngle);
+		Quaternion rot = rotationAxis.rotationDegrees(interpolatedAngle);
 
-		rot.multiply(blockOrientation);
+		rot.mul(blockOrientation);
 
 		topInstance.setRotation(rot);
 	}
@@ -67,12 +66,12 @@ public class BearingInstance<B extends KineticTileEntity & IBearingTileEntity> e
 		Quaternion orientation;
 
 		if (facing.getAxis().isHorizontal()) {
-			orientation = Vector3f.POSITIVE_Y.getDegreesQuaternion(AngleHelper.horizontalAngle(facing.getOpposite()));
+			orientation = Vector3f.YP.rotationDegrees(AngleHelper.horizontalAngle(facing.getOpposite()));
 		} else {
-			orientation = Quaternion.IDENTITY.copy();
+			orientation = Quaternion.ONE.copy();
 		}
 
-		orientation.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(-90 - AngleHelper.verticalAngle(facing)));
+		orientation.mul(Vector3f.XP.rotationDegrees(-90 - AngleHelper.verticalAngle(facing)));
 		return orientation;
 	}
 }

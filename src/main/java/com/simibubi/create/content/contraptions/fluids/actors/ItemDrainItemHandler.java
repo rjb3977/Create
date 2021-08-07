@@ -4,9 +4,8 @@ import com.simibubi.create.content.contraptions.processing.EmptyingByBasin;
 import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
 import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemDrainItemHandler implements IItemHandler {
 
@@ -35,7 +34,7 @@ public class ItemDrainItemHandler implements IItemHandler {
 			return stack;
 
 		ItemStack returned = ItemStack.EMPTY;
-		if (stack.getCount() > 1 && EmptyingByBasin.canItemBeEmptied(te.getWorld(), stack)) {
+		if (stack.getCount() > 1 && EmptyingByBasin.canItemBeEmptied(te.getLevel(), stack)) {
 			returned = ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - 1);
 			stack = ItemHandlerHelper.copyStackWithSize(stack, 1);
 		}

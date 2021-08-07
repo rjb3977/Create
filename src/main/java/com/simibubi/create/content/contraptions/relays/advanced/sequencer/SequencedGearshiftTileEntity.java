@@ -1,13 +1,11 @@
 package com.simibubi.create.content.contraptions.relays.advanced.sequencer;
 
 import java.util.Vector;
-
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.content.contraptions.relays.encased.SplitShaftTileEntity;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
 import com.simibubi.create.lib.utility.Constants.NBT;
 
 public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
@@ -19,7 +17,7 @@ public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
 	int timer;
 	boolean poweredPreviously;
 
-	public SequencedGearshiftTileEntity(TileEntityType<? extends SequencedGearshiftTileEntity> type) {
+	public SequencedGearshiftTileEntity(BlockEntityType<? extends SequencedGearshiftTileEntity> type) {
 		super(type);
 		instructions = Instruction.createDefault();
 		currentInstruction = -1;
@@ -35,7 +33,7 @@ public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
 
 		if (isIdle())
 			return;
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
 		if (currentInstructionDuration < 0)
 			return;
@@ -78,8 +76,8 @@ public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
 			return;
 		if (isPowered == isRunning)
 			return;
-		if (!world.isBlockPowered(pos)) {
-			world.setBlockState(pos, getBlockState().with(SequencedGearshiftBlock.STATE, 0), 3);
+		if (!level.hasNeighborSignal(worldPosition)) {
+			level.setBlock(worldPosition, getBlockState().setValue(SequencedGearshiftBlock.STATE, 0), 3);
 			return;
 		}
 		if (getSpeed() == 0)
@@ -113,8 +111,8 @@ public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
 			currentInstructionDuration = -1;
 			currentInstructionProgress = 0;
 			timer = 0;
-			if (!world.isBlockPowered(pos))
-				world.setBlockState(pos, getBlockState().with(SequencedGearshiftBlock.STATE, 0), 3);
+			if (!level.hasNeighborSignal(worldPosition))
+				level.setBlock(worldPosition, getBlockState().setValue(SequencedGearshiftBlock.STATE, 0), 3);
 			else
 				sendData();
 			return;
@@ -125,7 +123,7 @@ public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
 		currentInstruction = instructionIndex;
 		currentInstructionProgress = 0;
 		timer = 0;
-		world.setBlockState(pos, getBlockState().with(SequencedGearshiftBlock.STATE, instructionIndex + 1), 3);
+		level.setBlock(worldPosition, getBlockState().setValue(SequencedGearshiftBlock.STATE, instructionIndex + 1), 3);
 	}
 
 	public Instruction getInstruction(int instructionIndex) {
@@ -134,7 +132,7 @@ public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putInt("InstructionIndex", currentInstruction);
 		compound.putInt("InstructionDuration", currentInstructionDuration);
 		compound.putFloat("InstructionProgress", currentInstructionProgress);
@@ -145,7 +143,7 @@ public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		currentInstruction = compound.getInt("InstructionIndex");
 		currentInstructionDuration = compound.getInt("InstructionDuration");
 		currentInstructionProgress = compound.getFloat("InstructionProgress");

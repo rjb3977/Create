@@ -1,10 +1,9 @@
 package com.simibubi.create.lib.mixin.accessor;
 
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.level.material.Fluid;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.BucketItem;
 
 @Mixin(BucketItem.class)
 public interface BucketItemAccessor {

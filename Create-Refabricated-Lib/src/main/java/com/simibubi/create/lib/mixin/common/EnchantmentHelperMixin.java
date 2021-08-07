@@ -1,15 +1,13 @@
 package com.simibubi.create.lib.mixin.common;
 
 import java.util.Random;
-
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.simibubi.create.lib.item.CustomItemEnchantabilityItem;
-
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.ItemStack;
 
 @Mixin(EnchantmentHelper.class)
 public abstract class EnchantmentHelperMixin {

@@ -1,24 +1,22 @@
 package com.simibubi.create.content.contraptions.base;
 
 import java.util.List;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.content.contraptions.KineticNetwork;
 import com.simibubi.create.content.contraptions.base.IRotate.SpeedLevel;
 import com.simibubi.create.content.contraptions.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.utility.Lang;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-
 public abstract class GeneratingKineticTileEntity extends KineticTileEntity {
 
 	public boolean reActivateSource;
 
-	public GeneratingKineticTileEntity(TileEntityType<?> typeIn) {
+	public GeneratingKineticTileEntity(BlockEntityType<?> typeIn) {
 		super(typeIn);
 	}
 
@@ -36,7 +34,7 @@ public abstract class GeneratingKineticTileEntity extends KineticTileEntity {
 	@Override
 	public void setSource(BlockPos source) {
 		super.setSource(source);
-		TileEntity tileEntity = world.getTileEntity(source);
+		BlockEntity tileEntity = level.getBlockEntity(source);
 		if (!(tileEntity instanceof KineticTileEntity))
 			return;
 		KineticTileEntity sourceTe = (KineticTileEntity) tileEntity;
@@ -54,13 +52,13 @@ public abstract class GeneratingKineticTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	public boolean addToGoggleTooltip(List<ITextComponent> tooltip, boolean isPlayerSneaking) {
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		boolean added = super.addToGoggleTooltip(tooltip, isPlayerSneaking);
 
 		float stressBase = calculateAddedStressCapacity();
 		if (stressBase != 0 && IRotate.StressImpact.isEnabled()) {
-			tooltip.add(componentSpacing.copy().append(Lang.translate("gui.goggles.generator_stats")));
-			tooltip.add(componentSpacing.copy().append(Lang.translate("tooltip.capacityProvided").formatted(TextFormatting.GRAY)));
+			tooltip.add(componentSpacing.plainCopy().append(Lang.translate("gui.goggles.generator_stats")));
+			tooltip.add(componentSpacing.plainCopy().append(Lang.translate("tooltip.capacityProvided").withStyle(ChatFormatting.GRAY)));
 
 			float speed = getTheoreticalSpeed();
 			if (speed != getGeneratedSpeed() && speed != 0)
@@ -70,12 +68,12 @@ public abstract class GeneratingKineticTileEntity extends KineticTileEntity {
 			float stressTotal = stressBase * speed;
 
 			tooltip.add(
-					componentSpacing.copy()
-					.append(new StringTextComponent(" " + IHaveGoggleInformation.format(stressTotal))
+					componentSpacing.plainCopy()
+					.append(new TextComponent(" " + IHaveGoggleInformation.format(stressTotal))
 							.append(Lang.translate("generic.unit.stress"))
-							.formatted(TextFormatting.AQUA))
+							.withStyle(ChatFormatting.AQUA))
 					.append(" ")
-					.append(Lang.translate("gui.goggles.at_current_speed").formatted(TextFormatting.DARK_GRAY)));
+					.append(Lang.translate("gui.goggles.at_current_speed").withStyle(ChatFormatting.DARK_GRAY)));
 
 			added = true;
 		}
@@ -87,7 +85,7 @@ public abstract class GeneratingKineticTileEntity extends KineticTileEntity {
 		float speed = getGeneratedSpeed();
 		float prevSpeed = this.speed;
 
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
 
 		if (prevSpeed != speed) {
@@ -141,7 +139,7 @@ public abstract class GeneratingKineticTileEntity extends KineticTileEntity {
 			// Staying below Overpowered speed
 			if (Math.abs(prevSpeed) >= Math.abs(speed)) {
 				if (Math.signum(prevSpeed) != Math.signum(speed))
-					world.destroyBlock(pos, true);
+					level.destroyBlock(worldPosition, true);
 				return;
 			}
 
@@ -161,6 +159,6 @@ public abstract class GeneratingKineticTileEntity extends KineticTileEntity {
 	}
 
 	public Long createNetworkId() {
-		return pos.toLong();
+		return worldPosition.asLong();
 	}
 }

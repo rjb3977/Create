@@ -14,67 +14,66 @@ import com.simibubi.create.lib.utility.PlantUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import net.minecraft.block.AbstractRailBlock;
-import net.minecraft.block.AbstractRailBlock;
-import net.minecraft.block.BedBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlimeBlock;
-import net.minecraft.client.particle.DiggingParticle;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.SlabType;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.TerrainParticle;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseRailBlock;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlimeBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BlockHelper {
 
 	@Environment(EnvType.CLIENT)
-	public static void addReducedDestroyEffects(BlockState state, World worldIn, BlockPos pos,
-		ParticleManager manager) {
-		if (!(worldIn instanceof ClientWorld))
+	public static void addReducedDestroyEffects(BlockState state, Level worldIn, BlockPos pos,
+		ParticleEngine manager) {
+		if (!(worldIn instanceof ClientLevel))
 			return;
-		ClientWorld world = (ClientWorld) worldIn;
+		ClientLevel world = (ClientLevel) worldIn;
 		VoxelShape voxelshape = state.getShape(world, pos);
 		MutableInt amtBoxes = new MutableInt(0);
-		voxelshape.forEachBox((x1, y1, z1, x2, y2, z2) -> amtBoxes.increment());
+		voxelshape.forAllBoxes((x1, y1, z1, x2, y2, z2) -> amtBoxes.increment());
 		double chance = 1d / amtBoxes.getValue();
 
-		voxelshape.forEachBox((x1, y1, z1, x2, y2, z2) -> {
+		voxelshape.forAllBoxes((x1, y1, z1, x2, y2, z2) -> {
 			double d1 = Math.min(1.0D, x2 - x1);
 			double d2 = Math.min(1.0D, y2 - y1);
 			double d3 = Math.min(1.0D, z2 - z1);
-			int i = Math.max(2, MathHelper.ceil(d1 / 0.25D));
-			int j = Math.max(2, MathHelper.ceil(d2 / 0.25D));
-			int k = Math.max(2, MathHelper.ceil(d3 / 0.25D));
+			int i = Math.max(2, Mth.ceil(d1 / 0.25D));
+			int j = Math.max(2, Mth.ceil(d2 / 0.25D));
+			int k = Math.max(2, Mth.ceil(d3 / 0.25D));
 
 			for (int l = 0; l < i; ++l) {
 				for (int i1 = 0; i1 < j; ++i1) {
 					for (int j1 = 0; j1 < k; ++j1) {
-						if (world.rand.nextDouble() > chance)
+						if (world.random.nextDouble() > chance)
 							continue;
 
 						double d4 = ((double) l + 0.5D) / (double) i;
@@ -84,8 +83,8 @@ public class BlockHelper {
 						double d8 = d5 * d2 + y1;
 						double d9 = d6 * d3 + z1;
 						manager
-							.addEffect((new DiggingParticle(world, (double) pos.getX() + d7, (double) pos.getY() + d8,
-								(double) pos.getZ() + d9, d4 - 0.5D, d5 - 0.5D, d6 - 0.5D, state)).setBlockPos(pos));
+							.add((new TerrainParticle(world, (double) pos.getX() + d7, (double) pos.getY() + d8,
+								(double) pos.getZ() + d9, d4 - 0.5D, d5 - 0.5D, d6 - 0.5D, state)).init(pos));
 					}
 				}
 			}
@@ -94,74 +93,74 @@ public class BlockHelper {
 	}
 
 	public static BlockState setZeroAge(BlockState blockState) {
-		if (blockState.contains(BlockStateProperties.AGE_0_1))
-			return blockState.with(BlockStateProperties.AGE_0_1, 0);
-		if (blockState.contains(BlockStateProperties.AGE_0_2))
-			return blockState.with(BlockStateProperties.AGE_0_2, 0);
-		if (blockState.contains(BlockStateProperties.AGE_0_3))
-			return blockState.with(BlockStateProperties.AGE_0_3, 0);
-		if (blockState.contains(BlockStateProperties.AGE_0_5))
-			return blockState.with(BlockStateProperties.AGE_0_5, 0);
-		if (blockState.contains(BlockStateProperties.AGE_0_7))
-			return blockState.with(BlockStateProperties.AGE_0_7, 0);
-		if (blockState.contains(BlockStateProperties.AGE_0_15))
-			return blockState.with(BlockStateProperties.AGE_0_15, 0);
-		if (blockState.contains(BlockStateProperties.AGE_0_25))
-			return blockState.with(BlockStateProperties.AGE_0_25, 0);
-		if (blockState.contains(BlockStateProperties.HONEY_LEVEL))
-			return blockState.with(BlockStateProperties.HONEY_LEVEL, 0);
-		if (blockState.contains(BlockStateProperties.HATCH_0_2))
-			return blockState.with(BlockStateProperties.HATCH_0_2, 0);
-		if (blockState.contains(BlockStateProperties.STAGE_0_1))
-			return blockState.with(BlockStateProperties.STAGE_0_1, 0);
-		if (blockState.contains(BlockStateProperties.LEVEL_0_3))
-			return blockState.with(BlockStateProperties.LEVEL_0_3, 0);
-		if (blockState.contains(BlockStateProperties.LEVEL_0_8))
-			return blockState.with(BlockStateProperties.LEVEL_0_8, 0);
-		if (blockState.contains(BlockStateProperties.EXTENDED))
-			return blockState.with(BlockStateProperties.EXTENDED, false);
+		if (blockState.hasProperty(BlockStateProperties.AGE_1))
+			return blockState.setValue(BlockStateProperties.AGE_1, 0);
+		if (blockState.hasProperty(BlockStateProperties.AGE_2))
+			return blockState.setValue(BlockStateProperties.AGE_2, 0);
+		if (blockState.hasProperty(BlockStateProperties.AGE_3))
+			return blockState.setValue(BlockStateProperties.AGE_3, 0);
+		if (blockState.hasProperty(BlockStateProperties.AGE_5))
+			return blockState.setValue(BlockStateProperties.AGE_5, 0);
+		if (blockState.hasProperty(BlockStateProperties.AGE_7))
+			return blockState.setValue(BlockStateProperties.AGE_7, 0);
+		if (blockState.hasProperty(BlockStateProperties.AGE_15))
+			return blockState.setValue(BlockStateProperties.AGE_15, 0);
+		if (blockState.hasProperty(BlockStateProperties.AGE_25))
+			return blockState.setValue(BlockStateProperties.AGE_25, 0);
+		if (blockState.hasProperty(BlockStateProperties.LEVEL_HONEY))
+			return blockState.setValue(BlockStateProperties.LEVEL_HONEY, 0);
+		if (blockState.hasProperty(BlockStateProperties.HATCH))
+			return blockState.setValue(BlockStateProperties.HATCH, 0);
+		if (blockState.hasProperty(BlockStateProperties.STAGE))
+			return blockState.setValue(BlockStateProperties.STAGE, 0);
+		if (blockState.hasProperty(BlockStateProperties.LEVEL_CAULDRON))
+			return blockState.setValue(BlockStateProperties.LEVEL_CAULDRON, 0);
+		if (blockState.hasProperty(BlockStateProperties.LEVEL_COMPOSTER))
+			return blockState.setValue(BlockStateProperties.LEVEL_COMPOSTER, 0);
+		if (blockState.hasProperty(BlockStateProperties.EXTENDED))
+			return blockState.setValue(BlockStateProperties.EXTENDED, false);
 		return blockState;
 	}
 
-	public static int findAndRemoveInInventory(BlockState block, PlayerEntity player, int amount) {
+	public static int findAndRemoveInInventory(BlockState block, Player player, int amount) {
 		int amountFound = 0;
 		Item required = getRequiredItem(block).getItem();
 
-		boolean needsTwo = block.contains(BlockStateProperties.SLAB_TYPE)
-			&& block.get(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE;
+		boolean needsTwo = block.hasProperty(BlockStateProperties.SLAB_TYPE)
+			&& block.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE;
 
 		if (needsTwo)
 			amount *= 2;
 
-		if (block.contains(BlockStateProperties.EGGS_1_4))
-			amount *= block.get(BlockStateProperties.EGGS_1_4);
+		if (block.hasProperty(BlockStateProperties.EGGS))
+			amount *= block.getValue(BlockStateProperties.EGGS);
 
-		if (block.contains(BlockStateProperties.PICKLES_1_4))
-			amount *= block.get(BlockStateProperties.PICKLES_1_4);
+		if (block.hasProperty(BlockStateProperties.PICKLES))
+			amount *= block.getValue(BlockStateProperties.PICKLES);
 
 		{
 			// Try held Item first
-			int preferredSlot = player.inventory.currentItem;
-			ItemStack itemstack = player.inventory.getStackInSlot(preferredSlot);
+			int preferredSlot = player.inventory.selected;
+			ItemStack itemstack = player.inventory.getItem(preferredSlot);
 			int count = itemstack.getCount();
 			if (itemstack.getItem() == required && count > 0) {
 				int taken = Math.min(count, amount - amountFound);
-				player.inventory.setInventorySlotContents(preferredSlot,
+				player.inventory.setItem(preferredSlot,
 					new ItemStack(itemstack.getItem(), count - taken));
 				amountFound += taken;
 			}
 		}
 
 		// Search inventory
-		for (int i = 0; i < player.inventory.getSizeInventory(); ++i) {
+		for (int i = 0; i < player.inventory.getContainerSize(); ++i) {
 			if (amountFound == amount)
 				break;
 
-			ItemStack itemstack = player.inventory.getStackInSlot(i);
+			ItemStack itemstack = player.inventory.getItem(i);
 			int count = itemstack.getCount();
 			if (itemstack.getItem() == required && count > 0) {
 				int taken = Math.min(count, amount - amountFound);
-				player.inventory.setInventorySlotContents(i, new ItemStack(itemstack.getItem(), count - taken));
+				player.inventory.setItem(i, new ItemStack(itemstack.getItem(), count - taken));
 				amountFound += taken;
 			}
 		}
@@ -169,7 +168,7 @@ public class BlockHelper {
 		if (needsTwo) {
 			// Give back 1 if uneven amount was removed
 			if (amountFound % 2 != 0)
-				player.inventory.addItemStackToInventory(new ItemStack(required));
+				player.inventory.add(new ItemStack(required));
 			amountFound /= 2;
 		}
 
@@ -185,22 +184,22 @@ public class BlockHelper {
 		return itemStack;
 	}
 
-	public static void destroyBlock(World world, BlockPos pos, float effectChance) {
-		destroyBlock(world, pos, effectChance, stack -> Block.spawnAsEntity(world, pos, stack));
+	public static void destroyBlock(Level world, BlockPos pos, float effectChance) {
+		destroyBlock(world, pos, effectChance, stack -> Block.popResource(world, pos, stack));
 	}
 
-	public static void destroyBlock(World world, BlockPos pos, float effectChance,
+	public static void destroyBlock(Level world, BlockPos pos, float effectChance,
 		Consumer<ItemStack> droppedItemCallback) {
 		destroyBlockAs(world, pos, null, ItemStack.EMPTY, effectChance, droppedItemCallback);
 	}
 
-	public static void destroyBlockAs(World world, BlockPos pos, @Nullable PlayerEntity player, ItemStack usedTool,
+	public static void destroyBlockAs(Level world, BlockPos pos, @Nullable Player player, ItemStack usedTool,
 		float effectChance, Consumer<ItemStack> droppedItemCallback) {
 		FluidState fluidState = world.getFluidState(pos);
 		BlockState state = world.getBlockState(pos);
-		if (world.rand.nextFloat() < effectChance)
-			world.playEvent(2001, pos, Block.getStateId(state));
-		TileEntity tileentity = state.getBlock().hasBlockEntity() ? world.getTileEntity(pos) : null;
+		if (world.random.nextFloat() < effectChance)
+			world.levelEvent(2001, pos, Block.getId(state));
+		BlockEntity tileentity = state.getBlock().isEntityBlock() ? world.getBlockEntity(pos) : null;
 		if (player != null) {
 			if (!PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(world, player, pos, state, tileentity)) return;
 //			BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, player);
@@ -208,110 +207,110 @@ public class BlockHelper {
 //			if (event.isCanceled())
 //				return;
 
-			if (/*event.getExpToDrop() > 0 && */world instanceof ServerWorld)
+			if (/*event.getExpToDrop() > 0 && */world instanceof ServerLevel)
 				com.simibubi.create.lib.helper.BlockHelper.dropXpOnBlockBreak(state.getBlock(),
-					(ServerWorld) world, pos, 0);
+					(ServerLevel) world, pos, 0);
 
-			usedTool.onBlockDestroyed(world, state, pos, player);
-			player.addStat(Stats.BLOCK_MINED.get(state.getBlock()));
+			usedTool.mineBlock(world, state, pos, player);
+			player.awardStat(Stats.BLOCK_MINED.get(state.getBlock()));
 		}
 
-		if (world instanceof ServerWorld && world.getGameRules()
-			.getBoolean(GameRules.DO_TILE_DROPS) //&& !world.restoringBlockSnapshots
+		if (world instanceof ServerLevel && world.getGameRules()
+			.getBoolean(GameRules.RULE_DOBLOCKDROPS) //&& !world.restoringBlockSnapshots
 			&& (player == null || !player.isCreative())) {
-			for (ItemStack itemStack : Block.getDrops(state, (ServerWorld) world, pos, tileentity, player, usedTool))
+			for (ItemStack itemStack : Block.getDrops(state, (ServerLevel) world, pos, tileentity, player, usedTool))
 				droppedItemCallback.accept(itemStack);
-			state.spawnAdditionalDrops((ServerWorld) world, pos, ItemStack.EMPTY);
+			state.spawnAfterBreak((ServerLevel) world, pos, ItemStack.EMPTY);
 		}
 
-		world.setBlockState(pos, fluidState.getBlockState());
+		world.setBlockAndUpdate(pos, fluidState.createLegacyBlock());
 	}
 
-	public static boolean isSolidWall(IBlockReader reader, BlockPos fromPos, Direction toDirection) {
-		return hasBlockSolidSide(reader.getBlockState(fromPos.offset(toDirection)), reader, fromPos.offset(toDirection),
+	public static boolean isSolidWall(BlockGetter reader, BlockPos fromPos, Direction toDirection) {
+		return hasBlockSolidSide(reader.getBlockState(fromPos.relative(toDirection)), reader, fromPos.relative(toDirection),
 			toDirection.getOpposite());
 	}
 
-	public static boolean noCollisionInSpace(IBlockReader reader, BlockPos pos) {
+	public static boolean noCollisionInSpace(BlockGetter reader, BlockPos pos) {
 		return reader.getBlockState(pos)
 			.getCollisionShape(reader, pos)
 			.isEmpty();
 	}
 
-	private static void placeRailWithoutUpdate(World world, BlockState state, BlockPos target) {
+	private static void placeRailWithoutUpdate(Level world, BlockState state, BlockPos target) {
 		int i = target.getX() & 15;
 		int j = target.getY();
 		int k = target.getZ() & 15;
-		Chunk chunk = world.getChunkAt(target);
-		ChunkSection chunksection = chunk.getSections()[j >> 4];
-		if (chunksection == Chunk.EMPTY_SECTION) {
-			chunksection = new ChunkSection(j >> 4 << 4);
+		LevelChunk chunk = world.getChunkAt(target);
+		LevelChunkSection chunksection = chunk.getSections()[j >> 4];
+		if (chunksection == LevelChunk.EMPTY_SECTION) {
+			chunksection = new LevelChunkSection(j >> 4 << 4);
 			chunk.getSections()[j >> 4] = chunksection;
 		}
 		BlockState old = chunksection.setBlockState(i, j & 15, k, state);
-		chunk.markDirty();
-		world.setBlockState(target/*, chunk, old*/, state, 82, 512);
+		chunk.markUnsaved();
+		world.setBlock(target/*, chunk, old*/, state, 82, 512);
 
-		world.setBlockState(target, state, 82);
-		world.neighborChanged(target, world.getBlockState(target.down()).getBlock(), target.down());
+		world.setBlock(target, state, 82);
+		world.neighborChanged(target, world.getBlockState(target.below()).getBlock(), target.below());
 	}
 
-	public static void placeSchematicBlock(World world, BlockState state, BlockPos target, ItemStack stack,
-		@Nullable CompoundNBT data) {
+	public static void placeSchematicBlock(Level world, BlockState state, BlockPos target, ItemStack stack,
+		@Nullable CompoundTag data) {
 		// Piston
-		if (state.contains(BlockStateProperties.EXTENDED))
-			state = state.with(BlockStateProperties.EXTENDED, Boolean.FALSE);
-		if (state.contains(BlockStateProperties.WATERLOGGED))
-			state = state.with(BlockStateProperties.WATERLOGGED, Boolean.FALSE);
+		if (state.hasProperty(BlockStateProperties.EXTENDED))
+			state = state.setValue(BlockStateProperties.EXTENDED, Boolean.FALSE);
+		if (state.hasProperty(BlockStateProperties.WATERLOGGED))
+			state = state.setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE);
 
 		if (AllBlocks.BELT.has(state)) {
-			world.setBlockState(target, state, 2);
+			world.setBlock(target, state, 2);
 			return;
 		} else if (state.getBlock() == Blocks.COMPOSTER)
-			state = Blocks.COMPOSTER.getDefaultState();
+			state = Blocks.COMPOSTER.defaultBlockState();
 		else if (state.getBlock() != Blocks.SEA_PICKLE && PlantUtil.isPlant(state.getBlock()))
 			state = PlantUtil.getPlant(state.getBlock());
 
-		if (world.getDimension()
-			.isUltrawarm()
+		if (world.dimensionType()
+			.ultraWarm()
 			&& state.getFluidState()
-				.getFluid()
-				.isIn(FluidTags.WATER)) {
+				.getType()
+				.is(FluidTags.WATER)) {
 			int i = target.getX();
 			int j = target.getY();
 			int k = target.getZ();
-			world.playSound(null, target, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.5F,
-				2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
+			world.playSound(null, target, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+				2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
 
 			for (int l = 0; l < 8; ++l) {
 				world.addParticle(ParticleTypes.LARGE_SMOKE, i + Math.random(), j + Math.random(), k + Math.random(),
 					0.0D, 0.0D, 0.0D);
 			}
-			Block.spawnDrops(state, world, target);
+			Block.dropResources(state, world, target);
 			return;
 		}
 
-		if (state.getBlock() instanceof AbstractRailBlock) {
+		if (state.getBlock() instanceof BaseRailBlock) {
 			placeRailWithoutUpdate(world, state, target);
 		} else {
-			world.setBlockState(target, state, 18);
+			world.setBlock(target, state, 18);
 		}
 
 		if (data != null) {
-			TileEntity tile = world.getTileEntity(target);
+			BlockEntity tile = world.getBlockEntity(target);
 			if (tile != null) {
 				data.putInt("x", target.getX());
 				data.putInt("y", target.getY());
 				data.putInt("z", target.getZ());
 				if (tile instanceof KineticTileEntity)
 					((KineticTileEntity) tile).warnOfMovement();
-				tile.fromTag(tile.getBlockState(), data);
+				tile.load(tile.getBlockState(), data);
 			}
 		}
 
 		try {
 			state.getBlock()
-				.onBlockPlacedBy(world, target, state, null, stack);
+				.setPlacedBy(world, target, state, null, stack);
 		} catch (Exception e) {
 		}
 	}
@@ -324,18 +323,18 @@ public class BlockHelper {
 		return 0;
 	}
 
-	public static boolean hasBlockSolidSide(BlockState p_220056_0_, IBlockReader p_220056_1_, BlockPos p_220056_2_,
+	public static boolean hasBlockSolidSide(BlockState p_220056_0_, BlockGetter p_220056_1_, BlockPos p_220056_2_,
 		Direction p_220056_3_) {
-		return !p_220056_0_.isIn(BlockTags.LEAVES)
-			&& Block.doesSideFillSquare(p_220056_0_.getCollisionShape(p_220056_1_, p_220056_2_), p_220056_3_);
+		return !p_220056_0_.is(BlockTags.LEAVES)
+			&& Block.isFaceFull(p_220056_0_.getCollisionShape(p_220056_1_, p_220056_2_), p_220056_3_);
 	}
 
-	public static boolean extinguishFire(World world, @Nullable PlayerEntity p_175719_1_, BlockPos p_175719_2_,
+	public static boolean extinguishFire(Level world, @Nullable Player p_175719_1_, BlockPos p_175719_2_,
 		Direction p_175719_3_) {
-		p_175719_2_ = p_175719_2_.offset(p_175719_3_);
+		p_175719_2_ = p_175719_2_.relative(p_175719_3_);
 		if (world.getBlockState(p_175719_2_)
 			.getBlock() == Blocks.FIRE) {
-			world.playEvent(p_175719_1_, 1009, p_175719_2_, 0);
+			world.levelEvent(p_175719_1_, 1009, p_175719_2_, 0);
 			world.removeBlock(p_175719_2_, false);
 			return true;
 		} else {

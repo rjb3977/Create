@@ -3,8 +3,7 @@ package com.simibubi.create.foundation.render;
 import com.jozufozu.flywheel.core.shader.spec.IBooleanStateProvider;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.KineticDebugger;
-
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class RainbowDebugStateProvider implements IBooleanStateProvider {
 

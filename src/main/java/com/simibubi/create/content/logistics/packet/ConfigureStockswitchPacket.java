@@ -2,9 +2,8 @@ package com.simibubi.create.content.logistics.packet;
 
 import com.simibubi.create.content.logistics.block.redstone.StockpileSwitchTileEntity;
 import com.simibubi.create.foundation.networking.TileEntityConfigurationPacket;
-
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ConfigureStockswitchPacket extends TileEntityConfigurationPacket<StockpileSwitchTileEntity> {
 
@@ -22,14 +21,14 @@ public class ConfigureStockswitchPacket extends TileEntityConfigurationPacket<St
 	}
 
 	@Override
-	protected void readSettings(PacketBuffer buffer) {
+	protected void readSettings(FriendlyByteBuf buffer) {
 		offBelow = buffer.readFloat();
 		onAbove = buffer.readFloat();
 		invert = buffer.readBoolean();
 	}
 
 	@Override
-	protected void writeSettings(PacketBuffer buffer) {
+	protected void writeSettings(FriendlyByteBuf buffer) {
 		buffer.writeFloat(offBelow);
 		buffer.writeFloat(onAbove);
 		buffer.writeBoolean(invert);

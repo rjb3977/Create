@@ -2,11 +2,9 @@ package com.simibubi.create.content.contraptions.relays.advanced.sequencer;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 
 public enum InstructionSpeedModifiers {
 
@@ -16,21 +14,21 @@ public enum InstructionSpeedModifiers {
 
 	String translationKey;
 	int value;
-	ITextComponent label;
+	Component label;
 
-	private InstructionSpeedModifiers(int modifier, ITextComponent label) {
+	private InstructionSpeedModifiers(int modifier, Component label) {
 		this.label = label;
 		translationKey = "gui.sequenced_gearshift.speed." + Lang.asId(name());
 		value = modifier;
 	}
 	private InstructionSpeedModifiers(int modifier, String label) {
-		this.label = new StringTextComponent(label);
+		this.label = new TextComponent(label);
 		translationKey = "gui.sequenced_gearshift.speed." + Lang.asId(name());
 		value = modifier;
 	}
 
-	static List<ITextComponent> getOptions() {
-		List<ITextComponent> options = new ArrayList<>();
+	static List<Component> getOptions() {
+		List<Component> options = new ArrayList<>();
 		for (InstructionSpeedModifiers entry : values())
 			options.add(Lang.translate(entry.translationKey));
 		return options;

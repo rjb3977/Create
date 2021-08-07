@@ -1,19 +1,17 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import java.util.List;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
 
 public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity {
 
@@ -23,7 +21,7 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 	protected boolean powered;
 	protected Entity connectedEntity;
 
-	public PortableStorageInterfaceTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public PortableStorageInterfaceTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 		transferTimer = 0;
 		connectionAnimation = LerpedFloat.linear()
@@ -63,27 +61,27 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 		}
 
 		boolean isConnected = isConnected();
-		if (wasConnected != isConnected && !world.isRemote)
-			markDirty();
+		if (wasConnected != isConnected && !level.isClientSide)
+			setChanged();
 
 		float progress = 0;
 		if (isConnected)
 			progress = 1;
 		else if (transferTimer >= timeUnit * 3)
-			progress = MathHelper.lerp((transferTimer - timeUnit * 3) / (float) timeUnit, 1, 0);
+			progress = Mth.lerp((transferTimer - timeUnit * 3) / (float) timeUnit, 1, 0);
 		else if (transferTimer < timeUnit)
-			progress = MathHelper.lerp(transferTimer / (float) timeUnit, 0, 1);
+			progress = Mth.lerp(transferTimer / (float) timeUnit, 0, 1);
 		connectionAnimation.setValue(progress);
 	}
 
 	@Override
-	public void remove() {
-		super.remove();
+	public void setRemoved() {
+		super.setRemoved();
 		invalidateCapability();
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		super.fromTag(state, compound, clientPacket);
 		transferTimer = compound.getInt("Timer");
 		distance = compound.getFloat("Distance");
@@ -91,7 +89,7 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 	}
 
 	@Override
-	protected void write(CompoundNBT compound, boolean clientPacket) {
+	protected void write(CompoundTag compound, boolean clientPacket) {
 		super.write(compound, clientPacket);
 		compound.putInt("Timer", transferTimer);
 		compound.putFloat("Distance", distance);
@@ -99,7 +97,7 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 	}
 
 	public void neighbourChanged() {
-		boolean isBlockPowered = world.isBlockPowered(pos);
+		boolean isBlockPowered = level.hasNeighborSignal(worldPosition);
 		if (isBlockPowered == powered)
 			return;
 		powered = isBlockPowered;
@@ -110,7 +108,7 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 		return powered;
 	}
 
-	protected AxisAlignedBB cachedBoundingBox;
+	protected AABB cachedBoundingBox;
 
 //	@Override
 //	@Environment(EnvType.CLIENT)

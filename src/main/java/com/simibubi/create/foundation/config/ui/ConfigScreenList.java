@@ -4,55 +4,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.config.ui.entries.NumberEntry;
 import com.simibubi.create.foundation.gui.TextStencilElement;
 import com.simibubi.create.foundation.gui.Theme;
 import com.simibubi.create.foundation.gui.UIRenderHelper;
 import com.simibubi.create.lib.utility.GuiUtils;
-
-import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.list.ExtendedList;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
-public class ConfigScreenList extends ExtendedList<ConfigScreenList.Entry> {
+public class ConfigScreenList extends ObjectSelectionList<ConfigScreenList.Entry> {
 
-	public static TextFieldWidget currentText;
+	public static EditBox currentText;
 
 	public boolean isForServer = false;
 
 	public ConfigScreenList(Minecraft client, int width, int height, int top, int bottom, int elementHeight) {
 		super(client, width, height, top, bottom, elementHeight);
-		method_31322(false);
-		method_31323(false);
+		setRenderBackground(false);
+		setRenderTopAndBottom(false);
 		setRenderSelection(false);
 		currentText = null;
 		headerHeight = 3;
 	}
 
 	@Override
-	public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
-		UIRenderHelper.angledGradient(ms, 90, left + width / 2, top, width, 5, 0x60_000000, 0x0);
-		UIRenderHelper.angledGradient(ms, -90, left + width / 2, bottom, width, 5, 0x60_000000, 0x0);
-		UIRenderHelper.angledGradient(ms, 0, left, top + height / 2, height, 5, 0x60_000000, 0x0);
-		UIRenderHelper.angledGradient(ms, 180, right, top + height / 2, height, 5, 0x60_000000, 0x0);
+	public void render(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
+		UIRenderHelper.angledGradient(ms, 90, x0 + width / 2, y0, width, 5, 0x60_000000, 0x0);
+		UIRenderHelper.angledGradient(ms, -90, x0 + width / 2, y1, width, 5, 0x60_000000, 0x0);
+		UIRenderHelper.angledGradient(ms, 0, x0, y0 + height / 2, height, 5, 0x60_000000, 0x0);
+		UIRenderHelper.angledGradient(ms, 180, x1, y0 + height / 2, height, 5, 0x60_000000, 0x0);
 
 		super.render(ms, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
-	protected void renderList(MatrixStack p_238478_1_, int p_238478_2_, int p_238478_3_, int p_238478_4_, int p_238478_5_, float p_238478_6_) {
-		MainWindow window = Minecraft.getInstance().getWindow();
-		double d0 = window.getGuiScaleFactor();
-		RenderSystem.enableScissor((int) (this.left * d0), (int) (window.getFramebufferHeight() - (this.bottom * d0)), (int) (this.width * d0), (int) (this.height * d0));
+	protected void renderList(PoseStack p_238478_1_, int p_238478_2_, int p_238478_3_, int p_238478_4_, int p_238478_5_, float p_238478_6_) {
+		Window window = Minecraft.getInstance().getWindow();
+		double d0 = window.getGuiScale();
+		RenderSystem.enableScissor((int) (this.x0 * d0), (int) (window.getHeight() - (this.y1 * d0)), (int) (this.width * d0), (int) (this.height * d0));
 		super.renderList(p_238478_1_, p_238478_2_, p_238478_3_, p_238478_4_, p_238478_5_, p_238478_6_);
 		RenderSystem.disableScissor();
 	}
@@ -70,15 +68,15 @@ public class ConfigScreenList extends ExtendedList<ConfigScreenList.Entry> {
 	}
 
 	@Override
-	protected int getScrollbarPositionX() {
-		return left + this.width - 6;
+	protected int getScrollbarPosition() {
+		return x0 + this.width - 6;
 	}
 
 	public void tick() {
 		for(int i = 0; i < getItemCount(); ++i) {
 			int top = this.getRowTop(i);
 			int bot = top + itemHeight;
-			if (bot >= this.top && top <= this.bottom)
+			if (bot >= this.y0 && top <= this.y1)
 				this.getEntry(i).tick();
 		}
 
@@ -88,8 +86,8 @@ public class ConfigScreenList extends ExtendedList<ConfigScreenList.Entry> {
 		ConfigScreen.cogSpin.bump(3, force);
 	}
 
-	public static abstract class Entry extends ExtendedList.AbstractListEntry<Entry> {
-		protected List<IGuiEventListener> listeners;
+	public static abstract class Entry extends ObjectSelectionList.Entry<com.simibubi.create.foundation.config.ui.ConfigScreenList.Entry> {
+		protected List<GuiEventListener> listeners;
 
 		protected Entry() {
 			listeners = new ArrayList<>();
@@ -112,38 +110,38 @@ public class ConfigScreenList extends ExtendedList<ConfigScreenList.Entry> {
 
 		public void tick() {}
 
-		public List<IGuiEventListener> getGuiListeners() {
+		public List<GuiEventListener> getGuiListeners() {
 			return listeners;
 		}
 
 		protected void setEditable(boolean b) {}
 	}
 
-	public static class LabeledEntry extends Entry {
+	public static class LabeledEntry extends com.simibubi.create.foundation.config.ui.ConfigScreenList.Entry {
 
 		protected static final float labelWidthMult = 0.4f;
 
 		protected TextStencilElement label;
-		protected List<ITextComponent> labelTooltip;
+		protected List<Component> labelTooltip;
 		protected String unit = null;
 
 		public LabeledEntry(String label) {
-			this.label = new TextStencilElement(Minecraft.getInstance().fontRenderer, label);
+			this.label = new TextStencilElement(Minecraft.getInstance().font, label);
 			this.label.withElementRenderer((ms, width, height, alpha) -> UIRenderHelper.angledGradient(ms, 0, 0, height / 2, height, width, Theme.p(Theme.Key.TEXT_ACCENT_STRONG)));
 			labelTooltip = new ArrayList<>();
 		}
 
 		@Override
-		public void render(MatrixStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
+		public void render(PoseStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
 			UIRenderHelper.streak(ms, 0, x - 10, y + height / 2, height - 6, width / 8 * 7, 0xdd_000000);
 			UIRenderHelper.streak(ms, 180, x + (int) (width * 1.35f) + 10, y + height / 2, height - 6, width / 8 * 7, 0xdd_000000);
-			IFormattableTextComponent component = label.getComponent();
-			FontRenderer font = Minecraft.getInstance().fontRenderer;
-			if (font.getWidth(component) > getLabelWidth(width) - 10) {
-				label.withText(font.trimToWidth(component, getLabelWidth(width) - 15).getString() + "...");
+			MutableComponent component = label.getComponent();
+			Font font = Minecraft.getInstance().font;
+			if (font.width(component) > getLabelWidth(width) - 10) {
+				label.withText(font.substrByWidth(component, getLabelWidth(width) - 15).getString() + "...");
 			}
 			if (unit != null) {
-				int unitWidth = font.getStringWidth(unit);
+				int unitWidth = font.width(unit);
 				font.draw(ms, unit, x + getLabelWidth(width) - unitWidth - 5, y + height / 2 + 2, Theme.i(Theme.Key.TEXT_DARKER));
 				label.at(x + 10, y + height / 2 - 10, 0).render(ms);
 			} else {
@@ -152,21 +150,21 @@ public class ConfigScreenList extends ExtendedList<ConfigScreenList.Entry> {
 
 
 			if (mouseX > x && mouseX < x + getLabelWidth(width) && mouseY > y + 5 && mouseY < y + height - 5) {
-				List<ITextComponent> tooltip = getLabelTooltip();
+				List<Component> tooltip = getLabelTooltip();
 				if (tooltip.isEmpty())
 					return;
 
 				GL11.glDisable(GL11.GL_SCISSOR_TEST);
-				Screen screen = Minecraft.getInstance().currentScreen;
-				ms.push();
+				Screen screen = Minecraft.getInstance().screen;
+				ms.pushPose();
 				ms.translate(0, 0, 400);
 				GuiUtils.drawHoveringText(ms, tooltip, mouseX, mouseY, screen.width, screen.height, 300, font);
-				ms.pop();
+				ms.popPose();
 				GL11.glEnable(GL11.GL_SCISSOR_TEST);
 			}
 		}
 
-		public List<ITextComponent> getLabelTooltip() {
+		public List<Component> getLabelTooltip() {
 			return labelTooltip;
 		}
 

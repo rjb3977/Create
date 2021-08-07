@@ -7,80 +7,79 @@ import com.simibubi.create.content.contraptions.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.tileEntity.ComparatorUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-
-public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainTileEntity>, ITileEntityProvider {
+public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainTileEntity>, EntityBlock {
 
 	public ItemDrainBlock(Properties p_i48440_1_) {
 		super(p_i48440_1_);
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-		BlockRayTraceResult hit) {
-		ItemStack heldItem = player.getHeldItem(handIn);
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
+		BlockHitResult hit) {
+		ItemStack heldItem = player.getItemInHand(handIn);
 
 		return onTileEntityUse(worldIn, pos, te -> {
 			if (!heldItem.isEmpty()) {
 				te.internalTank.allowInsertion();
-				ActionResultType tryExchange = tryExchange(worldIn, player, handIn, heldItem, te);
+				InteractionResult tryExchange = tryExchange(worldIn, player, handIn, heldItem, te);
 				te.internalTank.forbidInsertion();
-				if (tryExchange.isAccepted())
+				if (tryExchange.consumesAction())
 					return tryExchange;
 			}
 
 			ItemStack heldItemStack = te.getHeldItemStack();
-			if (!worldIn.isRemote && !heldItemStack.isEmpty()) {
+			if (!worldIn.isClientSide && !heldItemStack.isEmpty()) {
 				player.inventory.placeItemBackInInventory(worldIn, heldItemStack);
 				te.heldItem = null;
 				te.notifyUpdate();
 			}
-			return ActionResultType.SUCCESS;
+			return InteractionResult.SUCCESS;
 		});
 	}
 
-	protected ActionResultType tryExchange(World worldIn, PlayerEntity player, Hand handIn, ItemStack heldItem,
+	protected InteractionResult tryExchange(Level worldIn, Player player, InteractionHand handIn, ItemStack heldItem,
 		ItemDrainTileEntity te) {
 		if (FluidHelper.tryEmptyItemIntoTE(worldIn, player, handIn, heldItem, te))
-			return ActionResultType.SUCCESS;
+			return InteractionResult.SUCCESS;
 		if (EmptyingByBasin.canItemBeEmptied(worldIn, heldItem))
-			return ActionResultType.SUCCESS;
-		return ActionResultType.PASS;
+			return InteractionResult.SUCCESS;
+		return InteractionResult.PASS;
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_,
-		ISelectionContext p_220053_4_) {
+	public VoxelShape getShape(BlockState p_220053_1_, BlockGetter p_220053_2_, BlockPos p_220053_3_,
+		CollisionContext p_220053_4_) {
 		return AllShapes.CASING_13PX.get(Direction.UP);
 	}
 
 	@Override
-	public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!state.getBlock().hasBlockEntity() || state.getBlock() == newState.getBlock())
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+		if (!state.getBlock().isEntityBlock() || state.getBlock() == newState.getBlock())
 			return;
 		withTileEntityDo(worldIn, pos, te -> {
 			ItemStack heldItemStack = te.getHeldItemStack();
 			if (!heldItemStack.isEmpty())
-				InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), heldItemStack);
+				Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), heldItemStack);
 		});
-		worldIn.removeTileEntity(pos);
+		worldIn.removeBlockEntity(pos);
 	}
 
 //	@Override
@@ -89,7 +88,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainT
 //	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.ITEM_DRAIN.create();
 	}
 
@@ -99,17 +98,17 @@ public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainT
 	}
 
 	@Override
-	public boolean hasComparatorInputOverride(BlockState state) {
+	public boolean hasAnalogOutputSignal(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getComparatorInputOverride(BlockState blockState, World worldIn, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos) {
 		return ComparatorUtil.levelOfSmartFluidTank(worldIn, pos);
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

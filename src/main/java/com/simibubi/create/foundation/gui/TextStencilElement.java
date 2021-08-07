@@ -1,40 +1,39 @@
 package com.simibubi.create.foundation.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 
 public class TextStencilElement extends DelegatedStencilElement {
 
-	protected FontRenderer font;
-	protected IFormattableTextComponent component;
+	protected Font font;
+	protected MutableComponent component;
 	protected boolean centerVertically = false;
 	protected boolean centerHorizontally = false;
 
-	public TextStencilElement(FontRenderer font) {
+	public TextStencilElement(Font font) {
 		super();
 		this.font = font;
 		height = 10;
 	}
 
-	public TextStencilElement(FontRenderer font, String text) {
+	public TextStencilElement(Font font, String text) {
 		this(font);
-		component = new StringTextComponent(text);
+		component = new TextComponent(text);
 	}
 
-	public TextStencilElement(FontRenderer font, IFormattableTextComponent component) {
+	public TextStencilElement(Font font, MutableComponent component) {
 		this(font);
 		this.component = component;
 	}
 
 	public TextStencilElement withText(String text) {
-		component = new StringTextComponent(text);
+		component = new TextComponent(text);
 		return this;
 	}
 
-	public TextStencilElement withText(IFormattableTextComponent component) {
+	public TextStencilElement withText(MutableComponent component) {
 		this.component = component;
 		return this;
 	}
@@ -46,34 +45,34 @@ public class TextStencilElement extends DelegatedStencilElement {
 	}
 
 	@Override
-	protected void renderStencil(MatrixStack ms) {
+	protected void renderStencil(PoseStack ms) {
 
 		float x = 0, y = 0;
 		if (centerHorizontally)
-			x = width / 2f - font.getWidth(component) / 2f;
+			x = width / 2f - font.width(component) / 2f;
 
 		if (centerVertically)
-			y = height / 2f - (font.FONT_HEIGHT - 1) / 2f;
+			y = height / 2f - (font.lineHeight - 1) / 2f;
 
 		font.draw(ms, component, x, y, 0xff_000000);
 	}
 
 	@Override
-	protected void renderElement(MatrixStack ms) {
+	protected void renderElement(PoseStack ms) {
 		float x = 0, y = 0;
 		if (centerHorizontally)
-			x = width / 2f - font.getWidth(component) / 2f;
+			x = width / 2f - font.width(component) / 2f;
 
 		if (centerVertically)
-			y = height / 2f - (font.FONT_HEIGHT - 1) / 2f;
+			y = height / 2f - (font.lineHeight - 1) / 2f;
 
-		ms.push();
+		ms.pushPose();
 		ms.translate(x, y, 0);
-		element.render(ms, font.getWidth(component), font.FONT_HEIGHT + 2, alpha);
-		ms.pop();
+		element.render(ms, font.width(component), font.lineHeight + 2, alpha);
+		ms.popPose();
 	}
 
-	public IFormattableTextComponent getComponent() {
+	public MutableComponent getComponent() {
 		return component;
 	}
 }

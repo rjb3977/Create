@@ -3,7 +3,15 @@ package com.simibubi.create.content.contraptions.fluids.actors;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.content.contraptions.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.contraptions.processing.EmptyingByBasin;
 import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
@@ -21,15 +29,6 @@ import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
 
 public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleInformation {
 
@@ -40,7 +39,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 	protected int processingTicks;
 	Map<Direction, LazyOptional<ItemDrainItemHandler>> itemHandlers;
 
-	public ItemDrainTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public ItemDrainTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 		itemHandlers = new IdentityHashMap<>();
 		for (Direction d : Iterate.horizontalDirections) {
@@ -65,7 +64,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 		if (!getHeldItemStack().isEmpty())
 			return inserted;
 
-		if (inserted.getCount() > 1 && EmptyingByBasin.canItemBeEmptied(world, inserted)) {
+		if (inserted.getCount() > 1 && EmptyingByBasin.canItemBeEmptied(level, inserted)) {
 			returned = ItemHandlerHelper.copyStackWithSize(inserted, inserted.getCount() - 1);
 			inserted = ItemHandlerHelper.copyStackWithSize(inserted, 1);
 		}
@@ -79,7 +78,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 		transportedStack.prevSideOffset = transportedStack.sideOffset;
 		transportedStack.prevBeltPosition = transportedStack.beltPosition;
 		setHeldItem(transportedStack, side);
-		markDirty();
+		setChanged();
 		sendData();
 
 		return returned;
@@ -98,7 +97,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 			return;
 		}
 
-		boolean onClient = world.isRemote && !isVirtual();
+		boolean onClient = level.isClientSide && !isVirtual();
 
 		if (processingTicks > 0) {
 			heldItem.prevBeltPosition = .5f;
@@ -142,26 +141,26 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 					return;
 			}
 
-			BlockPos nextPosition = pos.offset(side);
+			BlockPos nextPosition = worldPosition.relative(side);
 			DirectBeltInputBehaviour directBeltInputBehaviour =
-				TileEntityBehaviour.get(world, nextPosition, DirectBeltInputBehaviour.TYPE);
+				TileEntityBehaviour.get(level, nextPosition, DirectBeltInputBehaviour.TYPE);
 			if (directBeltInputBehaviour == null) {
-				if (!BlockHelper.hasBlockSolidSide(world.getBlockState(nextPosition), world, nextPosition,
+				if (!BlockHelper.hasBlockSolidSide(level.getBlockState(nextPosition), level, nextPosition,
 					side.getOpposite())) {
 					ItemStack ejected = heldItem.stack;
-					Vector3d outPos = VecHelper.getCenterOf(pos)
-						.add(Vector3d.of(side.getDirectionVec())
+					Vec3 outPos = VecHelper.getCenterOf(worldPosition)
+						.add(Vec3.atLowerCornerOf(side.getNormal())
 							.scale(.75));
 					float movementSpeed = itemMovementPerTick();
-					Vector3d outMotion = Vector3d.of(side.getDirectionVec())
+					Vec3 outMotion = Vec3.atLowerCornerOf(side.getNormal())
 						.scale(movementSpeed)
 						.add(0, 1 / 8f, 0);
 					outPos.add(outMotion.normalize());
-					ItemEntity entity = new ItemEntity(world, outPos.x, outPos.y + 6 / 16f, outPos.z, ejected);
-					entity.setMotion(outMotion);
-					entity.setDefaultPickupDelay();
-					entity.velocityChanged = true;
-					world.addEntity(entity);
+					ItemEntity entity = new ItemEntity(level, outPos.x, outPos.y + 6 / 16f, outPos.z, ejected);
+					entity.setDeltaMovement(outMotion);
+					entity.setDefaultPickUpDelay();
+					entity.hurtMarked = true;
+					level.addFreshEntity(entity);
 
 					heldItem = null;
 					notifyUpdate();
@@ -175,8 +174,8 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 			ItemStack returned = directBeltInputBehaviour.handleInsertion(heldItem.copy(), side, false);
 
 			if (returned.isEmpty()) {
-				if (world.getTileEntity(nextPosition) instanceof ItemDrainTileEntity)
-					AllTriggers.triggerForNearbyPlayers(AllTriggers.CHAINED_ITEM_DRAIN, world, pos, 5);
+				if (level.getBlockEntity(nextPosition) instanceof ItemDrainTileEntity)
+					AllTriggers.triggerForNearbyPlayers(AllTriggers.CHAINED_ITEM_DRAIN, level, worldPosition, 5);
 				heldItem = null;
 				notifyUpdate();
 				return;
@@ -192,7 +191,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 		}
 
 		if (heldItem.prevBeltPosition < .5f && heldItem.beltPosition >= .5f) {
-			if (!EmptyingByBasin.canItemBeEmptied(world, heldItem.stack))
+			if (!EmptyingByBasin.canItemBeEmptied(level, heldItem.stack))
 				return;
 			heldItem.beltPosition = .5f;
 			if (onClient)
@@ -204,14 +203,14 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 	}
 
 	protected boolean continueProcessing() {
-		if (world.isRemote && !isVirtual())
+		if (level.isClientSide && !isVirtual())
 			return true;
 		if (processingTicks < 5)
 			return true;
-		if (!EmptyingByBasin.canItemBeEmptied(world, heldItem.stack))
+		if (!EmptyingByBasin.canItemBeEmptied(level, heldItem.stack))
 			return false;
 
-		Pair<FluidStack, ItemStack> emptyItem = EmptyingByBasin.emptyItem(world, heldItem.stack, true);
+		Pair<FluidStack, ItemStack> emptyItem = EmptyingByBasin.emptyItem(level, heldItem.stack, true);
 		FluidStack fluidFromItem = emptyItem.getFirst();
 
 		if (processingTicks > 5) {
@@ -226,8 +225,8 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 			return true;
 		}
 
-		emptyItem = EmptyingByBasin.emptyItem(world, heldItem.stack.copy(), false);
-		AllTriggers.triggerForNearbyPlayers(AllTriggers.ITEM_DRAIN, world, pos, 5);
+		emptyItem = EmptyingByBasin.emptyItem(level, heldItem.stack.copy(), false);
+		AllTriggers.triggerForNearbyPlayers(AllTriggers.ITEM_DRAIN, level, worldPosition, 5);
 
 		// Process finished
 		ItemStack out = emptyItem.getSecond();
@@ -248,8 +247,8 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 	}
 
 	@Override
-	public void remove() {
-		super.remove();
+	public void setRemoved() {
+		super.setRemoved();
 		for (LazyOptional<ItemDrainItemHandler> lazyOptional : itemHandlers.values())
 			lazyOptional.invalidate();
 	}
@@ -260,7 +259,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putInt("ProcessingTicks", processingTicks);
 		if (heldItem != null)
 			compound.put("HeldItem", heldItem.serializeNBT());
@@ -268,7 +267,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		heldItem = null;
 		processingTicks = compound.getInt("ProcessingTicks");
 		if (compound.contains("HeldItem"))
@@ -291,7 +290,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 //	}
 
 	@Override
-	public boolean addToGoggleTooltip(List<ITextComponent> tooltip, boolean isPlayerSneaking) {
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		return false;//containedFluidTooltip(tooltip, isPlayerSneaking, getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY));
 	}
 

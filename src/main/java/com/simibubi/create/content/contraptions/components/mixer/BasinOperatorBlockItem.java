@@ -1,14 +1,13 @@
 package com.simibubi.create.content.contraptions.components.mixer;
 
 import com.simibubi.create.AllBlocks;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BasinOperatorBlockItem extends BlockItem {
 
@@ -17,24 +16,24 @@ public class BasinOperatorBlockItem extends BlockItem {
 	}
 
 	@Override
-	public ActionResultType tryPlace(BlockItemUseContext context) {
-		BlockPos placedOnPos = context.getPos()
-			.offset(context.getFace()
+	public InteractionResult place(BlockPlaceContext context) {
+		BlockPos placedOnPos = context.getClickedPos()
+			.relative(context.getClickedFace()
 				.getOpposite());
-		BlockState placedOnState = context.getWorld()
+		BlockState placedOnState = context.getLevel()
 			.getBlockState(placedOnPos);
 		if (AllBlocks.BASIN.has(placedOnState) || AllBlocks.BELT.has(placedOnState)
 			|| AllBlocks.DEPOT.has(placedOnState) || AllBlocks.WEIGHTED_EJECTOR.has(placedOnState)) {
-			if (context.getWorld()
-				.getBlockState(placedOnPos.up(2))
+			if (context.getLevel()
+				.getBlockState(placedOnPos.above(2))
 				.getMaterial()
 				.isReplaceable())
-				context = BlockItemUseContext.func_221536_a(context, placedOnPos.up(2), Direction.UP);
+				context = BlockPlaceContext.at(context, placedOnPos.above(2), Direction.UP);
 			else
-				return ActionResultType.FAIL;
+				return InteractionResult.FAIL;
 		}
 
-		return super.tryPlace(context);
+		return super.place(context);
 	}
 
 }

@@ -1,27 +1,26 @@
 package com.simibubi.create.lib.helper;
 
 import java.util.List;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.lib.mixin.accessor.ItemRendererAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
 public final class ItemRendererHelper {
-	public static void renderBakedItemModel(ItemRenderer renderer, IBakedModel model, ItemStack stack, int light, int overlay, MatrixStack matrices, IVertexBuilder vertices) {
+	public static void renderBakedItemModel(ItemRenderer renderer, BakedModel model, ItemStack stack, int light, int overlay, PoseStack matrices, VertexConsumer vertices) {
 		get(renderer).create$renderBakedItemModel(model, stack, light, overlay, matrices, vertices);
 	}
 
-	public static void renderBakedItemQuads(ItemRenderer renderer, MatrixStack matricies, IVertexBuilder verticies, List<BakedQuad> quads, ItemStack stack, int light, int overlay) {
+	public static void renderBakedItemQuads(ItemRenderer renderer, PoseStack matricies, VertexConsumer verticies, List<BakedQuad> quads, ItemStack stack, int light, int overlay) {
 		get(renderer).create$renderBakedItemQuads(matricies, verticies, quads, stack, light, overlay);
 	}
 

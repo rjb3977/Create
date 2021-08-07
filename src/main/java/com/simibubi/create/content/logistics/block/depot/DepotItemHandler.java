@@ -4,8 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
 import com.simibubi.create.lib.lba.item.IItemHandler;
-
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class DepotItemHandler implements IItemHandler {
 

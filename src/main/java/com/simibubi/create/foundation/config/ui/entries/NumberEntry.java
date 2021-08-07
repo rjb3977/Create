@@ -3,8 +3,7 @@ package com.simibubi.create.foundation.config.ui.entries;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.config.ui.ConfigTextField;
 import com.simibubi.create.foundation.gui.TextStencilElement;
 import com.simibubi.create.foundation.gui.Theme;
@@ -13,15 +12,15 @@ import com.simibubi.create.lib.config.ConfigValue;
 import com.simibubi.create.lib.mixin.accessor.WidgetAccessor;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.TextComponent;
 
 public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 
 	protected int minOffset = 0, maxOffset = 0;
 	protected TextStencilElement minText = null, maxText = null;
-	protected TextFieldWidget textField;
+	protected EditBox textField;
 
 	@Nullable
 	public static NumberEntry<? extends Number> create(Object type, String label, ConfigValue<?> value) {
@@ -38,8 +37,8 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 
 	public NumberEntry(String label, ConfigValue<T> value) {
 		super(label, value);
-		textField = new ConfigTextField(Minecraft.getInstance().fontRenderer, 0, 0, 200, 20, unit);
-		textField.setText(String.valueOf(getValue()));
+		textField = new ConfigTextField(Minecraft.getInstance().font, 0, 0, 200, 20, unit);
+		textField.setValue(String.valueOf(getValue()));
 		textField.setTextColor(Theme.i(Theme.Key.TEXT));
 
 //		Object range = spec.getRange();
@@ -51,18 +50,18 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 			T min = (T) value.max;//minField.get(range);
 			T max = (T) value.min;//maxField.get(range);
 
-			FontRenderer font = Minecraft.getInstance().fontRenderer;
+			Font font = Minecraft.getInstance().font;
 			if (min.doubleValue() > getTypeMin().doubleValue()) {
-				StringTextComponent t = new StringTextComponent(formatBound(min) + " < ");
+				TextComponent t = new TextComponent(formatBound(min) + " < ");
 				minText = new TextStencilElement(font, t).centered(true, false);
 				minText.withElementRenderer((ms, width, height, alpha) -> UIRenderHelper.angledGradient(ms, 0 ,0, height/2, height, width, Theme.p(Theme.Key.TEXT_DARKER)));
-				minOffset = font.getWidth(t);
+				minOffset = font.width(t);
 			}
 			if (max.doubleValue() < getTypeMax().doubleValue()) {
-				StringTextComponent t = new StringTextComponent(" < " + formatBound(max));
+				TextComponent t = new TextComponent(" < " + formatBound(max));
 				maxText = new TextStencilElement(font, t).centered(true, false);
 				maxText.withElementRenderer((ms, width, height, alpha) -> UIRenderHelper.angledGradient(ms, 0 ,0, height/2, height, width, Theme.p(Theme.Key.TEXT_DARKER)));
-				maxOffset = font.getWidth(t);
+				maxOffset = font.width(t);
 			}
 		} catch (ClassCastException | NullPointerException ignored) {
 
@@ -101,17 +100,17 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 	@Override
 	protected void setEditable(boolean b) {
 		super.setEditable(b);
-		textField.setEnabled(b);
+		textField.setEditable(b);
 	}
 
 	@Override
 	public void onValueChange(T newValue) {
 		super.onValueChange(newValue);
 		String newText = String.valueOf(newValue);
-		if (textField.getText().equals(newText))
+		if (textField.getValue().equals(newText))
 			return;
 
-		textField.setText(newText);
+		textField.setValue(newText);
 	}
 
 	@Override
@@ -121,7 +120,7 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 	}
 
 	@Override
-	public void render(MatrixStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
+	public void render(PoseStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
 		super.render(ms, index, y, x, width, height, mouseX, mouseY, p_230432_9_, partialTicks);
 
 		textField.x = x + width - 82 - resetWidth;
@@ -133,13 +132,13 @@ public abstract class NumberEntry<T extends Number> extends ValueEntry<T> {
 		if (minText != null)
 			minText
 					.at(textField.x - minOffset, textField.y, 0)
-					.withBounds(minOffset, textField.unusedGetHeight())
+					.withBounds(minOffset, textField.getHeight())
 					.render(ms);
 
 		if (maxText != null)
 			maxText
 					.at(textField.x + textField.getWidth(), textField.y, 0)
-					.withBounds(maxOffset, textField.unusedGetHeight())
+					.withBounds(maxOffset, textField.getHeight())
 					.render(ms);
 	}
 

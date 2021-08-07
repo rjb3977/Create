@@ -1,16 +1,14 @@
 package com.simibubi.create.content.contraptions.components.fan;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.CKinetics;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 
 @MethodsReturnNonnullByDefault
 public interface IAirCurrentSource {
@@ -18,7 +16,7 @@ public interface IAirCurrentSource {
 	AirCurrent getAirCurrent();
 
 	@Nullable
-	World getAirCurrentWorld();
+	Level getAirCurrentWorld();
 
 	BlockPos getAirCurrentPos();
 
@@ -33,8 +31,8 @@ public interface IAirCurrentSource {
 		float speed = Math.abs(this.getSpeed());
 		CKinetics config = AllConfigs.SERVER.kinetics;
 		float distanceFactor = Math.min(speed / config.fanRotationArgmax.get(), 1);
-		float pushDistance = MathHelper.lerp(distanceFactor, 3, config.fanPushDistance.get());
-		float pullDistance = MathHelper.lerp(distanceFactor, 3f, config.fanPullDistance.get());
+		float pushDistance = Mth.lerp(distanceFactor, 3, config.fanPushDistance.get());
+		float pullDistance = Mth.lerp(distanceFactor, 3f, config.fanPullDistance.get());
 		return this.getSpeed() > 0 ? pushDistance : pullDistance;
 	}
 

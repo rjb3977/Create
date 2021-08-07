@@ -12,27 +12,26 @@ import com.simibubi.create.content.contraptions.processing.ProcessingOutput;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.utility.Lang;
-
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 
-public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
+public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 
 	ResourceLocation id;
 	SequencedAssemblyRecipeSerializer serializer;
@@ -51,15 +50,15 @@ public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
 		loops = 5;
 	}
 
-	public static <C extends IInventory, R extends ProcessingRecipe<C>> Optional<R> getRecipe(World world, C inv,
-		IRecipeType<R> type, Class<R> recipeClass) {
-		return getRecipe(world, inv.getStackInSlot(0), type, recipeClass).filter(r -> r.matches(inv, world));
+	public static <C extends Container, R extends ProcessingRecipe<C>> Optional<R> getRecipe(Level world, C inv,
+		RecipeType<R> type, Class<R> recipeClass) {
+		return getRecipe(world, inv.getItem(0), type, recipeClass).filter(r -> r.matches(inv, world));
 	}
 
-	public static <R extends ProcessingRecipe<?>> Optional<R> getRecipe(World world, ItemStack item,
-		IRecipeType<R> type, Class<R> recipeClass) {
+	public static <R extends ProcessingRecipe<?>> Optional<R> getRecipe(Level world, ItemStack item,
+		RecipeType<R> type, Class<R> recipeClass) {
 		List<SequencedAssemblyRecipe> all = world.getRecipeManager()
-			.<RecipeWrapper, SequencedAssemblyRecipe>listAllOfType(AllRecipeTypes.SEQUENCED_ASSEMBLY.getType());
+			.<RecipeWrapper, SequencedAssemblyRecipe>getAllRecipesFor(AllRecipeTypes.SEQUENCED_ASSEMBLY.getType());
 		for (SequencedAssemblyRecipe sequencedAssemblyRecipe : all) {
 			if (!sequencedAssemblyRecipe.appliesTo(item))
 				continue;
@@ -79,8 +78,8 @@ public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
 			return rollResult();
 
 		ItemStack advancedItem = ItemHandlerHelper.copyStackWithSize(getTransitionalItem(), 1);
-		CompoundNBT itemTag = advancedItem.getOrCreateTag();
-		CompoundNBT tag = new CompoundNBT();
+		CompoundTag itemTag = advancedItem.getOrCreateTag();
+		CompoundTag tag = new CompoundTag();
 		tag.putString("id", id.toString());
 		tag.putInt("Step", step + 1);
 		tag.putFloat("Progress", (step + 1f) / (sequence.size() * loops));
@@ -96,11 +95,11 @@ public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
 	public void addAdditionalIngredientsAndMachines(List<Ingredient> list) {
 		sequence.forEach(sr -> sr.getAsAssemblyRecipe()
 			.addAssemblyIngredients(list));
-		Set<IItemProvider> machines = new HashSet<>();
+		Set<ItemLike> machines = new HashSet<>();
 		sequence.forEach(sr -> sr.getAsAssemblyRecipe()
 			.addRequiredMachines(machines));
 		machines.stream()
-			.map(Ingredient::fromItems)
+			.map(Ingredient::of)
 			.forEach(list::add);
 	}
 
@@ -140,7 +139,7 @@ public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
 	private int getStep(ItemStack input) {
 		if (!input.hasTag())
 			return 0;
-		CompoundNBT tag = input.getTag();
+		CompoundTag tag = input.getTag();
 		if (!tag.contains("SequencedAssembly"))
 			return 0;
 		int step = tag.getCompound("SequencedAssembly")
@@ -149,7 +148,7 @@ public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, World p_77569_2_) {
+	public boolean matches(RecipeWrapper inv, Level p_77569_2_) {
 		return false;
 	}
 
@@ -159,12 +158,12 @@ public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
 	}
 
 	@Override
-	public boolean canFit(int p_194133_1_, int p_194133_2_) {
+	public boolean canCraftInDimensions(int p_194133_1_, int p_194133_2_) {
 		return false;
 	}
 
 	@Override
-	public ItemStack getRecipeOutput() {
+	public ItemStack getResultItem() {
 		return resultPool.get(0)
 			.getStack();
 	}
@@ -183,28 +182,28 @@ public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
 	}
 
 	@Override
-	public IRecipeSerializer<?> getSerializer() {
+	public RecipeSerializer<?> getSerializer() {
 		return serializer;
 	}
 
 	@Override
-	public IRecipeType<?> getType() {
+	public RecipeType<?> getType() {
 		return AllRecipeTypes.SEQUENCED_ASSEMBLY.getType();
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static void addToTooltip(List<ITextComponent> toolTip, ItemStack stack) {
+	public static void addToTooltip(List<Component> toolTip, ItemStack stack) {
 		if (!stack.hasTag() || !stack.getTag()
 			.contains("SequencedAssembly"))
 			return;
-		CompoundNBT compound = stack.getTag()
+		CompoundTag compound = stack.getTag()
 			.getCompound("SequencedAssembly");
 		ResourceLocation resourceLocation = new ResourceLocation(compound.getString("id"));
-		Optional<? extends IRecipe<?>> recipe = Minecraft.getInstance().world.getRecipeManager()
-			.getRecipe(resourceLocation);
+		Optional<? extends Recipe<?>> recipe = Minecraft.getInstance().level.getRecipeManager()
+			.byKey(resourceLocation);
 		if (!recipe.isPresent())
 			return;
-		IRecipe<?> iRecipe = recipe.get();
+		Recipe<?> iRecipe = recipe.get();
 		if (!(iRecipe instanceof SequencedAssemblyRecipe))
 			return;
 
@@ -212,25 +211,25 @@ public class SequencedAssemblyRecipe implements IRecipe<RecipeWrapper> {
 		int length = sequencedAssemblyRecipe.sequence.size();
 		int step = sequencedAssemblyRecipe.getStep(stack);
 		int total = length * sequencedAssemblyRecipe.loops;
-		toolTip.add(new StringTextComponent(""));
+		toolTip.add(new TextComponent(""));
 		toolTip.add(Lang.translate("recipe.sequenced_assembly")
-			.formatted(TextFormatting.GRAY));
+			.withStyle(ChatFormatting.GRAY));
 		toolTip.add(Lang.translate("recipe.assembly.progress", step, total)
-			.formatted(TextFormatting.DARK_GRAY));
+			.withStyle(ChatFormatting.DARK_GRAY));
 
 		int remaining = total - step;
 		for (int i = 0; i < length; i++) {
 			if (i >= remaining)
 				break;
 			SequencedRecipe<?> sequencedRecipe = sequencedAssemblyRecipe.sequence.get((i + step) % length);
-			ITextComponent textComponent = sequencedRecipe.getAsAssemblyRecipe()
+			Component textComponent = sequencedRecipe.getAsAssemblyRecipe()
 				.getDescriptionForAssembly();
 			if (i == 0)
 				toolTip.add(Lang.translate("recipe.assembly.next", textComponent)
-					.formatted(TextFormatting.AQUA));
+					.withStyle(ChatFormatting.AQUA));
 			else
-				toolTip.add(new StringTextComponent("-> ").append(textComponent)
-					.formatted(TextFormatting.DARK_AQUA));
+				toolTip.add(new TextComponent("-> ").append(textComponent)
+					.withStyle(ChatFormatting.DARK_AQUA));
 		}
 
 	}

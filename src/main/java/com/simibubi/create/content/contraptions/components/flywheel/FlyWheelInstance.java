@@ -1,10 +1,13 @@
 package com.simibubi.create.content.contraptions.components.flywheel;
 
-import static net.minecraft.state.properties.BlockStateProperties.HORIZONTAL_FACING;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 import java.util.Collections;
 import java.util.List;
-
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import com.google.common.collect.Lists;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
@@ -12,18 +15,13 @@ import com.jozufozu.flywheel.backend.instancing.InstanceMaterial;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.materials.ModelData;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileInstance;
 import com.simibubi.create.content.contraptions.base.RotatingData;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.MathHelper;
 
 public class FlyWheelInstance extends KineticTileInstance<FlywheelTileEntity> implements IDynamicInstance {
 
@@ -53,7 +51,7 @@ public class FlyWheelInstance extends KineticTileInstance<FlywheelTileEntity> im
 		shaft = setup(shaftModel().createInstance());
 
 		BlockState referenceState = blockState.rotate(Rotation.CLOCKWISE_90);
-		wheel = getTransformMaterial().getModel(AllBlockPartials.FLYWHEEL, referenceState, referenceState.get(HORIZONTAL_FACING)).createInstance();
+		wheel = getTransformMaterial().getModel(AllBlockPartials.FLYWHEEL, referenceState, referenceState.getValue(HORIZONTAL_FACING)).createInstance();
 
 		connection = FlywheelBlock.getConnection(blockState);
 		if (connection != null) {
@@ -94,7 +92,7 @@ public class FlyWheelInstance extends KineticTileInstance<FlywheelTileEntity> im
     }
 
     private void animate(float angle) {
-        MatrixStack ms = new MatrixStack();
+        PoseStack ms = new PoseStack();
         MatrixStacker msr = MatrixStacker.of(ms);
 
         msr.translate(getInstancePosition());
@@ -102,34 +100,34 @@ public class FlyWheelInstance extends KineticTileInstance<FlywheelTileEntity> im
         if (connection != null) {
             float rotation = angle * connectorAngleMult;
 
-            ms.push();
+            ms.pushPose();
             rotateToFacing(msr, connection);
 
-            ms.push();
+            ms.pushPose();
             transformConnector(msr, true, true, rotation, connectedLeft);
             upperRotating.setTransform(ms);
-            ms.pop();
+            ms.popPose();
 
-            ms.push();
+            ms.pushPose();
             transformConnector(msr, false, true, rotation, connectedLeft);
             lowerRotating.setTransform(ms);
-            ms.pop();
+            ms.popPose();
 
-            ms.push();
+            ms.pushPose();
             transformConnector(msr, true, false, rotation, connectedLeft);
             upperSliding.setTransform(ms);
-            ms.pop();
+            ms.popPose();
 
-            ms.push();
+            ms.pushPose();
             transformConnector(msr, false, false, rotation, connectedLeft);
             lowerSliding.setTransform(ms);
-            ms.pop();
+            ms.popPose();
 
-            ms.pop();
+            ms.popPose();
         }
 
         msr.centre()
-           .rotate(Direction.getFacingFromAxis(Direction.AxisDirection.POSITIVE, facing.getAxis()), AngleHelper.rad(angle))
+           .rotate(Direction.get(Direction.AxisDirection.POSITIVE, facing.getAxis()), AngleHelper.rad(angle))
            .unCentre();
 
         wheel.setTransform(ms);
@@ -167,14 +165,14 @@ public class FlyWheelInstance extends KineticTileInstance<FlywheelTileEntity> im
         float shift = upper ? 1 / 4f : -1 / 8f;
         float offset = upper ? 1 / 4f : 1 / 4f;
         float radians = (float) (angle / 180 * Math.PI);
-        float shifting = MathHelper.sin(radians) * shift + offset;
+        float shifting = Mth.sin(radians) * shift + offset;
 
         float maxAngle = upper ? -5 : -15;
         float minAngle = upper ? -45 : 5;
         float barAngle = 0;
 
         if (rotating)
-            barAngle = MathHelper.lerp((MathHelper.sin((float) (radians + Math.PI / 2)) + 1) / 2, minAngle, maxAngle);
+            barAngle = Mth.lerp((Mth.sin((float) (radians + Math.PI / 2)) + 1) / 2, minAngle, maxAngle);
 
         float pivotX = (upper ? 8f : 3f) / 16;
         float pivotY = (upper ? 8f : 2f) / 16;

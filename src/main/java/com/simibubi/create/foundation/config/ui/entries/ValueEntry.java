@@ -8,11 +8,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.base.Predicates;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.config.ui.ConfigScreen;
 import com.simibubi.create.foundation.config.ui.ConfigScreenList;
 import com.simibubi.create.foundation.gui.AllIcons;
@@ -22,13 +24,9 @@ import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.lib.config.ConfigValue;
 import com.simibubi.create.lib.mixin.accessor.AbstractList$AbstractListEntryAccessor;
 
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-
 public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 
-	protected static final IFormattableTextComponent modComponent = new StringTextComponent("* ").formatted(TextFormatting.BOLD, TextFormatting.DARK_BLUE).append(StringTextComponent.EMPTY.copy().formatted(TextFormatting.RESET));
+	protected static final MutableComponent modComponent = new TextComponent("* ").withStyle(ChatFormatting.BOLD, ChatFormatting.DARK_BLUE).append(TextComponent.EMPTY.plainCopy().withStyle(ChatFormatting.RESET));
 	protected static final int resetWidth = 28;//including 6px offset on either side
 	public static final Pattern unitPattern = Pattern.compile("\\[(in .*)]");
 
@@ -55,7 +53,7 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 		listeners.add(resetButton);
 
 		List path = Arrays.asList(Collections.singleton(value.key).toArray());
-		labelTooltip.add(new StringTextComponent(label).formatted(TextFormatting.WHITE));
+		labelTooltip.add(new TextComponent(label).withStyle(ChatFormatting.WHITE));
 		String comment = "";
 		if (value.comments != null && value.comments.size() != 0) {
 			comment = value.comments.get(0);
@@ -85,11 +83,11 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 		// add comment to tooltip
 		labelTooltip.addAll(Arrays.stream(commentLines)
 				.filter(Predicates.not(s -> s.startsWith("Range")))
-				.map(StringTextComponent::new)
-				.flatMap(stc -> TooltipHelper.cutTextComponent(stc, TextFormatting.GRAY, TextFormatting.GRAY)
+				.map(TextComponent::new)
+				.flatMap(stc -> TooltipHelper.cutTextComponent(stc, ChatFormatting.GRAY, ChatFormatting.GRAY)
 						.stream())
 				.collect(Collectors.toList()));
-		labelTooltip.add(new StringTextComponent(ConfigScreen.modID + ":" + path.get(path.size() - 1)).formatted(TextFormatting.DARK_GRAY));
+		labelTooltip.add(new TextComponent(ConfigScreen.modID + ":" + path.get(path.size() - 1)).withStyle(ChatFormatting.DARK_GRAY));
 	}
 
 	@Override
@@ -106,10 +104,10 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 	}
 
 	@Override
-	public void render(MatrixStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
+	public void render(PoseStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
 		if (isCurrentValueChanged()) {
-			IFormattableTextComponent original = label.getComponent();
-			IFormattableTextComponent changed = modComponent.copy().append(original);
+			MutableComponent original = label.getComponent();
+			MutableComponent changed = modComponent.plainCopy().append(original);
 			label.withText(changed);
 			super.render(ms, index, y, x, width, height, mouseX, mouseY, p_230432_9_, partialTicks);
 			label.withText(original);

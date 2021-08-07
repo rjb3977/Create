@@ -7,38 +7,37 @@ import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.utility.worldWrappers.WrappedWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-import net.minecraft.block.AbstractFurnaceBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-
-public class FurnaceEngineBlock extends EngineBlock implements ITE<FurnaceEngineTileEntity>, ITileEntityProvider {
+public class FurnaceEngineBlock extends EngineBlock implements ITE<FurnaceEngineTileEntity>, EntityBlock {
 
 	public FurnaceEngineBlock(Properties properties) {
 		super(properties);
 	}
 
 	@Override
-	protected boolean isValidBaseBlock(BlockState baseBlock, IBlockReader world, BlockPos pos) {
+	protected boolean isValidBaseBlock(BlockState baseBlock, BlockGetter world, BlockPos pos) {
 		return baseBlock.getBlock() instanceof AbstractFurnaceBlock;
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-		return AllShapes.FURNACE_ENGINE.get(state.get(HORIZONTAL_FACING));
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+		return AllShapes.FURNACE_ENGINE.get(state.getValue(FACING));
 	}
 
 	@Override
@@ -47,37 +46,37 @@ public class FurnaceEngineBlock extends EngineBlock implements ITE<FurnaceEngine
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.FURNACE_ENGINE.create();
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
 		super.neighborChanged(state, worldIn, pos, blockIn, fromPos, isMoving);
 		if (worldIn instanceof WrappedWorld)
 			return;
-		if (worldIn.isRemote)
+		if (worldIn.isClientSide)
 			return;
 
 		if (fromPos.equals(getBaseBlockPos(state, pos)))
-			if (isValidPosition(state, worldIn, pos))
+			if (canSurvive(state, worldIn, pos))
 				withTileEntityDo(worldIn, pos, FurnaceEngineTileEntity::updateFurnace);
 	}
 
-	public static ActionResultType usingFurnaceEngineOnFurnacePreventsGUI(PlayerEntity player, World world, Hand hand, BlockRayTraceResult hitResult) {
-		ItemStack heldStack = player.getHeldItem(hand);
+	public static InteractionResult usingFurnaceEngineOnFurnacePreventsGUI(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
+		ItemStack heldStack = player.getItemInHand(hand);
 		if (!(heldStack.getItem() instanceof BlockItem))
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 		BlockItem blockItem = (BlockItem) heldStack.getItem();
 		if (blockItem.getBlock() != AllBlocks.FURNACE_ENGINE.get())
-			return ActionResultType.PASS;
-		BlockState state = world.getBlockState(hitResult.getPos());
-		if (hitResult.getFace().getAxis().isVertical())
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
+		BlockState state = world.getBlockState(hitResult.getBlockPos());
+		if (hitResult.getDirection().getAxis().isVertical())
+			return InteractionResult.PASS;
 		if (state.getBlock() instanceof AbstractFurnaceBlock)
-			return ActionResultType.SUCCESS;
-		return ActionResultType.PASS;
+			return InteractionResult.SUCCESS;
+		return InteractionResult.PASS;
 	}
 
 	@Override

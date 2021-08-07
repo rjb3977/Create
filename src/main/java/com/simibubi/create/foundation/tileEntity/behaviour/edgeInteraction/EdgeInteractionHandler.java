@@ -2,63 +2,61 @@ package com.simibubi.create.foundation.tileEntity.behaviour.edgeInteraction;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.RaycastHelper;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
-
 public class EdgeInteractionHandler {
 
-	public static ActionResultType onBlockActivated(PlayerEntity player, World world, Hand hand, BlockRayTraceResult traceResult) {
-		ItemStack heldItem = player.getHeldItem(hand);
+	public static InteractionResult onBlockActivated(Player player, Level world, InteractionHand hand, BlockHitResult traceResult) {
+		ItemStack heldItem = player.getItemInHand(hand);
 
-		if (player.isSneaking() || player.isSpectator())
-			return ActionResultType.PASS;
-		EdgeInteractionBehaviour behaviour = TileEntityBehaviour.get(world, traceResult.getPos(), EdgeInteractionBehaviour.TYPE);
+		if (player.isShiftKeyDown() || player.isSpectator())
+			return InteractionResult.PASS;
+		EdgeInteractionBehaviour behaviour = TileEntityBehaviour.get(world, traceResult.getBlockPos(), EdgeInteractionBehaviour.TYPE);
 		if (behaviour == null)
-			return ActionResultType.PASS;
-		BlockRayTraceResult ray = RaycastHelper.rayTraceRange(world, player, 10);
+			return InteractionResult.PASS;
+		BlockHitResult ray = RaycastHelper.rayTraceRange(world, player, 10);
 		if (ray == null)
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 		if (behaviour.requiredItem.orElse(heldItem.getItem()) != heldItem.getItem())
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
-		Direction activatedDirection = getActivatedDirection(world, traceResult.getPos(), ray.getFace(), ray.getHitVec(), behaviour);
+		Direction activatedDirection = getActivatedDirection(world, traceResult.getBlockPos(), ray.getDirection(), ray.getLocation(), behaviour);
 		if (activatedDirection == null)
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
-		if (!world.isRemote)
-			behaviour.connectionCallback.apply(world, traceResult.getPos(), traceResult.getPos().offset(activatedDirection));
-		world.playSound(null, traceResult.getPos(), SoundEvents.ENTITY_ITEM_FRAME_ADD_ITEM, SoundCategory.BLOCKS, .25f, .1f);
-		return ActionResultType.SUCCESS;
+		if (!world.isClientSide)
+			behaviour.connectionCallback.apply(world, traceResult.getBlockPos(), traceResult.getBlockPos().relative(activatedDirection));
+		world.playSound(null, traceResult.getBlockPos(), SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .25f, .1f);
+		return InteractionResult.SUCCESS;
 	}
 
-	public static List<Direction> getConnectiveSides(World world, BlockPos pos, Direction face,
+	public static List<Direction> getConnectiveSides(Level world, BlockPos pos, Direction face,
 		EdgeInteractionBehaviour behaviour) {
 		List<Direction> sides = new ArrayList<>(6);
-		if (BlockHelper.hasBlockSolidSide(world.getBlockState(pos.offset(face)), world, pos.offset(face), face.getOpposite()))
+		if (BlockHelper.hasBlockSolidSide(world.getBlockState(pos.relative(face)), world, pos.relative(face), face.getOpposite()))
 			return sides;
 
 		for (Direction direction : Iterate.directions) {
 			if (direction.getAxis() == face.getAxis())
 				continue;
-			BlockPos neighbourPos = pos.offset(direction);
-			if (BlockHelper.hasBlockSolidSide(world.getBlockState(neighbourPos.offset(face)), world, neighbourPos.offset(face),
+			BlockPos neighbourPos = pos.relative(direction);
+			if (BlockHelper.hasBlockSolidSide(world.getBlockState(neighbourPos.relative(face)), world, neighbourPos.relative(face),
 				face.getOpposite()))
 				continue;
 			if (!behaviour.connectivityPredicate.test(world, pos, face, direction))
@@ -69,19 +67,19 @@ public class EdgeInteractionHandler {
 		return sides;
 	}
 
-	public static Direction getActivatedDirection(World world, BlockPos pos, Direction face, Vector3d hit,
+	public static Direction getActivatedDirection(Level world, BlockPos pos, Direction face, Vec3 hit,
 		EdgeInteractionBehaviour behaviour) {
 		for (Direction facing : getConnectiveSides(world, pos, face, behaviour)) {
-			AxisAlignedBB bb = getBB(pos, facing);
+			AABB bb = getBB(pos, facing);
 			if (bb.contains(hit))
 				return facing;
 		}
 		return null;
 	}
 
-	static AxisAlignedBB getBB(BlockPos pos, Direction direction) {
-		AxisAlignedBB bb = new AxisAlignedBB(pos);
-		Vector3i vec = direction.getDirectionVec();
+	static AABB getBB(BlockPos pos, Direction direction) {
+		AABB bb = new AABB(pos);
+		Vec3i vec = direction.getNormal();
 		int x = vec.getX();
 		int y = vec.getY();
 		int z = vec.getZ();
@@ -91,9 +89,9 @@ public class EdgeInteractionHandler {
 		double absZ = Math.abs(z) * margin;
 
 		bb = bb.contract(absX, absY, absZ);
-		bb = bb.offset(absX / 2d, absY / 2d, absZ / 2d);
-		bb = bb.offset(x / 2d, y / 2d, z / 2d);
-		bb = bb.grow(1 / 256f);
+		bb = bb.move(absX / 2d, absY / 2d, absZ / 2d);
+		bb = bb.move(x / 2d, y / 2d, z / 2d);
+		bb = bb.inflate(1 / 256f);
 		return bb;
 	}
 

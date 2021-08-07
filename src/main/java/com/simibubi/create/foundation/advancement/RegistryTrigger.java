@@ -4,11 +4,9 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -23,7 +21,7 @@ public class RegistryTrigger<T> extends StringSerializableTrigger<T> {
 	@Nullable
 	@Override
 	protected T getValue(String key) {
-		Optional<T> value = registry.getOrEmpty(new ResourceLocation(key));
+		Optional<T> value = registry.getOptional(new ResourceLocation(key));
 		return value.orElse(null);
 	}
 

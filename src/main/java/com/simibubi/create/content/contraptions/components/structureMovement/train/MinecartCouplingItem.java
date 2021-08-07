@@ -4,7 +4,15 @@ import com.simibubi.create.foundation.utility.Iterate;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllItems;
@@ -14,68 +22,58 @@ import com.simibubi.create.lib.utility.MinecartAndRailUtil;
 import com.tterrag.registrate.fabric.EnvExecutor;
 import com.simibubi.create.foundation.utility.Iterate;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.world.World;
-
 public class MinecartCouplingItem extends Item {
 
 	public MinecartCouplingItem(Properties p_i48487_1_) {
 		super(p_i48487_1_);
 	}
 
-	public static ActionResultType handleInteractionWithMinecart(PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityRayTraceResult hitResult) {
+	public static InteractionResult handleInteractionWithMinecart(Player player, Level world, InteractionHand hand, Entity entity, @Nullable EntityHitResult hitResult) {
 //		Entity interacted = event.getTarget();
-		if (!(entity instanceof AbstractMinecartEntity))
-			return ActionResultType.PASS;
-		AbstractMinecartEntity minecart = (AbstractMinecartEntity) entity;
+		if (!(entity instanceof AbstractMinecart))
+			return InteractionResult.PASS;
+		AbstractMinecart minecart = (AbstractMinecart) entity;
 //		PlayerEntity player = event.getPlayer();
 		if (player == null)
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 		LazyOptional<MinecartController> capability = LazyOptional.ofObject((MinecartController) MinecartAndRailUtil.getController(minecart));
 
 		if (!capability.isPresent())
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 		MinecartController controller = capability.orElse(null);
 
-		ItemStack heldItem = player.getHeldItem(hand);
+		ItemStack heldItem = player.getItemInHand(hand);
 		if (AllItems.MINECART_COUPLING.isIn(heldItem)) {
-			if (!onCouplingInteractOnMinecart(player.world, minecart, player, controller))
-				return ActionResultType.PASS;
+			if (!onCouplingInteractOnMinecart(player.level, minecart, player, controller))
+				return InteractionResult.PASS;
 		} else if (AllItems.WRENCH.isIn(heldItem)) {
-			if (!onWrenchInteractOnMinecart(player.world, minecart, player, controller))
-				return ActionResultType.PASS;
+			if (!onWrenchInteractOnMinecart(player.level, minecart, player, controller))
+				return InteractionResult.PASS;
 		} else
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
-	protected static boolean onCouplingInteractOnMinecart(World world,
-		AbstractMinecartEntity minecart, PlayerEntity player, MinecartController controller) {
+	protected static boolean onCouplingInteractOnMinecart(Level world,
+		AbstractMinecart minecart, Player player, MinecartController controller) {
 //		World world = event.getWorld();
 		if (controller.isFullyCoupled()) {
-			if (!world.isRemote)
+			if (!world.isClientSide)
 				CouplingHandler.status(player, "two_couplings_max");
 			return true;
 		}
-		if (world != null && world.isRemote)
+		if (world != null && world.isClientSide)
 			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> cartClicked(player, minecart));
 		return true;
 	}
 
-	private static boolean onWrenchInteractOnMinecart(World world, AbstractMinecartEntity minecart,
-		PlayerEntity player, MinecartController controller) {
+	private static boolean onWrenchInteractOnMinecart(Level world, AbstractMinecart minecart,
+		Player player, MinecartController controller) {
 		int couplings = (controller.isConnectedToCoupling() ? 1 : 0) + (controller.isLeadingCoupling() ? 1 : 0);
 		if (couplings == 0)
 			return false;
-		if (world.isRemote)
+		if (world.isClientSide)
 			return true;
 
 		for (boolean forward : Iterate.trueAndFalse) {
@@ -92,8 +90,8 @@ public class MinecartCouplingItem extends Item {
 	}
 
 	@Environment(EnvType.CLIENT)
-	private static void cartClicked(PlayerEntity player, AbstractMinecartEntity interacted) {
-		CouplingHandlerClient.onCartClicked(player, (AbstractMinecartEntity) interacted);
+	private static void cartClicked(Player player, AbstractMinecart interacted) {
+		CouplingHandlerClient.onCartClicked(player, (AbstractMinecart) interacted);
 	}
 
 }

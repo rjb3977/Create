@@ -16,12 +16,12 @@ import com.simibubi.create.AllSpecialTextures;
 import com.simibubi.create.CreateClient;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 public class ChassisRangeDisplay {
 
@@ -43,7 +43,7 @@ public class ChassisRangeDisplay {
 		}
 
 		protected Object getOutlineKey() {
-			return Pair.of(te.getPos(), 1);
+			return Pair.of(te.getBlockPos(), 1);
 		}
 
 		protected Set<BlockPos> createSelection(ChassisTileEntity chassis) {
@@ -87,9 +87,9 @@ public class ChassisRangeDisplay {
 	static List<GroupEntry> groupEntries = new ArrayList<>();
 
 	public static void tick() {
-		PlayerEntity player = Minecraft.getInstance().player;
-		World world = Minecraft.getInstance().world;
-		boolean hasWrench = AllItems.WRENCH.isIn(player.getHeldItemMainhand());
+		Player player = Minecraft.getInstance().player;
+		Level world = Minecraft.getInstance().level;
+		boolean hasWrench = AllItems.WRENCH.isIn(player.getMainHandItem());
 
 		for (Iterator<BlockPos> iterator = entries.keySet()
 			.iterator(); iterator.hasNext();) {
@@ -113,12 +113,12 @@ public class ChassisRangeDisplay {
 		if (!hasWrench)
 			return;
 
-		RayTraceResult over = Minecraft.getInstance().objectMouseOver;
-		if (!(over instanceof BlockRayTraceResult))
+		HitResult over = Minecraft.getInstance().hitResult;
+		if (!(over instanceof BlockHitResult))
 			return;
-		BlockRayTraceResult ray = (BlockRayTraceResult) over;
-		BlockPos pos = ray.getPos();
-		TileEntity tileEntity = world.getTileEntity(pos);
+		BlockHitResult ray = (BlockHitResult) over;
+		BlockPos pos = ray.getBlockPos();
+		BlockEntity tileEntity = world.getBlockEntity(pos);
 		if (tileEntity == null || tileEntity.isRemoved())
 			return;
 		if (!(tileEntity instanceof ChassisTileEntity))
@@ -131,7 +131,7 @@ public class ChassisRangeDisplay {
 			GroupEntry existingGroupForPos = getExistingGroupForPos(pos);
 			if (existingGroupForPos != null) {
 				for (ChassisTileEntity included : existingGroupForPos.includedTEs)
-					entries.remove(included.getPos());
+					entries.remove(included.getBlockPos());
 				existingGroupForPos.timer = DISPLAY_TIME;
 				return;
 			}
@@ -147,11 +147,11 @@ public class ChassisRangeDisplay {
 
 	private static boolean tickEntry(Entry entry, boolean hasWrench) {
 		ChassisTileEntity chassisTileEntity = entry.te;
-		World teWorld = chassisTileEntity.getWorld();
-		World world = Minecraft.getInstance().world;
+		Level teWorld = chassisTileEntity.getLevel();
+		Level world = Minecraft.getInstance().level;
 
 		if (chassisTileEntity.isRemoved() || teWorld == null || teWorld != world
-			|| !world.isBlockPresent(chassisTileEntity.getPos())) {
+			|| !world.isLoaded(chassisTileEntity.getBlockPos())) {
 			return true;
 		}
 
@@ -173,7 +173,7 @@ public class ChassisRangeDisplay {
 			GroupEntry hoveredGroup = new GroupEntry(chassis);
 
 			for (ChassisTileEntity included : hoveredGroup.includedTEs)
-				CreateClient.OUTLINER.remove(included.getPos());
+				CreateClient.OUTLINER.remove(included.getBlockPos());
 
 			groupEntries.forEach(entry -> CreateClient.OUTLINER.remove(entry.getOutlineKey()));
 			groupEntries.clear();
@@ -183,7 +183,7 @@ public class ChassisRangeDisplay {
 		}
 
 		// Display an individual chassis and kill any group selections that contained it
-		BlockPos pos = chassis.getPos();
+		BlockPos pos = chassis.getBlockPos();
 		GroupEntry entry = getExistingGroupForPos(pos);
 		if (entry != null)
 			CreateClient.OUTLINER.remove(entry.getOutlineKey());
@@ -197,7 +197,7 @@ public class ChassisRangeDisplay {
 	private static GroupEntry getExistingGroupForPos(BlockPos pos) {
 		for (GroupEntry groupEntry : groupEntries)
 			for (ChassisTileEntity chassis : groupEntry.includedTEs)
-				if (pos.equals(chassis.getPos()))
+				if (pos.equals(chassis.getBlockPos()))
 					return groupEntry;
 		return null;
 	}

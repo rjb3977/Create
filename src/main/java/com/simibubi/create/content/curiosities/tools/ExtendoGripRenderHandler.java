@@ -1,7 +1,7 @@
 package com.simibubi.create.content.curiosities.tools;
 
 import com.jozufozu.flywheel.core.PartialModel;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
@@ -10,17 +10,17 @@ import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.lib.helper.FirstPersonRendererHelper;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.FirstPersonRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 
 public class ExtendoGripRenderHandler {
 
@@ -30,7 +30,7 @@ public class ExtendoGripRenderHandler {
 
 	public static void tick() {
 		lastMainHandAnimation = mainHandAnimation;
-		mainHandAnimation *= MathHelper.clamp(mainHandAnimation, 0.8f, 0.99f);
+		mainHandAnimation *= Mth.clamp(mainHandAnimation, 0.8f, 0.99f);
 
 		pose = AllBlockPartials.DEPLOYER_HAND_PUNCHING;
 		if (!AllItems.EXTENDO_GRIP.isIn(getRenderedOffHandStack()))
@@ -42,16 +42,16 @@ public class ExtendoGripRenderHandler {
 			return;
 		if (!Minecraft.getInstance()
 			.getItemRenderer()
-			.getItemModelWithOverrides(main, null, null)
+			.getModel(main, null, null)
 			.isGui3d())
 			return;
 		pose = AllBlockPartials.DEPLOYER_HAND_HOLDING;
 	}
 
-	public static boolean onRenderPlayerHand(AbstractClientPlayerEntity client, Hand hand, ItemStack heldItem, MatrixStack ms, IRenderTypeBuffer vertexConsumers, float tickDelta, float pitch, float swingProgress, float equipProgress, int light) {
+	public static boolean onRenderPlayerHand(AbstractClientPlayer client, InteractionHand hand, ItemStack heldItem, PoseStack ms, MultiBufferSource vertexConsumers, float tickDelta, float pitch, float swingProgress, float equipProgress, int light) {
 		Minecraft mc = Minecraft.getInstance();
-		ClientPlayerEntity player = mc.player;
-		boolean rightHand = hand == Hand.MAIN_HAND ^ player.getPrimaryHand() == HandSide.LEFT;
+		LocalPlayer player = mc.player;
+		boolean rightHand = hand == InteractionHand.MAIN_HAND ^ player.getMainArm() == HumanoidArm.LEFT;
 
 		ItemStack offhandItem = getRenderedOffHandStack();
 		boolean notInOffhand = !ExtendoGripItem.isActiveExtendoGrip(offhandItem);
@@ -59,26 +59,26 @@ public class ExtendoGripRenderHandler {
 			return false;
 
 		MatrixStacker msr = MatrixStacker.of(ms);
-		AbstractClientPlayerEntity abstractclientplayerentity = mc.player;
+		AbstractClientPlayer abstractclientplayerentity = mc.player;
 		mc.getTextureManager()
-			.bindTexture(abstractclientplayerentity.getLocationSkin());
+			.bind(abstractclientplayerentity.getSkinTextureLocation());
 
 		float flip = rightHand ? 1.0F : -1.0F;
 		boolean blockItem = heldItem.getItem() instanceof BlockItem;
 
-		ms.push();
-		if (hand == Hand.MAIN_HAND) {
+		ms.pushPose();
+		if (hand == InteractionHand.MAIN_HAND) {
 
 			if (1 - swingProgress > mainHandAnimation && swingProgress > 0)
 				mainHandAnimation = 0.95f;
-			float animation = MathHelper.lerp(AnimationTickHolder.getPartialTicks(),
+			float animation = Mth.lerp(AnimationTickHolder.getPartialTicks(),
 											  ExtendoGripRenderHandler.lastMainHandAnimation,
 											  ExtendoGripRenderHandler.mainHandAnimation);
 			animation = animation * animation * animation;
 
 			ms.translate(flip * (0.64000005F - .1f), -0.4F + equipProgress * -0.6F, -0.71999997F + .3f);
 
-			ms.push();
+			ms.pushPose();
 			msr.rotateY(flip * 75.0F);
 			ms.translate(flip * -1.0F, 3.6F, 3.5F);
 			msr.rotateZ(flip * 120)
@@ -88,29 +88,29 @@ public class ExtendoGripRenderHandler {
 			msr.rotateY(flip * 40.0F);
 			ms.translate(flip * 0.05f, -0.3f, -0.3f);
 
-			PlayerRenderer playerrenderer = (PlayerRenderer) mc.getRenderManager()
+			PlayerRenderer playerrenderer = (PlayerRenderer) mc.getEntityRenderDispatcher()
 				.getRenderer(player);
 			if (rightHand)
-				playerrenderer.renderRightArm(ms, vertexConsumers, light, player);
+				playerrenderer.renderRightHand(ms, vertexConsumers, light, player);
 			else
-				playerrenderer.renderLeftArm(ms, vertexConsumers, light, player);
-			ms.pop();
+				playerrenderer.renderLeftHand(ms, vertexConsumers, light, player);
+			ms.popPose();
 
 			// Render gun
-			ms.push();
+			ms.pushPose();
 			ms.translate(flip * -0.1f, 0, -0.3f);
-			FirstPersonRenderer firstPersonRenderer = mc.getFirstPersonRenderer();
+			ItemInHandRenderer firstPersonRenderer = mc.getItemInHandRenderer();
 			TransformType transform =
 				rightHand ? TransformType.FIRST_PERSON_RIGHT_HAND : TransformType.FIRST_PERSON_LEFT_HAND;
 			firstPersonRenderer.renderItem(mc.player, notInOffhand ? heldItem : offhandItem, transform, !rightHand,
 				ms, vertexConsumers, light);
 
 			if (!notInOffhand) {
-				mc.getItemRenderer().getItemModelWithOverrides(offhandItem, null, null).getItemCameraTransforms().getTransform(transform).apply(!rightHand, ms);
+				mc.getItemRenderer().getModel(offhandItem, null, null).getTransforms().getTransform(transform).apply(!rightHand, ms);
 				ms.translate(flip * -.05f, .15f, -1.2f);
 				ms.translate(0, 0, -animation * 2.25f);
 				if (blockItem && mc.getItemRenderer()
-					.getItemModelWithOverrides(heldItem, null, null)
+					.getModel(heldItem, null, null)
 					.isGui3d()) {
 					msr.rotateY(flip * 45);
 					ms.translate(flip * 0.15f, -0.15f, -.05f);
@@ -121,18 +121,18 @@ public class ExtendoGripRenderHandler {
 					vertexConsumers, light);
 			}
 
-			ms.pop();
+			ms.popPose();
 		}
-		ms.pop();
+		ms.popPose();
 		return true;
 	}
 
 	private static ItemStack getRenderedMainHandStack() {
-		return FirstPersonRendererHelper.getStackInMainHand(Minecraft.getInstance().getFirstPersonRenderer());
+		return FirstPersonRendererHelper.getStackInMainHand(Minecraft.getInstance().getItemInHandRenderer());
 	}
 
 	private static ItemStack getRenderedOffHandStack() {
-		return FirstPersonRendererHelper.getStackInOffHand(Minecraft.getInstance().getFirstPersonRenderer());
+		return FirstPersonRendererHelper.getStackInOffHand(Minecraft.getInstance().getItemInHandRenderer());
 	}
 
 }

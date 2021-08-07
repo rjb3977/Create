@@ -1,13 +1,11 @@
 package com.simibubi.create.foundation.ponder.instructions;
 
 import java.util.function.UnaryOperator;
-
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.foundation.ponder.PonderScene;
 import com.simibubi.create.foundation.ponder.PonderWorld;
 import com.simibubi.create.foundation.ponder.Selection;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 
 public class ReplaceBlocksInstruction extends WorldModifyInstruction {
 
@@ -28,14 +26,14 @@ public class ReplaceBlocksInstruction extends WorldModifyInstruction {
 		PonderWorld world = scene.getWorld();
 		selection.forEach(pos -> {
 			if (!world.getBounds()
-				.isVecInside(pos))
+				.isInside(pos))
 				return;
 			BlockState prevState = world.getBlockState(pos);
-			if (!replaceAir && prevState == Blocks.AIR.getDefaultState())
+			if (!replaceAir && prevState == Blocks.AIR.defaultBlockState())
 				return;
 			if (spawnParticles)
 				world.addBlockDestroyEffects(pos, prevState);
-			world.setBlockState(pos, stateToUse.apply(prevState));
+			world.setBlockAndUpdate(pos, stateToUse.apply(prevState));
 		});
 	}
 

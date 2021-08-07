@@ -6,12 +6,12 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.ParticleProvider;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ParticleManager.class)
+@Mixin(ParticleEngine.class)
 public interface ParticleManagerAccessor {
 	@Accessor("factories")
-	Int2ObjectMap<IParticleFactory<?>> getFactories();
+	Int2ObjectMap<ParticleProvider<?>> getFactories();
 }

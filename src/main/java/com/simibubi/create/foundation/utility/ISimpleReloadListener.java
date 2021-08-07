@@ -2,22 +2,21 @@ package com.simibubi.create.foundation.utility;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IFutureReloadListener;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Unit;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 @FunctionalInterface
-public interface ISimpleReloadListener extends IFutureReloadListener {
+public interface ISimpleReloadListener extends PreparableReloadListener {
 
 	@Override
-	default CompletableFuture<Void> reload(IFutureReloadListener.IStage stage, IResourceManager resourceManager, IProfiler prepareProfiler, IProfiler applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
-		return stage.markCompleteAwaitingOthers(Unit.INSTANCE).thenRunAsync(() -> {
+	default CompletableFuture<Void> reload(PreparableReloadListener.PreparationBarrier stage, ResourceManager resourceManager, ProfilerFiller prepareProfiler, ProfilerFiller applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
+		return stage.wait(Unit.INSTANCE).thenRunAsync(() -> {
 			onReload(resourceManager, applyProfiler);
 		}, applyExecutor);
 	}
 
-	void onReload(IResourceManager resourceManager, IProfiler profiler);
+	void onReload(ResourceManager resourceManager, ProfilerFiller profiler);
 
 }

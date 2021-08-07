@@ -6,7 +6,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.util.Mth;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.simibubi.create.foundation.config.AllConfigs;
@@ -14,19 +20,11 @@ import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-
 public class ItemHelper {
 
-	public static void dropContents(World world, BlockPos pos, IItemHandler inv) {
+	public static void dropContents(Level world, BlockPos pos, IItemHandler inv) {
 		for (int slot = 0; slot < inv.getSlots(); slot++)
-			InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), inv.getStackInSlot(slot));
+			Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), inv.getStackInSlot(slot));
 	}
 
 	public static List<ItemStack> multipliedOutput(ItemStack in, ItemStack out) {
@@ -90,7 +88,7 @@ public class ItemHelper {
 			return 0;
 
 		f = f / totalSlots;
-		return MathHelper.floor(f * 14.0F) + (i > 0 ? 1 : 0);
+		return Mth.floor(f * 14.0F) + (i > 0 ? 1 : 0);
 	}
 
 	public static List<Pair<Ingredient, MutableInt>> condenseIngredients(NonNullList<Ingredient> recipeIngredients) {
@@ -98,8 +96,8 @@ public class ItemHelper {
 		Ingredients: for (Ingredient igd : recipeIngredients) {
 			for (Pair<Ingredient, MutableInt> pair : actualIngredients) {
 				ItemStack[] stacks1 = pair.getFirst()
-					.getMatchingStacks();
-				ItemStack[] stacks2 = igd.getMatchingStacks();
+					.getItems();
+				ItemStack[] stacks2 = igd.getItems();
 				if (stacks1.length != stacks2.length)
 					continue;
 				for (int i = 0; i <= stacks1.length; i++) {
@@ -108,7 +106,7 @@ public class ItemHelper {
 							.increment();
 						continue Ingredients;
 					}
-					if (!ItemStack.areItemStacksEqual(stacks1[i], stacks2[i]))
+					if (!ItemStack.matches(stacks1[i], stacks2[i]))
 						break;
 				}
 			}
@@ -118,11 +116,11 @@ public class ItemHelper {
 	}
 
 	public static boolean matchIngredients(Ingredient i1, Ingredient i2) {
-		ItemStack[] stacks1 = i1.getMatchingStacks();
-		ItemStack[] stacks2 = i2.getMatchingStacks();
+		ItemStack[] stacks1 = i1.getItems();
+		ItemStack[] stacks2 = i2.getItems();
 		if (stacks1.length == stacks2.length) {
 			for (int i = 0; i < stacks1.length; i++)
-				if (!ItemStack.areItemsEqual(stacks1[i], stacks2[i]))
+				if (!ItemStack.isSame(stacks1[i], stacks2[i]))
 					return false;
 			return true;
 		}

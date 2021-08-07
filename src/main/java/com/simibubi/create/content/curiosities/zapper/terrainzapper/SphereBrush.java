@@ -4,14 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.VecHelper;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
 
 public class SphereBrush extends ShapedBrush {
 
@@ -25,7 +23,7 @@ public class SphereBrush extends ShapedBrush {
 		for (int i = 0; i <= MAX_RADIUS; i++) {
 			int radius = i;
 			List<BlockPos> positions =
-				BlockPos.getAllInBox(BlockPos.ZERO.add(-i - 1, -i - 1, -i - 1), BlockPos.ZERO.add(i + 1, i + 1, i + 1))
+				BlockPos.betweenClosedStream(BlockPos.ZERO.offset(-i - 1, -i - 1, -i - 1), BlockPos.ZERO.offset(i + 1, i + 1, i + 1))
 						.map(BlockPos::new).filter(p -> VecHelper.getCenterOf(p)
 								.distanceTo(VecHelper.getCenterOf(BlockPos.ZERO)) < radius + .5f)
 						.collect(Collectors.toList());
@@ -34,14 +32,14 @@ public class SphereBrush extends ShapedBrush {
 	}
 
 	@Override
-	public BlockPos getOffset(Vector3d ray, Direction face, PlacementOptions option) {
+	public BlockPos getOffset(Vec3 ray, Direction face, PlacementOptions option) {
 		if (option == PlacementOptions.Merged)
 			return BlockPos.ZERO;
 
 		int offset = option == PlacementOptions.Attached ? 0 : -1;
 		int r = (param0 + 1 + offset);
 
-		return BlockPos.ZERO.offset(face, r * (option == PlacementOptions.Attached ? 1 : -1));
+		return BlockPos.ZERO.relative(face, r * (option == PlacementOptions.Attached ? 1 : -1));
 	}
 
 	@Override
@@ -50,7 +48,7 @@ public class SphereBrush extends ShapedBrush {
 	}
 
 	@Override
-	ITextComponent getParamLabel(int paramIndex) {
+	Component getParamLabel(int paramIndex) {
 		return Lang.translate("generic.radius");
 	}
 

@@ -1,13 +1,17 @@
 package com.simibubi.create.content.logistics.item.filter;
 
 import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
-import static net.minecraft.util.text.TextFormatting.GRAY;
+import static net.minecraft.ChatFormatting.GRAY;
 
 import java.util.Collections;
 import java.util.List;
-
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Inventory;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.logistics.item.filter.FilterScreenPacket.Option;
 import com.simibubi.create.foundation.gui.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
@@ -22,21 +26,15 @@ import com.simibubi.create.foundation.networking.AllPackets;
 
 import com.simibubi.create.lib.utility.ItemStackUtil;
 
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.renderer.Rectangle2d;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-
 public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> extends AbstractSimiContainerScreen<F> {
 
 	protected AllGuiTextures background;
-    private List<Rectangle2d> extraAreas = Collections.emptyList();
+    private List<Rect2i> extraAreas = Collections.emptyList();
 
 	private IconButton resetButton;
 	private IconButton confirmButton;
 
-	protected AbstractFilterScreen(F container, PlayerInventory inv, ITextComponent title, AllGuiTextures background) {
+	protected AbstractFilterScreen(F container, Inventory inv, Component title, AllGuiTextures background) {
 		super(container, inv, title);
 		this.background = background;
 	}
@@ -47,8 +45,8 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> ex
 		super.init();
 		widgets.clear();
 
-		int x = guiLeft;
-		int y = guiTop;
+		int x = leftPos;
+		int y = topPos;
 
 		resetButton = new IconButton(x + background.width - 62, y + background.height - 24, AllIcons.I_TRASH);
 		confirmButton = new IconButton(x + background.width - 33, y + background.height - 24, AllIcons.I_CONFIRM);
@@ -57,23 +55,23 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> ex
 		widgets.add(confirmButton);
 
 		extraAreas = ImmutableList.of(
-			new Rectangle2d(x + background.width, y + background.height - 40, 80, 48)
+			new Rect2i(x + background.width, y + background.height - 40, 80, 48)
 		);
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		int invX = getLeftOfCentered(PLAYER_INVENTORY.width);
-		int invY = guiTop + background.height + 4;
+		int invY = topPos + background.height + 4;
 		renderPlayerInventory(ms, invX, invY);
 
-		int x = guiLeft;
-		int y = guiTop;
+		int x = leftPos;
+		int y = topPos;
 
 		background.draw(ms, this, x, y);
-		drawCenteredText(ms, textRenderer, title, x + (background.width - 8) / 2, y + 3, 0xFFFFFF);
+		drawCenteredString(ms, font, title, x + (background.width - 8) / 2, y + 3, 0xFFFFFF);
 
-		GuiGameElement.of(container.contentHolder)
+		GuiGameElement.of(menu.contentHolder)
 				.<GuiGameElement.GuiRenderBuilder>at(x + background.width, y + background.height - 56, -200)
 				.scale(5)
 				.render(ms);
@@ -85,15 +83,15 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> ex
 		super.tick();
 		handleIndicators();
 
-		if (!ItemStackUtil.equals(container.player.getHeldItemMainhand(), container.contentHolder, false))
-			client.player.closeScreen();
+		if (!ItemStackUtil.equals(menu.player.getMainHandItem(), menu.contentHolder, false))
+			minecraft.player.closeContainer();
 	}
 
 	public void handleIndicators() {
 		List<IconButton> tooltipButtons = getTooltipButtons();
 		for (IconButton button : tooltipButtons)
 			button.active = isButtonEnabled(button);
-		for (Widget w : widgets)
+		for (AbstractWidget w : widgets)
 			if (w instanceof Indicator)
 				((Indicator) w).state = isIndicatorOn((Indicator) w) ? State.ON : State.OFF;
 	}
@@ -116,7 +114,7 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> ex
 		}
 
 		if (hasShiftDown()) {
-			List<IFormattableTextComponent> tooltipDescriptions = getTooltipDescriptions();
+			List<MutableComponent> tooltipDescriptions = getTooltipDescriptions();
 			for (int i = 0; i < tooltipButtons.size(); i++)
 				fillToolTip(tooltipButtons.get(i), tooltipDescriptions.get(i));
 		}
@@ -126,14 +124,14 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> ex
 		return Collections.emptyList();
 	}
 
-	protected List<IFormattableTextComponent> getTooltipDescriptions() {
+	protected List<MutableComponent> getTooltipDescriptions() {
 		return Collections.emptyList();
 	}
 
-	private void fillToolTip(IconButton button, ITextComponent tooltip) {
+	private void fillToolTip(IconButton button, Component tooltip) {
 		if (!button.isHovered())
 			return;
-		List<ITextComponent> tip = button.getToolTip();
+		List<Component> tip = button.getToolTip();
 		tip.addAll(TooltipHelper.cutTextComponent(tooltip, GRAY, GRAY));
 	}
 
@@ -143,13 +141,13 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> ex
 
 		if (button == 0) {
 			if (confirmButton.isHovered()) {
-				client.player.closeScreen();
+				minecraft.player.closeContainer();
 				return true;
 			}
 			if (resetButton.isHovered()) {
-				container.clearContents();
+				menu.clearContents();
 				contentsCleared();
-				container.sendClearPacket();
+				menu.sendClearPacket();
 				return true;
 			}
 		}
@@ -164,7 +162,7 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> ex
 	}
 
 	@Override
-	public List<Rectangle2d> getExtraAreas() {
+	public List<Rect2i> getExtraAreas() {
 		return extraAreas;
 	}
 

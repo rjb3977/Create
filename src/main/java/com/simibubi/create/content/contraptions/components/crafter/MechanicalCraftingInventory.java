@@ -3,16 +3,15 @@ package com.simibubi.create.content.contraptions.components.crafter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.simibubi.create.content.contraptions.components.crafter.RecipeGridHandler.GroupedItems;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
+public class MechanicalCraftingInventory extends CraftingContainer {
 
-public class MechanicalCraftingInventory extends CraftingInventory {
-
-	private static Container dummyContainer = new Container(null, -1) {
-		public boolean canInteractWith(PlayerEntity playerIn) {
+	private static AbstractContainerMenu dummyContainer = new AbstractContainerMenu(null, -1) {
+		public boolean stillValid(Player playerIn) {
 			return false;
 		}
 	};
@@ -22,7 +21,7 @@ public class MechanicalCraftingInventory extends CraftingInventory {
 		for (int y = 0; y < items.height; y++) {
 			for (int x = 0; x < items.width; x++) {
 				ItemStack stack = items.grid.get(Pair.of(x + items.minX, y + items.minY));
-				setInventorySlotContents(x + (items.height - y - 1) * items.width,
+				setItem(x + (items.height - y - 1) * items.width,
 						stack == null ? ItemStack.EMPTY : stack.copy());
 			}
 		}

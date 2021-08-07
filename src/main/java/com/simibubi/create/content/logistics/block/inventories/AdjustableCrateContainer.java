@@ -5,42 +5,42 @@ import com.simibubi.create.AllContainerTypes;
 import com.simibubi.create.lib.lba.item.SlotItemHandler;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class AdjustableCrateContainer extends Container {
+public class AdjustableCrateContainer extends AbstractContainerMenu {
 
 	public AdjustableCrateTileEntity te;
-	public PlayerInventory playerInventory;
+	public Inventory playerInventory;
 	public boolean doubleCrate;
 
-	public AdjustableCrateContainer(ContainerType<?> type, int id, PlayerInventory inv, PacketBuffer extraData) {
+	public AdjustableCrateContainer(MenuType<?> type, int id, Inventory inv, FriendlyByteBuf extraData) {
 		super(type, id);
-		ClientWorld world = Minecraft.getInstance().world;
-		TileEntity tileEntity = world.getTileEntity(extraData.readBlockPos());
+		ClientLevel world = Minecraft.getInstance().level;
+		BlockEntity tileEntity = world.getBlockEntity(extraData.readBlockPos());
 		this.playerInventory = inv;
 		if (tileEntity instanceof AdjustableCrateTileEntity) {
 			this.te = (AdjustableCrateTileEntity) tileEntity;
-			this.te.handleUpdateTag(te.getBlockState(), extraData.readCompoundTag());
+			this.te.handleUpdateTag(te.getBlockState(), extraData.readNbt());
 			init();
 		}
 	}
 
-	public AdjustableCrateContainer(ContainerType<?> type, int id, PlayerInventory inv, AdjustableCrateTileEntity te) {
+	public AdjustableCrateContainer(MenuType<?> type, int id, Inventory inv, AdjustableCrateTileEntity te) {
 		super(type, id);
 		this.te = te;
 		this.playerInventory = inv;
 		init();
 	}
 
-	public static AdjustableCrateContainer create(int id, PlayerInventory inv, AdjustableCrateTileEntity te) {
+	public static AdjustableCrateContainer create(int id, Inventory inv, AdjustableCrateTileEntity te) {
 		return new AdjustableCrateContainer(AllContainerTypes.FLEXCRATE.get(), id, inv, te);
 	}
 
@@ -67,28 +67,28 @@ public class AdjustableCrateContainer extends Container {
 			this.addSlot(new Slot(playerInventory, hotbarSlot, xOffset + hotbarSlot * 18, yOffset + 58));
 		}
 
-		detectAndSendChanges();
+		broadcastChanges();
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerIn, int index) {
+	public ItemStack quickMoveStack(Player playerIn, int index) {
 		Slot clickedSlot = getSlot(index);
-		if (!clickedSlot.getHasStack())
+		if (!clickedSlot.hasItem())
 			return ItemStack.EMPTY;
 
-		ItemStack stack = clickedSlot.getStack();
+		ItemStack stack = clickedSlot.getItem();
 		int crateSize = doubleCrate ? 32 : 16;
 		if (index < crateSize) {
-			mergeItemStack(stack, crateSize, inventorySlots.size(), false);
+			moveItemStackTo(stack, crateSize, slots.size(), false);
 			te.inventory.onContentsChanged(index);
 		} else
-			mergeItemStack(stack, 0, crateSize - 1, false);
+			moveItemStackTo(stack, 0, crateSize - 1, false);
 
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public boolean canInteractWith(PlayerEntity player) {
+	public boolean stillValid(Player player) {
 		return te != null && te.canPlayerUse(player);
 	}
 

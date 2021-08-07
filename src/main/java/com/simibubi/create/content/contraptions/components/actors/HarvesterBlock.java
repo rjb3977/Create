@@ -1,15 +1,12 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import com.simibubi.create.AllTileEntities;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.IBlockReader;
-
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class HarvesterBlock extends AttachedActorBlock implements ITileEntityProvider {
+public class HarvesterBlock extends AttachedActorBlock implements EntityBlock {
 
 	public HarvesterBlock(Properties p_i48377_1_) {
 		super(p_i48377_1_);
@@ -21,7 +18,7 @@ public class HarvesterBlock extends AttachedActorBlock implements ITileEntityPro
 //	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return new HarvesterTileEntity(AllTileEntities.HARVESTER.get());
 	}
 

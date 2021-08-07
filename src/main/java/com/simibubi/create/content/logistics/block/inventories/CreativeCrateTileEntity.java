@@ -1,8 +1,12 @@
 package com.simibubi.create.content.logistics.block.inventories;
 
 import java.util.List;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
@@ -11,15 +15,9 @@ import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.vector.Vector3d;
-
 public class CreativeCrateTileEntity extends CrateTileEntity {
 
-	public CreativeCrateTileEntity(TileEntityType<? extends CreativeCrateTileEntity> type) {
+	public CreativeCrateTileEntity(BlockEntityType<? extends CreativeCrateTileEntity> type) {
 		super(type);
 		inv = new BottomlessItemHandler(filtering::getFilter);
 		itemHandler = LazyOptional.of(() -> inv);
@@ -36,7 +34,7 @@ public class CreativeCrateTileEntity extends CrateTileEntity {
 	}
 
 	private boolean filterVisible() {
-		if (!hasWorld() || isDoubleCrate() && !isSecondaryCrate())
+		if (!hasLevel() || isDoubleCrate() && !isSecondaryCrate())
 			return false;
 		return true;
 	}
@@ -47,14 +45,14 @@ public class CreativeCrateTileEntity extends CrateTileEntity {
 		CreativeCrateTileEntity otherCrate = getOtherCrate();
 		if (otherCrate == null)
 			return;
-		if (ItemStack.areItemsEqual(filter, otherCrate.filtering.getFilter()))
+		if (ItemStack.isSame(filter, otherCrate.filtering.getFilter()))
 			return;
 		otherCrate.filtering.setFilter(filter);
 	}
 
 	@Override
-	public void remove() {
-		super.remove();
+	public void setRemoved() {
+		super.setRemoved();
 		if (itemHandler != null)
 			itemHandler.invalidate();
 	}
@@ -62,7 +60,7 @@ public class CreativeCrateTileEntity extends CrateTileEntity {
 	private CreativeCrateTileEntity getOtherCrate() {
 		if (!AllBlocks.CREATIVE_CRATE.has(getBlockState()))
 			return null;
-		TileEntity tileEntity = world.getTileEntity(pos.offset(getFacing()));
+		BlockEntity tileEntity = level.getBlockEntity(worldPosition.relative(getFacing()));
 		if (tileEntity instanceof CreativeCrateTileEntity)
 			return (CreativeCrateTileEntity) tileEntity;
 		return null;
@@ -92,14 +90,14 @@ public class CreativeCrateTileEntity extends CrateTileEntity {
 		return new FilteringBehaviour(this, new ValueBoxTransform() {
 
 			@Override
-			protected void rotate(BlockState state, MatrixStack ms) {
+			protected void rotate(BlockState state, PoseStack ms) {
 				MatrixStacker.of(ms)
 					.rotateX(90);
 			}
 
 			@Override
-			protected Vector3d getLocalOffset(BlockState state) {
-				return new Vector3d(0.5, 13 / 16d, 0.5);
+			protected Vec3 getLocalOffset(BlockState state) {
+				return new Vec3(0.5, 13 / 16d, 0.5);
 			}
 
 			protected float getScale() {

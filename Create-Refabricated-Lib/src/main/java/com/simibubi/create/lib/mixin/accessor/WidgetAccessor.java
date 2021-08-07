@@ -5,10 +5,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.components.AbstractWidget;
 
 @Environment(EnvType.CLIENT)
-@Mixin(Widget.class)
+@Mixin(AbstractWidget.class)
 public interface WidgetAccessor {
 	@Accessor("height")
 	int getHeight();

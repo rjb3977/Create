@@ -8,7 +8,8 @@ import static com.simibubi.create.foundation.block.connected.CTSpriteShifter.CTT
 import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
-
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import com.simibubi.create.content.palettes.PaletteBlockPattern;
 import com.simibubi.create.content.palettes.PaletteBlockPattern.CTs;
 import com.simibubi.create.content.palettes.PaletteStoneVariants;
@@ -18,9 +19,6 @@ import com.simibubi.create.foundation.block.render.SpriteShiftEntry;
 import com.simibubi.create.foundation.block.render.SpriteShifter;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.helper.WoodTypeHelper;
-
-import net.minecraft.block.WoodType;
-import net.minecraft.item.DyeColor;
 
 public class AllSpriteShifts {
 
@@ -84,7 +82,7 @@ public class AllSpriteShifts {
 			WoodType.CRIMSON, WoodType.WARPED
 		};
 		Arrays.stream(supportedWoodTypes)
-			.forEach(woodType -> WOODEN_WINDOWS.put(woodType, vertical("palettes/" + woodType.getName() + "_window")));
+			.forEach(woodType -> WOODEN_WINDOWS.put(woodType, vertical("palettes/" + woodType.name() + "_window")));
 
 		for (PaletteStoneVariants paletteStoneVariants : PaletteStoneVariants.values()) {
 			String variantName = Lang.asId(paletteStoneVariants.name());
@@ -99,7 +97,7 @@ public class AllSpriteShifts {
 		}
 
 		for (DyeColor color : DyeColor.values()) {
-			String id = color.getString();
+			String id = color.getSerializedName();
 			DYED_BELTS.put(color, SpriteShifter.get("block/belt", "block/belt/" + id + "_scroll"));
 			DYED_OFFSET_BELTS.put(color, SpriteShifter.get("block/belt_offset", "block/belt/" + id + "_scroll"));
 			DYED_DIAGONAL_BELTS.put(color,

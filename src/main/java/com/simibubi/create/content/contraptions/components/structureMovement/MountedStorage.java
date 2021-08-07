@@ -13,16 +13,15 @@ import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
 import com.simibubi.create.lib.utility.TransferUtil;
-
-import net.minecraft.block.ChestBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.properties.ChestType;
-import net.minecraft.tileentity.BarrelTileEntity;
-import net.minecraft.tileentity.ChestTileEntity;
-import net.minecraft.tileentity.ShulkerBoxTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.entity.BarrelBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.state.properties.ChestType;
 
 public class MountedStorage {
 
@@ -30,9 +29,9 @@ public class MountedStorage {
 
 	ItemStackHandler handler;
 	boolean valid;
-	private TileEntity te;
+	private BlockEntity te;
 
-	public static boolean canUseAsStorage(TileEntity te) {
+	public static boolean canUseAsStorage(BlockEntity te) {
 		if (te == null)
 			return false;
 
@@ -40,11 +39,11 @@ public class MountedStorage {
 			return true;
 		if (AllTileEntities.CREATIVE_CRATE.is(te))
 			return true;
-		if (te instanceof ShulkerBoxTileEntity)
+		if (te instanceof ShulkerBoxBlockEntity)
 			return true;
-		if (te instanceof ChestTileEntity)
+		if (te instanceof ChestBlockEntity)
 			return true;
-		if (te instanceof BarrelTileEntity)
+		if (te instanceof BarrelBlockEntity)
 			return true;
 
 		LazyOptional<IItemHandler> capability = TransferUtil.getItemHandler(te);
@@ -52,7 +51,7 @@ public class MountedStorage {
 		return handler instanceof ItemStackHandler && !(handler instanceof ProcessingInventory);
 	}
 
-	public MountedStorage(TileEntity te) {
+	public MountedStorage(BlockEntity te) {
 		this.te = te;
 		handler = dummyHandler;
 	}
@@ -63,23 +62,23 @@ public class MountedStorage {
 			return;
 
 		// Split double chests
-		if (te.getType() == TileEntityType.CHEST || te.getType() == TileEntityType.TRAPPED_CHEST) {
+		if (te.getType() == BlockEntityType.CHEST || te.getType() == BlockEntityType.TRAPPED_CHEST) {
 			if (te.getBlockState()
-				.get(ChestBlock.TYPE) != ChestType.SINGLE)
-				te.getWorld()
-					.setBlockState(te.getPos(), te.getBlockState()
-						.with(ChestBlock.TYPE, ChestType.SINGLE));
-			te.updateContainingBlockInfo();
+				.getValue(ChestBlock.TYPE) != ChestType.SINGLE)
+				te.getLevel()
+					.setBlockAndUpdate(te.getBlockPos(), te.getBlockState()
+						.setValue(ChestBlock.TYPE, ChestType.SINGLE));
+			te.clearCache();
 		}
 
 		// Split double flexcrates
 		if (AllTileEntities.ADJUSTABLE_CRATE.is(te)) {
 			if (te.getBlockState()
-				.get(AdjustableCrateBlock.DOUBLE))
-				te.getWorld()
-					.setBlockState(te.getPos(), te.getBlockState()
-						.with(AdjustableCrateBlock.DOUBLE, false));
-			te.updateContainingBlockInfo();
+				.getValue(AdjustableCrateBlock.DOUBLE))
+				te.getLevel()
+					.setBlockAndUpdate(te.getBlockPos(), te.getBlockState()
+						.setValue(AdjustableCrateBlock.DOUBLE, false));
+			te.clearCache();
 		}
 
 		IItemHandler teHandler = TransferUtil.getItemHandler(te)
@@ -108,7 +107,7 @@ public class MountedStorage {
 
 	}
 
-	public void addStorageToWorld(TileEntity te) {
+	public void addStorageToWorld(BlockEntity te) {
 		// FIXME: More dynamic mounted storage in .4
 		if (handler instanceof BottomlessItemHandler)
 			return;
@@ -127,10 +126,10 @@ public class MountedStorage {
 		return handler;
 	}
 
-	public CompoundNBT serialize() {
+	public CompoundTag serialize() {
 		if (!valid)
 			return null;
-		CompoundNBT tag = handler.serializeNBT();
+		CompoundTag tag = handler.serializeNBT();
 
 		if (handler instanceof BottomlessItemHandler) {
 			NBTHelper.putMarker(tag, "Bottomless");
@@ -140,7 +139,7 @@ public class MountedStorage {
 		return tag;
 	}
 
-	public static MountedStorage deserialize(CompoundNBT nbt) {
+	public static MountedStorage deserialize(CompoundTag nbt) {
 		MountedStorage storage = new MountedStorage(null);
 		storage.handler = new ItemStackHandler();
 		if (nbt == null)
@@ -148,7 +147,7 @@ public class MountedStorage {
 		storage.valid = true;
 
 		if (nbt.contains("Bottomless")) {
-			ItemStack providedStack = ItemStack.read(nbt.getCompound("ProvidedStack"));
+			ItemStack providedStack = ItemStack.of(nbt.getCompound("ProvidedStack"));
 			storage.handler = new BottomlessItemHandler(() -> providedStack);
 			return storage;
 		}

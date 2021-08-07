@@ -8,21 +8,20 @@ import java.util.Queue;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 public class PonderWorldParticles {
 
-	private final Map<IParticleRenderType, Queue<Particle>> byType = Maps.newIdentityHashMap();
+	private final Map<ParticleRenderType, Queue<Particle>> byType = Maps.newIdentityHashMap();
 	private final Queue<Particle> queue = Queues.newArrayDeque();
 
 	PonderWorld world;
@@ -59,11 +58,11 @@ public class PonderWorldParticles {
 		}
 	}
 
-	public void renderParticles(MatrixStack ms, IRenderTypeBuffer buffer, ActiveRenderInfo renderInfo, float pt) {
+	public void renderParticles(PoseStack ms, MultiBufferSource buffer, Camera renderInfo, float pt) {
 		Minecraft mc = Minecraft.getInstance();
-		LightTexture lightTexture = mc.gameRenderer.getLightmapTextureManager();
+		LightTexture lightTexture = mc.gameRenderer.lightTexture();
 
-		lightTexture.enableLightmap();
+		lightTexture.turnOnLightLayer();
 		Runnable enable = () -> {
 			RenderSystem.enableAlphaTest();
 			RenderSystem.defaultAlphaFunc();
@@ -71,24 +70,24 @@ public class PonderWorldParticles {
 			RenderSystem.enableFog();
 		};
 		RenderSystem.pushMatrix();
-		RenderSystem.multMatrix(ms.peek()
-			.getModel());
+		RenderSystem.multMatrix(ms.last()
+			.pose());
 
-		for (IParticleRenderType iparticlerendertype : this.byType.keySet()) {
-			if (iparticlerendertype == IParticleRenderType.NO_RENDER)
+		for (ParticleRenderType iparticlerendertype : this.byType.keySet()) {
+			if (iparticlerendertype == ParticleRenderType.NO_RENDER)
 				continue;
 			enable.run(); 
 			Iterable<Particle> iterable = this.byType.get(iparticlerendertype);
 			if (iterable != null) {
 				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-				Tessellator tessellator = Tessellator.getInstance();
-				BufferBuilder bufferbuilder = tessellator.getBuffer();
-				iparticlerendertype.beginRender(bufferbuilder, mc.getTextureManager());
+				Tesselator tessellator = Tesselator.getInstance();
+				BufferBuilder bufferbuilder = tessellator.getBuilder();
+				iparticlerendertype.begin(bufferbuilder, mc.getTextureManager());
 
 				for (Particle particle : iterable)
-					particle.buildGeometry(bufferbuilder, renderInfo, pt);
+					particle.render(bufferbuilder, renderInfo, pt);
 
-				iparticlerendertype.finishRender(tessellator);
+				iparticlerendertype.end(tessellator);
 			}
 		}
 
@@ -97,7 +96,7 @@ public class PonderWorldParticles {
 		RenderSystem.depthFunc(515);
 		RenderSystem.disableBlend();
 		RenderSystem.defaultAlphaFunc();
-		lightTexture.disableLightmap();
+		lightTexture.turnOffLightLayer();
 		RenderSystem.disableFog();
 	}
 

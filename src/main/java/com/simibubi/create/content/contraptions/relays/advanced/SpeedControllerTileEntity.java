@@ -1,7 +1,10 @@
 package com.simibubi.create.content.contraptions.relays.advanced;
 
 import java.util.List;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.content.contraptions.RotationPropagator;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.components.motor.CreativeMotorTileEntity;
@@ -14,11 +17,6 @@ import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollVal
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.VecHelper;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
-
 public class SpeedControllerTileEntity extends KineticTileEntity {
 
 	public static final int DEFAULT_SPEED = 16;
@@ -26,7 +24,7 @@ public class SpeedControllerTileEntity extends KineticTileEntity {
 
 	boolean hasBracket;
 
-	public SpeedControllerTileEntity(TileEntityType<? extends SpeedControllerTileEntity> type) {
+	public SpeedControllerTileEntity(BlockEntityType<? extends SpeedControllerTileEntity> type) {
 		super(type);
 		hasBracket = false;
 	}
@@ -46,7 +44,7 @@ public class SpeedControllerTileEntity extends KineticTileEntity {
 			new ScrollValueBehaviour(Lang.translate("generic.speed"), this, new ControllerValueBoxTransform());
 		targetSpeed.between(-max, max);
 		targetSpeed.value = DEFAULT_SPEED;
-		targetSpeed.moveText(new Vector3d(9, 0, 10));
+		targetSpeed.moveText(new Vec3(9, 0, 10));
 		targetSpeed.withUnit(i -> Lang.translate("generic.unit.rpm"));
 		targetSpeed.withCallback(i -> this.updateTargetRotation());
 		targetSpeed.withStepFunction(CreativeMotorTileEntity::step);
@@ -56,7 +54,7 @@ public class SpeedControllerTileEntity extends KineticTileEntity {
 	private void updateTargetRotation() {
 		if (hasNetwork())
 			getOrCreateNetwork().remove(this);
-		RotationPropagator.handleRemoved(world, pos, this);
+		RotationPropagator.handleRemoved(level, worldPosition, this);
 		removeSource();
 		attachKinetics();
 	}
@@ -96,7 +94,7 @@ public class SpeedControllerTileEntity extends KineticTileEntity {
 			return 0;
 		}
 
-		boolean wheelPowersController = speedController.source.equals(cogWheel.getPos());
+		boolean wheelPowersController = speedController.source.equals(cogWheel.getBlockPos());
 
 		if (wheelPowersController) {
 			if (targetingController)
@@ -110,11 +108,11 @@ public class SpeedControllerTileEntity extends KineticTileEntity {
 	}
 
 	public void updateBracket() {
-		if (world == null || !world.isRemote)
+		if (level == null || !level.isClientSide)
 			return;
-		BlockState stateAbove = world.getBlockState(pos.up());
+		BlockState stateAbove = level.getBlockState(worldPosition.above());
 		hasBracket = ICogWheel.isDedicatedCogWheel(stateAbove.getBlock()) && ICogWheel.isLargeCog(stateAbove)
-			&& stateAbove.get(CogWheelBlock.AXIS).isHorizontal();
+			&& stateAbove.getValue(CogWheelBlock.AXIS).isHorizontal();
 	}
 
 	@Override
@@ -125,7 +123,7 @@ public class SpeedControllerTileEntity extends KineticTileEntity {
 	private class ControllerValueBoxTransform extends ValueBoxTransform.Sided {
 
 		@Override
-		protected Vector3d getSouthLocation() {
+		protected Vec3 getSouthLocation() {
 			return VecHelper.voxelSpace(8, 11f, 16);
 		}
 
@@ -134,7 +132,7 @@ public class SpeedControllerTileEntity extends KineticTileEntity {
 			if (direction.getAxis()
 				.isVertical())
 				return false;
-			return state.get(SpeedControllerBlock.HORIZONTAL_AXIS) != direction.getAxis();
+			return state.getValue(SpeedControllerBlock.HORIZONTAL_AXIS) != direction.getAxis();
 		}
 
 		@Override

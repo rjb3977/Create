@@ -1,13 +1,12 @@
 package com.simibubi.create.lib.helper;
 
 import com.simibubi.create.lib.mixin.accessor.StairsBlockAccessor;
-
-import net.minecraft.block.AbstractBlock.Properties;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.StairsBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class StairsBlockHelper {
-	public static StairsBlock init(BlockState blockState, Properties properties) {
+	public static StairBlock init(BlockState blockState, Properties properties) {
 		return StairsBlockAccessor.create$init(blockState, properties);
 	}
 }

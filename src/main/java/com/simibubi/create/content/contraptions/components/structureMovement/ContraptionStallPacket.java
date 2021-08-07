@@ -3,8 +3,8 @@ package com.simibubi.create.content.contraptions.components.structureMovement;
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ContraptionStallPacket implements S2CPacket {
 
@@ -24,7 +24,7 @@ public class ContraptionStallPacket implements S2CPacket {
 		this.angle = angle;
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		entityID = buffer.readInt();
 		x = buffer.readFloat();
 		y = buffer.readFloat();
@@ -33,18 +33,18 @@ public class ContraptionStallPacket implements S2CPacket {
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(entityID);
 		writeAll(buffer, x, y, z, angle);
 	}
 
 	@Override
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client.execute(
 				() -> AbstractContraptionEntity.handleStallPacket(this));
 	}
 
-	private void writeAll(PacketBuffer buffer, float... floats) {
+	private void writeAll(FriendlyByteBuf buffer, float... floats) {
 		for (float f : floats)
 			buffer.writeFloat(f);
 	}

@@ -20,16 +20,16 @@ import com.tterrag.registrate.fabric.EnvExecutor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.FloatNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class PipeConnection {
 
@@ -82,14 +82,14 @@ public class PipeConnection {
 		return true;
 	}
 
-	public void manageSource(World world, BlockPos pos) {
+	public void manageSource(Level world, BlockPos pos) {
 		if (!source.isPresent() && !determineSource(world, pos))
 			return;
 		FlowSource flowSource = source.get();
 		flowSource.manageSource(world);
 	}
 
-	public boolean manageFlows(World world, BlockPos pos, FluidStack internalFluid,
+	public boolean manageFlows(Level world, BlockPos pos, FluidStack internalFluid,
 		Predicate<FluidStack> extractionPredicate) {
 
 		// Only keep network if still valid
@@ -160,7 +160,7 @@ public class PipeConnection {
 		return true;
 	}
 
-	private boolean determineSource(World world, BlockPos pos) {
+	private boolean determineSource(Level world, BlockPos pos) {
 		if (!LoadedCheckUtil.isAreaLoaded(world, pos, 1))
 			return false;
 		BlockFace location = new BlockFace(pos, side);
@@ -179,19 +179,19 @@ public class PipeConnection {
 		}
 
 		FluidTransportBehaviour behaviour =
-			TileEntityBehaviour.get(world, pos.offset(side), FluidTransportBehaviour.TYPE);
+			TileEntityBehaviour.get(world, pos.relative(side), FluidTransportBehaviour.TYPE);
 		source = Optional.of(behaviour == null ? new FlowSource.Blocked(location) : new FlowSource.OtherPipe(location));
 		return true;
 	}
 
-	public void tickFlowProgress(World world, BlockPos pos) {
+	public void tickFlowProgress(Level world, BlockPos pos) {
 		if (!hasFlow())
 			return;
 		Flow flow = this.flow.get();
 		if (flow.fluid.isEmpty())
 			return;
 
-		if (world.isRemote) {
+		if (world.isClientSide) {
 			if (!source.isPresent())
 				determineSource(world, pos);
 
@@ -201,7 +201,7 @@ public class PipeConnection {
 			particleSplashNextTick = false;
 		}
 
-		float flowSpeed = 1 / 32f + MathHelper.clamp(pressure.get(flow.inbound) / 512f, 0, 1) * 31 / 32f;
+		float flowSpeed = 1 / 32f + Mth.clamp(pressure.get(flow.inbound) / 512f, 0, 1) * 31 / 32f;
 		flow.progress.setValue(Math.min(flow.progress.getValue() + flowSpeed, 1));
 		if (flow.progress.getValue() >= 1) {
 			flow.complete = true;
@@ -210,14 +210,14 @@ public class PipeConnection {
 		}
 	}
 
-	public void serializeNBT(CompoundNBT tag, boolean clientPacket) {
-		CompoundNBT connectionData = new CompoundNBT();
-		tag.put(side.getName2(), connectionData);
+	public void serializeNBT(CompoundTag tag, boolean clientPacket) {
+		CompoundTag connectionData = new CompoundTag();
+		tag.put(side.getName(), connectionData);
 
 		if (hasPressure()) {
-			ListNBT pressureData = new ListNBT();
-			pressureData.add(FloatNBT.of(getInboundPressure()));
-			pressureData.add(FloatNBT.of(getOutwardPressure()));
+			ListTag pressureData = new ListTag();
+			pressureData.add(FloatTag.valueOf(getInboundPressure()));
+			pressureData.add(FloatTag.valueOf(getOutwardPressure()));
 			connectionData.put("Pressure", pressureData);
 		}
 
@@ -225,7 +225,7 @@ public class PipeConnection {
 			connectionData.put("OpenEnd", ((OpenEndedPipe) source.get()).serializeNBT());
 
 		if (hasFlow()) {
-			CompoundNBT flowData = new CompoundNBT();
+			CompoundTag flowData = new CompoundTag();
 			Flow flow = this.flow.get();
 			flow.fluid.writeToNBT(flowData);
 			flowData.putBoolean("In", flow.inbound);
@@ -240,11 +240,11 @@ public class PipeConnection {
 		return source.orElse(null) instanceof OpenEndedPipe;
 	}
 
-	public void deserializeNBT(CompoundNBT tag, BlockPos tilePos, boolean clientPacket) {
-		CompoundNBT connectionData = tag.getCompound(side.getName2());
+	public void deserializeNBT(CompoundTag tag, BlockPos tilePos, boolean clientPacket) {
+		CompoundTag connectionData = tag.getCompound(side.getName());
 
 		if (connectionData.contains("Pressure")) {
-			ListNBT pressureData = connectionData.getList("Pressure", NBT.TAG_FLOAT);
+			ListTag pressureData = connectionData.getList("Pressure", NBT.TAG_FLOAT);
 			pressure = Couple.create(pressureData.getFloat(0), pressureData.getFloat(1));
 		} else
 			pressure.replace(f -> 0f);
@@ -254,7 +254,7 @@ public class PipeConnection {
 			source = Optional.of(OpenEndedPipe.fromNBT(connectionData.getCompound("OpenEnd"), tilePos));
 
 		if (connectionData.contains("Flow")) {
-			CompoundNBT flowData = connectionData.getCompound("Flow");
+			CompoundTag flowData = connectionData.getCompound("Flow");
 			FluidStack fluid = FluidStack.loadFluidStackFromNBT(flowData);
 			boolean inbound = flowData.getBoolean("In");
 			if (!flow.isPresent()) {
@@ -358,17 +358,17 @@ public class PipeConnection {
 	public static final float RIM_RADIUS = 1 / 4f + 1 / 64f;
 	public static final Random r = new Random();
 
-	public void spawnSplashOnRim(World world, BlockPos pos, FluidStack fluid) {
+	public void spawnSplashOnRim(Level world, BlockPos pos, FluidStack fluid) {
 		EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> spawnSplashOnRimInner(world, pos, fluid));
 	}
 
-	public void spawnParticles(World world, BlockPos pos, FluidStack fluid) {
+	public void spawnParticles(Level world, BlockPos pos, FluidStack fluid) {
 		EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> spawnParticlesInner(world, pos, fluid));
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void spawnParticlesInner(World world, BlockPos pos, FluidStack fluid) {
-		if (world == Minecraft.getInstance().world)
+	private void spawnParticlesInner(Level world, BlockPos pos, FluidStack fluid) {
+		if (world == Minecraft.getInstance().level)
 			if (!isRenderEntityWithinDistance(pos))
 				return;
 		if (hasOpenEnd())
@@ -378,28 +378,28 @@ public class PipeConnection {
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void spawnSplashOnRimInner(World world, BlockPos pos, FluidStack fluid) {
-		if (world == Minecraft.getInstance().world)
+	private void spawnSplashOnRimInner(Level world, BlockPos pos, FluidStack fluid) {
+		if (world == Minecraft.getInstance().level)
 			if (!isRenderEntityWithinDistance(pos))
 				return;
 		spawnRimParticles(world, pos, fluid, SPLASH_PARTICLE_AMOUNT);
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void spawnRimParticles(World world, BlockPos pos, FluidStack fluid, int amount) {
+	private void spawnRimParticles(Level world, BlockPos pos, FluidStack fluid, int amount) {
 		if (hasOpenEnd()) {
 			spawnPouringLiquid(world, pos, fluid, amount);
 			return;
 		}
 
-		IParticleData particle = FluidFX.getDrippingParticle(fluid);
+		ParticleOptions particle = FluidFX.getDrippingParticle(fluid);
 		FluidFX.spawnRimParticles(world, pos, side, amount, particle, RIM_RADIUS);
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void spawnPouringLiquid(World world, BlockPos pos, FluidStack fluid, int amount) {
-		IParticleData particle = FluidFX.getFluidParticle(fluid);
-		Vector3d directionVec = Vector3d.of(side.getDirectionVec());
+	private void spawnPouringLiquid(Level world, BlockPos pos, FluidStack fluid, int amount) {
+		ParticleOptions particle = FluidFX.getFluidParticle(fluid);
+		Vec3 directionVec = Vec3.atLowerCornerOf(side.getNormal());
 		if (!hasFlow())
 			return;
 		Flow flow = this.flow.get();
@@ -409,11 +409,11 @@ public class PipeConnection {
 	@Environment(EnvType.CLIENT)
 	public static boolean isRenderEntityWithinDistance(BlockPos pos) {
 		Entity renderViewEntity = Minecraft.getInstance()
-			.getRenderViewEntity();
+			.getCameraEntity();
 		if (renderViewEntity == null)
 			return false;
-		Vector3d center = VecHelper.getCenterOf(pos);
-		if (renderViewEntity.getPositionVec()
+		Vec3 center = VecHelper.getCenterOf(pos);
+		if (renderViewEntity.position()
 			.distanceTo(center) > MAX_PARTICLE_RENDER_DISTANCE)
 			return false;
 		return true;

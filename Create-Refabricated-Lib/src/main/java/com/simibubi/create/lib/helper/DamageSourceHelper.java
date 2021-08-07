@@ -2,8 +2,7 @@ package com.simibubi.create.lib.helper;
 
 import com.simibubi.create.lib.mixin.accessor.DamageSourceAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
 
 public final class DamageSourceHelper {
 	public static DamageSource create$createDamageSource(String string) {

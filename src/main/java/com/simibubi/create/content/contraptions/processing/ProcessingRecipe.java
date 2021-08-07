@@ -7,7 +7,15 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonObject;
@@ -19,19 +27,9 @@ import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class ProcessingRecipe<T extends IInventory> implements IRecipe<T> {
+public abstract class ProcessingRecipe<T extends Container> implements Recipe<T> {
 
 	protected ResourceLocation id;
 	protected NonNullList<Ingredient> ingredients;
@@ -41,8 +39,8 @@ public abstract class ProcessingRecipe<T extends IInventory> implements IRecipe<
 	protected int processingDuration;
 	protected HeatCondition requiredHeat;
 
-	private IRecipeType<?> type;
-	private IRecipeSerializer<?> serializer;
+	private RecipeType<?> type;
+	private RecipeSerializer<?> serializer;
 	private AllRecipeTypes enumType;
 	private Optional<Supplier<ItemStack>> forcedResult;
 
@@ -171,17 +169,17 @@ public abstract class ProcessingRecipe<T extends IInventory> implements IRecipe<
 	// IRecipe<> paperwork
 
 	@Override
-	public ItemStack getCraftingResult(T inv) {
-		return getRecipeOutput();
+	public ItemStack assemble(T inv) {
+		return getResultItem();
 	}
 
 	@Override
-	public boolean canFit(int width, int height) {
+	public boolean canCraftInDimensions(int width, int height) {
 		return true;
 	}
 
 	@Override
-	public ItemStack getRecipeOutput() {
+	public ItemStack getResultItem() {
 		return getRollableResults().isEmpty() ? ItemStack.EMPTY
 			: getRollableResults().get(0)
 				.getStack();
@@ -193,12 +191,12 @@ public abstract class ProcessingRecipe<T extends IInventory> implements IRecipe<
 	}
 
 	@Override
-	public boolean isDynamic() {
+	public boolean isSpecial() {
 		return true;
 	}
 
 	@Override
-	public IRecipeSerializer<?> getSerializer() {
+	public RecipeSerializer<?> getSerializer() {
 		return serializer;
 	}
 
@@ -209,7 +207,7 @@ public abstract class ProcessingRecipe<T extends IInventory> implements IRecipe<
 	}
 
 	@Override
-	public IRecipeType<?> getType() {
+	public RecipeType<?> getType() {
 		return type;
 	}
 
@@ -217,11 +215,11 @@ public abstract class ProcessingRecipe<T extends IInventory> implements IRecipe<
 
 	public void readAdditional(JsonObject json) {}
 
-	public void readAdditional(PacketBuffer buffer) {}
+	public void readAdditional(FriendlyByteBuf buffer) {}
 
 	public void writeAdditional(JsonObject json) {}
 
-	public void writeAdditional(PacketBuffer buffer) {}
+	public void writeAdditional(FriendlyByteBuf buffer) {}
 
 	public AllRecipeTypes getEnumType() {
 		return enumType;

@@ -1,8 +1,8 @@
 package com.simibubi.create.content.logistics.block.depot;
 
 import java.util.Random;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.content.contraptions.relays.belt.BeltHelper;
 import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
@@ -11,37 +11,36 @@ import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 
-	public DepotRenderer(TileEntityRendererDispatcher dispatcher) {
+	public DepotRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	protected void renderSafe(DepotTileEntity te, float partialTicks, MatrixStack ms, IRenderTypeBuffer buffer,
+	protected void renderSafe(DepotTileEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 		int light, int overlay) {
 		renderItemsOf(te, partialTicks, ms, buffer, light, overlay, te.depotBehaviour);
 	}
 
-	public static void renderItemsOf(SmartTileEntity te, float partialTicks, MatrixStack ms, IRenderTypeBuffer buffer,
+	public static void renderItemsOf(SmartTileEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 		int light, int overlay, DepotBehaviour depotBehaviour) {
 
 		TransportedItemStack transported = depotBehaviour.heldItem;
 		MatrixStacker msr = MatrixStacker.of(ms);
-		Vector3d itemPosition = VecHelper.getCenterOf(te.getPos());
+		Vec3 itemPosition = VecHelper.getCenterOf(te.getBlockPos());
 
-		ms.push();
+		ms.pushPose();
 		ms.translate(.5f, 15 / 16f, .5f);
 
 		if (transported != null)
@@ -49,17 +48,17 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 
 		// Render main items
 		for (TransportedItemStack tis : depotBehaviour.incoming) {
-			ms.push();
+			ms.pushPose();
 			msr.nudge(0);
-			float offset = MathHelper.lerp(partialTicks, tis.prevBeltPosition, tis.beltPosition);
-			float sideOffset = MathHelper.lerp(partialTicks, tis.prevSideOffset, tis.sideOffset);
+			float offset = Mth.lerp(partialTicks, tis.prevBeltPosition, tis.beltPosition);
+			float sideOffset = Mth.lerp(partialTicks, tis.prevSideOffset, tis.sideOffset);
 
 			if (tis.insertedFrom.getAxis()
 				.isHorizontal()) {
-				Vector3d offsetVec = Vector3d.of(tis.insertedFrom.getOpposite()
-					.getDirectionVec()).scale(.5f - offset);
+				Vec3 offsetVec = Vec3.atLowerCornerOf(tis.insertedFrom.getOpposite()
+					.getNormal()).scale(.5f - offset);
 				ms.translate(offsetVec.x, offsetVec.y, offsetVec.z);
-				boolean alongX = tis.insertedFrom.rotateY()
+				boolean alongX = tis.insertedFrom.getClockWise()
 					.getAxis() == Axis.X;
 				if (!alongX)
 					sideOffset *= -1;
@@ -70,7 +69,7 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 			int angle = tis.angle;
 			Random r = new Random(0);
 			renderItem(ms, buffer, light, overlay, itemStack, angle, r, itemPosition);
-			ms.pop();
+			ms.popPose();
 		}
 
 		if (transported != null)
@@ -81,7 +80,7 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 			ItemStack stack = depotBehaviour.processingOutputBuffer.getStackInSlot(i);
 			if (stack.isEmpty())
 				continue;
-			ms.push();
+			ms.pushPose();
 			msr.nudge(i);
 
 			boolean renderUpright = BeltHelper.isItemUpright(stack);
@@ -92,39 +91,39 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 			Random r = new Random(i + 1);
 			int angle = (int) (360 * r.nextFloat());
 			renderItem(ms, buffer, light, overlay, stack, renderUpright ? angle + 90 : angle, r, itemPosition);
-			ms.pop();
+			ms.popPose();
 		}
 
-		ms.pop();
+		ms.popPose();
 	}
 
-	public static void renderItem(MatrixStack ms, IRenderTypeBuffer buffer, int light, int overlay, ItemStack itemStack,
-		int angle, Random r, Vector3d itemPosition) {
+	public static void renderItem(PoseStack ms, MultiBufferSource buffer, int light, int overlay, ItemStack itemStack,
+		int angle, Random r, Vec3 itemPosition) {
 		ItemRenderer itemRenderer = Minecraft.getInstance()
 			.getItemRenderer();
 		MatrixStacker msr = MatrixStacker.of(ms);
-		int count = (int) (MathHelper.log2((int) (itemStack.getCount()))) / 2;
+		int count = (int) (Mth.log2((int) (itemStack.getCount()))) / 2;
 		boolean renderUpright = BeltHelper.isItemUpright(itemStack);
-		boolean blockItem = itemRenderer.getItemModelWithOverrides(itemStack, null, null)
+		boolean blockItem = itemRenderer.getModel(itemStack, null, null)
 			.isGui3d();
 
-		ms.push();
+		ms.pushPose();
 		msr.rotateY(angle);
 
 		if (renderUpright) {
-			Entity renderViewEntity = Minecraft.getInstance().renderViewEntity;
+			Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
 			if (renderViewEntity != null) {
-				Vector3d positionVec = renderViewEntity.getPositionVec();
-				Vector3d vectorForOffset = itemPosition;
-				Vector3d diff = vectorForOffset.subtract(positionVec);
-				float yRot = (float) MathHelper.atan2(diff.z, -diff.x);
-				ms.multiply(Vector3f.POSITIVE_Y.getRadialQuaternion((float) (yRot - Math.PI / 2)));
+				Vec3 positionVec = renderViewEntity.position();
+				Vec3 vectorForOffset = itemPosition;
+				Vec3 diff = vectorForOffset.subtract(positionVec);
+				float yRot = (float) Mth.atan2(diff.z, -diff.x);
+				ms.mulPose(Vector3f.YP.rotation((float) (yRot - Math.PI / 2)));
 			}
 			ms.translate(0, 3 / 32d, 1 / 16f);
 		}
 
 		for (int i = 0; i <= count; i++) {
-			ms.push();
+			ms.pushPose();
 			if (blockItem)
 				ms.translate(r.nextFloat() * .0625f * i, 0, r.nextFloat() * .0625f * i);
 			ms.scale(.5f, .5f, .5f);
@@ -132,8 +131,8 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 				ms.translate(0, -3 / 16f, 0);
 				msr.rotateX(90);
 			}
-			itemRenderer.renderItem(itemStack, TransformType.FIXED, light, overlay, ms, buffer);
-			ms.pop();
+			itemRenderer.renderStatic(itemStack, TransformType.FIXED, light, overlay, ms, buffer);
+			ms.popPose();
 
 			if (!renderUpright) {
 				if (!blockItem)
@@ -143,7 +142,7 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 				ms.translate(0, 0, -1 / 16f);
 		}
 
-		ms.pop();
+		ms.popPose();
 	}
 
 }

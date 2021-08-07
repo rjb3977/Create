@@ -1,8 +1,8 @@
 package com.simibubi.create.content.contraptions.components.actors.dispenser;
 
-import net.minecraft.dispenser.IPosition;
+import net.minecraft.core.Position;
 
-public class SimplePos implements IPosition {
+public class SimplePos implements Position {
 	private final double x;
 	private final double y;
 	private final double z;
@@ -14,17 +14,17 @@ public class SimplePos implements IPosition {
 	}
 
 	@Override
-	public double getX() {
+	public double x() {
 		return x;
 	}
 
 	@Override
-	public double getY() {
+	public double y() {
 		return y;
 	}
 
 	@Override
-	public double getZ() {
+	public double z() {
 		return z;
 	}
 }

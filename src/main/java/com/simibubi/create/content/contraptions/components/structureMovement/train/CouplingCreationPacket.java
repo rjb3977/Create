@@ -2,11 +2,11 @@ package com.simibubi.create.content.contraptions.components.structureMovement.tr
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
 
 public class CouplingCreationPacket implements C2SPacket {
 
@@ -14,28 +14,28 @@ public class CouplingCreationPacket implements C2SPacket {
 
 	protected CouplingCreationPacket() {}
 
-	public CouplingCreationPacket(AbstractMinecartEntity cart1, AbstractMinecartEntity cart2) {
-		id1 = cart1.getEntityId();
-		id2 = cart2.getEntityId();
+	public CouplingCreationPacket(AbstractMinecart cart1, AbstractMinecart cart2) {
+		id1 = cart1.getId();
+		id2 = cart2.getId();
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		id1 = buffer.readInt();
 		id2 = buffer.readInt();
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(id1);
 		buffer.writeInt(id2);
 	}
 
 	@Override
-	public void handle(MinecraftServer server, ServerPlayerEntity sender, ServerPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer sender, ServerGamePacketListenerImpl handler, ResponseTarget responseTarget) {
 		server
 			.execute(() -> {
 				if (sender != null)
-					CouplingHandler.tryToCoupleCarts(sender, sender.world, id1, id2);
+					CouplingHandler.tryToCoupleCarts(sender, sender.level, id1, id2);
 			});
 	}
 

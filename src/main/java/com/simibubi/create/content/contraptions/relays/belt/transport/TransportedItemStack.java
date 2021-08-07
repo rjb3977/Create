@@ -1,14 +1,12 @@
 package com.simibubi.create.content.contraptions.relays.belt.transport;
 
 import java.util.Random;
-
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.content.contraptions.processing.InWorldProcessing;
 import com.simibubi.create.content.contraptions.relays.belt.BeltHelper;
 import com.simibubi.create.lib.utility.NBTSerializer;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
 
 public class TransportedItemStack implements Comparable<TransportedItemStack> {
 
@@ -65,8 +63,8 @@ public class TransportedItemStack implements Comparable<TransportedItemStack> {
 		return copy;
 	}
 
-	public CompoundNBT serializeNBT() {
-		CompoundNBT nbt = new CompoundNBT();
+	public CompoundTag serializeNBT() {
+		CompoundTag nbt = new CompoundTag();
 		nbt.put("Item", NBTSerializer.serializeNBT(stack));
 		nbt.putFloat("Pos", beltPosition);
 		nbt.putFloat("PrevPos", prevBeltPosition);
@@ -74,7 +72,7 @@ public class TransportedItemStack implements Comparable<TransportedItemStack> {
 		nbt.putFloat("PrevOffset", prevSideOffset);
 		nbt.putInt("InSegment", insertedAt);
 		nbt.putInt("Angle", angle);
-		nbt.putInt("InDirection", insertedFrom.getIndex());
+		nbt.putInt("InDirection", insertedFrom.get3DDataValue());
 		if (locked)
 			nbt.putBoolean("Locked", locked);
 		if (lockedExternally)
@@ -82,15 +80,15 @@ public class TransportedItemStack implements Comparable<TransportedItemStack> {
 		return nbt;
 	}
 
-	public static TransportedItemStack read(CompoundNBT nbt) {
-		TransportedItemStack stack = new TransportedItemStack(ItemStack.read(nbt.getCompound("Item")));
+	public static TransportedItemStack read(CompoundTag nbt) {
+		TransportedItemStack stack = new TransportedItemStack(ItemStack.of(nbt.getCompound("Item")));
 		stack.beltPosition = nbt.getFloat("Pos");
 		stack.prevBeltPosition = nbt.getFloat("PrevPos");
 		stack.sideOffset = nbt.getFloat("Offset");
 		stack.prevSideOffset = nbt.getFloat("PrevOffset");
 		stack.insertedAt = nbt.getInt("InSegment");
 		stack.angle = nbt.getInt("Angle");
-		stack.insertedFrom = Direction.byIndex(nbt.getInt("InDirection"));
+		stack.insertedFrom = Direction.from3DDataValue(nbt.getInt("InDirection"));
 		stack.locked = nbt.getBoolean("Locked");
 		stack.lockedExternally = nbt.getBoolean("LockedExternally");
 		return stack;

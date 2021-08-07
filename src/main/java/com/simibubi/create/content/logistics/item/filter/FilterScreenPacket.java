@@ -4,11 +4,11 @@ import com.simibubi.create.content.logistics.item.filter.AttributeFilterContaine
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 public class FilterScreenPacket implements C2SPacket {
 
@@ -17,38 +17,38 @@ public class FilterScreenPacket implements C2SPacket {
 	}
 
 	private Option option;
-	private CompoundNBT data;
+	private CompoundTag data;
 
 	protected FilterScreenPacket() {}
 
 	public FilterScreenPacket(Option option) {
-		this(option, new CompoundNBT());
+		this(option, new CompoundTag());
 	}
 
-	public FilterScreenPacket(Option option, CompoundNBT data) {
+	public FilterScreenPacket(Option option, CompoundTag data) {
 		this.option = option;
 		this.data = data;
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		option = Option.values()[buffer.readInt()];
-		data = buffer.readCompoundTag();
+		data = buffer.readNbt();
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(option.ordinal());
-		buffer.writeCompoundTag(data);
+		buffer.writeNbt(data);
 	}
 
 	@Override
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, ResponseTarget responseTarget) {
 		server.execute(() -> {
 			if (player == null)
 				return;
 
-			if (player.openContainer instanceof FilterContainer) {
-				FilterContainer c = (FilterContainer) player.openContainer;
+			if (player.containerMenu instanceof FilterContainer) {
+				FilterContainer c = (FilterContainer) player.containerMenu;
 				if (option == Option.WHITELIST)
 					c.blacklist = false;
 				if (option == Option.BLACKLIST)
@@ -60,11 +60,11 @@ public class FilterScreenPacket implements C2SPacket {
 				if (option == Option.UPDATE_FILTER_ITEM)
 					c.ghostInventory.setStackInSlot(
 							data.getInt("Slot"),
-							net.minecraft.item.ItemStack.read(data.getCompound("Item")));
+							net.minecraft.world.item.ItemStack.of(data.getCompound("Item")));
 			}
 
-			if (player.openContainer instanceof AttributeFilterContainer) {
-				AttributeFilterContainer c = (AttributeFilterContainer) player.openContainer;
+			if (player.containerMenu instanceof AttributeFilterContainer) {
+				AttributeFilterContainer c = (AttributeFilterContainer) player.containerMenu;
 				if (option == Option.WHITELIST)
 					c.whitelistMode = WhitelistMode.WHITELIST_DISJ;
 				if (option == Option.WHITELIST2)

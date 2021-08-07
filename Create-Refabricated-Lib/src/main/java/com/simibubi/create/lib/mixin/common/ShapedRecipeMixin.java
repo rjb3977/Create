@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.google.gson.JsonArray;
 import com.simibubi.create.lib.extensions.ShapedRecipeExtensions;
 import com.simibubi.create.lib.utility.Constants;
-
-import net.minecraft.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 
 @Mixin(ShapedRecipe.class)
 public abstract class ShapedRecipeMixin implements ShapedRecipeExtensions {

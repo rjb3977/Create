@@ -16,15 +16,14 @@ import com.simibubi.create.foundation.block.connected.StandardCTBehaviour;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.WindowGen;
 import com.tterrag.registrate.util.entry.BlockEntry;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.GlassBlock;
-import net.minecraft.block.SandBlock;
-import net.minecraft.block.WoodType;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.SandBlock;
+import net.minecraft.world.level.block.state.properties.WoodType;
 
 public class AllPaletteBlocks {
 
@@ -36,7 +35,7 @@ public class AllPaletteBlocks {
 
 	public static final BlockEntry<GlassBlock> TILED_GLASS = REGISTRATE.block("tiled_glass", GlassBlock::new)
 		.initialProperties(() -> Blocks.GLASS)
-		.addLayer(() -> RenderType::getCutoutMipped)
+		.addLayer(() -> RenderType::cutoutMipped)
 //		.recipe((c, p) -> p.stonecutting(DataIngredient.tag(Tags.Items.GLASS_COLORLESS), c::get))
 //		.blockstate(palettesCubeAll())
 		.tag(BlockTags.IMPERMEABLE)
@@ -54,7 +53,7 @@ public class AllPaletteBlocks {
 
 	public static final BlockEntry<GlassPaneBlock> TILED_GLASS_PANE =
 		WindowGen.standardGlassPane("tiled_glass", TILED_GLASS, Create.asResource("block/palettes/tiled_glass"),
-			new ResourceLocation("block/glass_pane_top"), () -> RenderType::getCutoutMipped);
+			new ResourceLocation("block/glass_pane_top"), () -> RenderType::cutoutMipped);
 
 	public static final BlockEntry<ConnectedGlassPaneBlock> FRAMED_GLASS_PANE =
 		framedGlassPane("framed_glass", FRAMED_GLASS, AllSpriteShifts.FRAMED_GLASS),
@@ -65,26 +64,26 @@ public class AllPaletteBlocks {
 
 	public static final BlockEntry<WindowBlock> OAK_WINDOW = woodenWindowBlock(WoodType.OAK, Blocks.OAK_PLANKS),
 		SPRUCE_WINDOW = woodenWindowBlock(WoodType.SPRUCE, Blocks.SPRUCE_PLANKS),
-		BIRCH_WINDOW = woodenWindowBlock(WoodType.BIRCH, Blocks.BIRCH_PLANKS, () -> RenderType::getTranslucent),
+		BIRCH_WINDOW = woodenWindowBlock(WoodType.BIRCH, Blocks.BIRCH_PLANKS, () -> RenderType::translucent),
 		JUNGLE_WINDOW = woodenWindowBlock(WoodType.JUNGLE, Blocks.JUNGLE_PLANKS),
 		ACACIA_WINDOW = woodenWindowBlock(WoodType.ACACIA, Blocks.ACACIA_PLANKS),
 		DARK_OAK_WINDOW = woodenWindowBlock(WoodType.DARK_OAK, Blocks.DARK_OAK_PLANKS),
 		CRIMSON_WINDOW = woodenWindowBlock(WoodType.CRIMSON, Blocks.CRIMSON_PLANKS),
 		WARPED_WINDOW = woodenWindowBlock(WoodType.WARPED, Blocks.WARPED_PLANKS),
 		ORNATE_IRON_WINDOW = customWindowBlock("ornate_iron_window", AllItems.ANDESITE_ALLOY,
-			AllSpriteShifts.ORNATE_IRON_WINDOW, () -> RenderType::getCutoutMipped);
+			AllSpriteShifts.ORNATE_IRON_WINDOW, () -> RenderType::cutoutMipped);
 
 	public static final BlockEntry<ConnectedGlassPaneBlock> OAK_WINDOW_PANE =
 		woodenWindowPane(WoodType.OAK, OAK_WINDOW),
 		SPRUCE_WINDOW_PANE = woodenWindowPane(WoodType.SPRUCE, SPRUCE_WINDOW),
-		BIRCH_WINDOW_PANE = woodenWindowPane(WoodType.BIRCH, BIRCH_WINDOW, () -> RenderType::getTranslucent),
+		BIRCH_WINDOW_PANE = woodenWindowPane(WoodType.BIRCH, BIRCH_WINDOW, () -> RenderType::translucent),
 		JUNGLE_WINDOW_PANE = woodenWindowPane(WoodType.JUNGLE, JUNGLE_WINDOW),
 		ACACIA_WINDOW_PANE = woodenWindowPane(WoodType.ACACIA, ACACIA_WINDOW),
 		DARK_OAK_WINDOW_PANE = woodenWindowPane(WoodType.DARK_OAK, DARK_OAK_WINDOW),
 		CRIMSON_WINDOW_PANE = woodenWindowPane(WoodType.CRIMSON, CRIMSON_WINDOW),
 		WARPED_WINDOW_PANE = woodenWindowPane(WoodType.WARPED, WARPED_WINDOW),
 		ORNATE_IRON_WINDOW_PANE = customWindowPane("ornate_iron_window", ORNATE_IRON_WINDOW,
-			AllSpriteShifts.ORNATE_IRON_WINDOW, () -> RenderType::getCutoutMipped);
+			AllSpriteShifts.ORNATE_IRON_WINDOW, () -> RenderType::cutoutMipped);
 
 	// Vanilla stone variant patterns
 

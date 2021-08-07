@@ -3,13 +3,12 @@ package com.simibubi.create.content.logistics.block.depot;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.materials.ModelData;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.relays.encased.ShaftInstance;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class EjectorInstance extends ShaftInstance implements IDynamicInstance {
 
@@ -32,7 +31,7 @@ public class EjectorInstance extends ShaftInstance implements IDynamicInstance {
 	public void beginFrame() {
 		float lidProgress = getLidProgress();
 
-		if (MathHelper.epsilonEquals(lidProgress, lastProgress)) return;
+		if (Mth.equal(lidProgress, lastProgress)) return;
 
 		pivotPlate(lidProgress);
 		lastProgress = lidProgress;
@@ -61,7 +60,7 @@ public class EjectorInstance extends ShaftInstance implements IDynamicInstance {
 	private void pivotPlate(float lidProgress) {
 		float angle = lidProgress * 70;
 
-		MatrixStack ms = new MatrixStack();
+		PoseStack ms = new PoseStack();
 
 		EjectorRenderer.applyLidAngle(tile, angle, MatrixStacker.of(ms).translate(getInstancePosition()));
 

@@ -5,17 +5,17 @@ import com.simibubi.create.content.schematics.filtering.SchematicInstances;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.template.PlacementSettings;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 
 public class SchematicSyncPacket implements C2SPacket {
 
@@ -27,7 +27,7 @@ public class SchematicSyncPacket implements C2SPacket {
 
 	protected SchematicSyncPacket() {}
 
-	public SchematicSyncPacket(int slot, PlacementSettings settings,
+	public SchematicSyncPacket(int slot, StructurePlaceSettings settings,
 			BlockPos anchor, boolean deployed) {
 		this.slot = slot;
 		this.deployed = deployed;
@@ -36,40 +36,40 @@ public class SchematicSyncPacket implements C2SPacket {
 		this.mirror = settings.getMirror();
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		slot = buffer.readVarInt();
 		deployed = buffer.readBoolean();
 		anchor = buffer.readBlockPos();
-		rotation = buffer.readEnumValue(Rotation.class);
-		mirror = buffer.readEnumValue(Mirror.class);
+		rotation = buffer.readEnum(Rotation.class);
+		mirror = buffer.readEnum(Mirror.class);
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeVarInt(slot);
 		buffer.writeBoolean(deployed);
 		buffer.writeBlockPos(anchor);
-		buffer.writeEnumValue(rotation);
-		buffer.writeEnumValue(mirror);
+		buffer.writeEnum(rotation);
+		buffer.writeEnum(mirror);
 	}
 
 	@Override
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, ResponseTarget responseTarget) {
 		server.execute(() -> {
 			if (player == null)
 				return;
 			ItemStack stack = ItemStack.EMPTY;
 			if (slot == -1) {
-				stack = player.getHeldItemMainhand();
+				stack = player.getMainHandItem();
 			} else {
-				stack = player.inventory.getStackInSlot(slot);
+				stack = player.inventory.getItem(slot);
 			}
 			if (!AllItems.SCHEMATIC.isIn(stack)) {
 				return;
 			}
-			CompoundNBT tag = stack.getOrCreateTag();
+			CompoundTag tag = stack.getOrCreateTag();
 			tag.putBoolean("Deployed", deployed);
-			tag.put("Anchor", NBTUtil.writeBlockPos(anchor));
+			tag.put("Anchor", NbtUtils.writeBlockPos(anchor));
 			tag.putString("Rotation", rotation.name());
 			tag.putString("Mirror", mirror.name());
 			SchematicInstances.clearHash(stack);

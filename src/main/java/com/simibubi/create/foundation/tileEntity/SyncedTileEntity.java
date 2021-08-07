@@ -1,76 +1,74 @@
 package com.simibubi.create.foundation.tileEntity;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.core.SectionPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 import com.simibubi.create.lib.block.CustomDataPacketHandlingTileEntity;
 import com.simibubi.create.lib.extensions.TileEntityExtensions;
 import com.simibubi.create.lib.utility.NBTSerializable;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.SectionPos;
-import net.minecraft.world.chunk.Chunk;
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class SyncedTileEntity extends TileEntity implements TileEntityExtensions, CustomDataPacketHandlingTileEntity, NBTSerializable {
+public abstract class SyncedTileEntity extends BlockEntity implements TileEntityExtensions, CustomDataPacketHandlingTileEntity, NBTSerializable {
 
-	public SyncedTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public SyncedTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 
 	@Override
-	public CompoundNBT create$getExtraCustomData() {
-		return ((TileEntityExtensions) ((TileEntity) this)).create$getExtraCustomData();
+	public CompoundTag create$getExtraCustomData() {
+		return ((TileEntityExtensions) ((BlockEntity) this)).create$getExtraCustomData();
 	}
 
 	@Override
-	public CompoundNBT getUpdateTag() {
-		return write(new CompoundNBT());
+	public CompoundTag getUpdateTag() {
+		return save(new CompoundTag());
 	}
 
 //	@Override
-	public void handleUpdateTag(BlockState state, CompoundNBT tag) {
-		fromTag(state, tag);
+	public void handleUpdateTag(BlockState state, CompoundTag tag) {
+		load(state, tag);
 	}
 
 	public void sendData() {
-		if (world != null)
-			world.notifyBlockUpdate(getPos(), getBlockState(), getBlockState(), 2 | 4 | 16);
+		if (level != null)
+			level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2 | 4 | 16);
 	}
 
 	public void causeBlockUpdate() {
-		if (world != null)
-			world.notifyBlockUpdate(getPos(), getBlockState(), getBlockState(), 1);
+		if (level != null)
+			level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 1);
 	}
 
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket() {
-		return new SUpdateTileEntityPacket(getPos(), 1, writeToClient(new CompoundNBT()));
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return new ClientboundBlockEntityDataPacket(getBlockPos(), 1, writeToClient(new CompoundTag()));
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-		readClientUpdate(getBlockState(), pkt.getNbtCompound());
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+		readClientUpdate(getBlockState(), pkt.getTag());
 	}
 
 	// Special handling for client update packets
-	public void readClientUpdate(BlockState state, CompoundNBT tag) {
-		fromTag(state, tag);
+	public void readClientUpdate(BlockState state, CompoundTag tag) {
+		load(state, tag);
 	}
 
 	// Special handling for client update packets
-	public CompoundNBT writeToClient(CompoundNBT tag) {
-		return write(tag);
+	public CompoundTag writeToClient(CompoundTag tag) {
+		return save(tag);
 	}
 
 	public void notifyUpdate() {
-		markDirty();
+		setChanged();
 		sendData();
 	}
 
@@ -78,24 +76,24 @@ public abstract class SyncedTileEntity extends TileEntity implements TileEntityE
 //		return PacketDistributor.TRACKING_CHUNK.with(this::containedChunk);
 //	}
 
-	public Chunk containedChunk() {
-		SectionPos sectionPos = SectionPos.from(pos);
-		return world.getChunk(sectionPos.getSectionX(), sectionPos.getSectionZ());
+	public LevelChunk containedChunk() {
+		SectionPos sectionPos = SectionPos.of(worldPosition);
+		return level.getChunk(sectionPos.x(), sectionPos.z());
 	}
 
 	@Override
-	public CompoundNBT create$serializeNBT() {
-		CompoundNBT nbt = new CompoundNBT();
-		this.write(nbt);
+	public CompoundTag create$serializeNBT() {
+		CompoundTag nbt = new CompoundTag();
+		this.save(nbt);
 		return nbt;
 	}
 
 	@Override
-	public void create$deserializeNBT(CompoundNBT nbt) {
+	public void create$deserializeNBT(CompoundTag nbt) {
 		create$deserializeNBT(null, nbt);
 	}
 
-	public void create$deserializeNBT(BlockState state, CompoundNBT nbt) {
-		this.fromTag(state, nbt);
+	public void create$deserializeNBT(BlockState state, CompoundTag nbt) {
+		this.load(state, nbt);
 	}
 }

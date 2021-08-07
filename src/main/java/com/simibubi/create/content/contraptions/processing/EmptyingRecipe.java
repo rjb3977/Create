@@ -4,8 +4,7 @@ import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
-
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class EmptyingRecipe extends ProcessingRecipe<RecipeWrapper> {
 
@@ -14,7 +13,7 @@ public class EmptyingRecipe extends ProcessingRecipe<RecipeWrapper> {
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, World p_77569_2_) {
+	public boolean matches(RecipeWrapper inv, Level p_77569_2_) {
 		return ingredients.get(0).test(inv.getStackInSlot(0));
 	}
 

@@ -20,25 +20,22 @@ import com.jozufozu.flywheel.backend.model.IndexedModel;
 import com.jozufozu.flywheel.backend.model.ModelRenderer;
 import com.jozufozu.flywheel.light.GridAlignedBB;
 import com.jozufozu.flywheel.util.BufferBuilderReader;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionLighter;
 import com.simibubi.create.foundation.render.CreateContexts;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
-
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.template.Template;
-import net.minecraft.world.lighting.WorldLightManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
 
 public class RenderedContraption extends ContraptionWorldHolder {
 	public static final VertexFormat FORMAT = VertexFormat.builder()
@@ -57,7 +54,7 @@ public class RenderedContraption extends ContraptionWorldHolder {
 	private final Map<RenderType, ModelRenderer> renderLayers = new HashMap<>();
 
 	private Matrix4f model;
-	private AxisAlignedBB lightBox;
+	private AABB lightBox;
 
 	public RenderedContraption(Contraption contraption, PlacementSimulationWorld renderWorld) {
 		super(contraption, renderWorld);
@@ -84,26 +81,26 @@ public class RenderedContraption extends ContraptionWorldHolder {
 		}
 	}
 
-	public void beginFrame(ActiveRenderInfo info, double camX, double camY, double camZ) {
+	public void beginFrame(Camera info, double camX, double camY, double camZ) {
 		kinetics.beginFrame(info);
 
 		AbstractContraptionEntity entity = contraption.entity;
 		float pt = AnimationTickHolder.getPartialTicks();
 
-		MatrixStack stack = new MatrixStack();
+		PoseStack stack = new PoseStack();
 
-		double x = MathHelper.lerp(pt, entity.lastTickPosX, entity.getX()) - camX;
-		double y = MathHelper.lerp(pt, entity.lastTickPosY, entity.getY()) - camY;
-		double z = MathHelper.lerp(pt, entity.lastTickPosZ, entity.getZ()) - camZ;
+		double x = Mth.lerp(pt, entity.xOld, entity.getX()) - camX;
+		double y = Mth.lerp(pt, entity.yOld, entity.getY()) - camY;
+		double z = Mth.lerp(pt, entity.zOld, entity.getZ()) - camZ;
 		stack.translate(x, y, z);
 
-		entity.doLocalTransforms(pt, new MatrixStack[] { stack });
+		entity.doLocalTransforms(pt, new PoseStack[] { stack });
 
-		model = stack.peek().getModel();
+		model = stack.last().pose();
 
-		AxisAlignedBB lightBox = GridAlignedBB.toAABB(lighter.lightVolume.getTextureVolume());
+		AABB lightBox = GridAlignedBB.toAABB(lighter.lightVolume.getTextureVolume());
 
-		this.lightBox = lightBox.offset(-camX, -camY, -camZ);
+		this.lightBox = lightBox.move(-camX, -camY, -camZ);
 	}
 
 	void setup(ContraptionProgram shader) {
@@ -131,7 +128,7 @@ public class RenderedContraption extends ContraptionWorldHolder {
 
 		renderLayers.clear();
 
-		List<RenderType> blockLayers = RenderType.getBlockLayers();
+		List<RenderType> blockLayers = RenderType.chunkBufferLayers();
 
 		for (RenderType layer : blockLayers) {
 			BufferedModel layerModel = buildStructureModel(renderWorld, contraption, layer);
@@ -146,15 +143,15 @@ public class RenderedContraption extends ContraptionWorldHolder {
 	}
 
 	private void buildInstancedTiles() {
-		Collection<TileEntity> tileEntities = contraption.maybeInstancedTileEntities;
+		Collection<BlockEntity> tileEntities = contraption.maybeInstancedTileEntities;
 		if (!tileEntities.isEmpty()) {
-			for (TileEntity te : tileEntities) {
+			for (BlockEntity te : tileEntities) {
 				if (te instanceof IInstanceRendered) {
-					World world = te.getWorld();
-					BlockPos pos = te.getPos();
-					te.setLocation(renderWorld, pos);
+					Level world = te.getLevel();
+					BlockPos pos = te.getBlockPos();
+					te.setLevelAndPosition(renderWorld, pos);
 					kinetics.add(te);
-					te.setLocation(world, pos);
+					te.setLevelAndPosition(world, pos);
 				}
 			}
 		}
@@ -195,8 +192,8 @@ public class RenderedContraption extends ContraptionWorldHolder {
 
 			int light = reader.getLight(i);
 
-			byte block = (byte) (LightTexture.getBlockLightCoordinates(light) << 4);
-			byte sky = (byte) (LightTexture.getSkyLightCoordinates(light) << 4);
+			byte block = (byte) (LightTexture.block(light) << 4);
+			byte sky = (byte) (LightTexture.sky(light) << 4);
 
 			vertices.put(block);
 			vertices.put(sky);

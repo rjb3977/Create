@@ -6,7 +6,7 @@ import com.simibubi.create.foundation.utility.worldWrappers.WrappedClientWorld;
 import com.simibubi.create.lib.helper.MinecraftHelper;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.level.LevelAccessor;
 
 public class AnimationTickHolder {
 
@@ -20,7 +20,7 @@ public class AnimationTickHolder {
 
 	public static void tick() {
 		if (!Minecraft.getInstance()
-			.isGamePaused()) {
+			.isPaused()) {
 			ticks = (ticks + 1) % 1_728_000; // wrap around every 24 hours so we maintain enough floating point precision
 		} else {
 			paused_ticks = (paused_ticks + 1) % 1_728_000;
@@ -41,20 +41,20 @@ public class AnimationTickHolder {
 
 	public static float getPartialTicks() {
 		Minecraft mc = Minecraft.getInstance();
-		return (mc.isGamePaused() ? MinecraftHelper.getRenderPartialTicksPaused(mc) : mc.getRenderPartialTicks());
+		return (mc.isPaused() ? MinecraftHelper.getRenderPartialTicksPaused(mc) : mc.getFrameTime());
 	}
 
-	public static int getTicks(IWorld world) {
+	public static int getTicks(LevelAccessor world) {
 		if (world instanceof WrappedClientWorld)
 			return getTicks(((WrappedClientWorld) world).getWrappedWorld());
 		return world instanceof PonderWorld ? PonderUI.ponderTicks : getTicks();
 	}
 
-	public static float getRenderTime(IWorld world) {
+	public static float getRenderTime(LevelAccessor world) {
 		return getTicks(world) + getPartialTicks(world);
 	}
 
-	public static float getPartialTicks(IWorld world) {
+	public static float getPartialTicks(LevelAccessor world) {
 		return world instanceof PonderWorld ? PonderUI.getPartialTicks() : getPartialTicks();
 	}
 }

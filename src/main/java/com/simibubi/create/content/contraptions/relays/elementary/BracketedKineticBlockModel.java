@@ -9,15 +9,15 @@ import com.simibubi.create.lib.render.VirtualRenderingStateManager;
 
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BracketedKineticBlockModel extends ForwardingBakedModel {
 
-	public BracketedKineticBlockModel(IBakedModel template) {
+	public BracketedKineticBlockModel(BakedModel template) {
 		wrapped = template;
 	}
 
@@ -27,7 +27,7 @@ public class BracketedKineticBlockModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public void emitBlockQuads(IBlockDisplayReader blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
+	public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 		if (VirtualRenderingStateManager.getVirtualState()) {
 			super.emitBlockQuads(blockView, state, pos, randomSupplier, context);
 			return;
@@ -39,22 +39,22 @@ public class BracketedKineticBlockModel extends ForwardingBakedModel {
 		if (attachmentBehaviour != null)
 			data.putBracket(attachmentBehaviour.getBracket());
 
-		IBakedModel bracket = data.getBracket();
+		BakedModel bracket = data.getBracket();
 		if (bracket == null)
 			return;
 		context.fallbackConsumer().accept(bracket);
 	}
 
 	private class BracketedModelData {
-		IBakedModel bracket;
+		BakedModel bracket;
 
 		public void putBracket(BlockState state) {
 			this.bracket = Minecraft.getInstance()
-				.getBlockRendererDispatcher()
-				.getModelForState(state);
+				.getBlockRenderer()
+				.getBlockModel(state);
 		}
 
-		public IBakedModel getBracket() {
+		public BakedModel getBracket() {
 			return bracket;
 		}
 

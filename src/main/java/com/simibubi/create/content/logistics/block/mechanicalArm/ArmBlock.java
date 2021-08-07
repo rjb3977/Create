@@ -8,26 +8,25 @@ import com.simibubi.create.content.contraptions.base.KineticBlock;
 import com.simibubi.create.content.contraptions.relays.elementary.ICogWheel;
 import com.simibubi.create.content.logistics.block.mechanicalArm.ArmTileEntity.Phase;
 import com.simibubi.create.foundation.block.ITE;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class ArmBlock extends KineticBlock implements ITE<ArmTileEntity>, ICogWheel {
 
@@ -35,33 +34,33 @@ public class ArmBlock extends KineticBlock implements ITE<ArmTileEntity>, ICogWh
 
 	public ArmBlock(Properties properties) {
 		super(properties);
-		setDefaultState(getDefaultState().with(CEILING, false));
+		registerDefaultState(defaultBlockState().setValue(CEILING, false));
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> p_206840_1_) {
-		super.fillStateContainer(p_206840_1_.add(CEILING));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> p_206840_1_) {
+		super.createBlockStateDefinition(p_206840_1_.add(CEILING));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext ctx) {
-		return getDefaultState().with(CEILING, ctx.getFace() == Direction.DOWN);
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		return defaultBlockState().setValue(CEILING, ctx.getClickedFace() == Direction.DOWN);
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader p_220053_2_, BlockPos p_220053_3_,
-		ISelectionContext p_220053_4_) {
-		return state.get(CEILING) ? AllShapes.MECHANICAL_ARM_CEILING : AllShapes.MECHANICAL_ARM;
+	public VoxelShape getShape(BlockState state, BlockGetter p_220053_2_, BlockPos p_220053_3_,
+		CollisionContext p_220053_4_) {
+		return state.getValue(CEILING) ? AllShapes.MECHANICAL_ARM_CEILING : AllShapes.MECHANICAL_ARM;
 	}
 
 	@Override
-	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
-		super.onBlockAdded(state, world, pos, oldState, isMoving);
+	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
+		super.onPlace(state, world, pos, oldState, isMoving);
 		withTileEntityDo(world, pos, ArmTileEntity::redstoneUpdate);
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World world, BlockPos pos, Block p_220069_4_,
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block p_220069_4_,
 		BlockPos p_220069_5_, boolean p_220069_6_) {
 		withTileEntityDo(world, pos, ArmTileEntity::redstoneUpdate);
 	}
@@ -72,7 +71,7 @@ public class ArmBlock extends KineticBlock implements ITE<ArmTileEntity>, ICogWh
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.MECHANICAL_ARM.create();
 	}
 
@@ -82,36 +81,36 @@ public class ArmBlock extends KineticBlock implements ITE<ArmTileEntity>, ICogWh
 	}
 
 	@Override
-	public void onReplaced(BlockState p_196243_1_, World world, BlockPos pos, BlockState p_196243_4_,
+	public void onRemove(BlockState p_196243_1_, Level world, BlockPos pos, BlockState p_196243_4_,
 		boolean p_196243_5_) {
-		if (p_196243_1_.getBlock().hasBlockEntity()
-			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.getBlock().hasBlockEntity())) {
+		if (p_196243_1_.getBlock().isEntityBlock()
+			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.getBlock().isEntityBlock())) {
 			withTileEntityDo(world, pos, te -> {
 				if (!te.heldItem.isEmpty())
-					InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), te.heldItem);
+					Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), te.heldItem);
 			});
-			world.removeTileEntity(pos);
+			world.removeBlockEntity(pos);
 		}
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState p_225533_1_, World world, BlockPos pos, PlayerEntity player,
-		Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
+	public InteractionResult use(BlockState p_225533_1_, Level world, BlockPos pos, Player player,
+		InteractionHand p_225533_5_, BlockHitResult p_225533_6_) {
 		MutableBoolean success = new MutableBoolean(false);
 		withTileEntityDo(world, pos, te -> {
 			if (te.heldItem.isEmpty())
 				return;
 			success.setTrue();
-			if (world.isRemote)
+			if (world.isClientSide)
 				return;
 			player.inventory.placeItemBackInInventory(world, te.heldItem);
 			te.heldItem = ItemStack.EMPTY;
 			te.phase = Phase.SEARCH_INPUTS;
-			te.markDirty();
+			te.setChanged();
 			te.sendData();
 		});
 
-		return success.booleanValue() ? ActionResultType.SUCCESS : ActionResultType.PASS;
+		return success.booleanValue() ? InteractionResult.SUCCESS : InteractionResult.PASS;
 	}
 
 }

@@ -3,13 +3,12 @@ package com.simibubi.create.content.contraptions.components.press;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.relays.encased.ShaftInstance;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
 
 public class PressInstance extends ShaftInstance implements IDynamicInstance {
 
@@ -24,7 +23,7 @@ public class PressInstance extends ShaftInstance implements IDynamicInstance {
                 .getModel(AllBlockPartials.MECHANICAL_PRESS_HEAD, blockState)
                 .createInstance();
 
-        Quaternion q = Vector3f.POSITIVE_Y.getDegreesQuaternion(AngleHelper.horizontalAngle(blockState.get(MechanicalPressBlock.HORIZONTAL_FACING)));
+        Quaternion q = Vector3f.YP.rotationDegrees(AngleHelper.horizontalAngle(blockState.get(MechanicalPressBlock.HORIZONTAL_FACING)));
 
         pressHead.setRotation(q);
 

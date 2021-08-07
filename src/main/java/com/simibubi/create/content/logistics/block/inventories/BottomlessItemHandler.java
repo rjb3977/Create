@@ -3,12 +3,10 @@ package com.simibubi.create.content.logistics.block.inventories;
 import java.util.function.Supplier;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
-
-import net.minecraft.item.ItemStack;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault

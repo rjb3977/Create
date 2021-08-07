@@ -5,10 +5,9 @@ import com.simibubi.create.content.logistics.block.funnel.AbstractFunnelBlock;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Behaviour for TileEntities which can process items on belts or depots beneath
@@ -42,11 +41,11 @@ public class BeltProcessingBehaviour extends TileEntityBehaviour {
 		return this;
 	}
 
-	public static boolean isBlocked(IBlockReader world, BlockPos processingSpace) {
-		BlockState blockState = world.getBlockState(processingSpace.up());
+	public static boolean isBlocked(BlockGetter world, BlockPos processingSpace) {
+		BlockState blockState = world.getBlockState(processingSpace.above());
 		if (AbstractFunnelBlock.isFunnel(blockState))
 			return false;
-		return !blockState.getCollisionShape(world, processingSpace.up())
+		return !blockState.getCollisionShape(world, processingSpace.above())
 			.isEmpty();
 	}
 

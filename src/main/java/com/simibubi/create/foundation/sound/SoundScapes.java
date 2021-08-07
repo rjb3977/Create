@@ -16,9 +16,9 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Pair;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
 
 public class SoundScapes {
 
@@ -46,7 +46,7 @@ public class SoundScapes {
 	}
 
 	private static SoundScape kinetic(float pitch, AmbienceGroup group) {
-		return new SoundScape(pitch, group).continuous(SoundEvents.ENTITY_MINECART_INSIDE, .25f, 1);
+		return new SoundScape(pitch, group).continuous(SoundEvents.MINECART_INSIDE, .25f, 1);
 	}
 
 	private static SoundScape cogwheel(float pitch, AmbienceGroup group) {
@@ -114,14 +114,14 @@ public class SoundScapes {
 	}
 
 	protected static boolean outOfRange(BlockPos pos) {
-		return !getCameraPos().withinDistance(pos, MAX_AMBIENT_SOURCE_DISTANCE);
+		return !getCameraPos().closerThan(pos, MAX_AMBIENT_SOURCE_DISTANCE);
 	}
 
 	protected static BlockPos getCameraPos() {
-		Entity renderViewEntity = Minecraft.getInstance().renderViewEntity;
+		Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
 		if (renderViewEntity == null)
 			return BlockPos.ZERO;
-		BlockPos playerLocation = renderViewEntity.getBlockPos();
+		BlockPos playerLocation = renderViewEntity.blockPosition();
 		return playerLocation;
 	}
 

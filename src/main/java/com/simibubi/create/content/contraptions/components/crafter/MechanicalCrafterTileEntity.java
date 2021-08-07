@@ -6,7 +6,20 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.simibubi.create.AllBlocks;
@@ -25,21 +38,6 @@ import com.simibubi.create.foundation.utility.Pointing;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.ItemParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 
 public class MechanicalCrafterTileEntity extends KineticTileEntity {
 
@@ -71,8 +69,8 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 				return stack;
 			ItemStack insertItem = super.insertItem(slot, stack, simulate);
 			if (insertItem.getCount() != stack.getCount() && !simulate)
-				te.getWorld()
-					.playSound(null, te.getPos(), SoundEvents.ENTITY_ITEM_FRAME_ADD_ITEM, SoundCategory.BLOCKS, .25f,
+				te.getLevel()
+					.playSound(null, te.getBlockPos(), SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .25f,
 						.5f);
 			return insertItem;
 		}
@@ -95,7 +93,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 
 	private ItemStack scriptedResult = ItemStack.EMPTY;
 
-	public MechanicalCrafterTileEntity(TileEntityType<? extends MechanicalCrafterTileEntity> type) {
+	public MechanicalCrafterTileEntity(BlockEntityType<? extends MechanicalCrafterTileEntity> type) {
 		super(type);
 		setLazyTickRate(20);
 		phase = Phase.IDLE;
@@ -123,7 +121,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 		attachBehaviourLate(inserting);
 	}
 
-	public BlockFace getTargetFace(World world, BlockPos pos, BlockState state) {
+	public BlockFace getTargetFace(Level world, BlockPos pos, BlockState state) {
 		return new BlockFace(pos, MechanicalCrafterBlock.getTargetDirection(state));
 	}
 
@@ -132,14 +130,14 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.put("Inventory", inventory.create$serializeNBT());
 
-		CompoundNBT inputNBT = new CompoundNBT();
+		CompoundTag inputNBT = new CompoundTag();
 		input.write(inputNBT);
 		compound.put("ConnectedInput", inputNBT);
 
-		CompoundNBT groupedItemsNBT = new CompoundNBT();
+		CompoundTag groupedItemsNBT = new CompoundTag();
 		groupedItems.write(groupedItemsNBT);
 		compound.put("GroupedItems", groupedItemsNBT);
 
@@ -156,7 +154,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		Phase phaseBefore = phase;
 		GroupedItems before = this.groupedItems;
 
@@ -175,31 +173,31 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 		if (!clientPacket)
 			return;
 		if (compound.contains("Redraw"))
-			world.notifyBlockUpdate(getPos(), getBlockState(), getBlockState(), 16);
+			level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 16);
 		if (phaseBefore != phase && phase == Phase.CRAFTING)
 			groupedItemsBeforeCraft = before;
 		if (phaseBefore == Phase.EXPORTING && phase == Phase.WAITING) {
-			Direction facing = getBlockState().get(MechanicalCrafterBlock.HORIZONTAL_FACING);
-			Vector3d vec = Vector3d.of(facing.getDirectionVec())
+			Direction facing = getBlockState().getValue(MechanicalCrafterBlock.HORIZONTAL_FACING);
+			Vec3 vec = Vec3.atLowerCornerOf(facing.getNormal())
 				.scale(.75)
-				.add(VecHelper.getCenterOf(pos));
+				.add(VecHelper.getCenterOf(worldPosition));
 			Direction targetDirection = MechanicalCrafterBlock.getTargetDirection(getBlockState());
-			vec = vec.add(Vector3d.of(targetDirection.getDirectionVec())
+			vec = vec.add(Vec3.atLowerCornerOf(targetDirection.getNormal())
 				.scale(1));
-			world.addParticle(ParticleTypes.CRIT, vec.x, vec.y, vec.z, 0, 0, 0);
+			level.addParticle(ParticleTypes.CRIT, vec.x, vec.y, vec.z, 0, 0, 0);
 		}
 	}
 
 	@Override
-	public void remove() {
+	public void setRemoved() {
 		invSupplier.invalidate();
-		super.remove();
+		super.setRemoved();
 	}
 
 	public int getCountDownSpeed() {
 		if (getSpeed() == 0)
 			return 0;
-		return MathHelper.clamp((int) Math.abs(getSpeed()), 4, 250);
+		return Mth.clamp((int) Math.abs(getSpeed()), 4, 250);
 	}
 
 	@Override
@@ -209,11 +207,11 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 		if (phase == Phase.ACCEPTING)
 			return;
 
-		boolean onClient = world.isRemote;
+		boolean onClient = level.isClientSide;
 		boolean runLogic = !onClient || isVirtual();
 
-		if (wasPoweredBefore != world.isBlockPowered(pos)) {
-			wasPoweredBefore = world.isBlockPowered(pos);
+		if (wasPoweredBefore != level.hasNeighborSignal(worldPosition)) {
+			wasPoweredBefore = level.hasNeighborSignal(worldPosition);
 			if (wasPoweredBefore) {
 				if (!runLogic)
 					return;
@@ -235,14 +233,14 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 				}
 
 				ItemStack result =
-					isVirtual() ? scriptedResult : RecipeGridHandler.tryToApplyRecipe(world, groupedItems);
+					isVirtual() ? scriptedResult : RecipeGridHandler.tryToApplyRecipe(level, groupedItems);
 
 				if (result != null) {
 					List<ItemStack> containers = new ArrayList<>();
 					groupedItems.grid.values()
 						.forEach(stack -> {
-							if (stack.getItem().hasContainerItem())
-								containers.add(new ItemStack(stack.getItem().getContainerItem()));
+							if (stack.getItem().hasCraftingRemainingItem())
+								containers.add(new ItemStack(stack.getItem().getCraftingRemainingItem()));
 						});
 
 					if (isVirtual())
@@ -280,12 +278,12 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 					return;
 				}
 
-				Pointing pointing = getBlockState().get(MechanicalCrafterBlock.POINTING);
+				Pointing pointing = getBlockState().getValue(MechanicalCrafterBlock.POINTING);
 				groupedItems.mergeOnto(targetingCrafter.groupedItems, pointing);
 				groupedItems = new GroupedItems();
 
 				float pitch = targetingCrafter.groupedItems.grid.size() * 1/16f + .5f;
-				AllSoundEvents.CRAFTER_CLICK.playOnServer(world, pos, 1, pitch);
+				AllSoundEvents.CRAFTER_CLICK.playOnServer(level, worldPosition, 1, pitch);
 
 				phase = Phase.WAITING;
 				countDown = 0;
@@ -299,18 +297,18 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 		if (phase == Phase.CRAFTING) {
 
 			if (onClient) {
-				Direction facing = getBlockState().get(MechanicalCrafterBlock.HORIZONTAL_FACING);
+				Direction facing = getBlockState().getValue(MechanicalCrafterBlock.HORIZONTAL_FACING);
 				float progress = countDown / 2000f;
-				Vector3d facingVec = Vector3d.of(facing.getDirectionVec());
-				Vector3d vec = facingVec.scale(.65)
-					.add(VecHelper.getCenterOf(pos));
-				Vector3d offset = VecHelper.offsetRandomly(Vector3d.ZERO, world.rand, .125f)
-					.mul(VecHelper.axisAlingedPlaneOf(facingVec))
+				Vec3 facingVec = Vec3.atLowerCornerOf(facing.getNormal());
+				Vec3 vec = facingVec.scale(.65)
+					.add(VecHelper.getCenterOf(worldPosition));
+				Vec3 offset = VecHelper.offsetRandomly(Vec3.ZERO, level.random, .125f)
+					.multiply(VecHelper.axisAlingedPlaneOf(facingVec))
 					.normalize()
 					.scale(progress * .5f)
 					.add(vec);
 				if (progress > .5f)
-					world.addParticle(ParticleTypes.CRIT, offset.x, offset.y, offset.z, 0, 0, 0);
+					level.addParticle(ParticleTypes.CRIT, offset.x, offset.y, offset.z, 0, 0, 0);
 
 				if (!groupedItemsBeforeCraft.grid.isEmpty() && progress < .5f) {
 					if (groupedItems.grid.containsKey(Pair.of(0, 0))) {
@@ -318,13 +316,13 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 						groupedItemsBeforeCraft = new GroupedItems();
 
 						for (int i = 0; i < 10; i++) {
-							Vector3d randVec = VecHelper.offsetRandomly(Vector3d.ZERO, world.rand, .125f)
-								.mul(VecHelper.axisAlingedPlaneOf(facingVec))
+							Vec3 randVec = VecHelper.offsetRandomly(Vec3.ZERO, level.random, .125f)
+								.multiply(VecHelper.axisAlingedPlaneOf(facingVec))
 								.normalize()
 								.scale(.25f);
-							Vector3d offset2 = randVec.add(vec);
+							Vec3 offset2 = randVec.add(vec);
 							randVec = randVec.scale(.35f);
-							world.addParticle(new ItemParticleData(ParticleTypes.ITEM, stack), offset2.x, offset2.y,
+							level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), offset2.x, offset2.y,
 								offset2.z, randVec.x, randVec.y, randVec.z);
 						}
 					}
@@ -335,8 +333,8 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 			countDown -= getCountDownSpeed();
 
 			if (countDown < 1000 && prev >= 1000) {
-				AllSoundEvents.CRAFTER_CLICK.playOnServer(world, pos, 1, 2);
-				AllSoundEvents.CRAFTER_CRAFT.playOnServer(world, pos);
+				AllSoundEvents.CRAFTER_CLICK.playOnServer(level, worldPosition, 1, 2);
+				AllSoundEvents.CRAFTER_CRAFT.playOnServer(level, worldPosition);
 			}
 
 			if (countDown < 0) {
@@ -361,8 +359,8 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 	}
 
 	protected DirectBeltInputBehaviour getTargetingBelt() {
-		BlockPos targetPos = pos.offset(getTargetDirection());
-		return TileEntityBehaviour.get(world, targetPos, DirectBeltInputBehaviour.TYPE);
+		BlockPos targetPos = worldPosition.relative(getTargetDirection());
+		return TileEntityBehaviour.get(level, targetPos, DirectBeltInputBehaviour.TYPE);
 	}
 
 	public void tryInsert() {
@@ -378,7 +376,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 		for (Entry<Pair<Integer, Integer>, ItemStack> entry : groupedItems.grid.entrySet()) {
 			Pair<Integer, Integer> pair = entry.getKey();
 			ItemStack stack = entry.getValue();
-			BlockFace face = getTargetFace(world, pos, getBlockState());
+			BlockFace face = getTargetFace(level, worldPosition, getBlockState());
 
 			ItemStack remainder = behaviour == null ? inserting.insert(stack.copy())
 				: behaviour.handleInsertion(stack, face.getFace(), false);
@@ -409,10 +407,10 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 	public void eject() {
 		BlockState blockState = getBlockState();
 		boolean present = AllBlocks.MECHANICAL_CRAFTER.has(blockState);
-		Vector3d vec = present ? Vector3d.of(blockState.get(HORIZONTAL_FACING)
-			.getDirectionVec())
-			.scale(.75f) : Vector3d.ZERO;
-		Vector3d ejectPos = VecHelper.getCenterOf(pos)
+		Vec3 vec = present ? Vec3.atLowerCornerOf(blockState.getValue(HORIZONTAL_FACING)
+			.getNormal())
+			.scale(.75f) : Vec3.ZERO;
+		Vec3 ejectPos = VecHelper.getCenterOf(worldPosition)
 			.add(vec);
 		groupedItems.grid.forEach((pair, stack) -> dropItem(ejectPos, stack));
 		if (!inventory.getStackInSlot(0)
@@ -424,16 +422,16 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 		sendData();
 	}
 
-	public void dropItem(Vector3d ejectPos, ItemStack stack) {
-		ItemEntity itemEntity = new ItemEntity(world, ejectPos.x, ejectPos.y, ejectPos.z, stack);
-		itemEntity.setDefaultPickupDelay();
-		world.addEntity(itemEntity);
+	public void dropItem(Vec3 ejectPos, ItemStack stack) {
+		ItemEntity itemEntity = new ItemEntity(level, ejectPos.x, ejectPos.y, ejectPos.z, stack);
+		itemEntity.setDefaultPickUpDelay();
+		level.addFreshEntity(itemEntity);
 	}
 
 	@Override
 	public void lazyTick() {
 		super.lazyTick();
-		if (world.isRemote && !isVirtual())
+		if (level.isClientSide && !isVirtual())
 			return;
 		if (phase == Phase.IDLE && craftingItemPresent())
 			checkCompletedRecipe(false);
@@ -454,7 +452,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 	protected void checkCompletedRecipe(boolean poweredStart) {
 		if (getSpeed() == 0)
 			return;
-		if (world.isRemote && !isVirtual())
+		if (level.isClientSide && !isVirtual())
 			return;
 		List<MechanicalCrafterTileEntity> chain = RecipeGridHandler.getAllCraftersOfChainIf(this,
 			poweredStart ? MechanicalCrafterTileEntity::craftingItemPresent

@@ -2,17 +2,13 @@ package com.simibubi.create.content.contraptions.processing;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementContext;
 
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
-
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
 
 public class BasinMovementBehaviour extends MovementBehaviour {
 	public Map<String, ItemStackHandler> getOrReadInventory(MovementContext context) {
@@ -32,14 +28,14 @@ public class BasinMovementBehaviour extends MovementBehaviour {
 	public void tick(MovementContext context) {
 		super.tick(context);
 		if (context.temporaryData == null || (boolean) context.temporaryData) {
-			Vector3d facingVec = context.rotation.apply(Vector3d.of(Direction.UP.getDirectionVec()));
+			Vec3 facingVec = context.rotation.apply(Vec3.atLowerCornerOf(Direction.UP.getNormal()));
 			facingVec.normalize();
-			if (Direction.getFacingFromVector(facingVec.x, facingVec.y, facingVec.z) == Direction.DOWN)
+			if (Direction.getNearest(facingVec.x, facingVec.y, facingVec.z) == Direction.DOWN)
 				dump(context, facingVec);
 		}
 	}
 
-	private void dump(MovementContext context, Vector3d facingVec) {
+	private void dump(MovementContext context, Vec3 facingVec) {
 		getOrReadInventory(context).forEach((key, itemStackHandler) -> {
 			for (int i = 0; i < itemStackHandler.getSlots(); i++) {
 				if (itemStackHandler.getStackInSlot(i)
@@ -53,7 +49,7 @@ public class BasinMovementBehaviour extends MovementBehaviour {
 			}
 			context.tileData.put(key, itemStackHandler.serializeNBT());
 		});
-		TileEntity tileEntity = context.contraption.presentTileEntities.get(context.localPos);
+		BlockEntity tileEntity = context.contraption.presentTileEntities.get(context.localPos);
 		if (tileEntity instanceof BasinTileEntity)
 			((BasinTileEntity) tileEntity).readOnlyItems(context.tileData);
 		context.temporaryData = false; // did already dump, so can't any more

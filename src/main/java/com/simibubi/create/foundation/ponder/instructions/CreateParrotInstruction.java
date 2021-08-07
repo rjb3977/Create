@@ -1,8 +1,7 @@
 package com.simibubi.create.foundation.ponder.instructions;
 
 import com.simibubi.create.foundation.ponder.elements.ParrotElement;
-
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public class CreateParrotInstruction extends FadeIntoSceneInstruction<ParrotElement> {
 

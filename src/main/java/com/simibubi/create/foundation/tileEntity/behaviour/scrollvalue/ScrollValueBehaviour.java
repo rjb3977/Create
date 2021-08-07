@@ -3,25 +3,23 @@ package com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-
 public class ScrollValueBehaviour extends TileEntityBehaviour {
 
 	public static BehaviourType<ScrollValueBehaviour> TYPE = new BehaviourType<>();
 
 	ValueBoxTransform slotPositioning;
-	Vector3d textShift;
+	Vec3 textShift;
 
 	int min = 0;
 	int max = 1;
@@ -29,16 +27,16 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 	public int scrollableValue;
 	int ticksUntilScrollPacket;
 	boolean forceClientState;
-	ITextComponent label;
+	Component label;
 	Consumer<Integer> callback;
 	Consumer<Integer> clientCallback;
 	Function<Integer, String> formatter;
-	Function<Integer, ITextComponent> unit;
+	Function<Integer, Component> unit;
 	Function<StepContext, Integer> step;
 	private Supplier<Boolean> isActive;
 	boolean needsWrench;
 
-	public ScrollValueBehaviour(ITextComponent label, SmartTileEntity te, ValueBoxTransform slot) {
+	public ScrollValueBehaviour(Component label, SmartTileEntity te, ValueBoxTransform slot) {
 		super(te);
 		this.setLabel(label);
 		slotPositioning = slot;
@@ -46,7 +44,7 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 		};
 		clientCallback = i -> {
 		};
-		textShift = Vector3d.ZERO;
+		textShift = Vec3.ZERO;
 		formatter = i -> Integer.toString(i);
 		step = (c) -> 1;
 		value = 0;
@@ -58,7 +56,7 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 	public boolean isSafeNBT() { return true; }
 
 	@Override
-	public void write(CompoundNBT nbt, boolean clientPacket) {
+	public void write(CompoundTag nbt, boolean clientPacket) {
 		nbt.putInt("ScrollValue", value);
 		if (clientPacket && forceClientState) {
 			nbt.putBoolean("ForceScrollable", true);
@@ -68,7 +66,7 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 	}
 
 	@Override
-	public void read(CompoundNBT nbt, boolean clientPacket) {
+	public void read(CompoundTag nbt, boolean clientPacket) {
 		value = nbt.getInt("ScrollValue");
 		if (nbt.contains("ForceScrollable")) {
 			ticksUntilScrollPacket = -1;
@@ -81,7 +79,7 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 	public void tick() {
 		super.tick();
 
-		if (!getWorld().isRemote)
+		if (!getWorld().isClientSide)
 			return;
 		if (ticksUntilScrollPacket == -1)
 			return;
@@ -110,7 +108,7 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 		return this;
 	}
 
-	public ScrollValueBehaviour moveText(Vector3d shift) {
+	public ScrollValueBehaviour moveText(Vec3 shift) {
 		textShift = shift;
 		return this;
 	}
@@ -125,7 +123,7 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 		return this;
 	}
 
-	public ScrollValueBehaviour withUnit(Function<Integer, ITextComponent> unit) {
+	public ScrollValueBehaviour withUnit(Function<Integer, Component> unit) {
 		this.unit = unit;
 		return this;
 	}
@@ -148,13 +146,13 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 	}
 
 	public void setValue(int value) {
-		value = MathHelper.clamp(value, min, max);
+		value = Mth.clamp(value, min, max);
 		if (value == this.value)
 			return;
 		this.value = value;
 		forceClientState = true;
 		callback.accept(value);
-		tileEntity.markDirty();
+		tileEntity.setChanged();
 		tileEntity.sendData();
 		scrollableValue = value;
 	}
@@ -176,13 +174,13 @@ public class ScrollValueBehaviour extends TileEntityBehaviour {
 		return isActive.get();
 	}
 
-	public boolean testHit(Vector3d hit) {
+	public boolean testHit(Vec3 hit) {
 		BlockState state = tileEntity.getBlockState();
-		Vector3d localHit = hit.subtract(Vector3d.of(tileEntity.getPos()));
+		Vec3 localHit = hit.subtract(Vec3.atLowerCornerOf(tileEntity.getBlockPos()));
 		return slotPositioning.testHit(state, localHit);
 	}
 
-	public void setLabel(ITextComponent label) {
+	public void setLabel(Component label) {
 		this.label = label;
 	}
 

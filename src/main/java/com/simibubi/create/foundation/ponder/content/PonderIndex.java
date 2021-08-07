@@ -10,9 +10,8 @@ import com.simibubi.create.foundation.ponder.content.fluid.HosePulleyScenes;
 import com.simibubi.create.foundation.ponder.content.fluid.PipeScenes;
 import com.simibubi.create.foundation.ponder.content.fluid.PumpScenes;
 import com.simibubi.create.foundation.ponder.content.fluid.SpoutScenes;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.item.DyeColor;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Blocks;
 
 public class PonderIndex {
 

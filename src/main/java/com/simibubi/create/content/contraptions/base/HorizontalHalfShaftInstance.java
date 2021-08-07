@@ -1,9 +1,8 @@
 package com.simibubi.create.content.contraptions.base;
 
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
-
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class HorizontalHalfShaftInstance extends HalfShaftInstance {
 

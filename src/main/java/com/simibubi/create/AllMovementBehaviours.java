@@ -3,19 +3,17 @@ package com.simibubi.create;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.content.contraptions.components.actors.BellMovementBehaviour;
 import com.simibubi.create.content.contraptions.components.actors.CampfireMovementBehaviour;
 import com.simibubi.create.content.contraptions.components.actors.dispenser.DispenserMovementBehaviour;
 import com.simibubi.create.content.contraptions.components.actors.dispenser.DropperMovementBehaviour;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementBehaviour;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
 public class AllMovementBehaviours {
 	private static final HashMap<ResourceLocation, MovementBehaviour> MOVEMENT_BEHAVIOURS = new HashMap<>();

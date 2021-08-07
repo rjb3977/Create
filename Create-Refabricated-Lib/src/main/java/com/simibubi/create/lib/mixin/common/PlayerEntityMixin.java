@@ -11,22 +11,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.simibubi.create.lib.block.HarvestableBlock;
 import com.simibubi.create.lib.event.PlayerTickEndCallback;
 import com.simibubi.create.lib.utility.MixinHelper;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.level.block.state.BlockState;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ToolItem;
-
-@Mixin(PlayerEntity.class)
+@Mixin(Player.class)
 public abstract class PlayerEntityMixin {
 	@Final
 	@Shadow
-	public PlayerInventory inventory;
+	public Inventory inventory;
 
 	@Inject(at = @At("HEAD"), method = "isUsingEffectiveTool(Lnet/minecraft/block/BlockState;)Z", cancellable = true)
 	public void create$isUsingEffectiveTool(BlockState blockState, CallbackInfoReturnable<Boolean> cir) {
-		if (blockState.getBlock() instanceof HarvestableBlock && inventory.getCurrentItem().getItem() instanceof ToolItem) {
-			cir.setReturnValue(((HarvestableBlock) blockState.getBlock()).isToolEffective(blockState, (ToolItem) inventory.getCurrentItem().getItem()));
+		if (blockState.getBlock() instanceof HarvestableBlock && inventory.getSelected().getItem() instanceof DiggerItem) {
+			cir.setReturnValue(((HarvestableBlock) blockState.getBlock()).isToolEffective(blockState, (DiggerItem) inventory.getSelected().getItem()));
 		}
 	}
 

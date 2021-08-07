@@ -4,7 +4,15 @@ import static com.simibubi.create.content.contraptions.base.DirectionalKineticBl
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.components.deployer.DeployerTileEntity.Mode;
@@ -18,16 +26,6 @@ import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemS
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour.TransportedResult;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 public class BeltDeployerCallbacks {
 
 	public static ProcessingResult onItemReceived(TransportedItemStack s, TransportedItemStackHandlerBehaviour i,
@@ -38,7 +36,7 @@ public class BeltDeployerCallbacks {
 		if (deployerTileEntity.mode == Mode.PUNCH)
 			return ProcessingResult.PASS;
 		BlockState blockState = deployerTileEntity.getBlockState();
-		if (!blockState.contains(FACING) || blockState.get(FACING) != Direction.DOWN)
+		if (!blockState.hasProperty(FACING) || blockState.getValue(FACING) != Direction.DOWN)
 			return ProcessingResult.PASS;
 		if (deployerTileEntity.state != State.WAITING)
 			return ProcessingResult.HOLD;
@@ -58,9 +56,9 @@ public class BeltDeployerCallbacks {
 		if (deployerTileEntity.getSpeed() == 0)
 			return ProcessingResult.PASS;
 		BlockState blockState = deployerTileEntity.getBlockState();
-		if (!blockState.contains(FACING) || blockState.get(FACING) != Direction.DOWN)
+		if (!blockState.hasProperty(FACING) || blockState.getValue(FACING) != Direction.DOWN)
 			return ProcessingResult.PASS;
-		IRecipe<?> recipe = deployerTileEntity.getRecipe(s.stack);
+		Recipe<?> recipe = deployerTileEntity.getRecipe(s.stack);
 		if (recipe == null)
 			return ProcessingResult.PASS;
 
@@ -79,7 +77,7 @@ public class BeltDeployerCallbacks {
 	}
 
 	public static void activate(TransportedItemStack transported, TransportedItemStackHandlerBehaviour handler,
-		DeployerTileEntity deployerTileEntity, IRecipe<?> recipe) {
+		DeployerTileEntity deployerTileEntity, Recipe<?> recipe) {
 
 		List<TransportedItemStack> collect =
 			InWorldProcessing.applyRecipeOn(ItemHandlerHelper.copyStackWithSize(transported.stack, 1), recipe)
@@ -103,17 +101,17 @@ public class BeltDeployerCallbacks {
 		else
 			handler.handleProcessingOnItem(transported, TransportedResult.convertToAndLeaveHeld(collect, left));
 
-		ItemStack heldItem = deployerTileEntity.player.getHeldItemMainhand();
-		if (heldItem.isDamageable())
-			heldItem.damageItem(1, deployerTileEntity.player, s -> s.sendBreakAnimation(Hand.MAIN_HAND));
+		ItemStack heldItem = deployerTileEntity.player.getMainHandItem();
+		if (heldItem.isDamageableItem())
+			heldItem.hurtAndBreak(1, deployerTileEntity.player, s -> s.broadcastBreakEvent(InteractionHand.MAIN_HAND));
 		else
 			heldItem.shrink(1);
 
-		BlockPos pos = deployerTileEntity.getPos();
-		World world = deployerTileEntity.getWorld();
+		BlockPos pos = deployerTileEntity.getBlockPos();
+		Level world = deployerTileEntity.getLevel();
 		if (heldItem.isEmpty())
-			world.playSound(null, pos, SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, .25f, 1);
-		world.playSound(null, pos, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.BLOCKS, .25f, .75f);
+			world.playSound(null, pos, SoundEvents.ITEM_BREAK, SoundSource.BLOCKS, .25f, 1);
+		world.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, .25f, .75f);
 		if (recipe instanceof SandPaperPolishingRecipe)
 			AllSoundEvents.AUTO_POLISH.playOnServer(world, pos, .25f, 1f);
 

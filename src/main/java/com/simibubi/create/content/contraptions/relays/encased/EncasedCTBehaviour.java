@@ -3,11 +3,10 @@ package com.simibubi.create.content.contraptions.relays.encased;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class EncasedCTBehaviour extends ConnectedTextureBehaviour {
 
@@ -18,7 +17,7 @@ public class EncasedCTBehaviour extends ConnectedTextureBehaviour {
 	}
 
 	@Override
-	public boolean connectsTo(BlockState state, BlockState other, IBlockDisplayReader reader, BlockPos pos, BlockPos otherPos,
+	public boolean connectsTo(BlockState state, BlockState other, BlockAndTintGetter reader, BlockPos pos, BlockPos otherPos,
 							  Direction face) {
 		if (isBeingBlocked(state, reader, pos, otherPos, face))
 			return false;

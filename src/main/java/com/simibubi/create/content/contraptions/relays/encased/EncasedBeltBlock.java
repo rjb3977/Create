@@ -8,26 +8,25 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 
 import com.simibubi.create.lib.block.WeakPowerCheckingBlock;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.Property;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.PushReaction;
 
 public class EncasedBeltBlock extends RotatedPillarKineticBlock implements WeakPowerCheckingBlock {
 
@@ -37,51 +36,51 @@ public class EncasedBeltBlock extends RotatedPillarKineticBlock implements WeakP
 
 	public EncasedBeltBlock(Properties properties) {
 		super(properties);
-		setDefaultState(getDefaultState().with(PART, Part.NONE));
+		registerDefaultState(defaultBlockState().setValue(PART, Part.NONE));
 	}
 
 	@Override
-	public boolean shouldCheckWeakPower(BlockState state, IWorldReader world, BlockPos pos, Direction side) {
+	public boolean shouldCheckWeakPower(BlockState state, LevelReader world, BlockPos pos, Direction side) {
 		return false;
 	}
 
 	@Override
-	public PushReaction getPushReaction(BlockState state) {
+	public PushReaction getPistonPushReaction(BlockState state) {
 		return PushReaction.NORMAL;
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		super.fillStateContainer(builder.add(PART, CONNECTED_ALONG_FIRST_COORDINATE));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder.add(PART, CONNECTED_ALONG_FIRST_COORDINATE));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		Axis placedAxis = context.getNearestLookingDirection()
 			.getAxis();
 		Axis axis = context.getPlayer() != null && context.getPlayer()
-			.isSneaking() ? placedAxis : getPreferredAxis(context);
+			.isShiftKeyDown() ? placedAxis : getPreferredAxis(context);
 		if (axis == null)
 			axis = placedAxis;
 
-		BlockState state = getDefaultState().with(AXIS, axis);
+		BlockState state = defaultBlockState().setValue(AXIS, axis);
 		for (Direction facing : Iterate.directions) {
 			if (facing.getAxis() == axis)
 				continue;
-			BlockPos pos = context.getPos();
-			BlockPos offset = pos.offset(facing);
-			state = updatePostPlacement(state, facing, context.getWorld()
-				.getBlockState(offset), context.getWorld(), pos, offset);
+			BlockPos pos = context.getClickedPos();
+			BlockPos offset = pos.relative(facing);
+			state = updateShape(state, facing, context.getLevel()
+				.getBlockState(offset), context.getLevel(), pos, offset);
 		}
 		return state;
 	}
 
 	@Override
-	public BlockState updatePostPlacement(BlockState stateIn, Direction face, BlockState neighbour, IWorld worldIn,
+	public BlockState updateShape(BlockState stateIn, Direction face, BlockState neighbour, LevelAccessor worldIn,
 		BlockPos currentPos, BlockPos facingPos) {
-		Part part = stateIn.get(PART);
-		Axis axis = stateIn.get(AXIS);
-		boolean connectionAlongFirst = stateIn.get(CONNECTED_ALONG_FIRST_COORDINATE);
+		Part part = stateIn.getValue(PART);
+		Axis axis = stateIn.getValue(AXIS);
+		boolean connectionAlongFirst = stateIn.getValue(CONNECTED_ALONG_FIRST_COORDINATE);
 		Axis connectionAxis =
 			connectionAlongFirst ? (axis == Axis.X ? Axis.Y : Axis.X) : (axis == Axis.Z ? Axis.Y : Axis.Z);
 
@@ -96,19 +95,19 @@ public class EncasedBeltBlock extends RotatedPillarKineticBlock implements WeakP
 			if (facingAlongFirst != connectionAlongFirst || part == Part.NONE)
 				return stateIn;
 			if (part == Part.MIDDLE)
-				return stateIn.with(PART, positive ? Part.END : Part.START);
+				return stateIn.setValue(PART, positive ? Part.END : Part.START);
 			if ((part == Part.START) == positive)
-				return stateIn.with(PART, Part.NONE);
+				return stateIn.setValue(PART, Part.NONE);
 			return stateIn;
 		}
 
-		Part otherPart = neighbour.get(PART);
-		Axis otherAxis = neighbour.get(AXIS);
-		boolean otherConnection = neighbour.get(CONNECTED_ALONG_FIRST_COORDINATE);
+		Part otherPart = neighbour.getValue(PART);
+		Axis otherAxis = neighbour.getValue(AXIS);
+		boolean otherConnection = neighbour.getValue(CONNECTED_ALONG_FIRST_COORDINATE);
 		Axis otherConnectionAxis =
 			otherConnection ? (otherAxis == Axis.X ? Axis.Y : Axis.X) : (otherAxis == Axis.Z ? Axis.Y : Axis.Z);
 
-		if (neighbour.get(AXIS) == faceAxis)
+		if (neighbour.getValue(AXIS) == faceAxis)
 			return stateIn;
 		if (otherPart != Part.NONE && otherConnectionAxis != faceAxis)
 			return stateIn;
@@ -123,51 +122,51 @@ public class EncasedBeltBlock extends RotatedPillarKineticBlock implements WeakP
 		if ((part == Part.START) != positive)
 			part = Part.MIDDLE;
 
-		return stateIn.with(PART, part)
-			.with(CONNECTED_ALONG_FIRST_COORDINATE, connectionAlongFirst);
+		return stateIn.setValue(PART, part)
+			.setValue(CONNECTED_ALONG_FIRST_COORDINATE, connectionAlongFirst);
 	}
 
 	@Override
 	public BlockState getRotatedBlockState(BlockState originalState, Direction targetedFace) {
-		if (originalState.get(PART) == Part.NONE)
+		if (originalState.getValue(PART) == Part.NONE)
 			return super.getRotatedBlockState(originalState, targetedFace);
 		return super.getRotatedBlockState(originalState,
-			Direction.getFacingFromAxis(AxisDirection.POSITIVE, getConnectionAxis(originalState)));
+			Direction.get(AxisDirection.POSITIVE, getConnectionAxis(originalState)));
 	}
 
 	@Override
-	public BlockState updateAfterWrenched(BlockState newState, ItemUseContext context) {
+	public BlockState updateAfterWrenched(BlockState newState, UseOnContext context) {
 //		Blocks.AIR.getDefaultState()
 //			.updateNeighbors(context.getWorld(), context.getPos(), 1);
-		Axis axis = newState.get(AXIS);
-		newState = getDefaultState().with(AXIS, axis);
-		if (newState.contains(BlockStateProperties.POWERED))
-			newState = newState.with(BlockStateProperties.POWERED, context.getWorld()
-				.isBlockPowered(context.getPos()));
+		Axis axis = newState.getValue(AXIS);
+		newState = defaultBlockState().setValue(AXIS, axis);
+		if (newState.hasProperty(BlockStateProperties.POWERED))
+			newState = newState.setValue(BlockStateProperties.POWERED, context.getLevel()
+				.hasNeighborSignal(context.getClickedPos()));
 		for (Direction facing : Iterate.directions) {
 			if (facing.getAxis() == axis)
 				continue;
-			BlockPos pos = context.getPos();
-			BlockPos offset = pos.offset(facing);
-			newState = updatePostPlacement(newState, facing, context.getWorld()
-				.getBlockState(offset), context.getWorld(), pos, offset);
+			BlockPos pos = context.getClickedPos();
+			BlockPos offset = pos.relative(facing);
+			newState = updateShape(newState, facing, context.getLevel()
+				.getBlockState(offset), context.getLevel(), pos, offset);
 		}
 //		newState.updateNeighbors(context.getWorld(), context.getPos(), 1 | 2);
 		return newState;
 	}
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
-		return face.getAxis() == state.get(AXIS);
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
+		return face.getAxis() == state.getValue(AXIS);
 	}
 
 	@Override
 	public Axis getRotationAxis(BlockState state) {
-		return state.get(AXIS);
+		return state.getValue(AXIS);
 	}
 
 	public static boolean areBlocksConnected(BlockState state, BlockState other, Direction facing) {
-		Part part = state.get(PART);
+		Part part = state.getValue(PART);
 		Axis connectionAxis = getConnectionAxis(state);
 		Axis otherConnectionAxis = getConnectionAxis(other);
 
@@ -184,8 +183,8 @@ public class EncasedBeltBlock extends RotatedPillarKineticBlock implements WeakP
 	}
 
 	protected static Axis getConnectionAxis(BlockState state) {
-		Axis axis = state.get(AXIS);
-		boolean connectionAlongFirst = state.get(CONNECTED_ALONG_FIRST_COORDINATE);
+		Axis axis = state.getValue(AXIS);
+		boolean connectionAlongFirst = state.getValue(CONNECTED_ALONG_FIRST_COORDINATE);
 		Axis connectionAxis =
 			connectionAlongFirst ? (axis == Axis.X ? Axis.Y : Axis.X) : (axis == Axis.Z ? Axis.Y : Axis.Z);
 		return connectionAxis;
@@ -202,15 +201,15 @@ public class EncasedBeltBlock extends RotatedPillarKineticBlock implements WeakP
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.ENCASED_SHAFT.create();
 	}
 
-	public enum Part implements IStringSerializable {
+	public enum Part implements StringRepresentable {
 		START, MIDDLE, END, NONE;
 
 		@Override
-		public String getString() {
+		public String getSerializedName() {
 			return Lang.asId(name());
 		}
 	}

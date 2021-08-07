@@ -5,21 +5,21 @@ import com.simibubi.create.lib.helper.ParticleManagerHelper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.IParticleData.IDeserializer;
-import net.minecraft.particles.ParticleType;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleOptions.Deserializer;
+import net.minecraft.core.particles.ParticleType;
 
-public interface ICustomParticleDataWithSprite<T extends IParticleData> extends ICustomParticleData<T> {
+public interface ICustomParticleDataWithSprite<T extends ParticleOptions> extends ICustomParticleData<T> {
 
-	IDeserializer<T> getDeserializer();
+	Deserializer<T> getDeserializer();
 
 	public default ParticleType<T> createType() {
 		return new ParticleType<T>(false, getDeserializer()) {
 
 			@Override
-			public Codec<T> getCodec() {
+			public Codec<T> codec() {
 				return ICustomParticleDataWithSprite.this.getCodec(this);
 			}
 		};
@@ -27,16 +27,16 @@ public interface ICustomParticleDataWithSprite<T extends IParticleData> extends 
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	default IParticleFactory<T> getFactory() {
+	default ParticleProvider<T> getFactory() {
 		throw new IllegalAccessError("This particle type uses a metaFactory!");
 	}
 
 	@Environment(EnvType.CLIENT)
-	public ParticleManager.IParticleMetaFactory<T> getMetaFactory();
+	public ParticleEngine.SpriteParticleRegistration<T> getMetaFactory();
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public default void register(ParticleType<T> type, ParticleManager particles) {
+	public default void register(ParticleType<T> type, ParticleEngine particles) {
 		ParticleManagerHelper.registerFactory(particles, type, getMetaFactory());
 	}
 

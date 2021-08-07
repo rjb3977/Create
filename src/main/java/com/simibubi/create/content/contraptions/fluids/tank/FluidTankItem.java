@@ -3,19 +3,18 @@ package com.simibubi.create.content.contraptions.fluids.tank;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
 import com.simibubi.create.lib.utility.ExtraDataUtil;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FluidTankItem extends BlockItem {
 
@@ -24,21 +23,21 @@ public class FluidTankItem extends BlockItem {
 	}
 
 	@Override
-	public ActionResultType tryPlace(BlockItemUseContext ctx) {
-		ActionResultType initialResult = super.tryPlace(ctx);
-		if (!initialResult.isAccepted())
+	public InteractionResult place(BlockPlaceContext ctx) {
+		InteractionResult initialResult = super.place(ctx);
+		if (!initialResult.consumesAction())
 			return initialResult;
 		tryMultiPlace(ctx);
 		return initialResult;
 	}
 
 	@Override
-	protected boolean onBlockPlaced(BlockPos p_195943_1_, World p_195943_2_, PlayerEntity p_195943_3_,
+	protected boolean updateCustomBlockEntityTag(BlockPos p_195943_1_, Level p_195943_2_, Player p_195943_3_,
 		ItemStack p_195943_4_, BlockState p_195943_5_) {
 		MinecraftServer minecraftserver = p_195943_2_.getServer();
 		if (minecraftserver == null)
 			return false;
-		CompoundNBT nbt = p_195943_4_.getChildTag("BlockEntityTag");
+		CompoundTag nbt = p_195943_4_.getTagElement("BlockEntityTag");
 		if (nbt != null) {
 			nbt.remove("Luminosity");
 			nbt.remove("Size");
@@ -49,27 +48,27 @@ public class FluidTankItem extends BlockItem {
 				FluidStack fluid = FluidStack.loadFluidStackFromNBT(nbt.getCompound("TankContent"));
 				if (!fluid.isEmpty()) {
 					fluid.setAmount(Math.min(FluidTankTileEntity.getCapacityMultiplier(), fluid.getAmount()));
-					nbt.put("TankContent", fluid.writeToNBT(new CompoundNBT()));
+					nbt.put("TankContent", fluid.writeToNBT(new CompoundTag()));
 				}
 			}
 		}
-		return super.onBlockPlaced(p_195943_1_, p_195943_2_, p_195943_3_, p_195943_4_, p_195943_5_);
+		return super.updateCustomBlockEntityTag(p_195943_1_, p_195943_2_, p_195943_3_, p_195943_4_, p_195943_5_);
 	}
 
-	private void tryMultiPlace(BlockItemUseContext ctx) {
-		PlayerEntity player = ctx.getPlayer();
+	private void tryMultiPlace(BlockPlaceContext ctx) {
+		Player player = ctx.getPlayer();
 		if (player == null)
 			return;
-		if (player.isSneaking())
+		if (player.isShiftKeyDown())
 			return;
-		Direction face = ctx.getFace();
+		Direction face = ctx.getClickedFace();
 		if (!face.getAxis()
 			.isVertical())
 			return;
-		ItemStack stack = ctx.getItem();
-		World world = ctx.getWorld();
-		BlockPos pos = ctx.getPos();
-		BlockPos placedOnPos = pos.offset(face.getOpposite());
+		ItemStack stack = ctx.getItemInHand();
+		Level world = ctx.getLevel();
+		BlockPos pos = ctx.getClickedPos();
+		BlockPos placedOnPos = pos.relative(face.getOpposite());
 		BlockState placedOnState = world.getBlockState(placedOnPos);
 
 		if (!FluidTankBlock.isTank(placedOnState))
@@ -86,17 +85,17 @@ public class FluidTankItem extends BlockItem {
 			return;
 
 		int tanksToPlace = 0;
-		BlockPos startPos = face == Direction.DOWN ? controllerTE.getPos()
-			.down()
-			: controllerTE.getPos()
-				.up(controllerTE.height);
+		BlockPos startPos = face == Direction.DOWN ? controllerTE.getBlockPos()
+			.below()
+			: controllerTE.getBlockPos()
+				.above(controllerTE.height);
 
 		if (startPos.getY() != pos.getY())
 			return;
 
 		for (int xOffset = 0; xOffset < width; xOffset++) {
 			for (int zOffset = 0; zOffset < width; zOffset++) {
-				BlockPos offsetPos = startPos.add(xOffset, 0, zOffset);
+				BlockPos offsetPos = startPos.offset(xOffset, 0, zOffset);
 				BlockState blockState = world.getBlockState(offsetPos);
 				if (FluidTankBlock.isTank(blockState))
 					continue;
@@ -112,14 +111,14 @@ public class FluidTankItem extends BlockItem {
 
 		for (int xOffset = 0; xOffset < width; xOffset++) {
 			for (int zOffset = 0; zOffset < width; zOffset++) {
-				BlockPos offsetPos = startPos.add(xOffset, 0, zOffset);
+				BlockPos offsetPos = startPos.offset(xOffset, 0, zOffset);
 				BlockState blockState = world.getBlockState(offsetPos);
 				if (FluidTankBlock.isTank(blockState))
 					continue;
-				BlockItemUseContext context = BlockItemUseContext.func_221536_a(ctx, offsetPos, face);
+				BlockPlaceContext context = BlockPlaceContext.at(ctx, offsetPos, face);
 				ExtraDataUtil.getExtraData(player)
 					.putBoolean("SilenceTankSound", true);
-				super.tryPlace(context);
+				super.place(context);
 				ExtraDataUtil.getExtraData(player)
 					.remove("SilenceTankSound");
 			}

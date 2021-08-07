@@ -24,13 +24,13 @@ import com.simibubi.create.foundation.ponder.content.SharedText;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTSizeTracker;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.template.PlacementSettings;
-import net.minecraft.world.gen.feature.template.Template;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 public class PonderRegistry {
 
@@ -87,9 +87,9 @@ public class PonderRegistry {
 
 		for (int i = 0; i < entries.size(); i++) {
 			PonderStoryBoardEntry sb = entries.get(i);
-			Template activeTemplate = loadSchematic(sb.getSchematicName());
-			PonderWorld world = new PonderWorld(BlockPos.ZERO, Minecraft.getInstance().world);
-			activeTemplate.placeAndNotifyListeners(world, BlockPos.ZERO, new PlacementSettings(), world.rand);
+			StructureTemplate activeTemplate = loadSchematic(sb.getSchematicName());
+			PonderWorld world = new PonderWorld(BlockPos.ZERO, Minecraft.getInstance().level);
+			activeTemplate.placeInWorld(world, BlockPos.ZERO, new StructurePlaceSettings(), world.random);
 			world.createBackup();
 			PonderScene scene = compileScene(i, sb, world);
 			scene.begin();
@@ -107,8 +107,8 @@ public class PonderRegistry {
 		return scene;
 	}
 
-	public static Template loadSchematic(String path) {
-		Template t = new Template();
+	public static StructureTemplate loadSchematic(String path) {
+		StructureTemplate t = new StructureTemplate();
 		String filepath = "ponder/" + path + ".nbt";
 		InputStream resourceAsStream = Create.class.getClassLoader()
 			.getResourceAsStream(filepath);
@@ -118,8 +118,8 @@ public class PonderRegistry {
 		}
 		try (DataInputStream stream =
 			new DataInputStream(new BufferedInputStream(new GZIPInputStream(resourceAsStream)))) {
-			CompoundNBT nbt = CompressedStreamTools.read(stream, new NBTSizeTracker(0x20000000L));
-			t.read(nbt);
+			CompoundTag nbt = NbtIo.read(stream, new NbtAccounter(0x20000000L));
+			t.load(nbt);
 		} catch (IOException e) {
 			Create.LOGGER.warn("Failed to read ponder schematic", e);
 		}

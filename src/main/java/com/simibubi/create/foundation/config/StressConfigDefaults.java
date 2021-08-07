@@ -2,13 +2,11 @@ package com.simibubi.create.foundation.config;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import com.simibubi.create.Create;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
-
-import net.minecraft.block.Block;
-import net.minecraft.util.ResourceLocation;
 
 public class StressConfigDefaults {
 

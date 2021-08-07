@@ -19,14 +19,13 @@ import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Rarity;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.PistonType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.properties.PistonType;
 
 public class BuilderTransformers {
 
@@ -34,7 +33,7 @@ public class BuilderTransformers {
 		return b -> b.initialProperties(SharedProperties::wooden)
 //			.blockstate((c, p) -> p.horizontalBlock(c.get(), p.models()
 //				.getExistingFile(p.modLoc("block/cuckoo_clock/block"))))
-			.addLayer(() -> RenderType::getCutoutMipped)
+			.addLayer(() -> RenderType::cutoutMipped)
 			.transform(StressConfigDefaults.setImpact(1.0))
 			.item()
 			.transform(ModelGen.customItemModel("cuckoo_clock", "item"));
@@ -43,10 +42,10 @@ public class BuilderTransformers {
 	public static <B extends EncasedShaftBlock, P> NonNullUnaryOperator<BlockBuilder<B, P>> encasedShaft(String casing,
 		CTSpriteShiftEntry casingShift) {
 		return builder -> builder.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::nonOpaque)
+			.properties(FabricBlockSettings::noOcclusion)
 			.onRegister(CreateRegistrate.connectedTextures(new EncasedCTBehaviour(casingShift)))
 			.onRegister(CreateRegistrate.casingConnectivity(
-				(block, cc) -> cc.make(block, casingShift, (s, f) -> f.getAxis() != s.get(EncasedShaftBlock.AXIS))))
+				(block, cc) -> cc.make(block, casingShift, (s, f) -> f.getAxis() != s.getValue(EncasedShaftBlock.AXIS))))
 //			.blockstate((c, p) -> axisBlock(c, p, blockState -> p.models()
 //				.getExistingFile(p.modLoc("block/encased_shaft/block_" + casing)), true))
 			.transform(StressConfigDefaults.setNoImpact())
@@ -84,8 +83,8 @@ public class BuilderTransformers {
 	public static <B extends BeltTunnelBlock> NonNullUnaryOperator<BlockBuilder<B, CreateRegistrate>> beltTunnel(
 		String type, ResourceLocation particleTexture) {
 		return b -> b.initialProperties(SharedProperties::stone)
-			.addLayer(() -> RenderType::getCutoutMipped)
-			.properties(FabricBlockSettings::nonOpaque)
+			.addLayer(() -> RenderType::cutoutMipped)
+			.properties(FabricBlockSettings::noOcclusion)
 //			.blockstate((c, p) -> p.getVariantBuilder(c.get())
 //				.forAllStates(state -> {
 //					String id = "block/" + type + "_tunnel";
@@ -116,12 +115,12 @@ public class BuilderTransformers {
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> mechanicalPiston(PistonType type) {
 		return b -> b.initialProperties(SharedProperties::stone)
-			.properties(p -> p.nonOpaque())
+			.properties(p -> p.noOcclusion())
 //			.blockstate(new MechanicalPistonGenerator(type)::generate)
-			.addLayer(() -> RenderType::getCutoutMipped)
+			.addLayer(() -> RenderType::cutoutMipped)
 			.transform(StressConfigDefaults.setImpact(4.0))
 			.item()
-			.transform(ModelGen.customItemModel("mechanical_piston", type.getString(), "item"));
+			.transform(ModelGen.customItemModel("mechanical_piston", type.getSerializedName(), "item"));
 	}
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> bearing(String prefix,
@@ -134,7 +133,7 @@ public class BuilderTransformers {
 		ResourceLocation sideTextureLocation = Create.asResource("block/" + prefix + "_bearing_side");
 		ResourceLocation backTextureLocation = Create.asResource("block/" + backTexture);
 		return b -> b.initialProperties(SharedProperties::stone)
-			.properties(p -> p.nonOpaque())
+			.properties(p -> p.noOcclusion())
 //			.blockstate((c, p) -> p.directionalBlock(c.get(), p.models()
 //				.withExistingParent(c.getName(), baseBlockModelLocation)
 //				.texture("side", sideTextureLocation)
@@ -207,9 +206,9 @@ public class BuilderTransformers {
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> bell() {
 		return b -> b.initialProperties(SharedProperties::softMetal)
-			.properties(p -> p.nonOpaque()
+			.properties(p -> p.noOcclusion()
 				.sound(SoundType.ANVIL))
-			.addLayer(() -> RenderType::getCutoutMipped)
+			.addLayer(() -> RenderType::cutoutMipped)
 			.tag(AllBlockTags.BRITTLE.tag)
 			.blockstate((c, p) -> p.horizontalBlock(c.getEntry(), state ->
 				AssetLookup.partialBaseModel(c, p, state.get(BlockStateProperties.BELL_ATTACHMENT).getString())))

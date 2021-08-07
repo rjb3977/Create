@@ -9,9 +9,9 @@ import com.simibubi.create.content.contraptions.components.structureMovement.Abs
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 
 public class ContraptionSeatMappingPacket implements S2CPacket {
 
@@ -25,29 +25,29 @@ public class ContraptionSeatMappingPacket implements S2CPacket {
 		this.mapping = mapping;
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		entityID = buffer.readInt();
 		mapping = new HashMap<>();
 		short size = buffer.readShort();
 		for (int i = 0; i < size; i++)
-			mapping.put(buffer.readUniqueId(), (int) buffer.readShort());
+			mapping.put(buffer.readUUID(), (int) buffer.readShort());
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(entityID);
 		buffer.writeShort(mapping.size());
 		mapping.forEach((k, v) -> {
-			buffer.writeUniqueId(k);
+			buffer.writeUUID(k);
 			buffer.writeShort(v);
 		});
 	}
 
 	@Override
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client
 			.execute(() -> {
-				Entity entityByID = Minecraft.getInstance().world.getEntityByID(entityID);
+				Entity entityByID = Minecraft.getInstance().level.getEntity(entityID);
 				if (!(entityByID instanceof AbstractContraptionEntity))
 					return;
 				AbstractContraptionEntity contraptionEntity = (AbstractContraptionEntity) entityByID;

@@ -13,10 +13,10 @@ import com.simibubi.create.lib.utility.MixinHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ClientWorld.class)
+@Mixin(ClientLevel.class)
 public abstract class ClientWorldMixin {
 	@Shadow
 	@Final

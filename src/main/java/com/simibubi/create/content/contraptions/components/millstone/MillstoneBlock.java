@@ -12,25 +12,24 @@ import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.TransferUtil;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEntity>, ICogWheel {
 
@@ -39,27 +38,27 @@ public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEnt
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.MILLSTONE.create();
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
 		return AllShapes.MILLSTONE;
 	}
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
 		return face == Direction.DOWN;
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-			BlockRayTraceResult hit) {
-		if (!player.getHeldItem(handIn).isEmpty())
-			return ActionResultType.PASS;
-		if (worldIn.isRemote)
-			return ActionResultType.SUCCESS;
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
+			BlockHitResult hit) {
+		if (!player.getItemInHand(handIn).isEmpty())
+			return InteractionResult.PASS;
+		if (worldIn.isClientSide)
+			return InteractionResult.SUCCESS;
 
 		withTileEntityDo(worldIn, pos, millstone -> {
 			boolean emptyOutput = true;
@@ -80,18 +79,18 @@ public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEnt
 				}
 			}
 
-			millstone.markDirty();
+			millstone.setChanged();
 			millstone.sendData();
 		});
 
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public void onLanded(IBlockReader worldIn, Entity entityIn) {
-		super.onLanded(worldIn, entityIn);
+	public void updateEntityAfterFallOn(BlockGetter worldIn, Entity entityIn) {
+		super.updateEntityAfterFallOn(worldIn, entityIn);
 
-		if (entityIn.world.isRemote)
+		if (entityIn.level.isClientSide)
 			return;
 		if (!(entityIn instanceof ItemEntity))
 			return;
@@ -99,7 +98,7 @@ public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEnt
 			return;
 
 		MillstoneTileEntity millstone = null;
-		for (BlockPos pos : Iterate.hereAndBelow(entityIn.getBlockPos()))
+		for (BlockPos pos : Iterate.hereAndBelow(entityIn.blockPosition()))
 			if (millstone == null)
 				millstone = getTileEntity(worldIn, pos);
 
@@ -119,14 +118,14 @@ public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEnt
 	}
 
 	@Override
-	public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock().hasBlockEntity() && state.getBlock() != newState.getBlock()) {
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+		if (state.getBlock().isEntityBlock() && state.getBlock() != newState.getBlock()) {
 			withTileEntityDo(worldIn, pos, te -> {
 				ItemHelper.dropContents(worldIn, pos, te.inputInv);
 				ItemHelper.dropContents(worldIn, pos, te.outputInv);
 			});
 
-			worldIn.removeTileEntity(pos);
+			worldIn.removeBlockEntity(pos);
 		}
 	}
 
@@ -141,7 +140,7 @@ public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEnt
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

@@ -1,18 +1,16 @@
 package com.simibubi.create.lib.mixin.accessor;
 
 import java.util.List;
-
+import net.minecraft.world.level.BaseSpawner;
+import net.minecraft.world.level.SpawnData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.util.WeightedSpawnerEntity;
-import net.minecraft.world.spawner.AbstractSpawner;
-
-@Mixin(AbstractSpawner.class)
+@Mixin(BaseSpawner.class)
 public interface AbstractSpawnerAccessor {
 	@Accessor("potentialSpawns")
-	List<WeightedSpawnerEntity> create$potentialSpawns();
+	List<SpawnData> create$potentialSpawns();
 
 	@Accessor("spawnData")
-	WeightedSpawnerEntity create$spawnData();
+	SpawnData create$spawnData();
 }

@@ -2,15 +2,13 @@ package com.simibubi.create;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.content.contraptions.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 
 public class AllBlockPartials {
 
@@ -127,14 +125,14 @@ public class AllBlockPartials {
 			Map<Direction, PartialModel> map = new HashMap<>();
 			for (Direction d : Iterate.directions) {
 				String asId = Lang.asId(type.name());
-				map.put(d, get("fluid_pipe/" + asId + "/" + Lang.asId(d.getString())));
+				map.put(d, get("fluid_pipe/" + asId + "/" + Lang.asId(d.getSerializedName())));
 			}
 			PIPE_ATTACHMENTS.put(type, map);
 		}
 		for (BlazeBurnerBlock.HeatLevel heat : BlazeBurnerBlock.HeatLevel.values()) {
 			if (heat == BlazeBurnerBlock.HeatLevel.NONE)
 				continue;
-			BLAZES.put(heat, get("blaze_burner/blaze/" + heat.getString()));
+			BLAZES.put(heat, get("blaze_burner/blaze/" + heat.getSerializedName()));
 		}
 	}
 

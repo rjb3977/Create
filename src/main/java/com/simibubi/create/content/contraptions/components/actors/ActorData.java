@@ -3,10 +3,9 @@ package com.simibubi.create.content.contraptions.components.actors;
 import com.jozufozu.flywheel.backend.gl.buffer.MappedBuffer;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.BlockPos;
 
 public class ActorData extends InstanceData {
     private float x;
@@ -66,7 +65,7 @@ public class ActorData extends InstanceData {
     }
 
     public ActorData setRotationAxis(Vector3f axis) {
-        setRotationAxis(axis.getX(), axis.getY(), axis.getZ());
+        setRotationAxis(axis.x(), axis.y(), axis.z());
         return this;
     }
 
@@ -79,7 +78,7 @@ public class ActorData extends InstanceData {
     }
 
     public ActorData setRotationCenter(Vector3f axis) {
-        setRotationCenter(axis.getX(), axis.getY(), axis.getZ());
+        setRotationCenter(axis.x(), axis.y(), axis.z());
         return this;
     }
 
@@ -92,10 +91,10 @@ public class ActorData extends InstanceData {
     }
 
 	public ActorData setLocalRotation(Quaternion q) {
-		this.qX = q.getX();
-		this.qY = q.getY();
-		this.qZ = q.getZ();
-		this.qW = q.getW();
+		this.qX = q.i();
+		this.qY = q.j();
+		this.qZ = q.k();
+		this.qW = q.r();
 		markDirty();
 		return this;
 	}

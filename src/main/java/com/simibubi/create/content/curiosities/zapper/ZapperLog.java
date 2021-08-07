@@ -3,18 +3,16 @@ package com.simibubi.create.content.curiosities.zapper;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 import com.simibubi.create.lib.utility.NBTSerializer;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.template.Template.BlockInfo;
 
 public class ZapperLog {
 
-	private World activeWorld;
-	private List<List<BlockInfo>> log = new LinkedList<>();
+	private Level activeWorld;
+	private List<List<StructureBlockInfo>> log = new LinkedList<>();
 //	private int redoIndex;
 
 	/*
@@ -29,16 +27,16 @@ public class ZapperLog {
 	 *
 	 */
 
-	public void record(World world, List<BlockPos> positions) {
+	public void record(Level world, List<BlockPos> positions) {
 //		if (maxLogLength() == 0)
 //			return;
 		if (world != activeWorld)
 			log.clear();
 		activeWorld = world;
 
-		List<BlockInfo> blocks = positions.stream().map(pos -> {
-			TileEntity tileEntity = world.getTileEntity(pos);
-			return new BlockInfo(pos, world.getBlockState(pos), tileEntity == null ? null : NBTSerializer.serializeNBT(tileEntity));
+		List<StructureBlockInfo> blocks = positions.stream().map(pos -> {
+			BlockEntity tileEntity = world.getBlockEntity(pos);
+			return new StructureBlockInfo(pos, world.getBlockState(pos), tileEntity == null ? null : NBTSerializer.serializeNBT(tileEntity));
 		}).collect(Collectors.toList());
 
 		log.add(0, blocks);

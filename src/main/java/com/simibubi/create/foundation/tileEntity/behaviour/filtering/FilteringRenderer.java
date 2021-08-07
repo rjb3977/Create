@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.tileEntity.behaviour.filtering;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllSpecialTextures;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.logistics.item.filter.FilterItem;
@@ -14,48 +14,47 @@ import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform.Sid
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.Pair;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class FilteringRenderer {
 
 	public static void tick() {
 		Minecraft mc = Minecraft.getInstance();
-		RayTraceResult target = mc.objectMouseOver;
-		if (target == null || !(target instanceof BlockRayTraceResult))
+		HitResult target = mc.hitResult;
+		if (target == null || !(target instanceof BlockHitResult))
 			return;
 
-		BlockRayTraceResult result = (BlockRayTraceResult) target;
-		ClientWorld world = mc.world;
-		BlockPos pos = result.getPos();
+		BlockHitResult result = (BlockHitResult) target;
+		ClientLevel world = mc.level;
+		BlockPos pos = result.getBlockPos();
 		BlockState state = world.getBlockState(pos);
 
 		FilteringBehaviour behaviour = TileEntityBehaviour.get(world, pos, FilteringBehaviour.TYPE);
-		if (mc.player.isSneaking())
+		if (mc.player.isShiftKeyDown())
 			return;
 		if (behaviour == null)
 			return;
 		if (behaviour instanceof SidedFilteringBehaviour) {
-			behaviour = ((SidedFilteringBehaviour) behaviour).get(result.getFace());
+			behaviour = ((SidedFilteringBehaviour) behaviour).get(result.getDirection());
 			if (behaviour == null)
 				return;
 		}
 		if (!behaviour.isActive())
 			return;
 		if (behaviour.slotPositioning instanceof ValueBoxTransform.Sided)
-			((Sided) behaviour.slotPositioning).fromSide(result.getFace());
+			((Sided) behaviour.slotPositioning).fromSide(result.getDirection());
 		if (!behaviour.slotPositioning.shouldRender(state))
 			return;
 
@@ -63,31 +62,31 @@ public class FilteringRenderer {
 		boolean isFilterSlotted = filter.getItem() instanceof FilterItem;
 		boolean showCount = behaviour.isCountVisible();
 		boolean fluids = behaviour.fluidFilter;
-		ITextComponent label = isFilterSlotted ? StringTextComponent.EMPTY
+		Component label = isFilterSlotted ? TextComponent.EMPTY
 			: Lang.translate(behaviour.recipeFilter ? "logistics.recipe_filter"
 				: fluids ? "logistics.fluid_filter" : "logistics.filter");
-		boolean hit = behaviour.slotPositioning.testHit(state, target.getHitVec()
-			.subtract(Vector3d.of(pos)));
+		boolean hit = behaviour.slotPositioning.testHit(state, target.getLocation()
+			.subtract(Vec3.atLowerCornerOf(pos)));
 
-		AxisAlignedBB emptyBB = new AxisAlignedBB(Vector3d.ZERO, Vector3d.ZERO);
-		AxisAlignedBB bb = isFilterSlotted ? emptyBB.grow(.45f, .31f, .2f) : emptyBB.grow(.25f);
+		AABB emptyBB = new AABB(Vec3.ZERO, Vec3.ZERO);
+		AABB bb = isFilterSlotted ? emptyBB.inflate(.45f, .31f, .2f) : emptyBB.inflate(.25f);
 
 		ValueBox box = showCount ? new ItemValueBox(label, bb, pos, filter, behaviour.scrollableValue)
 				: new ValueBox(label, bb, pos);
 
 		box.offsetLabel(behaviour.textShift)
 				.withColors(fluids ? 0x407088 : 0x7A6A2C, fluids ? 0x70adb5 : 0xB79D64)
-				.scrollTooltip(showCount && !isFilterSlotted ? new StringTextComponent("[").append(Lang.translate("action.scroll")).append("]") : StringTextComponent.EMPTY)
+				.scrollTooltip(showCount && !isFilterSlotted ? new TextComponent("[").append(Lang.translate("action.scroll")).append("]") : TextComponent.EMPTY)
 				.passive(!hit);
 
 		CreateClient.OUTLINER.showValueBox(Pair.of("filter", pos), box.transform(behaviour.slotPositioning))
 				.lineWidth(1 / 64f)
 				.withFaceTexture(hit ? AllSpecialTextures.THIN_CHECKERED : null)
-				.highlightFace(result.getFace());
+				.highlightFace(result.getDirection());
 	}
 
-	public static void renderOnTileEntity(SmartTileEntity tileEntityIn, float partialTicks, MatrixStack ms,
-		IRenderTypeBuffer buffer, int light, int overlay) {
+	public static void renderOnTileEntity(SmartTileEntity tileEntityIn, float partialTicks, PoseStack ms,
+		MultiBufferSource buffer, int light, int overlay) {
 
 		if (tileEntityIn == null || tileEntityIn.isRemoved())
 			return;
@@ -115,18 +114,18 @@ public class FilteringRenderer {
 				if (!slotPositioning.shouldRender(blockState))
 					continue;
 
-				ms.push();
+				ms.pushPose();
 				slotPositioning.transform(blockState, ms);
 				ValueBoxRenderer.renderItemIntoValueBox(filter, ms, buffer, light, overlay);
-				ms.pop();
+				ms.popPose();
 			}
 			sided.fromSide(side);
 			return;
 		} else if (slotPositioning.shouldRender(blockState)) {
-			ms.push();
+			ms.pushPose();
 			slotPositioning.transform(blockState, ms);
 			ValueBoxRenderer.renderItemIntoValueBox(behaviour.getFilter(), ms, buffer, light, overlay);
-			ms.pop();
+			ms.popPose();
 		}
 	}
 

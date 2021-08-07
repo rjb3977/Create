@@ -2,15 +2,13 @@ package com.simibubi.create.content.curiosities.projector;
 
 import java.util.Vector;
 import java.util.stream.Collectors;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import com.simibubi.create.foundation.networking.TileEntityConfigurationPacket;
-
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
 
 public class ConfigureProjectorPacket extends TileEntityConfigurationPacket<ChromaticProjectorTileEntity> {
 
-	Vector<CompoundNBT> stages;
+	Vector<CompoundTag> stages;
 	float radius;
 
 	float feather;
@@ -26,12 +24,12 @@ public class ConfigureProjectorPacket extends TileEntityConfigurationPacket<Chro
 	public boolean gMask;
 	public boolean bMask;
 
-	public ConfigureProjectorPacket(PacketBuffer buffer) {
+	public ConfigureProjectorPacket(FriendlyByteBuf buffer) {
 		super(buffer);
 	}
 
 	public ConfigureProjectorPacket(ChromaticProjectorTileEntity tile) {
-		super(tile.getPos());
+		super(tile.getBlockPos());
 
 		stages = tile.stages.stream()
 				.map(FilterStep::write)
@@ -53,7 +51,7 @@ public class ConfigureProjectorPacket extends TileEntityConfigurationPacket<Chro
 	}
 
 	@Override
-	protected void writeSettings(PacketBuffer buffer) {
+	protected void writeSettings(FriendlyByteBuf buffer) {
 		buffer.writeFloat(radius);
 
 		buffer.writeFloat(feather);
@@ -70,13 +68,13 @@ public class ConfigureProjectorPacket extends TileEntityConfigurationPacket<Chro
 		buffer.writeBoolean(bMask);
 
 		buffer.writeInt(stages.size());
-		for (CompoundNBT stage : stages) {
-			buffer.writeCompoundTag(stage);
+		for (CompoundTag stage : stages) {
+			buffer.writeNbt(stage);
 		}
 	}
 
 	@Override
-	protected void readSettings(PacketBuffer buffer) {
+	protected void readSettings(FriendlyByteBuf buffer) {
 		radius = buffer.readFloat();
 
 		feather = buffer.readFloat();
@@ -96,7 +94,7 @@ public class ConfigureProjectorPacket extends TileEntityConfigurationPacket<Chro
 		stages = new Vector<>(FilterStep.MAX_STEPS);
 
 		for (int i = 0; i < count; i++) {
-			stages.add(buffer.readCompoundTag());
+			stages.add(buffer.readNbt());
 		}
 	}
 

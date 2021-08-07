@@ -4,9 +4,8 @@ import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.backend.instancing.MaterialRenderer;
 import com.jozufozu.flywheel.core.WorldContext;
 import com.jozufozu.flywheel.core.shader.IProgramCallback;
-
+import com.mojang.math.Matrix4f;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.math.vector.Matrix4f;
 
 public class ContraptionMaterialManager extends MaterialManager<ContraptionProgram> {
 	public ContraptionMaterialManager(WorldContext<ContraptionProgram> context) {

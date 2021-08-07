@@ -1,17 +1,15 @@
 package com.simibubi.create.content.logistics.block.depot;
 
 import java.util.List;
-
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
-
-import net.minecraft.tileentity.TileEntityType;
 
 public class DepotTileEntity extends SmartTileEntity {
 
 	DepotBehaviour depotBehaviour;
 
-	public DepotTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public DepotTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 

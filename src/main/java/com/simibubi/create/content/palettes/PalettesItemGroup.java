@@ -1,12 +1,10 @@
 package com.simibubi.create.content.palettes;
 
 import java.util.EnumSet;
-
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.content.AllSections;
 import com.simibubi.create.foundation.item.CreateItemGroupBase;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 
 public class PalettesItemGroup extends CreateItemGroupBase {
 
@@ -23,7 +21,7 @@ public class PalettesItemGroup extends CreateItemGroupBase {
 	public void addItems(NonNullList<ItemStack> items, boolean specialItems) {}
 
 	@Override
-	public ItemStack createIcon() {
+	public ItemStack makeIcon() {
 		return new ItemStack(AllPaletteBlocks.ORNATE_IRON_WINDOW.get());
 	}
 

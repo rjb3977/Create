@@ -1,17 +1,16 @@
 package com.simibubi.create.foundation.data;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.block.material.PushReaction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.PushReaction;
 
 @MethodsReturnNonnullByDefault
 public class SharedProperties {
 	public static Material beltMaterial =
-		new Material(MaterialColor.GRAY, false, true, true, true, false, false, PushReaction.NORMAL);
+		new Material(MaterialColor.COLOR_GRAY, false, true, true, true, false, false, PushReaction.NORMAL);
 
 	public static Block stone() {
 		return Blocks.ANDESITE;

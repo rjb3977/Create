@@ -4,102 +4,102 @@ import com.simibubi.create.AllEntityTypes;
 import com.simibubi.create.lib.entity.ExtraSpawnDataEntity;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.client.renderer.culling.ClippingHelper;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SSpawnObjectPacket;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class SeatEntity extends Entity implements ExtraSpawnDataEntity {
 
-	public SeatEntity(EntityType<?> p_i48580_1_, World p_i48580_2_) {
+	public SeatEntity(EntityType<?> p_i48580_1_, Level p_i48580_2_) {
 		super(p_i48580_1_, p_i48580_2_);
 	}
 
-	public SeatEntity(World world, BlockPos pos) {
+	public SeatEntity(Level world, BlockPos pos) {
 		this(AllEntityTypes.SEAT.get(), world);
-		noClip = true;
+		noPhysics = true;
 	}
 
 	public static FabricEntityTypeBuilder<?> build(FabricEntityTypeBuilder<?> builder) {
 		@SuppressWarnings("unchecked")
 		FabricEntityTypeBuilder<SeatEntity> entityBuilder = (FabricEntityTypeBuilder<SeatEntity>) builder;
-		return entityBuilder.dimensions(EntitySize.flexible(0.25f, 0.35f));
+		return entityBuilder.dimensions(EntityDimensions.scalable(0.25f, 0.35f));
 	}
 
 	@Override
-	public AxisAlignedBB getBoundingBox() {
+	public AABB getBoundingBox() {
 		return super.getBoundingBox();
 	}
 
 	@Override
-	public void setPos(double x, double y, double z) {
-		super.setPos(x, y, z);
-		AxisAlignedBB bb = getBoundingBox();
-		Vector3d diff = new Vector3d(x, y, z).subtract(bb.getCenter());
-		setBoundingBox(bb.offset(diff));
+	public void setPosRaw(double x, double y, double z) {
+		super.setPosRaw(x, y, z);
+		AABB bb = getBoundingBox();
+		Vec3 diff = new Vec3(x, y, z).subtract(bb.getCenter());
+		setBoundingBox(bb.move(diff));
 	}
 
 	@Override
-	public void setMotion(Vector3d p_213317_1_) {}
+	public void setDeltaMovement(Vec3 p_213317_1_) {}
 
 	@Override
 	public void tick() {
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
-		boolean blockPresent = world.getBlockState(getBlockPos())
+		boolean blockPresent = level.getBlockState(blockPosition())
 			.getBlock() instanceof SeatBlock;
-		if (isBeingRidden() && blockPresent)
+		if (isVehicle() && blockPresent)
 			return;
 		this.remove();
 	}
 
 	@Override
-	protected boolean canBeRidden(Entity entity) {
+	protected boolean canRide(Entity entity) {
 		// Fake Players (tested with deployers) have a BUNCH of weird issues, don't let them ride seats
-		return !(entity instanceof ServerPlayerEntity);
+		return !(entity instanceof ServerPlayer);
 	}
 
 	@Override
 	protected void removePassenger(Entity entity) {
 		super.removePassenger(entity);
-		Vector3d pos = entity.getPositionVec();
-		entity.setPosition(pos.x, pos.y + 0.85f, pos.z);
+		Vec3 pos = entity.position();
+		entity.setPos(pos.x, pos.y + 0.85f, pos.z);
 	}
 
 	@Override
-	protected void registerData() {}
+	protected void defineSynchedData() {}
 
 	@Override
-	protected void readAdditional(CompoundNBT p_70037_1_) {}
+	protected void readAdditionalSaveData(CompoundTag p_70037_1_) {}
 
 	@Override
-	protected void writeAdditional(CompoundNBT p_213281_1_) {}
+	protected void addAdditionalSaveData(CompoundTag p_213281_1_) {}
 
 	@Override
-	public IPacket<?> createSpawnPacket() {
-		return new SSpawnObjectPacket(this);
+	public Packet<?> getAddEntityPacket() {
+		return new ClientboundAddEntityPacket(this);
 	}
 
 	public static class Render extends EntityRenderer<SeatEntity> {
 
-		public Render(EntityRendererManager p_i46179_1_) {
+		public Render(EntityRenderDispatcher p_i46179_1_) {
 			super(p_i46179_1_);
 		}
 
 		@Override
-		public boolean shouldRender(SeatEntity p_225626_1_, ClippingHelper p_225626_2_, double p_225626_3_, double p_225626_5_, double p_225626_7_) {
+		public boolean shouldRender(SeatEntity p_225626_1_, Frustum p_225626_2_, double p_225626_3_, double p_225626_5_, double p_225626_7_) {
 			return false;
 		}
 
@@ -110,8 +110,8 @@ public class SeatEntity extends Entity implements ExtraSpawnDataEntity {
 	}
 
 	@Override
-	public void writeSpawnData(PacketBuffer buffer) {}
+	public void writeSpawnData(FriendlyByteBuf buffer) {}
 
 	@Override
-	public void readSpawnData(PacketBuffer additionalData) {}
+	public void readSpawnData(FriendlyByteBuf additionalData) {}
 }

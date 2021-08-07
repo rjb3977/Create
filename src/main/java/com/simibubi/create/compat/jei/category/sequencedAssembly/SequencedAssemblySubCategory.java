@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.compat.jei.category.CreateRecipeCategory;
 import com.simibubi.create.compat.jei.category.animations.AnimatedDeployer;
 import com.simibubi.create.compat.jei.category.animations.AnimatedPress;
@@ -37,7 +37,7 @@ public abstract class SequencedAssemblySubCategory {
 		return 0;
 	}
 
-	public abstract void draw(SequencedRecipe<?> recipe, MatrixStack ms, double mouseX, double mouseY, int index);
+	public abstract void draw(SequencedRecipe<?> recipe, PoseStack ms, double mouseX, double mouseY, int index);
 
 	public static class AssemblyPressing extends SequencedAssemblySubCategory {
 
@@ -49,13 +49,13 @@ public abstract class SequencedAssemblySubCategory {
 		}
 
 		@Override
-		public void draw(SequencedRecipe<?> recipe, MatrixStack ms, double mouseX, double mouseY, int index) {
+		public void draw(SequencedRecipe<?> recipe, PoseStack ms, double mouseX, double mouseY, int index) {
 			press.offset = index;
-			ms.push();
+			ms.pushPose();
 			ms.translate(-5, 50, 0);
 			ms.scale(.6f, .6f, .6f);
 			press.draw(ms, getWidth() / 2, 0);
-			ms.pop();
+			ms.popPose();
 		}
 
 	}
@@ -83,10 +83,10 @@ public abstract class SequencedAssemblySubCategory {
 		}
 
 		@Override
-		public void draw(SequencedRecipe<?> recipe, MatrixStack ms, double mouseX, double mouseY, int index) {
+		public void draw(SequencedRecipe<?> recipe, PoseStack ms, double mouseX, double mouseY, int index) {
 			spout.offset = index;
 			AllGuiTextures.JEI_SLOT.draw(ms, 3, 14);
-			ms.push();
+			ms.pushPose();
 			ms.translate(-7, 50, 0);
 			ms.scale(.75f, .75f, .75f);
 			spout.withFluids(recipe.getRecipe()
@@ -94,7 +94,7 @@ public abstract class SequencedAssemblySubCategory {
 				.get(0)
 				.getMatchingFluidStacks())
 				.draw(ms, getWidth() / 2, 0);
-			ms.pop();
+			ms.popPose();
 		}
 
 	}
@@ -114,19 +114,19 @@ public abstract class SequencedAssemblySubCategory {
 			itemStacks.set(index, Arrays.asList(recipe.getRecipe()
 				.getIngredients()
 				.get(1)
-				.getMatchingStacks()));
+				.getItems()));
 			return 1;
 		}
 
 		@Override
-		public void draw(SequencedRecipe<?> recipe, MatrixStack ms, double mouseX, double mouseY, int index) {
+		public void draw(SequencedRecipe<?> recipe, PoseStack ms, double mouseX, double mouseY, int index) {
 			deployer.offset = index;
 			AllGuiTextures.JEI_SLOT.draw(ms, 3, 14);
-			ms.push();
+			ms.pushPose();
 			ms.translate(-7, 50, 0);
 			ms.scale(.75f, .75f, .75f);
 			deployer.draw(ms, getWidth() / 2, 0);
-			ms.pop();
+			ms.popPose();
 		}
 
 	}
@@ -141,12 +141,12 @@ public abstract class SequencedAssemblySubCategory {
 		}
 
 		@Override
-		public void draw(SequencedRecipe<?> recipe, MatrixStack ms, double mouseX, double mouseY, int index) {
-			ms.push();
+		public void draw(SequencedRecipe<?> recipe, PoseStack ms, double mouseX, double mouseY, int index) {
+			ms.pushPose();
 			ms.translate(0, 51.5f, 0);
 			ms.scale(.6f, .6f, .6f);
 			saw.draw(ms, getWidth() / 2, 30);
-			ms.pop();
+			ms.popPose();
 		}
 
 	}

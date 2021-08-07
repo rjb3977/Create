@@ -5,21 +5,21 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 @Environment(EnvType.SERVER)
-@Mixin(Vector3d.class)
+@Mixin(Vec3.class)
 public abstract class Vector3dMixin {
 	@Shadow
-	public abstract Vector3d scale(double mult);
+	public abstract Vec3 scale(double mult);
 
 	// They are client-only, but not anymore!
 
-	public Vector3d inverse() {
+	public Vec3 inverse() {
 		return scale(-1.0D);
 	}
 
-	public Vector3d method_22882() {
+	public Vec3 method_22882() {
 		return inverse();
 	}
 }

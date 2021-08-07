@@ -9,29 +9,29 @@ import com.simibubi.create.Create;
 
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry.DynamicItemRenderer;
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelBakery;
-import net.minecraft.client.renderer.model.ModelRotation;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.resources.ResourceLocation;
 
 public abstract class CustomRenderedItemModel extends ForwardingBakedModel {
 
 	protected String basePath;
-	protected Map<String, IBakedModel> partials = new HashMap<>();
+	protected Map<String, BakedModel> partials = new HashMap<>();
 	protected DynamicItemRenderer renderer;
 
-	public CustomRenderedItemModel(IBakedModel template, String basePath) {
+	public CustomRenderedItemModel(BakedModel template, String basePath) {
 		wrapped = template;
 		this.basePath = basePath;
 		this.renderer = createRenderer();
 	}
 
 	@Override
-	public boolean isBuiltInRenderer() {
+	public boolean isCustomRenderer() {
 		return true;
 	}
 
-	public final IBakedModel getOriginalModel() {
+	public final BakedModel getOriginalModel() {
 		return wrapped;
 	}
 
@@ -57,15 +57,15 @@ public abstract class CustomRenderedItemModel extends ForwardingBakedModel {
 		return this;
 	}
 
-	private IBakedModel loadModel(ModelBakery bakery, String name) {
-		return bakery.func_217845_a(getPartialModelLocation(name), ModelRotation.X0_Y0);
+	private BakedModel loadModel(ModelBakery bakery, String name) {
+		return bakery.bake(getPartialModelLocation(name), BlockModelRotation.X0_Y0);
 	}
 
 	private ResourceLocation getPartialModelLocation(String name) {
 		return new ResourceLocation(Create.ID, "item/" + basePath + "/" + name);
 	}
 
-	public IBakedModel getPartial(String name) {
+	public BakedModel getPartial(String name) {
 		return partials.get(name);
 	}
 

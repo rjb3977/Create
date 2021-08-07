@@ -11,6 +11,7 @@ import com.jozufozu.flywheel.core.Formats;
 import com.jozufozu.flywheel.core.Materials;
 import com.jozufozu.flywheel.core.instancing.ConditionalInstance;
 import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.mojang.math.Quaternion;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllStitchedTextures;
 import com.simibubi.create.Create;
@@ -19,13 +20,12 @@ import com.simibubi.create.foundation.utility.VecHelper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.LightType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.phys.Vec3;
 
 public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITickableInstance {
 
@@ -75,42 +75,42 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 
 	private void updateLight(OrientedData model) {
 		BlockPos pos = entity.getHangingPosition();
-		model.setBlockLight(world.getLightLevel(LightType.BLOCK, pos))
-				.setSkyLight(world.getLightLevel(LightType.SKY, pos));
+		model.setBlockLight(world.getLightLevel(LightLayer.BLOCK, pos))
+				.setSkyLight(world.getLightLevel(LightLayer.SKY, pos));
 	}
 
 	private boolean shouldShow() {
-		PlayerEntity player = Minecraft.getInstance().player;
+		Player player = Minecraft.getInstance().player;
 
 		return entity.isVisible()
-				|| AllItems.SUPER_GLUE.isIn(player.getHeldItemMainhand())
-				|| AllItems.SUPER_GLUE.isIn(player.getHeldItemOffhand());
+				|| AllItems.SUPER_GLUE.isIn(player.getMainHandItem())
+				|| AllItems.SUPER_GLUE.isIn(player.getOffhandItem());
 	}
 
 	public static BufferedModel supplyModel() {
-		Vector3d diff = Vector3d.of(Direction.SOUTH.getDirectionVec());
-		Vector3d extension = diff.normalize()
+		Vec3 diff = Vec3.atLowerCornerOf(Direction.SOUTH.getNormal());
+		Vec3 extension = diff.normalize()
 				.scale(1 / 32f - 1 / 128f);
 
-		Vector3d plane = VecHelper.axisAlingedPlaneOf(diff);
-		Direction.Axis axis = Direction.getFacingFromVector(diff.x, diff.y, diff.z)
+		Vec3 plane = VecHelper.axisAlingedPlaneOf(diff);
+		Direction.Axis axis = Direction.getNearest(diff.x, diff.y, diff.z)
 				.getAxis();
 
-		Vector3d start = Vector3d.ZERO.subtract(extension);
-		Vector3d end = Vector3d.ZERO.add(extension);
+		Vec3 start = Vec3.ZERO.subtract(extension);
+		Vec3 end = Vec3.ZERO.add(extension);
 
 		plane = plane.scale(1 / 2f);
-		Vector3d a1 = plane.add(start);
-		Vector3d b1 = plane.add(end);
+		Vec3 a1 = plane.add(start);
+		Vec3 b1 = plane.add(end);
 		plane = VecHelper.rotate(plane, -90, axis);
-		Vector3d a2 = plane.add(start);
-		Vector3d b2 = plane.add(end);
+		Vec3 a2 = plane.add(start);
+		Vec3 b2 = plane.add(end);
 		plane = VecHelper.rotate(plane, -90, axis);
-		Vector3d a3 = plane.add(start);
-		Vector3d b3 = plane.add(end);
+		Vec3 a3 = plane.add(start);
+		Vec3 b3 = plane.add(end);
 		plane = VecHelper.rotate(plane, -90, axis);
-		Vector3d a4 = plane.add(start);
-		Vector3d b4 = plane.add(end);
+		Vec3 a4 = plane.add(start);
+		Vec3 b4 = plane.add(end);
 
 		VecBuffer buffer = VecBuffer.allocate(Formats.UNLIT_MODEL.getStride() * 8);
 
@@ -118,15 +118,15 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 
 		//             pos                                               normal                                   uv
 		// inside quad
-		buffer.putVec3((float) a1.x, (float) a1.y, (float) a1.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getMaxU(), sprite.getMinV());
-		buffer.putVec3((float) a2.x, (float) a2.y, (float) a2.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getMaxU(), sprite.getMaxV());
-		buffer.putVec3((float) a3.x, (float) a3.y, (float) a3.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getMinU(), sprite.getMaxV());
-		buffer.putVec3((float) a4.x, (float) a4.y, (float) a4.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getMinU(), sprite.getMinV());
+		buffer.putVec3((float) a1.x, (float) a1.y, (float) a1.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getU1(), sprite.getV0());
+		buffer.putVec3((float) a2.x, (float) a2.y, (float) a2.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getU1(), sprite.getV1());
+		buffer.putVec3((float) a3.x, (float) a3.y, (float) a3.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getU0(), sprite.getV1());
+		buffer.putVec3((float) a4.x, (float) a4.y, (float) a4.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getU0(), sprite.getV0());
 		// outside quad
-		buffer.putVec3((float) b4.x, (float) b4.y, (float) b4.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getMinU(), sprite.getMinV());
-		buffer.putVec3((float) b3.x, (float) b3.y, (float) b3.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getMinU(), sprite.getMaxV());
-		buffer.putVec3((float) b2.x, (float) b2.y, (float) b2.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getMaxU(), sprite.getMaxV());
-		buffer.putVec3((float) b1.x, (float) b1.y, (float) b1.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getMaxU(), sprite.getMinV());
+		buffer.putVec3((float) b4.x, (float) b4.y, (float) b4.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU0(), sprite.getV0());
+		buffer.putVec3((float) b3.x, (float) b3.y, (float) b3.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU0(), sprite.getV1());
+		buffer.putVec3((float) b2.x, (float) b2.y, (float) b2.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU1(), sprite.getV1());
+		buffer.putVec3((float) b1.x, (float) b1.y, (float) b1.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU1(), sprite.getV0());
 
 		buffer.rewind();
 

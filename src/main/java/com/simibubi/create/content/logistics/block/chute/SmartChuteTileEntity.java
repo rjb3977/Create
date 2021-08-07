@@ -1,22 +1,20 @@
 package com.simibubi.create.content.logistics.block.chute;
 
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.foundation.item.ItemHelper.ExtractionCountMode;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 
 public class SmartChuteTileEntity extends ChuteTileEntity {
 
 	FilteringBehaviour filtering;
 
-	public SmartChuteTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public SmartChuteTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 
@@ -39,7 +37,7 @@ public class SmartChuteTileEntity extends ChuteTileEntity {
 	@Override
 	protected boolean canCollectItemsFromBelow() {
 		BlockState blockState = getBlockState();
-		return blockState.contains(SmartChuteBlock.POWERED) && !blockState.get(SmartChuteBlock.POWERED);
+		return blockState.hasProperty(SmartChuteBlock.POWERED) && !blockState.getValue(SmartChuteBlock.POWERED);
 	}
 
 	@Override
@@ -51,8 +49,8 @@ public class SmartChuteTileEntity extends ChuteTileEntity {
 
 	private boolean isExtracting() {
 		boolean up = getItemMotion() < 0;
-		BlockPos chutePos = pos.offset(up ? Direction.UP : Direction.DOWN);
-		BlockState blockState = world.getBlockState(chutePos);
+		BlockPos chutePos = worldPosition.relative(up ? Direction.UP : Direction.DOWN);
+		BlockState blockState = level.getBlockState(chutePos);
 		return !AbstractChuteBlock.isChute(blockState) && !blockState.getMaterial()
 			.isReplaceable();
 	}

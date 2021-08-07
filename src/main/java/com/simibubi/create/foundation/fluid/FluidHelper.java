@@ -1,7 +1,19 @@
 package com.simibubi.create.foundation.fluid;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -21,19 +33,6 @@ import com.simibubi.create.lib.utility.TransferUtil;
 
 import alexiil.mc.lib.attributes.SearchOptions;
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FlowingFluid;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.util.Hand;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
 
 public class FluidHelper {
 
@@ -50,9 +49,9 @@ public class FluidHelper {
 	}
 
 	public static boolean hasBlockState(Fluid fluid) {
-		BlockState blockState = fluid.getDefaultState()
-			.getBlockState();
-		return blockState != null && blockState != Blocks.AIR.getDefaultState();
+		BlockState blockState = fluid.defaultFluidState()
+			.createLegacyBlock();
+		return blockState != null && blockState != Blocks.AIR.defaultBlockState();
 	}
 
 	public static FluidStack copyStackWithAmount(FluidStack fs, int amount) {
@@ -68,7 +67,7 @@ public class FluidHelper {
 		if (fluid == Fluids.LAVA)
 			return Fluids.FLOWING_LAVA;
 		if (fluid instanceof FlowingFluid)
-			return ((FlowingFluid) fluid).getFlowingFluid();
+			return ((FlowingFluid) fluid).getFlowing();
 		return fluid;
 	}
 
@@ -78,7 +77,7 @@ public class FluidHelper {
 		if (fluid == Fluids.FLOWING_LAVA)
 			return Fluids.LAVA;
 		if (fluid instanceof FlowingFluid)
-			return ((FlowingFluid) fluid).getStillFluid();
+			return ((FlowingFluid) fluid).getSource();
 		return fluid;
 	}
 
@@ -94,11 +93,11 @@ public class FluidHelper {
 	}
 
 	public static FluidStack deserializeFluidStack(JsonObject json) {
-		ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "fluid"));
-		Fluid fluid = Registry.FLUID.getOrDefault(id);
+		ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "fluid"));
+		Fluid fluid = Registry.FLUID.get(id);
 		if (fluid == Fluids.WATER)
 			throw new JsonSyntaxException("Unknown fluid '" + id + "'");
-		int amount = JSONUtils.getInt(json, "amount");
+		int amount = GsonHelper.getAsInt(json, "amount");
 		FluidStack stack = new FluidStack(fluid, amount);
 
 		if (!json.has("nbt"))
@@ -106,8 +105,8 @@ public class FluidHelper {
 
 		try {
 			JsonElement element = json.get("nbt");
-			stack.toTag(JsonToNBT.getTagFromJson(
-				element.isJsonObject() ? Create.GSON.toJson(element) : JSONUtils.getString(element, "nbt")));
+			stack.toTag(TagParser.parseTag(
+				element.isJsonObject() ? Create.GSON.toJson(element) : GsonHelper.convertToString(element, "nbt")));
 
 		} catch (CommandSyntaxException e) {
 			e.printStackTrace();
@@ -116,19 +115,19 @@ public class FluidHelper {
 		return stack;
 	}
 
-	public static boolean tryEmptyItemIntoTE(World worldIn, PlayerEntity player, Hand handIn, ItemStack heldItem,
+	public static boolean tryEmptyItemIntoTE(Level worldIn, Player player, InteractionHand handIn, ItemStack heldItem,
 		SmartTileEntity te) {
 		if (!EmptyingByBasin.canItemBeEmptied(worldIn, heldItem))
 			return false;
 
 		Pair<FluidStack, ItemStack> emptyingResult = EmptyingByBasin.emptyItem(worldIn, heldItem, true);
-		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te.getWorld(), te.getPos(), SearchOptions.ALL);
+		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te.getLevel(), te.getBlockPos(), SearchOptions.ALL);
 		IFluidHandler tank = capability.orElse(null);
 		FluidStack fluidStack = emptyingResult.getFirst();
 
 		if (tank == null || fluidStack.getAmount() != tank.fill(fluidStack, Simulation.SIMULATE))
 			return false;
-		if (worldIn.isRemote)
+		if (worldIn.isClientSide)
 			return true;
 
 		ItemStack copyOfHeld = heldItem.copy();
@@ -137,21 +136,21 @@ public class FluidHelper {
 
 		if (!player.isCreative() && !(te instanceof CreativeFluidTankTileEntity)) {
 			if (copyOfHeld.isEmpty())
-				player.setHeldItem(handIn, emptyingResult.getSecond());
+				player.setItemInHand(handIn, emptyingResult.getSecond());
 			else {
-				player.setHeldItem(handIn, copyOfHeld);
+				player.setItemInHand(handIn, copyOfHeld);
 				player.inventory.placeItemBackInInventory(worldIn, emptyingResult.getSecond());
 			}
 		}
 		return true;
 	}
 
-	public static boolean tryFillItemFromTE(World world, PlayerEntity player, Hand handIn, ItemStack heldItem,
+	public static boolean tryFillItemFromTE(Level world, Player player, InteractionHand handIn, ItemStack heldItem,
 		SmartTileEntity te) {
 		if (!GenericItemFilling.canItemBeFilled(world, heldItem))
 			return false;
 
-		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te.getWorld(), te.getPos(), SearchOptions.ALL);
+		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te.getLevel(), te.getBlockPos(), SearchOptions.ALL);
 		IFluidHandler tank = capability.orElse(null);
 
 		if (tank == null)
@@ -167,7 +166,7 @@ public class FluidHelper {
 			if (requiredAmountForItem > fluid.getAmount())
 				continue;
 
-			if (world.isRemote)
+			if (world.isClientSide)
 				return true;
 
 			if (player.isCreative() || te instanceof CreativeFluidTankTileEntity)

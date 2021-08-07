@@ -5,8 +5,7 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 import com.simibubi.create.lib.utility.Constants;
-
-import net.minecraft.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 
 @Mixin(ShapelessRecipe.Serializer.class)
 public abstract class ShapelessRecipe$SerializerMixin {

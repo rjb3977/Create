@@ -1,10 +1,10 @@
 package com.simibubi.create.lib.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface CanConnectRedstoneBlock {
-	boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, Direction side);
+	boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, Direction side);
 }

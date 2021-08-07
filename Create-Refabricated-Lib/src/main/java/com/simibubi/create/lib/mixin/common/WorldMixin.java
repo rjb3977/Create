@@ -1,7 +1,11 @@
 package com.simibubi.create.lib.mixin.common;
 
 import java.util.Iterator;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,26 +18,20 @@ import com.simibubi.create.lib.block.WeakPowerCheckingBlock;
 import com.simibubi.create.lib.extensions.BlockStateExtensions;
 import com.simibubi.create.lib.utility.MixinHelper;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
-@Mixin(World.class)
+@Mixin(Level.class)
 public abstract class WorldMixin {
 	@Shadow
 	public abstract BlockState getBlockState(BlockPos blockPos);
 
 	@Inject(at = @At("RETURN"), method = "getRedstonePower(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/Direction;)I", cancellable = true)
 	public void create$getRedstonePower(BlockPos blockPos, Direction direction, CallbackInfoReturnable<Integer> cir) {
-		BlockState create$blockstate = MixinHelper.<World>cast(this).getBlockState(blockPos);
-		int create$i = create$blockstate.getWeakPower(MixinHelper.<World>cast(this), blockPos, direction);
+		BlockState create$blockstate = MixinHelper.<Level>cast(this).getBlockState(blockPos);
+		int create$i = create$blockstate.getSignal(MixinHelper.<Level>cast(this), blockPos, direction);
 
 		if (create$blockstate.getBlock() instanceof WeakPowerCheckingBlock) {
 			cir.setReturnValue(
-					((WeakPowerCheckingBlock) create$blockstate.getBlock()).shouldCheckWeakPower(create$blockstate, MixinHelper.<World>cast(this), blockPos, direction)
-							? Math.max(create$i, MixinHelper.<World>cast(this).getStrongPower(blockPos))
+					((WeakPowerCheckingBlock) create$blockstate.getBlock()).shouldCheckWeakPower(create$blockstate, MixinHelper.<Level>cast(this), blockPos, direction)
+							? Math.max(create$i, MixinHelper.<Level>cast(this).getDirectSignalTo(blockPos))
 							: create$i);
 		}
 	}

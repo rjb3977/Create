@@ -7,10 +7,10 @@ import com.simibubi.create.lib.helper.EntityHelper;
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 
 public interface ISyncPersistentData {
 
@@ -24,36 +24,36 @@ public interface ISyncPersistentData {
 
 		private int entityId;
 		private Entity entity;
-		private CompoundNBT readData;
+		private CompoundTag readData;
 
 		protected Packet() {}
 
 		public Packet(Entity entity) {
 			this.entity = entity;
-			this.entityId = entity.getEntityId();
+			this.entityId = entity.getId();
 		}
 
 		@Override
-		public void read(PacketBuffer buffer) {
+		public void read(FriendlyByteBuf buffer) {
 			entityId = buffer.readInt();
-			readData = buffer.readCompoundTag();
+			readData = buffer.readNbt();
 		}
 
 		@Override
-		public void write(PacketBuffer buffer) {
+		public void write(FriendlyByteBuf buffer) {
 			buffer.writeInt(entityId);
-			buffer.writeCompoundTag(EntityHelper.getExtraCustomData(entity));
+			buffer.writeNbt(EntityHelper.getExtraCustomData(entity));
 		}
 
 		@Override
-		public void handle(Minecraft client, ClientPlayNetHandler handler, SimpleChannel.ResponseTarget responseTarget) {
+		public void handle(Minecraft client, ClientPacketListener handler, SimpleChannel.ResponseTarget responseTarget) {
 			client
 					.execute(() -> {
-						Entity entityByID = Minecraft.getInstance().world.getEntityByID(entityId);
+						Entity entityByID = Minecraft.getInstance().level.getEntity(entityId);
 						if (!(entityByID instanceof ISyncPersistentData))
 							return;
-						CompoundNBT data = EntityHelper.getExtraCustomData(entityByID);
-						for (Iterator<String> iterator = data.keySet()
+						CompoundTag data = EntityHelper.getExtraCustomData(entityByID);
+						for (Iterator<String> iterator = data.getAllKeys()
 								.iterator(); iterator.hasNext(); ) {
 							data.remove(iterator.next());
 						}

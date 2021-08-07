@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
@@ -14,16 +14,15 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class DrillRenderer extends KineticTileEntityRenderer {
 
-	public DrillRenderer(TileEntityRendererDispatcher dispatcher) {
+	public DrillRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
@@ -33,10 +32,10 @@ public class DrillRenderer extends KineticTileEntityRenderer {
 	}
 
 	public static void renderInContraption(MovementContext context, PlacementSimulationWorld renderWorld,
-		ContraptionMatrices matrices, IRenderTypeBuffer buffer) {
+		ContraptionMatrices matrices, MultiBufferSource buffer) {
 		BlockState state = context.state;
 		SuperByteBuffer superBuffer = PartialBufferer.get(AllBlockPartials.DRILL_HEAD, state);
-		Direction facing = state.get(DrillBlock.FACING);
+		Direction facing = state.getValue(DrillBlock.FACING);
 
 		float speed = (float) (context.contraption.stalled
 				|| !VecHelper.isVecPointingTowards(context.relativeMotion, facing
@@ -44,8 +43,8 @@ public class DrillRenderer extends KineticTileEntityRenderer {
 		float time = AnimationTickHolder.getRenderTime() / 20;
 		float angle = (float) (((time * speed) % 360));
 
-		MatrixStack m = matrices.contraptionStack;
-		m.push();
+		PoseStack m = matrices.contraptionStack;
+		m.pushPose();
 		MatrixStacker.of(m)
 			.centre()
 			.rotateY(AngleHelper.horizontalAngle(facing))
@@ -57,9 +56,9 @@ public class DrillRenderer extends KineticTileEntityRenderer {
 			.transform(m)
 			.light(matrices.entityMatrix,
 					ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
-			.renderInto(matrices.entityStack, buffer.getBuffer(RenderType.getSolid()));
+			.renderInto(matrices.entityStack, buffer.getBuffer(RenderType.solid()));
 
-		m.pop();
+		m.popPose();
 	}
 
 }

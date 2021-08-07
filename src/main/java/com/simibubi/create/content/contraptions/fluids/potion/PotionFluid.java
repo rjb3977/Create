@@ -2,18 +2,16 @@ package com.simibubi.create.content.contraptions.fluids.potion;
 
 import java.util.Collection;
 import java.util.List;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.Potions;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.content.contraptions.fluids.VirtualFluid;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
-
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.Potions;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
 public class PotionFluid extends VirtualFluid {
 
@@ -25,9 +23,9 @@ public class PotionFluid extends VirtualFluid {
 		super(properties);
 	}
 
-	public static FluidStack withEffects(int amount, Potion potion, List<EffectInstance> customEffects) {
+	public static FluidStack withEffects(int amount, Potion potion, List<MobEffectInstance> customEffects) {
 		FluidStack fluidStack = new FluidStack(AllFluids.POTION.get()
-			.getStillFluid(), amount);
+			.getSource(), amount);
 		addPotionToFluidStack(fluidStack, potion);
 		appendEffects(fluidStack, customEffects);
 		return fluidStack;
@@ -73,13 +71,13 @@ public class PotionFluid extends VirtualFluid {
 		return fs;
 	}
 
-	public static FluidStack appendEffects(FluidStack fs, Collection<EffectInstance> customEffects) {
+	public static FluidStack appendEffects(FluidStack fs, Collection<MobEffectInstance> customEffects) {
 		if (customEffects.isEmpty())
 			return fs;
-		CompoundNBT compoundnbt = fs.toTag();//.getOrCreateTag();
-		ListNBT listnbt = compoundnbt.getList("CustomPotionEffects", 9);
-		for (EffectInstance effectinstance : customEffects)
-			listnbt.add(effectinstance.write(new CompoundNBT()));
+		CompoundTag compoundnbt = fs.toTag();//.getOrCreateTag();
+		ListTag listnbt = compoundnbt.getList("CustomPotionEffects", 9);
+		for (MobEffectInstance effectinstance : customEffects)
+			listnbt.add(effectinstance.save(new CompoundTag()));
 		compoundnbt.put("CustomPotionEffects", listnbt);
 		return fs;
 	}

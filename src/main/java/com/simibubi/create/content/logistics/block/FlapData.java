@@ -4,10 +4,9 @@ import com.jozufozu.flywheel.backend.gl.buffer.MappedBuffer;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.core.materials.IFlatLight;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 
 public class FlapData extends InstanceData implements IFlatLight<FlapData> {
 
@@ -40,11 +39,11 @@ public class FlapData extends InstanceData implements IFlatLight<FlapData> {
 	}
 
 	public FlapData setPosition(Vector3f pos) {
-		return setPosition(pos.getX(), pos.getY(), pos.getZ());
+		return setPosition(pos.x(), pos.y(), pos.z());
 	}
 
 	public FlapData setPosition(int x, int y, int z) {
-		Vector3i origin = owner.originCoordinate.get();
+		Vec3i origin = owner.originCoordinate.get();
 
 		return setPosition((float) (x - origin.getX()),
 				(float) (y - origin.getY()),

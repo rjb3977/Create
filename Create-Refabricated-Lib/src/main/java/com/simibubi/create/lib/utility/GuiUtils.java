@@ -4,22 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.ItemStack;
 import org.lwjgl.opengl.GL11;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.LanguageMap;
-import net.minecraft.util.text.Style;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.math.Matrix4f;
 
 public class GuiUtils { // name is this to maintain max compat with upstream
 	public static void drawGradientRect(Matrix4f matrix, int z, int left, int top, int right, int bottom, int startColor, int endColor) {
@@ -38,37 +35,37 @@ public class GuiUtils { // name is this to maintain max compat with upstream
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder buffer = tessellator.getBuffer();
-		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+		Tesselator tessellator = Tesselator.getInstance();
+		BufferBuilder buffer = tessellator.getBuilder();
+		buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 		buffer.vertex(matrix, right, top, z).color(sR, sG, sB, sA).endVertex();
 		buffer.vertex(matrix, left, top, z).color(sR, sG, sB, sA).endVertex();
 		buffer.vertex(matrix, left, bottom, z).color(eR, eG, eB, eA).endVertex();
 		buffer.vertex(matrix, right, bottom, z).color(eR, eG, eB, eA).endVertex();
-		tessellator.draw();
+		tessellator.end();
 
 		RenderSystem.shadeModel(GL11.GL_FLAT);
 		RenderSystem.disableBlend();
 		RenderSystem.enableTexture();
 	}
 
-	public static void drawHoveringText(MatrixStack mStack, List<? extends ITextProperties> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font) {
+	public static void drawHoveringText(PoseStack mStack, List<? extends FormattedText> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, Font font) {
 		drawHoveringText(mStack, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, 0xF0100010, 0x505000FF, (0x505000FF & 0xFEFEFE) >> 1 | 0x505000FF & 0xFF000000, font);
 	}
 
-	public static void drawHoveringText(MatrixStack mStack, List<? extends ITextProperties> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, int backgroundColor, int borderColorStart, int borderColorEnd, FontRenderer font) {
+	public static void drawHoveringText(PoseStack mStack, List<? extends FormattedText> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, int backgroundColor, int borderColorStart, int borderColorEnd, Font font) {
 		drawHoveringText(ItemStack.EMPTY, mStack, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, backgroundColor, borderColorStart, borderColorEnd, font);
 	}
 
-	public static void drawHoveringText(@Nonnull final ItemStack stack, MatrixStack mStack, List<? extends ITextProperties> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, int backgroundColor, int borderColorStart, int borderColorEnd, FontRenderer font) {
+	public static void drawHoveringText(@Nonnull final ItemStack stack, PoseStack mStack, List<? extends FormattedText> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, int backgroundColor, int borderColorStart, int borderColorEnd, Font font) {
 		if (!textLines.isEmpty()) {
 			RenderSystem.disableRescaleNormal();
 			RenderSystem.disableDepthTest();
 			int tooltipTextWidth = 0;
 
-			for (ITextProperties textLine : textLines)
+			for (FormattedText textLine : textLines)
 			{
-				int textLineWidth = font.getWidth(textLine);
+				int textLineWidth = font.width(textLine);
 				if (textLineWidth > tooltipTextWidth)
 					tooltipTextWidth = textLineWidth;
 			}
@@ -99,17 +96,17 @@ public class GuiUtils { // name is this to maintain max compat with upstream
 			if (needsWrap)
 			{
 				int wrappedTooltipWidth = 0;
-				List<ITextProperties> wrappedTextLines = new ArrayList<>();
+				List<FormattedText> wrappedTextLines = new ArrayList<>();
 				for (int i = 0; i < textLines.size(); i++)
 				{
-					ITextProperties textLine = textLines.get(i);
-					List<ITextProperties> wrappedLine = font.getTextHandler().wrapLines(textLine, tooltipTextWidth, Style.EMPTY);
+					FormattedText textLine = textLines.get(i);
+					List<FormattedText> wrappedLine = font.getSplitter().splitLines(textLine, tooltipTextWidth, Style.EMPTY);
 					if (i == 0)
 						titleLinesCount = wrappedLine.size();
 
-					for (ITextProperties line : wrappedLine)
+					for (FormattedText line : wrappedLine)
 					{
-						int lineWidth = font.getWidth(line);
+						int lineWidth = font.width(line);
 						if (lineWidth > wrappedTooltipWidth)
 							wrappedTooltipWidth = lineWidth;
 						wrappedTextLines.add(line);
@@ -141,8 +138,8 @@ public class GuiUtils { // name is this to maintain max compat with upstream
 
 			final int zLevel = 400;
 
-			mStack.push();
-			Matrix4f mat = mStack.peek().getModel();
+			mStack.pushPose();
+			Matrix4f mat = mStack.last().pose();
 			drawGradientRect(mat, zLevel, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
 			drawGradientRect(mat, zLevel, tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
 			drawGradientRect(mat, zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
@@ -153,16 +150,16 @@ public class GuiUtils { // name is this to maintain max compat with upstream
 			drawGradientRect(mat, zLevel, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
 			drawGradientRect(mat, zLevel, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
-			IRenderTypeBuffer.Impl renderType = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuffer());
+			MultiBufferSource.BufferSource renderType = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 			mStack.translate(0.0D, 0.0D, zLevel);
 
 			int tooltipTop = tooltipY;
 
 			for (int lineNumber = 0; lineNumber < textLines.size(); ++lineNumber)
 			{
-				ITextProperties line = textLines.get(lineNumber);
+				FormattedText line = textLines.get(lineNumber);
 				if (line != null)
-					font.draw(LanguageMap.getInstance().reorder(line), (float)tooltipX, (float)tooltipY, -1, true, mat, renderType, false, 0, 15728880);
+					font.drawInBatch(Language.getInstance().getVisualOrder(line), (float)tooltipX, (float)tooltipY, -1, true, mat, renderType, false, 0, 15728880);
 
 				if (lineNumber + 1 == titleLinesCount)
 					tooltipY += 2;
@@ -170,8 +167,8 @@ public class GuiUtils { // name is this to maintain max compat with upstream
 				tooltipY += 10;
 			}
 
-			renderType.draw();
-			mStack.pop();
+			renderType.endBatch();
+			mStack.popPose();
 
 			RenderSystem.enableDepthTest();
 			RenderSystem.enableRescaleNormal();

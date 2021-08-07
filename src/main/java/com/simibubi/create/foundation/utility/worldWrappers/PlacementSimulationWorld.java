@@ -6,41 +6,39 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import com.jozufozu.flywheel.backend.IFlywheelWorld;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.SectionPos;
-import net.minecraft.world.World;
-import net.minecraft.world.lighting.WorldLightManager;
 
 public class PlacementSimulationWorld extends WrappedWorld implements IFlywheelWorld {
 	public Map<BlockPos, BlockState> blocksAdded;
-	public Map<BlockPos, TileEntity> tesAdded;
+	public Map<BlockPos, BlockEntity> tesAdded;
 
 	public Set<SectionPos> spannedSections;
-	public WorldLightManager lighter;
+	public LevelLightEngine lighter;
 	public WrappedChunkProvider chunkProvider;
-	private final BlockPos.Mutable scratch = new BlockPos.Mutable();
+	private final BlockPos.MutableBlockPos scratch = new BlockPos.MutableBlockPos();
 
-	public PlacementSimulationWorld(World wrapped) {
+	public PlacementSimulationWorld(Level wrapped) {
 		this(wrapped, new WrappedChunkProvider());
 	}
 
-	public PlacementSimulationWorld(World wrapped, WrappedChunkProvider chunkProvider) {
+	public PlacementSimulationWorld(Level wrapped, WrappedChunkProvider chunkProvider) {
 		super(wrapped, chunkProvider);
 		this.chunkProvider = chunkProvider.setWorld(this);
 		spannedSections = new HashSet<>();
-		lighter = new WorldLightManager(chunkProvider, true, false); // blockLight, skyLight
+		lighter = new LevelLightEngine(chunkProvider, true, false); // blockLight, skyLight
 		blocksAdded = new HashMap<>();
 		tesAdded = new HashMap<>();
 	}
 
 	@Override
-	public WorldLightManager getLightingProvider() {
+	public LevelLightEngine getLightEngine() {
 		return lighter;
 	}
 
@@ -48,16 +46,16 @@ public class PlacementSimulationWorld extends WrappedWorld implements IFlywheelW
 		for (Map.Entry<BlockPos, BlockState> entry : blocksAdded.entrySet()) {
 			BlockPos pos = entry.getKey();
 			BlockState state = entry.getValue();
-			int light = state.getLightValue(this, pos);
+			int light = state.getLightEmission(this, pos);
 			if (light > 0) {
-				lighter.func_215573_a(pos, light);
+				lighter.onBlockEmissionIncrease(pos, light);
 			}
 		}
 	}
 
-	public void setTileEntities(Collection<TileEntity> tileEntities) {
+	public void setTileEntities(Collection<BlockEntity> tileEntities) {
 		tesAdded.clear();
-		tileEntities.forEach(te -> tesAdded.put(te.getPos(), te));
+		tileEntities.forEach(te -> tesAdded.put(te.getBlockPos(), te));
 	}
 
 	public void clear() {
@@ -65,10 +63,10 @@ public class PlacementSimulationWorld extends WrappedWorld implements IFlywheelW
 	}
 
 	@Override
-	public boolean setBlockState(BlockPos pos, BlockState newState, int flags) {
+	public boolean setBlock(BlockPos pos, BlockState newState, int flags) {
 		blocksAdded.put(pos, newState);
 
-		SectionPos sectionPos = SectionPos.from(pos);
+		SectionPos sectionPos = SectionPos.of(pos);
 		if (spannedSections.add(sectionPos)) {
 			lighter.updateSectionStatus(sectionPos, false);
 		}
@@ -81,32 +79,32 @@ public class PlacementSimulationWorld extends WrappedWorld implements IFlywheelW
 	}
 
 	@Override
-	public boolean setBlockState(BlockPos pos, BlockState state) {
-		return setBlockState(pos, state, 0);
+	public boolean setBlockAndUpdate(BlockPos pos, BlockState state) {
+		return setBlock(pos, state, 0);
 	}
 
 	@Override
-	public TileEntity getTileEntity(BlockPos pos) {
+	public BlockEntity getBlockEntity(BlockPos pos) {
 		return tesAdded.get(pos);
 	}
 
 	@Override
-	public boolean hasBlockState(BlockPos pos, Predicate<BlockState> condition) {
+	public boolean isStateAtPosition(BlockPos pos, Predicate<BlockState> condition) {
 		return condition.test(getBlockState(pos));
 	}
 
 	@Override
-	public boolean isBlockPresent(BlockPos pos) {
+	public boolean isLoaded(BlockPos pos) {
 		return true;
 	}
 
 	@Override
-	public boolean isAreaLoaded(BlockPos blockPos, BlockPos blockPos2) {
+	public boolean hasChunksAt(BlockPos blockPos, BlockPos blockPos2) {
 		return true;
 	}
 
 	public BlockState getBlockState(int x, int y, int z) {
-		return getBlockState(scratch.setPos(x, y, z));
+		return getBlockState(scratch.set(x, y, z));
 	}
 
 	@Override
@@ -114,6 +112,6 @@ public class PlacementSimulationWorld extends WrappedWorld implements IFlywheelW
 		BlockState state = blocksAdded.get(pos);
 		if (state != null)
 			return state;
-		return Blocks.AIR.getDefaultState();
+		return Blocks.AIR.defaultBlockState();
 	}
 }

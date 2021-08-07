@@ -1,8 +1,8 @@
 package com.simibubi.create.content.logistics.block.mechanicalArm;
 
 import com.jozufozu.flywheel.backend.Backend;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
@@ -13,21 +13,20 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class ArmRenderer extends KineticTileEntityRenderer {
 
-	public ArmRenderer(TileEntityRendererDispatcher dispatcher) {
+	public ArmRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
@@ -37,14 +36,14 @@ public class ArmRenderer extends KineticTileEntityRenderer {
 	}
 
 	@Override
-	protected void renderSafe(KineticTileEntity te, float pt, MatrixStack ms, IRenderTypeBuffer buffer, int light,
+	protected void renderSafe(KineticTileEntity te, float pt, PoseStack ms, MultiBufferSource buffer, int light,
 		int overlay) {
 		super.renderSafe(te, pt, ms, buffer, light, overlay);
 
 		ArmTileEntity arm = (ArmTileEntity) te;
 		ItemStack item = arm.heldItem;
 		boolean hasItem = !item.isEmpty();
-		boolean usingFlywheel = Backend.getInstance().canUseInstancing(te.getWorld());
+		boolean usingFlywheel = Backend.getInstance().canUseInstancing(te.getLevel());
 
 		if (usingFlywheel && !hasItem) return;
 
@@ -52,13 +51,13 @@ public class ArmRenderer extends KineticTileEntityRenderer {
 											 .getItemRenderer();
 
 		boolean isBlockItem = hasItem && (item.getItem() instanceof BlockItem)
-				&& itemRenderer.getItemModelWithOverrides(item, Minecraft.getInstance().world, null)
+				&& itemRenderer.getModel(item, Minecraft.getInstance().level, null)
 							   .isGui3d();
 
-		IVertexBuilder builder = buffer.getBuffer(RenderType.getSolid());
+		VertexConsumer builder = buffer.getBuffer(RenderType.solid());
 		BlockState blockState = te.getBlockState();
 
-		MatrixStack msLocal = new MatrixStack();
+		PoseStack msLocal = new PoseStack();
 		MatrixStacker msr = MatrixStacker.of(msLocal);
 
 		float baseAngle;
@@ -69,10 +68,10 @@ public class ArmRenderer extends KineticTileEntityRenderer {
 
 		boolean rave = arm.phase == Phase.DANCING && te.getSpeed() != 0;
 		if (rave) {
-			float renderTick = AnimationTickHolder.getRenderTime(te.getWorld()) + (te.hashCode() % 64);
+			float renderTick = AnimationTickHolder.getRenderTime(te.getLevel()) + (te.hashCode() % 64);
 			baseAngle = (renderTick * 10) % 360;
-			lowerArmAngle = MathHelper.lerp((MathHelper.sin(renderTick / 4) + 1) / 2, -45, 15);
-			upperArmAngle = MathHelper.lerp((MathHelper.sin(renderTick / 8) + 1) / 4, -45, 95);
+			lowerArmAngle = Mth.lerp((Mth.sin(renderTick / 4) + 1) / 2, -45, 15);
+			upperArmAngle = Mth.lerp((Mth.sin(renderTick / 8) + 1) / 4, -45, 95);
 			headAngle = -lowerArmAngle;
 			color = ColorHelper.rainbowColor(AnimationTickHolder.getTicks() * 100);
 		} else {
@@ -85,7 +84,7 @@ public class ArmRenderer extends KineticTileEntityRenderer {
 
 		msr.centre();
 
-		if (blockState.get(ArmBlock.CEILING))
+		if (blockState.getValue(ArmBlock.CEILING))
 			msr.rotateX(180);
 
 		if (usingFlywheel)
@@ -94,22 +93,22 @@ public class ArmRenderer extends KineticTileEntityRenderer {
 			renderArm(builder, ms, msLocal, msr, blockState, color, baseAngle, lowerArmAngle, upperArmAngle, headAngle, hasItem, isBlockItem, light);
 
 		if (hasItem) {
-			ms.push();
+			ms.pushPose();
 			float itemScale = isBlockItem ? .5f : .625f;
 			msr.rotateX(90);
 			msLocal.translate(0, -4 / 16f, 0);
 			msLocal.scale(itemScale, itemScale, itemScale);
 
-			ms.peek().getModel().multiply(msLocal.peek().getModel());
+			ms.last().pose().multiply(msLocal.last().pose());
 
 			itemRenderer
-				.renderItem(item, TransformType.FIXED, light, overlay, ms, buffer);
-			ms.pop();
+				.renderStatic(item, TransformType.FIXED, light, overlay, ms, buffer);
+			ms.popPose();
 		}
 
 	}
 
-	private void renderArm(IVertexBuilder builder, MatrixStack ms, MatrixStack msLocal, MatrixStacker msr, BlockState blockState, int color, float baseAngle, float lowerArmAngle, float upperArmAngle, float headAngle, boolean hasItem, boolean isBlockItem, int light) {
+	private void renderArm(VertexConsumer builder, PoseStack ms, PoseStack msLocal, MatrixStacker msr, BlockState blockState, int color, float baseAngle, float lowerArmAngle, float upperArmAngle, float headAngle, boolean hasItem, boolean isBlockItem, int light) {
 		SuperByteBuffer base = PartialBufferer.get(AllBlockPartials.ARM_BASE, blockState).light(light);
 		SuperByteBuffer lowerBody = PartialBufferer.get(AllBlockPartials.ARM_LOWER_BODY, blockState).light(light);
 		SuperByteBuffer upperBody = PartialBufferer.get(AllBlockPartials.ARM_UPPER_BODY, blockState).light(light);
@@ -140,10 +139,10 @@ public class ArmRenderer extends KineticTileEntityRenderer {
 			.renderInto(ms, builder);
 
 		for (int flip : Iterate.positiveAndNegative) {
-			msLocal.push();
+			msLocal.pushPose();
 			transformClawHalf(msr, hasItem, isBlockItem, flip);
 			clawGrip.light(light).transform(msLocal).renderInto(ms, builder);
-			msLocal.pop();
+			msLocal.popPose();
 		}
 	}
 

@@ -4,10 +4,10 @@ import com.simibubi.create.lib.mixin.accessor.MinecraftServerAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.storage.SaveFormat;
+import net.minecraft.world.level.storage.LevelStorageSource;
 
 public final class MinecraftServerHelper {
-	public static SaveFormat.LevelSave getAnvilConverterForAnvilFile(MinecraftServer minecraftServer) {
+	public static LevelStorageSource.LevelStorageAccess getAnvilConverterForAnvilFile(MinecraftServer minecraftServer) {
 		return get(minecraftServer).create$anvilConverterForAnvilFile();
 	}
 

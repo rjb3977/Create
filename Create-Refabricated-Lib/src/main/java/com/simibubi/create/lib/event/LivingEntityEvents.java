@@ -4,10 +4,10 @@ import java.util.Collection;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 
 public class LivingEntityEvents {
 	public static final Event<ExperienceDrop> EXPERIENCE_DROP = EventFactory.createArrayBacked(ExperienceDrop.class, callbacks -> (i, player) -> {
@@ -53,12 +53,12 @@ public class LivingEntityEvents {
 
 	@FunctionalInterface
 	public interface ExperienceDrop {
-		int onLivingEntityExperienceDrop(int i, PlayerEntity player);
+		int onLivingEntityExperienceDrop(int i, Player player);
 	}
 
 	@FunctionalInterface
 	public interface KnockBackStrength {
-		float onLivingEntityTakeKnockback(float strength, PlayerEntity player);
+		float onLivingEntityTakeKnockback(float strength, Player player);
 	}
 
 	@FunctionalInterface

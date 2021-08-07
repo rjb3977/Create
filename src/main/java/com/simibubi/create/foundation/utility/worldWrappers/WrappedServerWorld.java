@@ -10,119 +10,118 @@ import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 import com.simibubi.create.lib.helper.BiomeManagerHelper;
 
 import com.simibubi.create.lib.helper.MinecraftServerHelper;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.ITagCollectionSupplier;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ITickList;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.server.ServerTickList;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.IServerWorldInfo;
-import net.minecraft.world.storage.MapData;
-import net.minecraft.world.storage.SaveFormat;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerTickList;
+import net.minecraft.world.level.TickList;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.ServerLevelData;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class WrappedServerWorld extends ServerWorld {
+public class WrappedServerWorld extends ServerLevel {
 
-	protected World world;
+	protected Level world;
 
-	public WrappedServerWorld(World world) {
+	public WrappedServerWorld(Level world) {
 		// Replace null with world.getChunkProvider().chunkManager.field_219266_t ? We had null in 1.15
-		super(world.getServer(), Util.getServerExecutor(), getLevelSaveFromWorld(world), (IServerWorldInfo) world.getWorldInfo(), world.getRegistryKey(), world.getDimension(), null, ((ServerChunkProvider) world.getChunkProvider()).getChunkGenerator(), world.isDebugWorld(), BiomeManagerHelper.getSeed(world.getBiomeAccess()), Collections.EMPTY_LIST, false); //, world.field_25143);
+		super(world.getServer(), Util.backgroundExecutor(), getLevelSaveFromWorld(world), (ServerLevelData) world.getLevelData(), world.dimension(), world.dimensionType(), null, ((ServerChunkCache) world.getChunkSource()).getGenerator(), world.isDebug(), BiomeManagerHelper.getSeed(world.getBiomeManager()), Collections.EMPTY_LIST, false); //, world.field_25143);
 		this.world = world;
 	}
 
 	@Override
-	public float getCelestialAngleRadians(float p_72826_1_) {
+	public float getSunAngle(float p_72826_1_) {
 		return 0;
 	}
 
 	@Override
-	public int getLight(BlockPos pos) {
+	public int getMaxLocalRawBrightness(BlockPos pos) {
 		return 15;
 	}
 
 	@Override
-	public void notifyBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
-		world.notifyBlockUpdate(pos, oldState, newState, flags);
+	public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
+		world.sendBlockUpdated(pos, oldState, newState, flags);
 	}
 
 	@Override
-	public ServerTickList<Block> getPendingBlockTicks() {
-		ITickList<Block> tl =  world.getPendingBlockTicks();
+	public ServerTickList<Block> getBlockTicks() {
+		TickList<Block> tl =  world.getBlockTicks();
 		if (tl instanceof ServerTickList)
 			return (ServerTickList<Block>) tl;
-		return super.getPendingBlockTicks();
+		return super.getBlockTicks();
 	}
 
 	@Override
-	public ServerTickList<Fluid> getPendingFluidTicks() {
-		ITickList<Fluid> tl =  world.getPendingFluidTicks();
+	public ServerTickList<Fluid> getLiquidTicks() {
+		TickList<Fluid> tl =  world.getLiquidTicks();
 		if (tl instanceof ServerTickList)
 			return (ServerTickList<Fluid>) tl;
-		return super.getPendingFluidTicks();
+		return super.getLiquidTicks();
 	}
 
 	@Override
-	public void playEvent(PlayerEntity player, int type, BlockPos pos, int data) {
+	public void levelEvent(Player player, int type, BlockPos pos, int data) {
 	}
 
 	@Override
-	public List<ServerPlayerEntity> getPlayers() {
+	public List<ServerPlayer> players() {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public void playSound(PlayerEntity player, double x, double y, double z, SoundEvent soundIn, SoundCategory category,
+	public void playSound(Player player, double x, double y, double z, SoundEvent soundIn, SoundSource category,
 			float volume, float pitch) {
 	}
 
 	@Override
-	public void playMovingSound(PlayerEntity p_217384_1_, Entity p_217384_2_, SoundEvent p_217384_3_,
-			SoundCategory p_217384_4_, float p_217384_5_, float p_217384_6_) {
+	public void playSound(Player p_217384_1_, Entity p_217384_2_, SoundEvent p_217384_3_,
+			SoundSource p_217384_4_, float p_217384_5_, float p_217384_6_) {
 	}
 
 	@Override
-	public Entity getEntityByID(int id) {
+	public Entity getEntity(int id) {
 		return null;
 	}
 
 	@Override
-	public MapData getMapData(String mapName) {
+	public MapItemSavedData getMapData(String mapName) {
 		return null;
 	}
 
 	@Override
-	public boolean addEntity(Entity entityIn) {
-		entityIn.setWorld(world);
-		return world.addEntity(entityIn);
+	public boolean addFreshEntity(Entity entityIn) {
+		entityIn.setLevel(world);
+		return world.addFreshEntity(entityIn);
 	}
 
 	@Override
-	public void registerMapData(MapData mapDataIn) {
+	public void setMapData(MapItemSavedData mapDataIn) {
 	}
 
 	@Override
-	public int getNextMapId() {
+	public int getFreeMapId() {
 		return 0;
 	}
 
 	@Override
-	public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {
+	public void destroyBlockProgress(int breakerId, BlockPos pos, int progress) {
 	}
 
 	@Override
@@ -131,16 +130,16 @@ public class WrappedServerWorld extends ServerWorld {
 	}
 
 	@Override
-	public ITagCollectionSupplier getTags() {
-		return world.getTags();
+	public TagContainer getTagManager() {
+		return world.getTagManager();
 	}
 
 	@Override
-	public Biome getGeneratorStoredBiome(int p_225604_1_, int p_225604_2_, int p_225604_3_) {
-		return world.getGeneratorStoredBiome(p_225604_1_, p_225604_2_, p_225604_3_);
+	public Biome getUncachedNoiseBiome(int p_225604_1_, int p_225604_2_, int p_225604_3_) {
+		return world.getUncachedNoiseBiome(p_225604_1_, p_225604_2_, p_225604_3_);
 	}
 
-	private static SaveFormat.LevelSave getLevelSaveFromWorld(World world) {
+	private static LevelStorageSource.LevelStorageAccess getLevelSaveFromWorld(Level world) {
 		return MinecraftServerHelper.getAnvilConverterForAnvilFile(world.getServer());
 	}
 }

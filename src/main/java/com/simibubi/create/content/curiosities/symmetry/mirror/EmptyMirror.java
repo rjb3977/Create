@@ -3,28 +3,26 @@ package com.simibubi.create.content.curiosities.symmetry.mirror;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.google.common.collect.ImmutableList;
 import com.jozufozu.flywheel.core.PartialModel;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-
 public class EmptyMirror extends SymmetryMirror {
 
-	public static enum Align implements IStringSerializable {
+	public static enum Align implements StringRepresentable {
 		None("none");
 
 		private final String name;
 		private Align(String name) { this.name = name; }
-		@Override public String getString() { return name; }
+		@Override public String getSerializedName() { return name; }
 		@Override public String toString() { return name; }
 	}
 
-	public EmptyMirror(Vector3d pos) {
+	public EmptyMirror(Vec3 pos) {
 		super(pos);
 		orientation = Align.None;
 	}
@@ -55,7 +53,7 @@ public class EmptyMirror extends SymmetryMirror {
 	}
 
 	@Override
-	public List<ITextComponent> getAlignToolTips() {
+	public List<Component> getAlignToolTips() {
 		return ImmutableList.of();
 	}
 

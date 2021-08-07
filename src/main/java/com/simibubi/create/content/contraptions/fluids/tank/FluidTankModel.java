@@ -10,31 +10,31 @@ import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 import com.simibubi.create.foundation.utility.Iterate;
 
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FluidTankModel extends CTModel {
 
-	public static FluidTankModel standard(IBakedModel originalModel) {
+	public static FluidTankModel standard(BakedModel originalModel) {
 		return new FluidTankModel(originalModel, AllSpriteShifts.FLUID_TANK, AllSpriteShifts.COPPER_CASING);
 	}
 
-	public static FluidTankModel creative(IBakedModel originalModel) {
+	public static FluidTankModel creative(BakedModel originalModel) {
 		return new FluidTankModel(originalModel, AllSpriteShifts.CREATIVE_FLUID_TANK, AllSpriteShifts.CREATIVE_CASING);
 	}
 
-	private FluidTankModel(IBakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top) {
+	private FluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top) {
 		super(originalModel, new FluidTankCTBehaviour(side, top));
 	}
 
 	@Override
-	public void emitBlockQuads(IBlockDisplayReader blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
+	public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 		CullData cullData = new CullData();
 		for (Direction d : Iterate.horizontalDirections)
-			cullData.setCulled(d, FluidTankConnectivityHandler.isConnected(blockView, pos, pos.offset(d)));
+			cullData.setCulled(d, FluidTankConnectivityHandler.isConnected(blockView, pos, pos.relative(d)));
 
 		context.pushTransform(quad -> {
 			Direction cullFace = quad.cullFace();
@@ -60,14 +60,14 @@ public class FluidTankModel extends CTModel {
 			if (face.getAxis()
 				.isVertical())
 				return;
-			culledFaces[face.getHorizontalIndex()] = cull;
+			culledFaces[face.get2DDataValue()] = cull;
 		}
 
 		boolean isCulled(Direction face) {
 			if (face.getAxis()
 				.isVertical())
 				return false;
-			return culledFaces[face.getHorizontalIndex()];
+			return culledFaces[face.get2DDataValue()];
 		}
 	}
 

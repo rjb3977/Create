@@ -2,22 +2,20 @@ package com.simibubi.create.content.contraptions.components.waterwheel;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.base.GeneratingKineticTileEntity;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.utility.Iterate;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-
 public class WaterWheelTileEntity extends GeneratingKineticTileEntity {
 
 	private Map<Direction, Float> flows;
 
-	public WaterWheelTileEntity(TileEntityType<? extends WaterWheelTileEntity> type) {
+	public WaterWheelTileEntity(BlockEntityType<? extends WaterWheelTileEntity> type) {
 		super(type);
 		flows = new HashMap<>();
 		for (Direction d : Iterate.directions)
@@ -26,12 +24,12 @@ public class WaterWheelTileEntity extends GeneratingKineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		super.fromTag(state, compound, clientPacket);
 		if (compound.contains("Flows")) {
 			for (Direction d : Iterate.directions)
 				setFlow(d, compound.getCompound("Flows")
-					.getFloat(d.getString()));
+					.getFloat(d.getSerializedName()));
 		}
 	}
 
@@ -41,10 +39,10 @@ public class WaterWheelTileEntity extends GeneratingKineticTileEntity {
 //	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
-		CompoundNBT flows = new CompoundNBT();
+	public void write(CompoundTag compound, boolean clientPacket) {
+		CompoundTag flows = new CompoundTag();
 		for (Direction d : Iterate.directions)
-			flows.putFloat(d.getString(), this.flows.get(d));
+			flows.putFloat(d.getSerializedName(), this.flows.get(d));
 		compound.put("Flows", flows);
 
 		super.write(compound, clientPacket);
@@ -52,7 +50,7 @@ public class WaterWheelTileEntity extends GeneratingKineticTileEntity {
 
 	public void setFlow(Direction direction, float speed) {
 		flows.put(direction, speed);
-		markDirty();
+		setChanged();
 	}
 
 	@Override
@@ -69,7 +67,7 @@ public class WaterWheelTileEntity extends GeneratingKineticTileEntity {
 	public void lazyTick() {
 		super.lazyTick();
 		AllBlocks.WATER_WHEEL.get()
-			.updateAllSides(getBlockState(), world, pos);
+			.updateAllSides(getBlockState(), level, worldPosition);
 	}
 
 }

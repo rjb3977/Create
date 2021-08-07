@@ -1,25 +1,23 @@
 package com.simibubi.create.content.contraptions.relays.encased;
 
 import java.util.Random;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.TickPriority;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.content.contraptions.RotationPropagator;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.relays.gearbox.GearshiftTileEntity;
 import com.simibubi.create.foundation.block.ITE;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.TickPriority;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 
 public class GearshiftBlock extends AbstractEncasedShaftBlock implements ITE<GearshiftTileEntity> {
 
@@ -27,36 +25,36 @@ public class GearshiftBlock extends AbstractEncasedShaftBlock implements ITE<Gea
 
 	public GearshiftBlock(Properties properties) {
 		super(properties);
-		setDefaultState(getDefaultState().with(POWERED, false));
+		registerDefaultState(defaultBlockState().setValue(POWERED, false));
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.GEARSHIFT.create();
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
 		builder.add(POWERED);
-		super.fillStateContainer(builder);
+		super.createBlockStateDefinition(builder);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		return super.getStateForPlacement(context).with(POWERED,
-				context.getWorld().isBlockPowered(context.getPos()));
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return super.getStateForPlacement(context).setValue(POWERED,
+				context.getLevel().hasNeighborSignal(context.getClickedPos()));
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
-		if (worldIn.isRemote)
+		if (worldIn.isClientSide)
 			return;
 
-		boolean previouslyPowered = state.get(POWERED);
-		if (previouslyPowered != worldIn.isBlockPowered(pos)) {
+		boolean previouslyPowered = state.getValue(POWERED);
+		if (previouslyPowered != worldIn.hasNeighborSignal(pos)) {
 			detachKinetics(worldIn, pos, true);
-			worldIn.setBlockState(pos, state.cycle(POWERED), 2);
+			worldIn.setBlock(pos, state.cycle(POWERED), 2);
 		}
 	}
 
@@ -65,20 +63,20 @@ public class GearshiftBlock extends AbstractEncasedShaftBlock implements ITE<Gea
 		return GearshiftTileEntity.class;
 	}
 
-	public void detachKinetics(World worldIn, BlockPos pos, boolean reAttachNextTick) {
-		TileEntity te = worldIn.getTileEntity(pos);
+	public void detachKinetics(Level worldIn, BlockPos pos, boolean reAttachNextTick) {
+		BlockEntity te = worldIn.getBlockEntity(pos);
 		if (te == null || !(te instanceof KineticTileEntity))
 			return;
 		RotationPropagator.handleRemoved(worldIn, pos, (KineticTileEntity) te);
 
 		// Re-attach next tick
 		if (reAttachNextTick)
-			worldIn.getPendingBlockTicks().scheduleTick(pos, this, 0, TickPriority.EXTREMELY_HIGH);
+			worldIn.getBlockTicks().scheduleTick(pos, this, 0, TickPriority.EXTREMELY_HIGH);
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
-		TileEntity te = worldIn.getTileEntity(pos);
+	public void tick(BlockState state, ServerLevel worldIn, BlockPos pos, Random random) {
+		BlockEntity te = worldIn.getBlockEntity(pos);
 		if (te == null || !(te instanceof KineticTileEntity))
 			return;
 		KineticTileEntity kte = (KineticTileEntity) te;

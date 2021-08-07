@@ -5,33 +5,32 @@ import javax.annotation.Nullable;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.content.contraptions.wrench.IWrenchable;
 import com.simibubi.create.foundation.utility.Iterate;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
 
-public abstract class EngineBlock extends HorizontalBlock implements IWrenchable, ITileEntityProvider {
+public abstract class EngineBlock extends HorizontalDirectionalBlock implements IWrenchable, EntityBlock {
 
 	protected EngineBlock(Properties builder) {
 		super(builder);
 	}
 
 	@Override
-	public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
-		return isValidPosition(state, worldIn, pos, state.get(HORIZONTAL_FACING));
+	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
+		return isValidPosition(state, worldIn, pos, state.getValue(FACING));
 	}
 
 //	@Override
@@ -40,47 +39,47 @@ public abstract class EngineBlock extends HorizontalBlock implements IWrenchable
 //	}
 
 	@Override
-	public ActionResultType onWrenched(BlockState state, ItemUseContext context) {
-		return ActionResultType.FAIL;
+	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
+		return InteractionResult.FAIL;
 	}
 
 	@Override
-	public abstract TileEntity createNewTileEntity(IBlockReader world);
+	public abstract BlockEntity newBlockEntity(BlockGetter world);
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		Direction facing = context.getFace();
-		return getDefaultState().with(HORIZONTAL_FACING,
-				facing.getAxis().isVertical() ? context.getPlacementHorizontalFacing().getOpposite() : facing);
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		Direction facing = context.getClickedFace();
+		return defaultBlockState().setValue(FACING,
+				facing.getAxis().isVertical() ? context.getHorizontalDirection().getOpposite() : facing);
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		super.fillStateContainer(builder.add(HORIZONTAL_FACING));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder.add(FACING));
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
-		if (worldIn.isRemote)
+		if (worldIn.isClientSide)
 			return;
 
 		if (fromPos.equals(getBaseBlockPos(state, pos))) {
-			if (!isValidPosition(state, worldIn, pos)) {
+			if (!canSurvive(state, worldIn, pos)) {
 				worldIn.destroyBlock(pos, true);
 				return;
 			}
 		}
 	}
 
-	private boolean isValidPosition(BlockState state, IBlockReader world, BlockPos pos, Direction facing) {
+	private boolean isValidPosition(BlockState state, BlockGetter world, BlockPos pos, Direction facing) {
 		BlockPos baseBlockPos = getBaseBlockPos(state, pos);
 		if (!isValidBaseBlock(world.getBlockState(baseBlockPos), world, pos))
 			return false;
 		for (Direction otherFacing : Iterate.horizontalDirections) {
 			if (otherFacing == facing)
 				continue;
-			BlockPos otherPos = baseBlockPos.offset(otherFacing);
+			BlockPos otherPos = baseBlockPos.relative(otherFacing);
 			BlockState otherState = world.getBlockState(otherPos);
 			if (otherState.getBlock() instanceof EngineBlock
 					&& getBaseBlockPos(otherState, otherPos).equals(baseBlockPos))
@@ -91,13 +90,13 @@ public abstract class EngineBlock extends HorizontalBlock implements IWrenchable
 	}
 
 	public static BlockPos getBaseBlockPos(BlockState state, BlockPos pos) {
-		return pos.offset(state.get(HORIZONTAL_FACING).getOpposite());
+		return pos.relative(state.getValue(FACING).getOpposite());
 	}
 
 	@Nullable
 	@Environment(EnvType.CLIENT)
 	public abstract PartialModel getFrameModel();
 
-	protected abstract boolean isValidBaseBlock(BlockState baseBlock, IBlockReader world, BlockPos pos);
+	protected abstract boolean isValidBaseBlock(BlockState baseBlock, BlockGetter world, BlockPos pos);
 
 }

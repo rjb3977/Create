@@ -5,33 +5,33 @@ import me.pepperbell.simplenetworking.SimpleChannel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class ShootGadgetPacket implements S2CPacket {
 
-	public Vector3d location;
-	public Hand hand;
+	public Vec3 location;
+	public InteractionHand hand;
 	public boolean self;
 
-	public ShootGadgetPacket(Vector3d location, Hand hand, boolean self) {
+	public ShootGadgetPacket(Vec3 location, InteractionHand hand, boolean self) {
 		this.location = location;
 		this.hand = hand;
 		this.self = self;
 	}
 
-	public ShootGadgetPacket(PacketBuffer buffer) {
-		hand = buffer.readBoolean() ? Hand.MAIN_HAND : Hand.OFF_HAND;
+	public ShootGadgetPacket(FriendlyByteBuf buffer) {
+		hand = buffer.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 		self = buffer.readBoolean();
-		location = new Vector3d(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
+		location = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
 		readAdditional(buffer);
 	}
 
-	public final void write(PacketBuffer buffer) {
-		buffer.writeBoolean(hand == Hand.MAIN_HAND);
+	public final void write(FriendlyByteBuf buffer) {
+		buffer.writeBoolean(hand == InteractionHand.MAIN_HAND);
 		buffer.writeBoolean(self);
 		buffer.writeDouble(location.x);
 		buffer.writeDouble(location.y);
@@ -39,9 +39,9 @@ public abstract class ShootGadgetPacket implements S2CPacket {
 		writeAdditional(buffer);
 	}
 
-	protected abstract void readAdditional(PacketBuffer buffer);
+	protected abstract void readAdditional(FriendlyByteBuf buffer);
 
-	protected abstract void writeAdditional(PacketBuffer buffer);
+	protected abstract void writeAdditional(FriendlyByteBuf buffer);
 
 	@Environment(EnvType.CLIENT)
 	protected abstract void handleAdditional();
@@ -51,13 +51,13 @@ public abstract class ShootGadgetPacket implements S2CPacket {
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void handle(Minecraft client, ClientPlayNetHandler handler, SimpleChannel.ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, SimpleChannel.ResponseTarget responseTarget) {
 		client.execute(() -> {
 				Entity renderViewEntity = Minecraft.getInstance()
-					.getRenderViewEntity();
+					.getCameraEntity();
 				if (renderViewEntity == null)
 					return;
-				if (renderViewEntity.getPositionVec()
+				if (renderViewEntity.position()
 					.distanceTo(location) > 100)
 					return;
 

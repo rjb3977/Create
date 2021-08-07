@@ -2,8 +2,7 @@ package com.simibubi.create.foundation.data;
 
 import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
-
-import net.minecraft.item.BlockItem;
+import net.minecraft.world.item.BlockItem;
 
 public class ModelGen {
 

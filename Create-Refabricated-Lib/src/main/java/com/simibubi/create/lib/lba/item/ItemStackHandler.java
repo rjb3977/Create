@@ -2,8 +2,8 @@ package com.simibubi.create.lib.lba.item;
 
 import alexiil.mc.lib.attributes.Simulation;
 import alexiil.mc.lib.attributes.item.impl.FullFixedItemInv;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemStackHandler extends FullFixedItemInv implements IItemHandler, IItemHandlerModifiable {
 
@@ -64,11 +64,11 @@ public class ItemStackHandler extends FullFixedItemInv implements IItemHandler, 
 		return extractStack(slot, null, ItemStack.EMPTY, amount, simulate ? Simulation.SIMULATE : Simulation.ACTION);
 	}
 
-	public CompoundNBT serializeNBT() {
+	public CompoundTag serializeNBT() {
 		return super.toTag();
 	}
 
-	public void deserializeNBT(CompoundNBT nbt) {
+	public void deserializeNBT(CompoundTag nbt) {
 		super.fromTag(nbt);
 	}
 }

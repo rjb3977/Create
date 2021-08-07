@@ -1,16 +1,15 @@
 package com.simibubi.create.foundation.utility;
 
 import com.simibubi.create.lib.utility.TagUtil;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 
 public class DyeHelper {
 
-	public static IItemProvider getWoolOfDye(DyeColor color) {
+	public static ItemLike getWoolOfDye(DyeColor color) {
 		switch (color) {
 		case BLACK:
 			return Blocks.BLACK_WOOL;
@@ -48,7 +47,7 @@ public class DyeHelper {
 		}
 	}
 
-	public static ITag.INamedTag<Item> getTagOfDye(DyeColor color) {
+	public static Tag.Named<Item> getTagOfDye(DyeColor color) {
 		switch (color) {
 		case BLACK:
 			return TagUtil.BLACK_DYES;

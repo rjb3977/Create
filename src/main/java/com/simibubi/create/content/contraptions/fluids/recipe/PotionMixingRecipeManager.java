@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import com.simibubi.create.content.contraptions.components.mixer.MixingRecipe;
 import com.simibubi.create.foundation.utility.ISimpleReloadListener;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
 
 public class PotionMixingRecipeManager {
 
@@ -117,7 +115,7 @@ public class PotionMixingRecipeManager {
 		ALL.clear();
 		getAllBrewingRecipes().forEach(recipe -> {
 			for (Ingredient ingredient : recipe.getIngredients()) {
-				for (ItemStack itemStack : ingredient.getMatchingStacks()) {
+				for (ItemStack itemStack : ingredient.getItems()) {
 					ALL.computeIfAbsent(itemStack.getItem(), t -> new ArrayList<>())
 						.add(recipe);
 					return;

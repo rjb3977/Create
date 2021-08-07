@@ -4,13 +4,12 @@ import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.jozufozu.flywheel.core.materials.ModelData;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.block.Block;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class EngineInstance extends TileEntityInstance<EngineTileEntity> {
 
@@ -33,7 +32,7 @@ public class EngineInstance extends TileEntityInstance<EngineTileEntity> {
 
         float angle = AngleHelper.rad(AngleHelper.horizontalAngle(facing));
 
-        MatrixStack ms = new MatrixStack();
+        PoseStack ms = new PoseStack();
         MatrixStacker msr = MatrixStacker.of(ms);
 
         msr.translate(getInstancePosition())

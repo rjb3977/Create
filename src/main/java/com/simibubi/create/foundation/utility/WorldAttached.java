@@ -7,13 +7,12 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
-
-import net.minecraft.world.IWorld;
+import net.minecraft.world.level.LevelAccessor;
 
 public class WorldAttached<T> {
 
-	static List<Map<IWorld, ?>> allMaps = new ArrayList<>();
-	Map<IWorld, T> attached;
+	static List<Map<LevelAccessor, ?>> allMaps = new ArrayList<>();
+	Map<LevelAccessor, T> attached;
 	private Supplier<T> factory;
 
 	public WorldAttached(Supplier<T> factory) {
@@ -22,12 +21,12 @@ public class WorldAttached<T> {
 		allMaps.add(attached);
 	}
 
-	public static void invalidateWorld(IWorld world) {
+	public static void invalidateWorld(LevelAccessor world) {
 		allMaps.forEach(m -> m.remove(world));
 	}
 
 	@Nullable
-	public T get(IWorld world) {
+	public T get(LevelAccessor world) {
 		T t = attached.get(world);
 		if (t != null)
 			return t;
@@ -36,7 +35,7 @@ public class WorldAttached<T> {
 		return entry;
 	}
 
-	public void put(IWorld world, T entry) {
+	public void put(LevelAccessor world, T entry) {
 		attached.put(world, entry);
 	}
 

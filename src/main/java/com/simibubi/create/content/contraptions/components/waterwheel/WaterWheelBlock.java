@@ -1,7 +1,22 @@
 package com.simibubi.create.content.contraptions.components.waterwheel;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BubbleColumnBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllTileEntities;
@@ -15,23 +30,6 @@ import com.simibubi.create.foundation.utility.worldWrappers.WrappedWorld;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.BubbleColumnBlock;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<WaterWheelTileEntity> {
@@ -41,26 +39,26 @@ public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<Water
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.WATER_WHEEL.create();
 	}
 
 	@Override
-	public BlockRenderType getRenderType(BlockState state) {
-		return BlockRenderType.ENTITYBLOCK_ANIMATED;
+	public RenderShape getRenderShape(BlockState state) {
+		return RenderShape.ENTITYBLOCK_ANIMATED;
 	}
 
 	@Override
-	public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
+	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
 		for (Direction direction : Iterate.directions) {
-			BlockPos neighbourPos = pos.offset(direction);
+			BlockPos neighbourPos = pos.relative(direction);
 			BlockState neighbourState = worldIn.getBlockState(neighbourPos);
 			if (!AllBlocks.WATER_WHEEL.has(neighbourState))
 				continue;
-			if (neighbourState.get(HORIZONTAL_FACING)
-				.getAxis() != state.get(HORIZONTAL_FACING)
+			if (neighbourState.getValue(HORIZONTAL_FACING)
+				.getAxis() != state.getValue(HORIZONTAL_FACING)
 					.getAxis()
-				|| state.get(HORIZONTAL_FACING)
+				|| state.getValue(HORIZONTAL_FACING)
 					.getAxis() != direction.getAxis())
 				return false;
 		}
@@ -69,7 +67,7 @@ public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<Water
 	}
 
 	@Override
-	public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn,
+	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
 		BlockPos currentPos, BlockPos facingPos) {
 		if (worldIn instanceof WrappedWorld)
 			return stateIn;
@@ -79,38 +77,38 @@ public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<Water
 	}
 
 	@Override
-	public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
+	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
 		updateAllSides(state, worldIn, pos);
 	}
 
-	public void updateAllSides(BlockState state, World worldIn, BlockPos pos) {
+	public void updateAllSides(BlockState state, Level worldIn, BlockPos pos) {
 		for (Direction d : Iterate.directions)
 			updateFlowAt(state, worldIn, pos, d);
 		updateWheelSpeed(worldIn, pos);
 	}
 
-	private void updateFlowAt(BlockState state, IWorld world, BlockPos pos, Direction side) {
-		if (side.getAxis() == state.get(HORIZONTAL_FACING)
+	private void updateFlowAt(BlockState state, LevelAccessor world, BlockPos pos, Direction side) {
+		if (side.getAxis() == state.getValue(HORIZONTAL_FACING)
 			.getAxis())
 			return;
 
-		FluidState fluid = world.getFluidState(pos.offset(side));
-		Direction wf = state.get(HORIZONTAL_FACING);
+		FluidState fluid = world.getFluidState(pos.relative(side));
+		Direction wf = state.getValue(HORIZONTAL_FACING);
 		boolean clockwise = wf.getAxisDirection() == AxisDirection.POSITIVE;
 		int clockwiseMultiplier = 2;
 
-		Vector3d vec = fluid.getFlow(world, pos.offset(side));
+		Vec3 vec = fluid.getFlow(world, pos.relative(side));
 		if (side.getAxis()
 			.isHorizontal()) {
-			BlockState adjacentBlock = world.getBlockState(pos.offset(side));
+			BlockState adjacentBlock = world.getBlockState(pos.relative(side));
 			if (adjacentBlock.getBlock() == Blocks.BUBBLE_COLUMN)
-				vec = new Vector3d(0, adjacentBlock.get(BubbleColumnBlock.DRAG) ? -1 : 1, 0);
+				vec = new Vec3(0, adjacentBlock.getValue(BubbleColumnBlock.DRAG_DOWN) ? -1 : 1, 0);
 		}
 
 		vec = vec.scale(side.getAxisDirection()
-			.getOffset());
-		vec = new Vector3d(Math.signum(vec.x), Math.signum(vec.y), Math.signum(vec.z));
-		Vector3d flow = vec;
+			.getStep());
+		vec = new Vec3(Math.signum(vec.x), Math.signum(vec.y), Math.signum(vec.z));
+		Vec3 flow = vec;
 
 		withTileEntityDo(world, pos, te -> {
 			double flowStrength = 0;
@@ -129,11 +127,11 @@ public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<Water
 					flowStrength = flow.y > 0 ^ !clockwise ? -flow.y * clockwiseMultiplier : -flow.y;
 			}
 
-			if (te.getSpeed() == 0 && flowStrength != 0 && !world.isRemote()) {
+			if (te.getSpeed() == 0 && flowStrength != 0 && !world.isClientSide()) {
 				AllTriggers.triggerForNearbyPlayers(AllTriggers.WATER_WHEEL, world, pos, 5);
-				if (FluidHelper.isLava(fluid.getFluid()))
+				if (FluidHelper.isLava(fluid.getType()))
 					AllTriggers.triggerForNearbyPlayers(AllTriggers.LAVA_WHEEL, world, pos, 5);
-				if (fluid.getFluid().isEquivalentTo(AllFluids.CHOCOLATE.get()))
+				if (fluid.getType().isSame(AllFluids.CHOCOLATE.get()))
 					AllTriggers.triggerForNearbyPlayers(AllTriggers.CHOCOLATE_WHEEL, world, pos, 5);
 			}
 
@@ -142,34 +140,34 @@ public class WaterWheelBlock extends HorizontalKineticBlock implements ITE<Water
 		});
 	}
 
-	private void updateWheelSpeed(IWorld world, BlockPos pos) {
+	private void updateWheelSpeed(LevelAccessor world, BlockPos pos) {
 		withTileEntityDo(world, pos, WaterWheelTileEntity::updateGeneratedRotation);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		Direction facing = context.getFace();
-		BlockState placedOn = context.getWorld()
-			.getBlockState(context.getPos()
-				.offset(facing.getOpposite()));
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		Direction facing = context.getClickedFace();
+		BlockState placedOn = context.getLevel()
+			.getBlockState(context.getClickedPos()
+				.relative(facing.getOpposite()));
 		if (AllBlocks.WATER_WHEEL.has(placedOn))
-			return getDefaultState().with(HORIZONTAL_FACING, placedOn.get(HORIZONTAL_FACING));
+			return defaultBlockState().setValue(HORIZONTAL_FACING, placedOn.getValue(HORIZONTAL_FACING));
 		if (facing.getAxis()
 			.isHorizontal())
-			return getDefaultState().with(HORIZONTAL_FACING, context.getPlayer() != null && context.getPlayer()
-				.isSneaking() ? facing.getOpposite() : facing);
+			return defaultBlockState().setValue(HORIZONTAL_FACING, context.getPlayer() != null && context.getPlayer()
+				.isShiftKeyDown() ? facing.getOpposite() : facing);
 		return super.getStateForPlacement(context);
 	}
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
-		return state.get(HORIZONTAL_FACING)
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
+		return state.getValue(HORIZONTAL_FACING)
 			.getAxis() == face.getAxis();
 	}
 
 	@Override
 	public Axis getRotationAxis(BlockState state) {
-		return state.get(HORIZONTAL_FACING)
+		return state.getValue(HORIZONTAL_FACING)
 			.getAxis();
 	}
 

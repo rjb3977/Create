@@ -1,7 +1,23 @@
 package com.simibubi.create.content.logistics.block.redstone;
 
 import java.util.Random;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
@@ -17,41 +33,24 @@ import com.simibubi.create.lib.block.CanConnectRedstoneBlock;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import alexiil.mc.lib.attributes.item.ItemAttributes;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 
-public class ContentObserverBlock extends HorizontalBlock implements ITE<ContentObserverTileEntity>, IWrenchable, CanConnectRedstoneBlock, ITileEntityProvider {
+public class ContentObserverBlock extends HorizontalDirectionalBlock implements ITE<ContentObserverTileEntity>, IWrenchable, CanConnectRedstoneBlock, EntityBlock {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
 	public ContentObserverBlock(Properties properties) {
 		super(properties);
-		setDefaultState(getDefaultState().with(POWERED, false));
+		registerDefaultState(defaultBlockState().setValue(POWERED, false));
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader p_220053_2_, BlockPos p_220053_3_,
-		ISelectionContext p_220053_4_) {
-		return AllShapes.CONTENT_OBSERVER.get(state.get(HORIZONTAL_FACING));
+	public VoxelShape getShape(BlockState state, BlockGetter p_220053_2_, BlockPos p_220053_3_,
+		CollisionContext p_220053_4_) {
+		return AllShapes.CONTENT_OBSERVER.get(state.getValue(FACING));
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.CONTENT_OBSERVER.create();
 	}
 
@@ -61,22 +60,22 @@ public class ContentObserverBlock extends HorizontalBlock implements ITE<Content
 //	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		builder.add(POWERED, HORIZONTAL_FACING);
-		super.fillStateContainer(builder);
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		builder.add(POWERED, FACING);
+		super.createBlockStateDefinition(builder);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		BlockState state = getDefaultState();
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		BlockState state = defaultBlockState();
 
 		Direction preferredFacing = null;
 		for (Direction face : Iterate.horizontalDirections) {
-			BlockPos offsetPos = context.getPos()
-				.offset(face);
-			World world = context.getWorld();
+			BlockPos offsetPos = context.getClickedPos()
+				.relative(face);
+			Level world = context.getLevel();
 			boolean canDetect = false;
-			TileEntity tileEntity = world.getTileEntity(offsetPos);
+			BlockEntity tileEntity = world.getBlockEntity(offsetPos);
 
 			if (TileEntityBehaviour.get(tileEntity, TransportedItemStackHandlerBehaviour.TYPE) != null)
 				canDetect = true;
@@ -97,57 +96,57 @@ public class ContentObserverBlock extends HorizontalBlock implements ITE<Content
 		}
 
 		if (preferredFacing != null)
-			return state.with(HORIZONTAL_FACING, preferredFacing);
-		return state.with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing()
+			return state.setValue(FACING, preferredFacing);
+		return state.setValue(FACING, context.getHorizontalDirection()
 			.getOpposite());
 	}
 
 	@Override
-	public boolean canProvidePower(BlockState state) {
-		return state.get(POWERED);
+	public boolean isSignalSource(BlockState state) {
+		return state.getValue(POWERED);
 	}
 
 	@Override
-	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return canProvidePower(blockState) && (side == null || side != blockState.get(HORIZONTAL_FACING)
+	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		return isSignalSource(blockState) && (side == null || side != blockState.getValue(FACING)
 			.getOpposite()) ? 15 : 0;
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
-		worldIn.setBlockState(pos, state.with(POWERED, false), 2);
-		worldIn.notifyNeighborsOfStateChange(pos, this);
+	public void tick(BlockState state, ServerLevel worldIn, BlockPos pos, Random random) {
+		worldIn.setBlock(pos, state.setValue(POWERED, false), 2);
+		worldIn.updateNeighborsAt(pos, this);
 	}
 
 	@Override
-	public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
-		return side != state.get(HORIZONTAL_FACING)
+	public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
+		return side != state.getValue(FACING)
 			.getOpposite();
 	}
 
 	@Override
-	public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock().hasBlockEntity() && state.getBlock() != newState.getBlock()) {
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+		if (state.getBlock().isEntityBlock() && state.getBlock() != newState.getBlock()) {
 			TileEntityBehaviour.destroy(worldIn, pos, FilteringBehaviour.TYPE);
-			worldIn.removeTileEntity(pos);
+			worldIn.removeBlockEntity(pos);
 		}
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
 		InvManipulationBehaviour behaviour = TileEntityBehaviour.get(worldIn, pos, InvManipulationBehaviour.TYPE);
 		if (behaviour != null)
 			behaviour.onNeighborChanged(fromPos);
 	}
 
-	public void onFunnelTransfer(World world, BlockPos funnelPos, ItemStack transferred) {
+	public void onFunnelTransfer(Level world, BlockPos funnelPos, ItemStack transferred) {
 		for (Direction direction : Iterate.horizontalDirections) {
-			BlockPos detectorPos = funnelPos.offset(direction);
+			BlockPos detectorPos = funnelPos.relative(direction);
 			BlockState detectorState = world.getBlockState(detectorPos);
 			if (!AllBlocks.CONTENT_OBSERVER.has(detectorState))
 				continue;
-			if (detectorState.get(HORIZONTAL_FACING) != direction.getOpposite())
+			if (detectorState.getValue(FACING) != direction.getOpposite())
 				continue;
 			withTileEntityDo(world, detectorPos, te -> {
 				FilteringBehaviour filteringBehaviour = TileEntityBehaviour.get(te, FilteringBehaviour.TYPE);

@@ -1,9 +1,8 @@
 package com.simibubi.create.lib.mixin.accessor;
 
+import com.mojang.math.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
-import net.minecraft.util.math.vector.Vector3f;
 
 @Mixin(Vector3f.class)
 public interface Vector3fAccessor {

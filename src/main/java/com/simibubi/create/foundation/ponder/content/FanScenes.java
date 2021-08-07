@@ -15,17 +15,16 @@ import com.simibubi.create.foundation.ponder.elements.ParrotElement.FlappyPose;
 import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.ponder.instructions.EmitParticlesInstruction.Emitter;
 import com.simibubi.create.foundation.utility.Pointing;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class FanScenes {
 
@@ -60,7 +59,7 @@ public class FanScenes {
 
 		BlockPos leverPos = util.grid.at(3, 2, 4);
 		Selection reverse = util.select.fromTo(3, 1, 5, 1, 1, 4);
-		scene.world.toggleRedstonePower(util.select.fromTo(leverPos, leverPos.down()));
+		scene.world.toggleRedstonePower(util.select.fromTo(leverPos, leverPos.below()));
 		scene.effects.indicateRedstone(leverPos);
 		scene.addKeyframe();
 		scene.world.modifyKineticSpeed(reverse, f -> -f);
@@ -76,7 +75,7 @@ public class FanScenes {
 		scene.markAsFinished();
 		scene.idle(70);
 
-		scene.world.toggleRedstonePower(util.select.fromTo(leverPos, leverPos.down()));
+		scene.world.toggleRedstonePower(util.select.fromTo(leverPos, leverPos.below()));
 		scene.effects.indicateRedstone(leverPos);
 		scene.world.modifyKineticSpeed(reverse, f -> -f);
 		scene.world.modifyKineticSpeed(util.select.everywhere(), f -> 4 * f);
@@ -103,7 +102,7 @@ public class FanScenes {
 		ElementLink<WorldSectionElement> blockInFront =
 			scene.world.showIndependentSection(util.select.position(3, 1, 0), Direction.SOUTH);
 		scene.world.moveSection(blockInFront, util.vector.of(1, 0, 2), 0);
-		scene.world.setBlock(blockPos, Blocks.LAVA.getDefaultState(), false);
+		scene.world.setBlock(blockPos, Blocks.LAVA.defaultBlockState(), false);
 		scene.idle(10);
 
 		scene.overlay.showSelectionWithText(util.select.fromTo(blockPos, blockPos.west(2)), 80)
@@ -115,14 +114,14 @@ public class FanScenes {
 		ItemStack smelted = new ItemStack(Items.GOLD_INGOT);
 
 		ElementLink<EntityElement> entityLink = scene.world.createItemEntity(util.vector.centerOf(blockPos.west(2)
-			.up(2)), util.vector.of(0, 0.1, 0), stack);
+			.above(2)), util.vector.of(0, 0.1, 0), stack);
 		scene.idle(15);
-		scene.world.modifyEntity(entityLink, e -> e.setMotion(-0.2f, 0, 0));
-		Vector3d itemVec = util.vector.blockSurface(util.grid.at(1, 1, 2), Direction.EAST)
+		scene.world.modifyEntity(entityLink, e -> e.setDeltaMovement(-0.2f, 0, 0));
+		Vec3 itemVec = util.vector.blockSurface(util.grid.at(1, 1, 2), Direction.EAST)
 			.add(0.1, 0, 0);
 		scene.overlay.showControls(new InputWindowElement(itemVec, Pointing.DOWN).withItem(stack), 20);
 		scene.idle(20);
-		scene.effects.emitParticles(itemVec.add(0, 0.2f, 0), Emitter.simple(ParticleTypes.LARGE_SMOKE, Vector3d.ZERO), 1,
+		scene.effects.emitParticles(itemVec.add(0, 0.2f, 0), Emitter.simple(ParticleTypes.LARGE_SMOKE, Vec3.ZERO), 1,
 			60);
 
 		scene.overlay.showText(80)
@@ -149,7 +148,7 @@ public class FanScenes {
 
 		// smoking start
 
-		BlockState campfire = Blocks.FIRE.getDefaultState();
+		BlockState campfire = Blocks.FIRE.defaultBlockState();
 		scene.world.hideIndependentSection(blockInFront, Direction.NORTH);
 		scene.idle(15);
 		scene.world.setBlock(util.grid.at(3, 1, 0), campfire, false);
@@ -166,7 +165,7 @@ public class FanScenes {
 
 		// washing start
 
-		BlockState water = Blocks.WATER.getDefaultState();
+		BlockState water = Blocks.WATER.defaultBlockState();
 		scene.world.hideIndependentSection(blockInFront, Direction.NORTH);
 		scene.idle(15);
 		scene.world.setBlock(util.grid.at(3, 1, 0), water, false);
@@ -185,12 +184,12 @@ public class FanScenes {
 		ItemStack washed = new ItemStack(Items.GOLD_NUGGET, 16);
 
 		entityLink = scene.world.createItemEntity(util.vector.centerOf(blockPos.west(2)
-			.up(2)), util.vector.of(0, 0.1, 0), stack);
+			.above(2)), util.vector.of(0, 0.1, 0), stack);
 		scene.idle(15);
-		scene.world.modifyEntity(entityLink, e -> e.setMotion(-0.2f, 0, 0));
+		scene.world.modifyEntity(entityLink, e -> e.setDeltaMovement(-0.2f, 0, 0));
 		scene.overlay.showControls(new InputWindowElement(itemVec, Pointing.DOWN).withItem(stack), 20);
 		scene.idle(20);
-		scene.effects.emitParticles(itemVec.add(0, 0.2f, 0), Emitter.simple(ParticleTypes.SPIT, Vector3d.ZERO), 1, 60);
+		scene.effects.emitParticles(itemVec.add(0, 0.2f, 0), Emitter.simple(ParticleTypes.SPIT, Vec3.ZERO), 1, 60);
 
 		scene.overlay.showText(50)
 			.colored(PonderPalette.WHITE)
@@ -221,8 +220,8 @@ public class FanScenes {
 		scene.world.moveSection(blockInFront, util.vector.of(0, 1, 0), 15);
 		scene.world.destroyBlock(blockPos.east());
 		scene.world.showSection(util.select.position(blockPos.east()
-			.up()), Direction.DOWN);
-		scene.world.setBlock(blockPos.up(), Blocks.WATER.getDefaultState(), false);
+			.above()), Direction.DOWN);
+		scene.world.setBlock(blockPos.above(), Blocks.WATER.defaultBlockState(), false);
 
 		ItemStack sand = new ItemStack(Items.SAND);
 		ItemStack clay = new ItemStack(Items.CLAY_BALL);
@@ -234,13 +233,13 @@ public class FanScenes {
 		scene.world.moveSection(depot, util.vector.of(-1, -3, 0), 0);
 		scene.world.createItemOnBeltLike(depos, Direction.NORTH, sand);
 		scene.idle(10);
-		Vector3d depotTop = util.vector.topOf(2, 1, 2)
+		Vec3 depotTop = util.vector.topOf(2, 1, 2)
 			.add(0, 0.25, 0);
-		scene.effects.emitParticles(depotTop, Emitter.simple(ParticleTypes.SPIT, Vector3d.ZERO), .5f, 30);
+		scene.effects.emitParticles(depotTop, Emitter.simple(ParticleTypes.SPIT, Vec3.ZERO), .5f, 30);
 		scene.idle(30);
 		scene.world.modifyTileNBT(util.select.position(depos), DepotTileEntity.class,
 			nbt -> nbt.put("HeldItem", new TransportedItemStack(clay).serializeNBT()));
-		scene.effects.emitParticles(depotTop, Emitter.simple(ParticleTypes.SPIT, Vector3d.ZERO), .5f, 30);
+		scene.effects.emitParticles(depotTop, Emitter.simple(ParticleTypes.SPIT, Vec3.ZERO), .5f, 30);
 		scene.overlay.showText(90)
 			.pointAt(depotTop)
 			.attachKeyFrame()
@@ -258,10 +257,10 @@ public class FanScenes {
 		ElementLink<BeltItemElement> transported =
 			scene.world.createItemOnBelt(util.grid.at(3, 3, 3), Direction.SOUTH, sand);
 		scene.idle(60);
-		scene.effects.emitParticles(depotTop, Emitter.simple(ParticleTypes.SPIT, Vector3d.ZERO), .5f, 25);
+		scene.effects.emitParticles(depotTop, Emitter.simple(ParticleTypes.SPIT, Vec3.ZERO), .5f, 25);
 		scene.idle(25);
 		scene.world.changeBeltItemTo(transported, new ItemStack(Items.CLAY_BALL));
-		scene.effects.emitParticles(depotTop, Emitter.simple(ParticleTypes.SPIT, Vector3d.ZERO), .5f, 25);
+		scene.effects.emitParticles(depotTop, Emitter.simple(ParticleTypes.SPIT, Vec3.ZERO), .5f, 25);
 		scene.idle(60);
 
 		scene.world.setKineticSpeed(util.select.position(1, 2, 4)
@@ -290,8 +289,8 @@ public class FanScenes {
 			scene.idle(10);
 			scene.world.toggleRedstonePower(util.select.position(pos.north()));
 			scene.effects.indicateRedstone(pos.north());
-			scene.world.setKineticSpeed(util.select.fromTo(pos, pos.up()), 4);
-			scene.effects.rotationSpeedIndicator(pos.up());
+			scene.world.setKineticSpeed(util.select.fromTo(pos, pos.above()), 4);
+			scene.effects.rotationSpeedIndicator(pos.above());
 		}
 
 		scene.overlay.showText(90)

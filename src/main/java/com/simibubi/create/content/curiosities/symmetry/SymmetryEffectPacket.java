@@ -6,10 +6,10 @@ import java.util.List;
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
 
 public class SymmetryEffectPacket implements S2CPacket {
 
@@ -23,7 +23,7 @@ public class SymmetryEffectPacket implements S2CPacket {
 		this.positions = positions;
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		mirror = buffer.readBlockPos();
 		int amt = buffer.readInt();
 		positions = new ArrayList<>(amt);
@@ -32,7 +32,7 @@ public class SymmetryEffectPacket implements S2CPacket {
 		}
 	}
 
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(mirror);
 		buffer.writeInt(positions.size());
 		for (BlockPos blockPos : positions) {
@@ -40,9 +40,9 @@ public class SymmetryEffectPacket implements S2CPacket {
 		}
 	}
 
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client.execute(() -> {
-			if (Minecraft.getInstance().player.getPositionVec().distanceTo(Vector3d.of(mirror)) > 100)
+			if (Minecraft.getInstance().player.position().distanceTo(Vec3.atLowerCornerOf(mirror)) > 100)
 				return;
 			for (BlockPos to : positions)
 				SymmetryHandler.drawEffect(mirror, to);

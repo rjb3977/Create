@@ -5,24 +5,23 @@ import org.apache.logging.log4j.Logger;
 
 import com.simibubi.create.lib.helper.EntityHelper;
 import com.simibubi.create.lib.helper.TileEntityHelper;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class ExtraDataUtil {
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	public static CompoundNBT getExtraData(Object o) {
+	public static CompoundTag getExtraData(Object o) {
 		if (o instanceof Entity) {
 			return EntityHelper.getExtraCustomData((Entity) o);
 		}
 
-		if (o instanceof TileEntity) {
-			return TileEntityHelper.getExtraCustomData((TileEntity) o);
+		if (o instanceof BlockEntity) {
+			return TileEntityHelper.getExtraCustomData((BlockEntity) o);
 		}
 
 		LOGGER.warn("Attempted to get extra data of an object that cannot have extra data!");
-		return new CompoundNBT();
+		return new CompoundTag();
 	}
 }

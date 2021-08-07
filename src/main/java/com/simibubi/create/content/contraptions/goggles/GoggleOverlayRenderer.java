@@ -3,8 +3,7 @@ package com.simibubi.create.content.contraptions.goggles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.CreateClient;
@@ -18,33 +17,32 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.outliner.Outline;
 import com.simibubi.create.foundation.utility.outliner.Outliner.OutlineEntry;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.fabricmc.api.EnvType;
 
 public class GoggleOverlayRenderer {
 
 	private static final Map<Object, OutlineEntry> outlines = CreateClient.OUTLINER.getOutlines();
 
-	public static void renderOverlay(MatrixStack ms, IRenderTypeBuffer buffer, int light, int overlay,
+	public static void renderOverlay(PoseStack ms, MultiBufferSource buffer, int light, int overlay,
 		float partialTicks) {
-		RayTraceResult objectMouseOver = Minecraft.getInstance().objectMouseOver;
+		HitResult objectMouseOver = Minecraft.getInstance().hitResult;
 
-		if (!(objectMouseOver instanceof BlockRayTraceResult))
+		if (!(objectMouseOver instanceof BlockHitResult))
 			return;
 
 		for (OutlineEntry entry : outlines.values()) {
@@ -55,12 +53,12 @@ public class GoggleOverlayRenderer {
 				return;
 		}
 
-		BlockRayTraceResult result = (BlockRayTraceResult) objectMouseOver;
+		BlockHitResult result = (BlockHitResult) objectMouseOver;
 		Minecraft mc = Minecraft.getInstance();
-		ClientWorld world = mc.world;
-		BlockPos pos = result.getPos();
-		ItemStack headSlot = mc.player.getItemStackFromSlot(EquipmentSlotType.HEAD);
-		TileEntity te = world.getTileEntity(pos);
+		ClientLevel world = mc.level;
+		BlockPos pos = result.getBlockPos();
+		ItemStack headSlot = mc.player.getItemBySlot(EquipmentSlot.HEAD);
+		BlockEntity te = world.getBlockEntity(pos);
 
 		boolean wearingGoggles = AllItems.GOGGLES.isIn(headSlot);
 
@@ -70,18 +68,18 @@ public class GoggleOverlayRenderer {
 		boolean goggleAddedInformation = false;
 		boolean hoverAddedInformation = false;
 
-		List<ITextComponent> tooltip = new ArrayList<>();
+		List<Component> tooltip = new ArrayList<>();
 
 		if (hasGoggleInformation && wearingGoggles) {
 			IHaveGoggleInformation gte = (IHaveGoggleInformation) te;
-			goggleAddedInformation = gte.addToGoggleTooltip(tooltip, mc.player.isSneaking());
+			goggleAddedInformation = gte.addToGoggleTooltip(tooltip, mc.player.isShiftKeyDown());
 		}
 
 		if (hasHoveringInformation) {
 			if (!tooltip.isEmpty())
-				tooltip.add(StringTextComponent.EMPTY);
+				tooltip.add(TextComponent.EMPTY);
 			IHaveHoveringInformation hte = (IHaveHoveringInformation) te;
-			hoverAddedInformation = hte.addToTooltip(tooltip, mc.player.isSneaking());
+			hoverAddedInformation = hte.addToTooltip(tooltip, mc.player.isShiftKeyDown());
 
 			if (goggleAddedInformation && !hoverAddedInformation)
 				tooltip.remove(tooltip.size() - 1);
@@ -102,7 +100,7 @@ public class GoggleOverlayRenderer {
 		// check for piston poles if goggles are worn
 		BlockState state = world.getBlockState(pos);
 		if (wearingGoggles && AllBlocks.PISTON_EXTENSION_POLE.has(state)) {
-			Direction[] directions = Iterate.directionsInAxis(state.get(PistonExtensionPoleBlock.FACING)
+			Direction[] directions = Iterate.directionsInAxis(state.getValue(PistonExtensionPoleBlock.FACING)
 				.getAxis());
 			int poles = 1;
 			boolean pistonFound = false;
@@ -110,34 +108,34 @@ public class GoggleOverlayRenderer {
 				int attachedPoles = PistonExtensionPoleBlock.PlacementHelper.get()
 					.attachedPoles(world, pos, dir);
 				poles += attachedPoles;
-				pistonFound |= world.getBlockState(pos.offset(dir, attachedPoles + 1))
+				pistonFound |= world.getBlockState(pos.relative(dir, attachedPoles + 1))
 					.getBlock() instanceof MechanicalPistonBlock;
 			}
 
 			if (!pistonFound)
 				return;
 			if (!tooltip.isEmpty())
-				tooltip.add(StringTextComponent.EMPTY);
+				tooltip.add(TextComponent.EMPTY);
 
-			tooltip.add(IHaveGoggleInformation.componentSpacing.copy()
+			tooltip.add(IHaveGoggleInformation.componentSpacing.plainCopy()
 				.append(Lang.translate("gui.goggles.pole_length"))
-				.append(new StringTextComponent(" " + poles)));
+				.append(new TextComponent(" " + poles)));
 		}
 
 		if (tooltip.isEmpty())
 			return;
 
-		ms.push();
+		ms.pushPose();
 		Screen tooltipScreen = new TooltipScreen(null);
 		tooltipScreen.init(mc, mc.getWindow()
-			.getScaledWidth(),
+			.getGuiScaledWidth(),
 			mc.getWindow()
-				.getScaledHeight());
+				.getGuiScaledHeight());
 
 		int titleLinesCount = 1;
 		int tooltipTextWidth = 0;
-		for (ITextProperties textLine : tooltip) {
-			int textLineWidth = mc.fontRenderer.getWidth(textLine);
+		for (FormattedText textLine : tooltip) {
+			int textLineWidth = mc.font.width(textLine);
 			if (textLineWidth > tooltipTextWidth)
 				tooltipTextWidth = textLineWidth;
 		}
@@ -155,25 +153,25 @@ public class GoggleOverlayRenderer {
 		posX = Math.min(posX, tooltipScreen.width - tooltipTextWidth - 20);
 		posY = Math.min(posY, tooltipScreen.height - tooltipHeight - 20);
 
-		tooltipScreen.renderTooltip(ms, tooltip, posX, posY);
+		tooltipScreen.renderComponentTooltip(ms, tooltip, posX, posY);
 
 		ItemStack item = AllItems.GOGGLES.asStack();
 		GuiGameElement.of(item)
 			.at(posX + 10, posY - 16, 450)
 			.render(ms);
-		ms.pop();
+		ms.popPose();
 	}
 
 	public static final class TooltipScreen extends Screen {
-		public TooltipScreen(ITextComponent p_i51108_1_) {
+		public TooltipScreen(Component p_i51108_1_) {
 			super(p_i51108_1_);
 		}
 
 		@Override
 		public void init(Minecraft mc, int width, int height) {
-			this.client = mc;
+			this.minecraft = mc;
 			this.itemRenderer = mc.getItemRenderer();
-			this.textRenderer = mc.fontRenderer;
+			this.font = mc.font;
 			this.width = width;
 			this.height = height;
 		}

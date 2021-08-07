@@ -3,12 +3,11 @@ package com.simibubi.create.foundation.worldgen;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.placement.SimpleFeatureDecorator;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.gen.placement.SimplePlacement;
-
-public class ConfigDrivenDecorator extends SimplePlacement<ConfigDrivenOreFeatureConfig> {
+public class ConfigDrivenDecorator extends SimpleFeatureDecorator<ConfigDrivenOreFeatureConfig> {
 
 	public static final ConfigDrivenDecorator INSTANCE = new ConfigDrivenDecorator();
 
@@ -21,7 +20,7 @@ public class ConfigDrivenDecorator extends SimplePlacement<ConfigDrivenOreFeatur
 	protected Stream<BlockPos> getPositions(Random r, ConfigDrivenOreFeatureConfig config, BlockPos pos) {
 		float frequency = config.getFrequency();
 
-		int floored = MathHelper.floor(frequency);
+		int floored = Mth.floor(frequency);
 		int count = floored + (r.nextFloat() < frequency - floored ? 1 : 0);
 		if (count == 0)
 			return Stream.empty();

@@ -1,8 +1,7 @@
 package com.simibubi.create.foundation.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nonnull;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
 
 public class CombinedStencilElement extends StencilElement {
 
@@ -43,21 +42,21 @@ public class CombinedStencilElement extends StencilElement {
 	}
 
 	@Override
-	protected void renderStencil(MatrixStack ms) {
-		ms.push();
+	protected void renderStencil(PoseStack ms) {
+		ms.pushPose();
 		element1.transform(ms);
 		element1.withBounds(width, height);
 		element1.renderStencil(ms);
-		ms.pop();
-		ms.push();
+		ms.popPose();
+		ms.pushPose();
 		element2.transform(ms);
 		element2.withBounds(width, height);
 		element2.renderStencil(ms);
-		ms.pop();
+		ms.popPose();
 	}
 
 	@Override
-	protected void renderElement(MatrixStack ms) {
+	protected void renderElement(PoseStack ms) {
 		if (mode.rendersFirst())
 			element1.<StencilElement>withBounds(width, height).renderElement(ms);
 

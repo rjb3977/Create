@@ -3,14 +3,19 @@ package com.simibubi.create.foundation.ponder.content;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.item.Items;
-import net.minecraft.util.registry.Registry;
-
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.core.Registry;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.components.crank.ValveHandleBlock;
 import com.simibubi.create.foundation.gui.ScreenOpener;
@@ -23,26 +28,17 @@ import com.simibubi.create.foundation.ponder.ui.ChapterLabel;
 import com.simibubi.create.foundation.ponder.ui.LayoutHelper;
 import com.simibubi.create.foundation.ponder.ui.PonderButton;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.MainWindow;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.renderer.Rectangle2d;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
-
 public class PonderIndexScreen extends NavigatableSimiScreen {
 
 	protected final List<PonderChapter> chapters;
 	private final double chapterXmult = 0.5;
 	private final double chapterYmult = 0.3;
-	protected Rectangle2d chapterArea;
+	protected Rect2i chapterArea;
 
 	protected final List<Item> items;
 	private final double itemXmult = 0.5;
 	private double itemYmult = 0.75;
-	protected Rectangle2d itemArea;
+	protected Rect2i itemArea;
 
 	private ItemStack hoveredItem = ItemStack.EMPTY;
 
@@ -63,9 +59,9 @@ public class PonderIndexScreen extends NavigatableSimiScreen {
 		PonderRegistry.all.keySet()
 			.stream()
 			.map(key -> {
-				Item item = Registry.ITEM.getOrDefault(key);
+				Item item = Registry.ITEM.get(key);
 				if (item == Items.AIR) {
-					Block b = Registry.BLOCK.getOrDefault(key);
+					Block b = Registry.BLOCK.get(key);
 					if (b != Blocks.AIR)
 						item = b.asItem();
 				}
@@ -79,7 +75,7 @@ public class PonderIndexScreen extends NavigatableSimiScreen {
 
 		// setup chapters
 		LayoutHelper layout = LayoutHelper.centeredHorizontal(chapters.size(),
-			MathHelper.clamp((int) Math.ceil(chapters.size() / 4f), 1, 4), 200, 38, 16);
+			Mth.clamp((int) Math.ceil(chapters.size() / 4f), 1, 4), 200, 38, 16);
 		chapterArea = layout.getArea();
 		int chapterCenterX = (int) (width * chapterXmult);
 		int chapterCenterY = (int) (height * chapterYmult);
@@ -104,7 +100,7 @@ public class PonderIndexScreen extends NavigatableSimiScreen {
 
 		int maxItemRows = hasChapters ? 4 : 7;
 		layout = LayoutHelper.centeredHorizontal(items.size(),
-			MathHelper.clamp((int) Math.ceil(items.size() / 11f), 1, maxItemRows), 28, 28, 8);
+			Mth.clamp((int) Math.ceil(items.size() / 11f), 1, maxItemRows), 28, 28, 8);
 		itemArea = layout.getArea();
 		int itemCenterX = (int) (width * itemXmult);
 		int itemCenterY = (int) (height * itemYmult);
@@ -142,10 +138,10 @@ public class PonderIndexScreen extends NavigatableSimiScreen {
 		PonderUI.ponderTicks++;
 
 		hoveredItem = ItemStack.EMPTY;
-		MainWindow w = client.getWindow();
-		double mouseX = client.mouseHelper.getMouseX() * w.getScaledWidth() / w.getWidth();
-		double mouseY = client.mouseHelper.getMouseY() * w.getScaledHeight() / w.getHeight();
-		for (Widget widget : widgets) {
+		Window w = minecraft.getWindow();
+		double mouseX = minecraft.mouseHandler.xpos() * w.getGuiScaledWidth() / w.getScreenWidth();
+		double mouseY = minecraft.mouseHandler.ypos() * w.getGuiScaledHeight() / w.getScreenHeight();
+		for (AbstractWidget widget : widgets) {
 			if (widget instanceof PonderButton)
 				if (widget.isMouseOver(mouseX, mouseY)) {
 					hoveredItem = ((PonderButton) widget).getItem();
@@ -154,43 +150,43 @@ public class PonderIndexScreen extends NavigatableSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		int x = (int) (width * chapterXmult);
 		int y = (int) (height * chapterYmult);
 
 		if (!chapters.isEmpty()) {
-			ms.push();
+			ms.pushPose();
 			ms.translate(x, y, 0);
 
 			UIRenderHelper.streak(ms, 0, chapterArea.getX() - 10, chapterArea.getY() - 20, 20, 220);
-			textRenderer.draw(ms, "Topics to Ponder about", chapterArea.getX() - 5, chapterArea.getY() - 25, Theme.i(Theme.Key.TEXT));
+			font.draw(ms, "Topics to Ponder about", chapterArea.getX() - 5, chapterArea.getY() - 25, Theme.i(Theme.Key.TEXT));
 
-			ms.pop();
+			ms.popPose();
 		}
 
 		x = (int) (width * itemXmult);
 		y = (int) (height * itemYmult);
 
-		ms.push();
+		ms.pushPose();
 		ms.translate(x, y, 0);
 
 		UIRenderHelper.streak(ms, 0, itemArea.getX() - 10, itemArea.getY() - 20, 20, 220);
-		textRenderer.draw(ms, "Items to inspect", itemArea.getX() - 5, itemArea.getY() - 25, Theme.i(Theme.Key.TEXT));
+		font.draw(ms, "Items to inspect", itemArea.getX() - 5, itemArea.getY() - 25, Theme.i(Theme.Key.TEXT));
 
-		ms.pop();
+		ms.popPose();
 	}
 
 	@Override
-	protected void renderWindowForeground(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindowForeground(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		if (hoveredItem.isEmpty())
 			return;
 
-		ms.push();
+		ms.pushPose();
 		ms.translate(0, 0, 200);
 
 		renderTooltip(ms, hoveredItem, mouseX, mouseY);
 
-		ms.pop();
+		ms.popPose();
 	}
 
 	/*@Override

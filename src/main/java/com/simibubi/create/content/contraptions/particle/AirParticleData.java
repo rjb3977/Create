@@ -7,15 +7,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllParticleTypes;
-
-import net.minecraft.client.particle.ParticleManager.IParticleMetaFactory;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.particle.ParticleEngine.SpriteParticleRegistration;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.FriendlyByteBuf;
 
-public class AirParticleData implements IParticleData, ICustomParticleDataWithSprite<AirParticleData> {
+public class AirParticleData implements ParticleOptions, ICustomParticleDataWithSprite<AirParticleData> {
 
 	public static final Codec<AirParticleData> CODEC = RecordCodecBuilder.create(i -> 
 		i.group(
@@ -23,9 +22,9 @@ public class AirParticleData implements IParticleData, ICustomParticleDataWithSp
 			Codec.FLOAT.fieldOf("speed").forGetter(p -> p.speed))
 		.apply(i, AirParticleData::new));
 	
-	public static final IParticleData.IDeserializer<AirParticleData> DESERIALIZER =
-		new IParticleData.IDeserializer<AirParticleData>() {
-			public AirParticleData deserialize(ParticleType<AirParticleData> particleTypeIn, StringReader reader)
+	public static final ParticleOptions.Deserializer<AirParticleData> DESERIALIZER =
+		new ParticleOptions.Deserializer<AirParticleData>() {
+			public AirParticleData fromCommand(ParticleType<AirParticleData> particleTypeIn, StringReader reader)
 				throws CommandSyntaxException {
 				reader.expect(' ');
 				float drag = reader.readFloat();
@@ -34,7 +33,7 @@ public class AirParticleData implements IParticleData, ICustomParticleDataWithSp
 				return new AirParticleData(drag, speed);
 			}
 
-			public AirParticleData read(ParticleType<AirParticleData> particleTypeIn, PacketBuffer buffer) {
+			public AirParticleData fromNetwork(ParticleType<AirParticleData> particleTypeIn, FriendlyByteBuf buffer) {
 				return new AirParticleData(buffer.readFloat(), buffer.readFloat());
 			}
 		};
@@ -57,18 +56,18 @@ public class AirParticleData implements IParticleData, ICustomParticleDataWithSp
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void writeToNetwork(FriendlyByteBuf buffer) {
 		buffer.writeFloat(drag);
 		buffer.writeFloat(speed);
 	}
 
 	@Override
-	public String getParameters() {
+	public String writeToString() {
 		return String.format(Locale.ROOT, "%s %f %f", AllParticleTypes.AIR.parameter(), drag, speed);
 	}
 
 	@Override
-	public IDeserializer<AirParticleData> getDeserializer() {
+	public Deserializer<AirParticleData> getDeserializer() {
 		return DESERIALIZER;
 	}
 
@@ -79,7 +78,7 @@ public class AirParticleData implements IParticleData, ICustomParticleDataWithSp
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public IParticleMetaFactory<AirParticleData> getMetaFactory() {
+	public SpriteParticleRegistration<AirParticleData> getMetaFactory() {
 		return AirParticle.Factory::new;
 	}
 

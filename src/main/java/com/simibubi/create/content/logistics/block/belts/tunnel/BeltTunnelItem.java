@@ -5,16 +5,15 @@ import com.simibubi.create.content.contraptions.relays.belt.BeltHelper;
 import com.simibubi.create.content.contraptions.relays.belt.BeltTileEntity;
 import com.simibubi.create.content.contraptions.relays.belt.BeltTileEntity.CasingType;
 import com.simibubi.create.foundation.advancement.AllTriggers;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 public class BeltTunnelItem extends BlockItem {
 
@@ -23,22 +22,22 @@ public class BeltTunnelItem extends BlockItem {
 	}
 
 	@Override
-	protected boolean canPlace(BlockItemUseContext ctx, BlockState state) {
-		PlayerEntity playerentity = ctx.getPlayer();
-		ISelectionContext iselectioncontext =
-			playerentity == null ? ISelectionContext.dummy() : ISelectionContext.forEntity(playerentity);
-		World world = ctx.getWorld();
-		BlockPos pos = ctx.getPos();
-		return (!this.checkPosition() || AllBlocks.ANDESITE_TUNNEL.get()
-			.isValidPositionForPlacement(state, world, pos)) && world.canPlace(state, pos, iselectioncontext);
+	protected boolean canPlace(BlockPlaceContext ctx, BlockState state) {
+		Player playerentity = ctx.getPlayer();
+		CollisionContext iselectioncontext =
+			playerentity == null ? CollisionContext.empty() : CollisionContext.of(playerentity);
+		Level world = ctx.getLevel();
+		BlockPos pos = ctx.getClickedPos();
+		return (!this.mustSurvive() || AllBlocks.ANDESITE_TUNNEL.get()
+			.isValidPositionForPlacement(state, world, pos)) && world.isUnobstructed(state, pos, iselectioncontext);
 	}
 
 	@Override
-	protected boolean onBlockPlaced(BlockPos pos, World world, PlayerEntity p_195943_3_, ItemStack p_195943_4_,
+	protected boolean updateCustomBlockEntityTag(BlockPos pos, Level world, Player p_195943_3_, ItemStack p_195943_4_,
 		BlockState state) {
-		boolean flag = super.onBlockPlaced(pos, world, p_195943_3_, p_195943_4_, state);
-		if (!world.isRemote) {
-			BeltTileEntity belt = BeltHelper.getSegmentTE(world, pos.down());
+		boolean flag = super.updateCustomBlockEntityTag(pos, world, p_195943_3_, p_195943_4_, state);
+		if (!world.isClientSide) {
+			BeltTileEntity belt = BeltHelper.getSegmentTE(world, pos.below());
 			if (belt != null) {
 				AllTriggers.triggerFor(AllTriggers.PLACE_TUNNEL, p_195943_3_);
 				if (belt.casing == CasingType.NONE)

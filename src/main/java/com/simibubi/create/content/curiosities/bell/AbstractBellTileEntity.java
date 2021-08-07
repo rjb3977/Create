@@ -1,15 +1,13 @@
 package com.simibubi.create.content.curiosities.bell;
 
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
-
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 public abstract class AbstractBellTileEntity extends SmartTileEntity {
 
@@ -19,14 +17,14 @@ public abstract class AbstractBellTileEntity extends SmartTileEntity {
 	public int ringingTicks;
 	public Direction ringDirection;
 
-	public AbstractBellTileEntity(TileEntityType<?> type) {
+	public AbstractBellTileEntity(BlockEntityType<?> type) {
 		super(type);
 	}
 
 	@Override
 	public void addBehaviours(List<TileEntityBehaviour> behaviours) { }
 
-	public boolean ring(World world, BlockPos pos, Direction direction) {
+	public boolean ring(Level world, BlockPos pos, Direction direction) {
 		isRinging = true;
 		ringingTicks = 0;
 		ringDirection = direction;

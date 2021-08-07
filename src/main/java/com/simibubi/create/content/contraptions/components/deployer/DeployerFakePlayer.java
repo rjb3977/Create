@@ -16,51 +16,51 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.PacketDirection;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerInteractionManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
-public class DeployerFakePlayer extends ServerPlayerEntity {
+public class DeployerFakePlayer extends ServerPlayer {
 
-	private static final NetworkManager NETWORK_MANAGER = new NetworkManager(PacketDirection.CLIENTBOUND);
+	private static final Connection NETWORK_MANAGER = new Connection(PacketFlow.CLIENTBOUND);
 	public static final GameProfile DEPLOYER_PROFILE =
 		new GameProfile(UUID.fromString("9e2faded-cafe-4ec2-c314-dad129ae971d"), "Deployer");
 	Pair<BlockPos, Float> blockBreakingProgress;
 	ItemStack spawnedItemEffects;
 
-	public DeployerFakePlayer(ServerWorld world) {
-		super(world.getServer(), world, DEPLOYER_PROFILE, new PlayerInteractionManager(world));
+	public DeployerFakePlayer(ServerLevel world) {
+		super(world.getServer(), world, DEPLOYER_PROFILE, new ServerPlayerGameMode(world));
 		connection = new FakePlayNetHandler(world.getServer(), this);
 		FakePlayerHelper.setFake(this, true);
 	}
 
 	@Override
-	public OptionalInt openContainer(INamedContainerProvider container) {
+	public OptionalInt openMenu(MenuProvider container) {
 		return OptionalInt.empty();
 	}
 
 	@Override
-	public ITextComponent getDisplayName() {
+	public Component getDisplayName() {
 		return Lang.translate("block.deployer.damage_source_name");
 	}
 
@@ -71,12 +71,12 @@ public class DeployerFakePlayer extends ServerPlayerEntity {
 	}
 
 	@Override
-	public Vector3d getPositionVec() {
-		return new Vector3d(getX(), getY(), getZ());
+	public Vec3 position() {
+		return new Vec3(getX(), getY(), getZ());
 	}
 
 	@Override
-	public float getCooldownPeriod() {
+	public float getCurrentItemAttackStrengthDelay() {
 		return 1 / 64f;
 	}
 
@@ -86,7 +86,7 @@ public class DeployerFakePlayer extends ServerPlayerEntity {
 	}
 
 	@Override
-	public ItemStack onFoodEaten(World world, ItemStack stack) {
+	public ItemStack eat(Level world, ItemStack stack) {
 		stack.shrink(1);
 		return stack;
 	}
@@ -101,11 +101,11 @@ public class DeployerFakePlayer extends ServerPlayerEntity {
 		if (!(s instanceof EntityDamageSource))
 			return false;
 		EntityDamageSource source = (EntityDamageSource) s;
-		Entity trueSource = source.getTrueSource();
+		Entity trueSource = source.getEntity();
 		if (trueSource != null && trueSource instanceof DeployerFakePlayer) {
 			DeployerFakePlayer fakePlayer = (DeployerFakePlayer) trueSource;
 			drops
-				.forEach(stack -> fakePlayer.inventory.placeItemBackInInventory(trueSource.world, stack.getItem()));
+				.forEach(stack -> fakePlayer.inventory.placeItemBackInInventory(trueSource.level, stack.getItem()));
 			return true;
 		}
 
@@ -117,12 +117,12 @@ public class DeployerFakePlayer extends ServerPlayerEntity {
 
 	@Override
 	public void remove() {
-		if (blockBreakingProgress != null && !world.isRemote)
-			world.sendBlockBreakProgress(getEntityId(), blockBreakingProgress.getKey(), -1);
+		if (blockBreakingProgress != null && !level.isClientSide)
+			level.destroyBlockProgress(getId(), blockBreakingProgress.getKey(), -1);
 		super.remove();
 	}
 
-	public static int deployerKillsDoNotSpawnXP(int i, PlayerEntity player) {
+	public static int deployerKillsDoNotSpawnXP(int i, Player player) {
 		if (player instanceof DeployerFakePlayer)
 			return 0;
 		return i;
@@ -131,35 +131,35 @@ public class DeployerFakePlayer extends ServerPlayerEntity {
 	public static void entitiesDontRetaliate(LivingEntity entityLiving, LivingEntity target) {
 		if (!(target instanceof DeployerFakePlayer))
 			return;
-		if (!(entityLiving instanceof MobEntity))
+		if (!(entityLiving instanceof Mob))
 			return;
-		MobEntity mob = (MobEntity) entityLiving;
+		Mob mob = (Mob) entityLiving;
 
 		CKinetics.DeployerAggroSetting setting = AllConfigs.SERVER.kinetics.ignoreDeployerAttacks.get();
 
 		switch (setting) {
 		case ALL:
-			mob.setAttackTarget(null);
+			mob.setTarget(null);
 			break;
 		case CREEPERS:
-			if (mob instanceof CreeperEntity)
-				mob.setAttackTarget(null);
+			if (mob instanceof Creeper)
+				mob.setTarget(null);
 			break;
 		case NONE:
 		default:
 		}
 	}
 
-	private static class FakePlayNetHandler extends ServerPlayNetHandler {
-		public FakePlayNetHandler(MinecraftServer server, ServerPlayerEntity playerIn) {
+	private static class FakePlayNetHandler extends ServerGamePacketListenerImpl {
+		public FakePlayNetHandler(MinecraftServer server, ServerPlayer playerIn) {
 			super(server, NETWORK_MANAGER, playerIn);
 		}
 
 		@Override
-		public void sendPacket(IPacket<?> packetIn) {}
+		public void send(Packet<?> packetIn) {}
 
 		@Override
-		public void sendPacket(IPacket<?> packetIn,
+		public void send(Packet<?> packetIn,
 			GenericFutureListener<? extends Future<? super Void>> futureListeners) {}
 	}
 }

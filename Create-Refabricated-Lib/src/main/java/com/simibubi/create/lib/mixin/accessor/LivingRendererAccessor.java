@@ -5,12 +5,12 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 
 @Environment(EnvType.CLIENT)
-@Mixin(LivingRenderer.class)
+@Mixin(LivingEntityRenderer.class)
 public interface LivingRendererAccessor {
 	@Invoker("addLayer")
-	boolean create$addLayer(LayerRenderer<?, ?> layerRenderer);
+	boolean create$addLayer(RenderLayer<?, ?> layerRenderer);
 }

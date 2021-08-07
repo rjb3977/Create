@@ -1,9 +1,8 @@
 package com.simibubi.create.lib.utility;
 
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Vector3f;
 import java.nio.ByteBuffer;
-
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Vector3f;
 
 public class VertexBuilderUtil {
 	public static int applyBakedLighting(int lightmapCoord, ByteBuffer data) {

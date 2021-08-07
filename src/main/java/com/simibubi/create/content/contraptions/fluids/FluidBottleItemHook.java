@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.fluids;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 public class FluidBottleItemHook extends Item {
 

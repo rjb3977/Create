@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.fluids.pipes;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.core.materials.ModelData;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
@@ -11,9 +11,8 @@ import com.simibubi.create.content.contraptions.relays.encased.ShaftInstance;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 
 public class FluidValveInstance extends ShaftInstance implements IDynamicInstance {
 
@@ -53,9 +52,9 @@ public class FluidValveInstance extends ShaftInstance implements IDynamicInstanc
     }
 
     private void transformPointer(FluidValveTileEntity valve) {
-        float pointerRotation = MathHelper.lerp(valve.pointer.getValue(AnimationTickHolder.getPartialTicks()), 0, -90);
+        float pointerRotation = Mth.lerp(valve.pointer.getValue(AnimationTickHolder.getPartialTicks()), 0, -90);
 
-        MatrixStack ms = new MatrixStack();
+        PoseStack ms = new PoseStack();
         MatrixStacker.of(ms)
                      .translate(getInstancePosition())
                      .centre()

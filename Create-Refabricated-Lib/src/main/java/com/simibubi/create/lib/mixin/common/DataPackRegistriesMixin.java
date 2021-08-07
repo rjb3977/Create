@@ -9,23 +9,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.simibubi.create.lib.event.DataPackReloadCallback;
 import com.simibubi.create.lib.utility.MixinHelper;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.ServerResources;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
 
-import net.minecraft.command.Commands;
-import net.minecraft.resources.DataPackRegistries;
-import net.minecraft.resources.IFutureReloadListener;
-import net.minecraft.resources.IReloadableResourceManager;
-
-@Mixin(DataPackRegistries.class)
+@Mixin(ServerResources.class)
 public abstract class DataPackRegistriesMixin {
 	@Shadow
 	@Final
-	private IReloadableResourceManager resourceManager;
+	private ReloadableResourceManager resourceManager;
 
 	@Inject(at = @At("TAIL"),
 			method = "<init>(Lnet/minecraft/command/Commands$EnvironmentType;I)V")
-	public void create$DataPackRegistries(Commands.EnvironmentType environmentType, int i, CallbackInfo ci) {
-		for (IFutureReloadListener listener : DataPackReloadCallback.EVENT.invoker().onDataPackReload(MixinHelper.cast(this))) {
-			resourceManager.addReloadListener(listener);
+	public void create$DataPackRegistries(Commands.CommandSelection environmentType, int i, CallbackInfo ci) {
+		for (PreparableReloadListener listener : DataPackReloadCallback.EVENT.invoker().onDataPackReload(MixinHelper.cast(this))) {
+			resourceManager.registerReloadListener(listener);
 		}
 	}
 }

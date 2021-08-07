@@ -5,10 +5,10 @@ import com.simibubi.create.lib.config.ConfigValue;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 public class CConfigureConfigPacket<T> implements C2SPacket {
 
@@ -23,20 +23,20 @@ public class CConfigureConfigPacket<T> implements C2SPacket {
 	}
 
 	@Override
-	public void read(PacketBuffer buffer) {
-		this.path = buffer.readString(32767);
-		this.value = buffer.readString(32767);
+	public void read(FriendlyByteBuf buffer) {
+		this.path = buffer.readUtf(32767);
+		this.value = buffer.readUtf(32767);
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
-		buffer.writeString(path);
-		buffer.writeString(value);
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeUtf(path);
+		buffer.writeUtf(value);
 	}
 
 	@Override
-	public void handle(MinecraftServer server, ServerPlayerEntity sender, ServerPlayNetHandler handler, SimpleChannel.ResponseTarget responseTarget) {
-		if (sender == null || !sender.hasPermissionLevel(2))
+	public void handle(MinecraftServer server, ServerPlayer sender, ServerGamePacketListenerImpl handler, SimpleChannel.ResponseTarget responseTarget) {
+		if (sender == null || !sender.hasPermissions(2))
 			return;
 
 //		ForgeConfigSpec.ValueSpec valueSpec = AllConfigs.SERVER.specification.getRaw(path);

@@ -1,15 +1,14 @@
 package com.simibubi.create.content.palettes;
 
 import com.simibubi.create.lib.extensions.BlockExtensions;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.GlassBlock;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 
 public class ConnectedGlassBlock extends GlassBlock implements BlockExtensions {
 
@@ -19,13 +18,13 @@ public class ConnectedGlassBlock extends GlassBlock implements BlockExtensions {
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public boolean isSideInvisible(BlockState state, BlockState adjacentBlockState, Direction side) {
+	public boolean skipRendering(BlockState state, BlockState adjacentBlockState, Direction side) {
 		return adjacentBlockState.getBlock() instanceof ConnectedGlassBlock ? true
-			: super.isSideInvisible(state, adjacentBlockState, side);
+			: super.skipRendering(state, adjacentBlockState, side);
 	}
 
 	@Override
-	public boolean shouldDisplayFluidOverlay(BlockState state, IBlockDisplayReader world, BlockPos pos, FluidState fluidState) {
+	public boolean shouldDisplayFluidOverlay(BlockState state, BlockAndTintGetter world, BlockPos pos, FluidState fluidState) {
 		return true;
 	}
 }

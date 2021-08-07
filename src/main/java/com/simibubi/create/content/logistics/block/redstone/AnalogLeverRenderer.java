@@ -1,40 +1,39 @@
 package com.simibubi.create.content.logistics.block.redstone;
 
 import com.jozufozu.flywheel.backend.Backend;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.render.PartialBufferer;
 import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.ColorHelper;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.state.properties.AttachFace;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 
 public class AnalogLeverRenderer extends SafeTileEntityRenderer<AnalogLeverTileEntity> {
 
-	public AnalogLeverRenderer(TileEntityRendererDispatcher dispatcher) {
+	public AnalogLeverRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	protected void renderSafe(AnalogLeverTileEntity te, float partialTicks, MatrixStack ms, IRenderTypeBuffer buffer,
+	protected void renderSafe(AnalogLeverTileEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 		int light, int overlay) {
 
-		if (Backend.getInstance().canUseInstancing(te.getWorld())) return;
+		if (Backend.getInstance().canUseInstancing(te.getLevel())) return;
 
 		BlockState leverState = te.getBlockState();
-		int lightCoords = WorldRenderer.getLightmapCoordinates(te.getWorld(), leverState, te.getPos());
+		int lightCoords = LevelRenderer.getLightColor(te.getLevel(), leverState, te.getBlockPos());
 		float state = te.clientState.get(partialTicks);
 
-		IVertexBuilder vb = buffer.getBuffer(RenderType.getSolid());
+		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
 
 		// Handle
 		SuperByteBuffer handle = PartialBufferer.get(AllBlockPartials.ANALOG_LEVER_HANDLE, leverState);
@@ -54,9 +53,9 @@ public class AnalogLeverRenderer extends SafeTileEntityRenderer<AnalogLeverTileE
 	}
 
 	private SuperByteBuffer transform(SuperByteBuffer buffer, BlockState leverState) {
-		AttachFace face = leverState.get(AnalogLeverBlock.FACE);
+		AttachFace face = leverState.getValue(AnalogLeverBlock.FACE);
 		float rX = face == AttachFace.FLOOR ? 0 : face == AttachFace.WALL ? 90 : 180;
-		float rY = AngleHelper.horizontalAngle(leverState.get(AnalogLeverBlock.HORIZONTAL_FACING));
+		float rY = AngleHelper.horizontalAngle(leverState.getValue(AnalogLeverBlock.FACING));
 		buffer.rotateCentered(Direction.UP, (float) (rY / 180 * Math.PI));
 		buffer.rotateCentered(Direction.EAST, (float) (rX / 180 * Math.PI));
 		return buffer;

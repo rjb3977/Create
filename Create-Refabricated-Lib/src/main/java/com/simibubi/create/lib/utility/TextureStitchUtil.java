@@ -4,8 +4,8 @@ import java.util.Set;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * This util class is different from other ones, an instance of it must be made before use.
@@ -13,10 +13,10 @@ import net.minecraft.util.ResourceLocation;
  */
 @Environment(EnvType.CLIENT)
 public class TextureStitchUtil {
-	public AtlasTexture map;
+	public TextureAtlas map;
 	public Set<ResourceLocation> sprites;
 
-	public TextureStitchUtil(AtlasTexture map, Set<ResourceLocation> locations) {
+	public TextureStitchUtil(TextureAtlas map, Set<ResourceLocation> locations) {
 		this.map = map;
 		sprites = locations;
 	}

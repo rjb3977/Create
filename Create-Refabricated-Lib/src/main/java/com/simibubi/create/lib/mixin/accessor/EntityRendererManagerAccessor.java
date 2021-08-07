@@ -7,13 +7,13 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.entity.EntityType;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.entity.EntityType;
 
 @Environment(EnvType.CLIENT)
-@Mixin(EntityRendererManager.class)
+@Mixin(EntityRenderDispatcher.class)
 public interface EntityRendererManagerAccessor {
 	@Accessor("playerRenderer")
 	PlayerRenderer getPlayerRenderer();

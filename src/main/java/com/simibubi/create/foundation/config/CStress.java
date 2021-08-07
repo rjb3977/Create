@@ -2,14 +2,12 @@ package com.simibubi.create.foundation.config;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import com.simibubi.create.lib.config.Config;
 import com.simibubi.create.lib.config.ConfigGroup;
 import com.simibubi.create.lib.config.ConfigValue;
-
-import net.minecraft.block.Block;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
 public class CStress extends ConfigBase {
 

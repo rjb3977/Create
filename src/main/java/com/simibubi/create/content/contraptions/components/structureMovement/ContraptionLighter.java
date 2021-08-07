@@ -5,9 +5,8 @@ import com.jozufozu.flywheel.light.ILightUpdateListener;
 import com.jozufozu.flywheel.light.LightUpdater;
 import com.jozufozu.flywheel.light.LightVolume;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.RenderedContraption;
-
-import net.minecraft.world.IBlockDisplayReader;
-import net.minecraft.world.LightType;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.LightLayer;
 
 public abstract class ContraptionLighter<C extends Contraption> implements ILightUpdateListener {
     protected final C contraption;
@@ -24,7 +23,7 @@ public abstract class ContraptionLighter<C extends Contraption> implements ILigh
 
         lightVolume = new LightVolume(contraptionBoundsToVolume(bounds.copy()));
 
-        lightVolume.initialize(contraption.entity.world);
+        lightVolume.initialize(contraption.entity.level);
         scheduleRebuild = true;
 
         startListening();
@@ -32,7 +31,7 @@ public abstract class ContraptionLighter<C extends Contraption> implements ILigh
 
     public void tick(RenderedContraption owner) {
         if (scheduleRebuild) {
-            lightVolume.initialize(owner.contraption.entity.world);
+            lightVolume.initialize(owner.contraption.entity.level);
             scheduleRebuild = false;
         }
     }
@@ -40,13 +39,13 @@ public abstract class ContraptionLighter<C extends Contraption> implements ILigh
     public abstract GridAlignedBB getContraptionBounds();
 
     @Override
-    public boolean onLightUpdate(IBlockDisplayReader world, LightType type, GridAlignedBB changed) {
+    public boolean onLightUpdate(BlockAndTintGetter world, LightLayer type, GridAlignedBB changed) {
         lightVolume.notifyLightUpdate(world, type, changed);
         return false;
     }
 
     @Override
-    public boolean onLightPacket(IBlockDisplayReader world, int chunkX, int chunkZ) {
+    public boolean onLightPacket(BlockAndTintGetter world, int chunkX, int chunkZ) {
         lightVolume.notifyLightPacket(world, chunkX, chunkZ);
         return false;
     }

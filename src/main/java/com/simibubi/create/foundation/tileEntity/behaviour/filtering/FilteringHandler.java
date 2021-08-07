@@ -12,65 +12,64 @@ import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.RaycastHelper;
 
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 public class FilteringHandler {
 
-	public static ActionResultType onBlockActivated(PlayerEntity player, World world, Hand hand, BlockRayTraceResult traceResult) {
-		BlockPos pos = traceResult.getPos();
+	public static InteractionResult onBlockActivated(Player player, Level world, InteractionHand hand, BlockHitResult traceResult) {
+		BlockPos pos = traceResult.getBlockPos();
 
-		if (player.isSneaking() || player.isSpectator())
-			return ActionResultType.PASS;
+		if (player.isShiftKeyDown() || player.isSpectator())
+			return InteractionResult.PASS;
 
 		FilteringBehaviour behaviour = TileEntityBehaviour.get(world, pos, FilteringBehaviour.TYPE);
 		if (behaviour == null)
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
-		BlockRayTraceResult ray = RaycastHelper.rayTraceRange(world, player, 10);
+		BlockHitResult ray = RaycastHelper.rayTraceRange(world, player, 10);
 		if (ray == null)
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 		if (behaviour instanceof SidedFilteringBehaviour) {
-			behaviour = ((SidedFilteringBehaviour) behaviour).get(ray.getFace());
+			behaviour = ((SidedFilteringBehaviour) behaviour).get(ray.getDirection());
 			if (behaviour == null)
-				return ActionResultType.PASS;
+				return InteractionResult.PASS;
 		}
 		if (!behaviour.isActive())
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 		if (behaviour.slotPositioning instanceof ValueBoxTransform.Sided)
-			((Sided) behaviour.slotPositioning).fromSide(ray.getFace());
-		if (!behaviour.testHit(ray.getHitVec()))
-			return ActionResultType.PASS;
+			((Sided) behaviour.slotPositioning).fromSide(ray.getDirection());
+		if (!behaviour.testHit(ray.getLocation()))
+			return InteractionResult.PASS;
 
-		ItemStack toApply = player.getHeldItem(hand)
+		ItemStack toApply = player.getItemInHand(hand)
 			.copy();
 
 		if (AllItems.WRENCH.isIn(toApply))
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 		if (AllBlocks.MECHANICAL_ARM.isIn(toApply))
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
-		if (!world.isRemote) {
+		if (!world.isClientSide) {
 			if (!player.isCreative()) {
 				if (toApply.getItem() instanceof FilterItem)
-					player.getHeldItem(hand)
+					player.getItemInHand(hand)
 						.shrink(1);
 				if (behaviour.getFilter()
 					.getItem() instanceof FilterItem)
@@ -89,41 +88,41 @@ public class FilteringHandler {
 				feedback = "apply_count";
 			String translationKey = world.getBlockState(pos)
 				.getBlock()
-				.getTranslationKey();
-			ITextComponent formattedText = new TranslationTextComponent(translationKey);
-			player.sendStatusMessage(Lang.createTranslationTextComponent("logistics.filter." + feedback, formattedText)
-				.formatted(TextFormatting.WHITE), true);
+				.getDescriptionId();
+			Component formattedText = new TranslatableComponent(translationKey);
+			player.displayClientMessage(Lang.createTranslationTextComponent("logistics.filter." + feedback, formattedText)
+				.withStyle(ChatFormatting.WHITE), true);
 		}
 
-		world.playSound(null, pos, SoundEvents.ENTITY_ITEM_FRAME_ADD_ITEM, SoundCategory.BLOCKS, .25f, .1f);
-		return ActionResultType.SUCCESS;
+		world.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .25f, .1f);
+		return InteractionResult.SUCCESS;
 	}
 
 	@Environment(EnvType.CLIENT)
 	public static boolean onScroll(double delta) {
-		RayTraceResult objectMouseOver = Minecraft.getInstance().objectMouseOver;
-		if (!(objectMouseOver instanceof BlockRayTraceResult))
+		HitResult objectMouseOver = Minecraft.getInstance().hitResult;
+		if (!(objectMouseOver instanceof BlockHitResult))
 			return false;
 
-		BlockRayTraceResult result = (BlockRayTraceResult) objectMouseOver;
+		BlockHitResult result = (BlockHitResult) objectMouseOver;
 		Minecraft mc = Minecraft.getInstance();
-		ClientWorld world = mc.world;
-		BlockPos blockPos = result.getPos();
+		ClientLevel world = mc.level;
+		BlockPos blockPos = result.getBlockPos();
 
 		FilteringBehaviour filtering = TileEntityBehaviour.get(world, blockPos, FilteringBehaviour.TYPE);
 		if (filtering == null)
 			return false;
-		if (mc.player.isSneaking())
+		if (mc.player.isShiftKeyDown())
 			return false;
-		if (!mc.player.isAllowEdit())
+		if (!mc.player.mayBuild())
 			return false;
 		if (!filtering.isCountVisible())
 			return false;
 		if (!filtering.isActive())
 			return false;
 		if (filtering.slotPositioning instanceof ValueBoxTransform.Sided)
-			((Sided) filtering.slotPositioning).fromSide(result.getFace());
-		if (!filtering.testHit(objectMouseOver.getHitVec()))
+			((Sided) filtering.slotPositioning).fromSide(result.getDirection());
+		if (!filtering.testHit(objectMouseOver.getLocation()))
 			return false;
 
 		ItemStack filterItem = filtering.getFilter();
@@ -131,11 +130,11 @@ public class FilteringHandler {
 		int maxAmount = (filterItem.getItem() instanceof FilterItem) ? 64 : filterItem.getMaxStackSize();
 		int prev = filtering.scrollableValue;
 		filtering.scrollableValue =
-			(int) MathHelper.clamp(filtering.scrollableValue + delta * (AllKeys.ctrlDown() ? 16 : 1), 0, maxAmount);
+			(int) Mth.clamp(filtering.scrollableValue + delta * (AllKeys.ctrlDown() ? 16 : 1), 0, maxAmount);
 
 		if (prev != filtering.scrollableValue) {
 			float pitch = (filtering.scrollableValue) / (float) (maxAmount);
-			pitch = MathHelper.lerp(pitch, 1.5f, 2f);
+			pitch = Mth.lerp(pitch, 1.5f, 2f);
 			AllSoundEvents.SCROLL_VALUE.play(world, mc.player, blockPos, 1, pitch);
 		}
 

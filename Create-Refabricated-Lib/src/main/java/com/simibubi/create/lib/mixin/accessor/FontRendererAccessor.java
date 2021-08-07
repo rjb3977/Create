@@ -5,13 +5,13 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.fonts.Font;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.font.FontSet;
+import net.minecraft.resources.ResourceLocation;
 
 @Environment(EnvType.CLIENT)
-@Mixin(FontRenderer.class)
+@Mixin(Font.class)
 public interface FontRendererAccessor {
 	@Invoker("getFontStorage")
-	Font create$getFontStorage(ResourceLocation resourceLocation);
+	FontSet create$getFontStorage(ResourceLocation resourceLocation);
 }

@@ -2,8 +2,7 @@ package com.simibubi.create.lib.utility;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class SpecialModelUtil {
 	public static Set<ResourceLocation> specialModels = new HashSet<>();

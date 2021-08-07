@@ -2,26 +2,24 @@ package com.simibubi.create.foundation.command;
 
 import java.util.Collections;
 import java.util.function.Predicate;
-
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.world.entity.player.Player;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.PlayerEntity;
-
 public class AllCommands {
 
-	public static Predicate<CommandSource> sourceIsPlayer = (cs) -> cs.getEntity() instanceof PlayerEntity;
+	public static Predicate<CommandSourceStack> sourceIsPlayer = (cs) -> cs.getEntity() instanceof Player;
 
-	public static void register(CommandDispatcher<CommandSource> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
-		LiteralCommandNode<CommandSource> util = buildUtilityCommands();
+		LiteralCommandNode<CommandSourceStack> util = buildUtilityCommands();
 
-		LiteralCommandNode<CommandSource> createRoot = dispatcher.register(Commands.literal("create")
-				.requires(cs -> cs.hasPermissionLevel(0))
+		LiteralCommandNode<CommandSourceStack> createRoot = dispatcher.register(Commands.literal("create")
+				.requires(cs -> cs.hasPermission(0))
 				// general purpose
 				.then(new ToggleDebugCommand().register())
 				.then(FabulousWarningCommand.register())
@@ -40,7 +38,7 @@ public class AllCommands {
 
 		createRoot.addChild(buildRedirect("u", util));
 
-		CommandNode<CommandSource> c = dispatcher.findNode(Collections.singleton("c"));
+		CommandNode<CommandSourceStack> c = dispatcher.findNode(Collections.singleton("c"));
 		if (c != null)
 			return;
 
@@ -49,7 +47,7 @@ public class AllCommands {
 
 	}
 
-	private static LiteralCommandNode<CommandSource> buildUtilityCommands() {
+	private static LiteralCommandNode<CommandSourceStack> buildUtilityCommands() {
 
 		return Commands.literal("util")
 				.then(ReplaceInCommandBlocksCommand.register())
@@ -74,16 +72,16 @@ public class AllCommands {
 	 *
 	 * @return the built node
 	 */
-	public static LiteralCommandNode<CommandSource> buildRedirect(final String alias, final LiteralCommandNode<CommandSource> destination) {
+	public static LiteralCommandNode<CommandSourceStack> buildRedirect(final String alias, final LiteralCommandNode<CommandSourceStack> destination) {
 		// Redirects only work for nodes with children, but break the top argument-less command.
 		// Manually adding the root command after setting the redirect doesn't fix it.
 		// See https://github.com/Mojang/brigadier/issues/46). Manually clone the node instead.
-		LiteralArgumentBuilder<CommandSource> builder = LiteralArgumentBuilder
-				.<CommandSource>literal(alias)
+		LiteralArgumentBuilder<CommandSourceStack> builder = LiteralArgumentBuilder
+				.<CommandSourceStack>literal(alias)
 				.requires(destination.getRequirement())
 				.forward(destination.getRedirect(), destination.getRedirectModifier(), destination.isFork())
 				.executes(destination.getCommand());
-		for (CommandNode<CommandSource> child : destination.getChildren()) {
+		for (CommandNode<CommandSourceStack> child : destination.getChildren()) {
 			builder.then(child);
 		}
 		return builder.build();

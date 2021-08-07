@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 
@@ -37,7 +36,7 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 //	}
 
 	@Override
-	public void read(PacketBuffer buf) {
+	public void read(FriendlyByteBuf buf) {
 		super.read(buf);
 		activatedButtons = new ArrayList<>();
 		press = buf.readBoolean();
@@ -47,7 +46,7 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		super.write(buffer);
 		buffer.writeBoolean(press);
 		buffer.writeVarInt(activatedButtons.size());
@@ -55,16 +54,16 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 	}
 
 	@Override
-	protected void handleLectern(ServerPlayerEntity player, LecternControllerTileEntity lectern) {
+	protected void handleLectern(ServerPlayer player, LecternControllerTileEntity lectern) {
 		if (lectern.isUsedBy(player))
 			handleItem(player, lectern.getController());
 	}
 
 	@Override
-	protected void handleItem(ServerPlayerEntity player, ItemStack heldItem) {
-		World world = player.getEntityWorld();
-		UUID uniqueID = player.getUniqueID();
-		BlockPos pos = player.getBlockPos();
+	protected void handleItem(ServerPlayer player, ItemStack heldItem) {
+		Level world = player.getCommandSenderWorld();
+		UUID uniqueID = player.getUUID();
+		BlockPos pos = player.blockPosition();
 
 		if (player.isSpectator() && press)
 			return;

@@ -1,23 +1,22 @@
 package com.simibubi.create.foundation.utility;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.phys.Vec3;
 
 public class MatrixStacker {
 
-	public static final Vector3d center = VecHelper.getCenterOf(BlockPos.ZERO);
+	public static final Vec3 center = VecHelper.getCenterOf(BlockPos.ZERO);
 	static MatrixStacker instance;
 
-	MatrixStack ms;
+	PoseStack ms;
 
-	public static MatrixStacker of(MatrixStack ms) {
+	public static MatrixStacker of(PoseStack ms) {
 		if (instance == null)
 			instance = new MatrixStacker();
 		instance.ms = ms;
@@ -25,12 +24,12 @@ public class MatrixStacker {
 	}
 
 	public MatrixStacker restoreIdentity() {
-		MatrixStack.Entry entry = ms.peek();
+		PoseStack.Pose entry = ms.last();
 
-		entry.getModel()
-			.loadIdentity();
-		entry.getNormal()
-			.loadIdentity();
+		entry.pose()
+			.setIdentity();
+		entry.normal()
+			.setIdentity();
 
 		return this;
 	}
@@ -38,27 +37,27 @@ public class MatrixStacker {
 	public MatrixStacker rotate(Direction axis, float radians) {
 		if (radians == 0)
 			return this;
-		ms.multiply(axis.getUnitVector()
-			.getRadialQuaternion(radians));
+		ms.mulPose(axis.step()
+			.rotation(radians));
 		return this;
 	}
 
 	public MatrixStacker rotate(double angle, Axis axis) {
 		Vector3f vec =
-			axis == Axis.X ? Vector3f.POSITIVE_X : axis == Axis.Y ? Vector3f.POSITIVE_Y : Vector3f.POSITIVE_Z;
+			axis == Axis.X ? Vector3f.XP : axis == Axis.Y ? Vector3f.YP : Vector3f.ZP;
 		return multiply(vec, angle);
 	}
 
 	public MatrixStacker rotateX(double angle) {
-		return multiply(Vector3f.POSITIVE_X, angle);
+		return multiply(Vector3f.XP, angle);
 	}
 
 	public MatrixStacker rotateY(double angle) {
-		return multiply(Vector3f.POSITIVE_Y, angle);
+		return multiply(Vector3f.YP, angle);
 	}
 
 	public MatrixStacker rotateZ(double angle) {
-		return multiply(Vector3f.POSITIVE_Z, angle);
+		return multiply(Vector3f.ZP, angle);
 	}
 
 	public MatrixStacker centre() {
@@ -69,17 +68,17 @@ public class MatrixStacker {
 		return translateBack(center);
 	}
 
-	public MatrixStacker translate(Vector3i vec) {
+	public MatrixStacker translate(Vec3i vec) {
 		ms.translate(vec.getX(), vec.getY(), vec.getZ());
 		return this;
 	}
 
-	public MatrixStacker translate(Vector3d vec) {
+	public MatrixStacker translate(Vec3 vec) {
 		ms.translate(vec.x, vec.y, vec.z);
 		return this;
 	}
 
-	public MatrixStacker translateBack(Vector3d vec) {
+	public MatrixStacker translateBack(Vec3 vec) {
 		ms.translate(-vec.x, -vec.y, -vec.z);
 		return this;
 	}
@@ -90,7 +89,7 @@ public class MatrixStacker {
 	}
 
 	public MatrixStacker multiply(Quaternion quaternion) {
-		ms.multiply(quaternion);
+		ms.mulPose(quaternion);
 		return this;
 	}
 
@@ -107,21 +106,21 @@ public class MatrixStacker {
 	public MatrixStacker multiply(Vector3f axis, double angle) {
 		if (angle == 0)
 			return this;
-		ms.multiply(axis.getDegreesQuaternion((float) angle));
+		ms.mulPose(axis.rotationDegrees((float) angle));
 		return this;
 	}
 
 	public MatrixStacker push() {
-		ms.push();
+		ms.pushPose();
 		return this;
 	}
 
 	public MatrixStacker pop() {
-		ms.pop();
+		ms.popPose();
 		return this;
 	}
 
-	public MatrixStack unwrap() {
+	public PoseStack unwrap() {
 		return ms;
 	}
 

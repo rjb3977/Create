@@ -5,15 +5,14 @@ import com.jozufozu.flywheel.backend.instancing.InstanceMaterial;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
 import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.jozufozu.flywheel.core.materials.ModelData;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.state.properties.AttachFace;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 
 public class AnalogLeverInstance extends TileEntityInstance<AnalogLeverTileEntity> implements IDynamicInstance {
 
@@ -33,7 +32,7 @@ public class AnalogLeverInstance extends TileEntityInstance<AnalogLeverTileEntit
 
         AttachFace face = blockState.get(AnalogLeverBlock.FACE);
         rX = face == AttachFace.FLOOR ? 0 : face == AttachFace.WALL ? 90 : 180;
-        rY = AngleHelper.horizontalAngle(blockState.get(AnalogLeverBlock.HORIZONTAL_FACING));
+        rY = AngleHelper.horizontalAngle(blockState.get(AnalogLeverBlock.FACING));
 
         animateLever();
     }
@@ -45,7 +44,7 @@ public class AnalogLeverInstance extends TileEntityInstance<AnalogLeverTileEntit
     }
 
     protected void animateLever() {
-        MatrixStack ms = new MatrixStack();
+        PoseStack ms = new PoseStack();
         MatrixStacker msr = MatrixStacker.of(ms);
 
         msr.translate(getInstancePosition());

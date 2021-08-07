@@ -1,7 +1,25 @@
 package com.simibubi.create.content.logistics.block.depot;
 
 import java.util.Optional;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
@@ -14,26 +32,6 @@ import com.simibubi.create.foundation.utility.VecHelper;
 
 import com.simibubi.create.lib.extensions.BlockExtensions;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-
 public class EjectorBlock extends HorizontalKineticBlock implements ITE<EjectorTileEntity>, BlockExtensions {
 
 	public EjectorBlock(Properties properties) {
@@ -41,43 +39,43 @@ public class EjectorBlock extends HorizontalKineticBlock implements ITE<EjectorT
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_,
-		ISelectionContext p_220053_4_) {
+	public VoxelShape getShape(BlockState p_220053_1_, BlockGetter p_220053_2_, BlockPos p_220053_3_,
+		CollisionContext p_220053_4_) {
 		return AllShapes.DEPOT;
 	}
 
 	@Override
-	public float create$getSlipperiness(BlockState state, IWorldReader world, BlockPos pos, Entity entity) {
+	public float create$getSlipperiness(BlockState state, LevelReader world, BlockPos pos, Entity entity) {
 		return getTileEntityOptional(world, pos).filter(ete -> ete.state == State.LAUNCHING)
 			.map($ -> 1f)
-			.orElse(super.getSlipperiness(/*state, world, pos, entity*/));
+			.orElse(super.getFriction(/*state, world, pos, entity*/));
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World world, BlockPos pos, Block p_220069_4_,
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block p_220069_4_,
 		BlockPos p_220069_5_, boolean p_220069_6_) {
 		withTileEntityDo(world, pos, EjectorTileEntity::updateSignal);
 	}
 
 	@Override
-	public void onFallenUpon(World p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
+	public void fallOn(Level p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
 		Optional<EjectorTileEntity> tileEntityOptional = getTileEntityOptional(p_180658_1_, p_180658_2_);
-		if (tileEntityOptional.isPresent() && !p_180658_3_.bypassesLandingEffects()) {
-			p_180658_3_.handleFallDamage(p_180658_4_, 0.0F);
+		if (tileEntityOptional.isPresent() && !p_180658_3_.isSuppressingBounce()) {
+			p_180658_3_.causeFallDamage(p_180658_4_, 0.0F);
 			return;
 		}
-		super.onFallenUpon(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_);
+		super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_);
 	}
 
 	@Override
-	public void onLanded(IBlockReader worldIn, Entity entityIn) {
-		super.onLanded(worldIn, entityIn);
-		BlockPos position = entityIn.getBlockPos();
+	public void updateEntityAfterFallOn(BlockGetter worldIn, Entity entityIn) {
+		super.updateEntityAfterFallOn(worldIn, entityIn);
+		BlockPos position = entityIn.blockPosition();
 		if (!AllBlocks.WEIGHTED_EJECTOR.has(worldIn.getBlockState(position)))
 			return;
 		if (!entityIn.isAlive())
 			return;
-		if (entityIn.bypassesLandingEffects())
+		if (entityIn.isSuppressingBounce())
 			return;
 		if (entityIn instanceof ItemEntity) {
 			SharedDepotBlockMethods.onLanded(worldIn, entityIn);
@@ -98,53 +96,53 @@ public class EjectorBlock extends HorizontalKineticBlock implements ITE<EjectorT
 
 		if (entityIn.isOnGround()) {
 			entityIn.setOnGround(false);
-			Vector3d center = VecHelper.getCenterOf(position)
+			Vec3 center = VecHelper.getCenterOf(position)
 				.add(0, 7 / 16f, 0);
-			Vector3d positionVec = entityIn.getPositionVec();
+			Vec3 positionVec = entityIn.position();
 			double diff = center.distanceTo(positionVec);
-			entityIn.setMotion(0, -0.125, 0);
-			Vector3d vec = center.add(positionVec)
+			entityIn.setDeltaMovement(0, -0.125, 0);
+			Vec3 vec = center.add(positionVec)
 				.scale(.5f);
 			if (diff > 4 / 16f) {
-				entityIn.setPosition(vec.x, vec.y, vec.z);
+				entityIn.setPos(vec.x, vec.y, vec.z);
 				return;
 			}
 		}
 
 		ejectorTileEntity.activate();
 		ejectorTileEntity.notifyUpdate();
-		if (entityIn.world.isRemote)
-			AllPackets.channel.sendToServer(new EjectorTriggerPacket(ejectorTileEntity.getPos()));
+		if (entityIn.level.isClientSide)
+			AllPackets.channel.sendToServer(new EjectorTriggerPacket(ejectorTileEntity.getBlockPos()));
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-		BlockRayTraceResult ray) {
-		if (AllItems.WRENCH.isIn(player.getHeldItem(hand)))
-			return ActionResultType.PASS;
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
+		BlockHitResult ray) {
+		if (AllItems.WRENCH.isIn(player.getItemInHand(hand)))
+			return InteractionResult.PASS;
 		return SharedDepotBlockMethods.onUse(state, world, pos, player, hand, ray);
 	}
 
 	@Override
-	public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
 		withTileEntityDo(worldIn, pos, EjectorTileEntity::dropFlyingItems);
 		SharedDepotBlockMethods.onReplaced(state, worldIn, pos, newState, isMoving);
 	}
 
 	@Override
 	public Axis getRotationAxis(BlockState state) {
-		return state.get(HORIZONTAL_FACING)
-			.rotateY()
+		return state.getValue(HORIZONTAL_FACING)
+			.getClockWise()
 			.getAxis();
 	}
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
 		return getRotationAxis(state) == face.getAxis();
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.WEIGHTED_EJECTOR.create();
 	}
 
@@ -154,17 +152,17 @@ public class EjectorBlock extends HorizontalKineticBlock implements ITE<EjectorT
 	}
 
 	@Override
-	public boolean hasComparatorInputOverride(BlockState state) {
+	public boolean hasAnalogOutputSignal(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getComparatorInputOverride(BlockState blockState, World worldIn, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos) {
 		return SharedDepotBlockMethods.getComparatorInputOverride(blockState, worldIn, pos);
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

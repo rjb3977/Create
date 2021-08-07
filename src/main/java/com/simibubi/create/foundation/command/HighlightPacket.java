@@ -8,10 +8,10 @@ import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.shapes.Shapes;
 
 public class HighlightPacket implements S2CPacket {
 
@@ -23,17 +23,17 @@ public class HighlightPacket implements S2CPacket {
 		this.pos = pos;
 	}
 
-	public void read(PacketBuffer buffer) {
-		this.pos = BlockPos.fromLong(buffer.readLong());
+	public void read(FriendlyByteBuf buffer) {
+		this.pos = BlockPos.of(buffer.readLong());
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
-		buffer.writeLong(pos.toLong());
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeLong(pos.asLong());
 	}
 
 	@Override
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client
 			.execute(() -> {
 				performHighlight(pos);
@@ -43,12 +43,12 @@ public class HighlightPacket implements S2CPacket {
 
 	@Environment(EnvType.CLIENT)
 	public static void performHighlight(BlockPos pos) {
-		if (Minecraft.getInstance().world == null || !Minecraft.getInstance().world.isBlockPresent(pos))
+		if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isLoaded(pos))
 			return;
 
-		CreateClient.OUTLINER.showAABB("highlightCommand", VoxelShapes.fullCube()
-				.getBoundingBox()
-				.offset(pos), 200)
+		CreateClient.OUTLINER.showAABB("highlightCommand", Shapes.block()
+				.bounds()
+				.move(pos), 200)
 				.lineWidth(1 / 32f)
 				.colored(0xEeEeEe)
 				// .colored(0x243B50)

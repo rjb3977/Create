@@ -9,8 +9,8 @@ import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 
 public class ServerSpeedProvider {
@@ -31,9 +31,9 @@ public class ServerSpeedProvider {
 	@Environment(EnvType.CLIENT)
 	public static void clientTick() {
 		if (Minecraft.getInstance()
-			.isSingleplayer()
+			.hasSingleplayerServer()
 			&& Minecraft.getInstance()
-				.isGamePaused())
+				.isPaused())
 			return;
 		modifier.tick();
 		clientTimer++;
@@ -51,13 +51,13 @@ public class ServerSpeedProvider {
 
 		public Packet() {}
 
-		public void read(PacketBuffer buffer) {}
+		public void read(FriendlyByteBuf buffer) {}
 
 		@Override
-		public void write(PacketBuffer buffer) {}
+		public void write(FriendlyByteBuf buffer) {}
 
 		@Override
-		public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+		public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 			client
 				.execute(() -> {
 					if (!initialized) {

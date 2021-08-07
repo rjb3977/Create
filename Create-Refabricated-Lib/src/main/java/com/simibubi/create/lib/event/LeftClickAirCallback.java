@@ -4,7 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.player.LocalPlayer;
 
 @Environment(EnvType.CLIENT)
 public interface LeftClickAirCallback {
@@ -14,5 +14,5 @@ public interface LeftClickAirCallback {
 		}
 	});
 
-	void onLeftClickAir(ClientPlayerEntity player);
+	void onLeftClickAir(LocalPlayer player);
 }

@@ -17,20 +17,20 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 public class SimpleChannel {
 	private static final Logger LOGGER = LogManager.getLogger("Simple Networking API");
@@ -78,25 +78,25 @@ public class SimpleChannel {
 		s2cIdMap.put(id, clazz);
 	}
 
-	private PacketBuffer createBuf(C2SPacket packet) {
+	private FriendlyByteBuf createBuf(C2SPacket packet) {
 		Integer id = c2sIdMap.inverse().get(packet.getClass());
 		if (id == null) {
 			LOGGER.error("Could not get id for c2s packet " + packet.toString() + " in channel " + channelName);
 			return null;
 		}
-		PacketBuffer buf = PacketByteBufs.create();
+		FriendlyByteBuf buf = PacketByteBufs.create();
 		buf.writeVarInt(id);
 		packet.write(buf);
 		return buf;
 	}
 
-	private PacketBuffer createBuf(S2CPacket packet) {
+	private FriendlyByteBuf createBuf(S2CPacket packet) {
 		Integer id = s2cIdMap.inverse().get(packet.getClass());
 		if (id == null) {
 			LOGGER.error("Could not get id for s2c packet " + packet.toString() + " in channel " + channelName);
 			return null;
 		}
-		PacketBuffer buf = PacketByteBufs.create();
+		FriendlyByteBuf buf = PacketByteBufs.create();
 		buf.writeVarInt(id);
 		packet.write(buf);
 		return buf;
@@ -104,22 +104,22 @@ public class SimpleChannel {
 
 	@Environment(EnvType.CLIENT)
 	public void sendToServer(C2SPacket packet) {
-		PacketBuffer buf = createBuf(packet);
+		FriendlyByteBuf buf = createBuf(packet);
 		if (buf == null) return;
 		ClientPlayNetworking.send(channelName, buf);
 	}
 
-	public void sendToClient(S2CPacket packet, ServerPlayerEntity player) {
-		PacketBuffer buf = createBuf(packet);
+	public void sendToClient(S2CPacket packet, ServerPlayer player) {
+		FriendlyByteBuf buf = createBuf(packet);
 		if (buf == null) return;
 		ServerPlayNetworking.send(player, channelName, buf);
 	}
 
-	public void sendToClients(S2CPacket packet, Collection<ServerPlayerEntity> players) {
-		PacketBuffer buf = createBuf(packet);
+	public void sendToClients(S2CPacket packet, Collection<ServerPlayer> players) {
+		FriendlyByteBuf buf = createBuf(packet);
 		if (buf == null) return;
-		IPacket<?> vanillaPacket = ServerPlayNetworking.createS2CPacket(channelName, buf);
-		for (ServerPlayerEntity player : players) {
+		Packet<?> vanillaPacket = ServerPlayNetworking.createS2CPacket(channelName, buf);
+		for (ServerPlayer player : players) {
 			ServerPlayNetworking.getSender(player).sendPacket(vanillaPacket);
 		}
 	}
@@ -128,15 +128,15 @@ public class SimpleChannel {
 		sendToClients(packet, PlayerLookup.all(server));
 	}
 
-	public void sendToClientsInWorld(S2CPacket packet, ServerWorld world) {
+	public void sendToClientsInWorld(S2CPacket packet, ServerLevel world) {
 		sendToClients(packet, PlayerLookup.world(world));
 	}
 
-	public void sendToClientsTracking(S2CPacket packet, ServerWorld world, BlockPos pos) {
+	public void sendToClientsTracking(S2CPacket packet, ServerLevel world, BlockPos pos) {
 		sendToClients(packet, PlayerLookup.tracking(world, pos));
 	}
 
-	public void sendToClientsTracking(S2CPacket packet, ServerWorld world, ChunkPos pos) {
+	public void sendToClientsTracking(S2CPacket packet, ServerLevel world, ChunkPos pos) {
 		sendToClients(packet, PlayerLookup.tracking(world, pos));
 	}
 
@@ -144,35 +144,35 @@ public class SimpleChannel {
 		sendToClients(packet, PlayerLookup.tracking(entity));
 	}
 
-	public void sendToClientsTracking(S2CPacket packet, TileEntity blockEntity) {
+	public void sendToClientsTracking(S2CPacket packet, BlockEntity blockEntity) {
 		sendToClients(packet, PlayerLookup.tracking(blockEntity));
 	}
 
 	public void sendToClientsTrackingAndSelf(S2CPacket packet, Entity entity) {
-		Collection<ServerPlayerEntity> clients = PlayerLookup.tracking(entity);
-		if (entity instanceof ServerPlayerEntity && !clients.contains(entity)) {
-			clients.add((ServerPlayerEntity) entity);
+		Collection<ServerPlayer> clients = PlayerLookup.tracking(entity);
+		if (entity instanceof ServerPlayer && !clients.contains(entity)) {
+			clients.add((ServerPlayer) entity);
 		}
 		sendToClients(packet, clients);
 	}
 
-	public void sendToClientsAround(S2CPacket packet, ServerWorld world, Vector3d pos, double radius) {
+	public void sendToClientsAround(S2CPacket packet, ServerLevel world, Vec3 pos, double radius) {
 		sendToClients(packet, PlayerLookup.around(world, pos, radius));
 	}
 
-	public void sendToClientsAround(S2CPacket packet, ServerWorld world, Vector3i pos, double radius) {
+	public void sendToClientsAround(S2CPacket packet, ServerLevel world, Vec3i pos, double radius) {
 		sendToClients(packet, PlayerLookup.around(world, pos, radius));
 	}
 
 	@Environment(EnvType.CLIENT)
 	public void sendResponseToServer(ResponseTarget target, C2SPacket packet) {
-		PacketBuffer buf = createBuf(packet);
+		FriendlyByteBuf buf = createBuf(packet);
 		if (buf == null) return;
 		target.sender.sendPacket(channelName, buf);
 	}
 
 	public void sendResponseToClient(ResponseTarget target, S2CPacket packet) {
-		PacketBuffer buf = createBuf(packet);
+		FriendlyByteBuf buf = createBuf(packet);
 		if (buf == null) return;
 		target.sender.sendPacket(channelName, buf);
 	}
@@ -187,7 +187,7 @@ public class SimpleChannel {
 
 	private class C2SHandler implements ServerPlayNetworking.PlayChannelHandler {
 		@Override
-		public void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, PacketBuffer buf, PacketSender responseSender) {
+		public void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
 			int id = buf.readVarInt();
 			C2SPacket packet = null;
 			try {
@@ -208,7 +208,7 @@ public class SimpleChannel {
 	@Environment(EnvType.CLIENT)
 	private class S2CHandler implements ClientPlayNetworking.PlayChannelHandler {
 		@Override
-		public void receive(Minecraft client, ClientPlayNetHandler handler, PacketBuffer buf, PacketSender responseSender) {
+		public void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
 			int id = buf.readVarInt();
 			S2CPacket packet = null;
 			try {

@@ -2,20 +2,20 @@ package com.simibubi.create.foundation.item;
 
 import static com.simibubi.create.foundation.item.TooltipHelper.cutStringTextComponent;
 import static com.simibubi.create.foundation.item.TooltipHelper.cutTextComponent;
-import static net.minecraft.util.text.TextFormatting.AQUA;
-import static net.minecraft.util.text.TextFormatting.BLUE;
-import static net.minecraft.util.text.TextFormatting.DARK_GRAY;
-import static net.minecraft.util.text.TextFormatting.DARK_GREEN;
-import static net.minecraft.util.text.TextFormatting.DARK_PURPLE;
-import static net.minecraft.util.text.TextFormatting.DARK_RED;
-import static net.minecraft.util.text.TextFormatting.GOLD;
-import static net.minecraft.util.text.TextFormatting.GRAY;
-import static net.minecraft.util.text.TextFormatting.GREEN;
-import static net.minecraft.util.text.TextFormatting.LIGHT_PURPLE;
-import static net.minecraft.util.text.TextFormatting.RED;
-import static net.minecraft.util.text.TextFormatting.STRIKETHROUGH;
-import static net.minecraft.util.text.TextFormatting.WHITE;
-import static net.minecraft.util.text.TextFormatting.YELLOW;
+import static net.minecraft.ChatFormatting.AQUA;
+import static net.minecraft.ChatFormatting.BLUE;
+import static net.minecraft.ChatFormatting.DARK_GRAY;
+import static net.minecraft.ChatFormatting.DARK_GREEN;
+import static net.minecraft.ChatFormatting.DARK_PURPLE;
+import static net.minecraft.ChatFormatting.DARK_RED;
+import static net.minecraft.ChatFormatting.GOLD;
+import static net.minecraft.ChatFormatting.GRAY;
+import static net.minecraft.ChatFormatting.GREEN;
+import static net.minecraft.ChatFormatting.LIGHT_PURPLE;
+import static net.minecraft.ChatFormatting.RED;
+import static net.minecraft.ChatFormatting.STRIKETHROUGH;
+import static net.minecraft.ChatFormatting.WHITE;
+import static net.minecraft.ChatFormatting.YELLOW;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,23 +34,22 @@ import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.CKinetics;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.config.ConfigValue;
-
-import net.minecraft.block.Block;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.level.block.Block;
 
 public class ItemDescription {
 
 	public static final ItemDescription MISSING = new ItemDescription(null);
-	public static ITextComponent trim =
-		new StringTextComponent("                          ").formatted(WHITE, STRIKETHROUGH);
+	public static Component trim =
+		new TextComponent("                          ").withStyle(WHITE, STRIKETHROUGH);
 
 	public enum Palette {
 
@@ -63,18 +62,18 @@ public class ItemDescription {
 
 		;
 
-		private Palette(TextFormatting primary, TextFormatting highlight) {
+		private Palette(ChatFormatting primary, ChatFormatting highlight) {
 			color = primary;
 			hColor = highlight;
 		}
 
-		public TextFormatting color;
-		public TextFormatting hColor;
+		public ChatFormatting color;
+		public ChatFormatting hColor;
 	}
 
-	private List<ITextComponent> lines;
-	private List<ITextComponent> linesOnShift;
-	private List<ITextComponent> linesOnCtrl;
+	private List<Component> lines;
+	private List<Component> linesOnShift;
+	private List<Component> linesOnCtrl;
 	private Palette palette;
 
 	public ItemDescription(Palette palette) {
@@ -84,13 +83,13 @@ public class ItemDescription {
 		linesOnCtrl = new ArrayList<>();
 	}
 
-	public ItemDescription withSummary(ITextComponent summary) {
+	public ItemDescription withSummary(Component summary) {
 		addStrings(linesOnShift, cutTextComponent(summary, palette.color, palette.hColor));
 		return this;
 	}
 
-	public static List<ITextComponent> getKineticStats(Block block) {
-		List<ITextComponent> list = new ArrayList<>();
+	public static List<Component> getKineticStats(Block block) {
+		List<Component> list = new ArrayList<>();
 
 		boolean isEngine = block instanceof EngineBlock;
 		CKinetics config = AllConfigs.SERVER.kinetics;
@@ -104,16 +103,16 @@ public class ItemDescription {
 			.get() > 0 && StressImpact.isEnabled();
 		boolean hasStressCapacity = capacities.containsKey(id) && StressImpact.isEnabled();
 		boolean hasGlasses =
-			AllItems.GOGGLES.get() == Minecraft.getInstance().player.getItemStackFromSlot(EquipmentSlotType.HEAD)
+			AllItems.GOGGLES.get() == Minecraft.getInstance().player.getItemBySlot(EquipmentSlot.HEAD)
 				.getItem();
 
-		ITextComponent rpmUnit = Lang.translate("generic.unit.rpm");
+		Component rpmUnit = Lang.translate("generic.unit.rpm");
 		if (hasSpeedRequirement) {
-			List<ITextComponent> speedLevels =
+			List<Component> speedLevels =
 				Lang.translatedOptions("tooltip.speedRequirement", "none", "medium", "high");
 			int index = minimumRequiredSpeedLevel.ordinal();
-			IFormattableTextComponent level =
-				new StringTextComponent(makeProgressBar(3, index)).formatted(minimumRequiredSpeedLevel.getTextColor());
+			MutableComponent level =
+				new TextComponent(makeProgressBar(3, index)).withStyle(minimumRequiredSpeedLevel.getTextColor());
 
 			if (hasGlasses)
 				level.append(String.valueOf(minimumRequiredSpeedLevel.getSpeedValue()))
@@ -123,19 +122,19 @@ public class ItemDescription {
 				level.append(speedLevels.get(index));
 
 			list.add(Lang.translate("tooltip.speedRequirement")
-				.formatted(GRAY));
+				.withStyle(GRAY));
 			list.add(level);
 		}
 
 		if (hasStressImpact && !(!isEngine && ((IRotate) block).hideStressImpact())) {
-			List<ITextComponent> stressLevels = Lang.translatedOptions("tooltip.stressImpact", "low", "medium", "high");
+			List<Component> stressLevels = Lang.translatedOptions("tooltip.stressImpact", "low", "medium", "high");
 			double impact = impacts.get(id)
 				.get();
 			StressImpact impactId = impact >= config.highStressImpact.get() ? StressImpact.HIGH
 				: (impact >= config.mediumStressImpact.get() ? StressImpact.MEDIUM : StressImpact.LOW);
 			int index = impactId.ordinal();
-			IFormattableTextComponent level =
-				new StringTextComponent(makeProgressBar(3, index)).formatted(impactId.getAbsoluteColor());
+			MutableComponent level =
+				new TextComponent(makeProgressBar(3, index)).withStyle(impactId.getAbsoluteColor());
 
 			if (hasGlasses)
 				level.append(impacts.get(id)
@@ -145,20 +144,20 @@ public class ItemDescription {
 				level.append(stressLevels.get(index));
 
 			list.add(Lang.translate("tooltip.stressImpact")
-				.formatted(GRAY));
+				.withStyle(GRAY));
 			list.add(level);
 		}
 
 		if (hasStressCapacity) {
-			List<ITextComponent> stressCapacityLevels =
+			List<Component> stressCapacityLevels =
 				Lang.translatedOptions("tooltip.capacityProvided", "low", "medium", "high");
 			double capacity = capacities.get(id)
 				.get();
 			StressImpact impactId = capacity >= config.highCapacity.get() ? StressImpact.LOW
 				: (capacity >= config.mediumCapacity.get() ? StressImpact.MEDIUM : StressImpact.HIGH);
 			int index = StressImpact.values().length - 2 - impactId.ordinal();
-			IFormattableTextComponent level =
-				new StringTextComponent(makeProgressBar(3, index)).formatted(impactId.getAbsoluteColor());
+			MutableComponent level =
+				new TextComponent(makeProgressBar(3, index)).withStyle(impactId.getAbsoluteColor());
 
 			if (hasGlasses)
 				level.append(capacity + "x ")
@@ -171,14 +170,14 @@ public class ItemDescription {
 //					" " + DARK_GRAY + TextFormatting.ITALIC + Lang.translate("tooltip.capacityProvided.asGenerator");
 
 			list.add(Lang.translate("tooltip.capacityProvided")
-				.formatted(GRAY));
+				.withStyle(GRAY));
 			list.add(level);
 
-			IFormattableTextComponent genSpeed = generatorSpeed(block, rpmUnit);
+			MutableComponent genSpeed = generatorSpeed(block, rpmUnit);
 			if (!genSpeed.getString()
 				.isEmpty())
-				list.add(new StringTextComponent(" ").append(genSpeed)
-					.formatted(DARK_GRAY));
+				list.add(new TextComponent(" ").append(genSpeed)
+					.withStyle(DARK_GRAY));
 		}
 
 		// if (hasSpeedRequirement || hasStressImpact || hasStressCapacity)
@@ -197,13 +196,13 @@ public class ItemDescription {
 	}
 
 	public ItemDescription withBehaviour(String condition, String behaviour) {
-		add(linesOnShift, new StringTextComponent(condition).formatted(GRAY));
+		add(linesOnShift, new TextComponent(condition).withStyle(GRAY));
 		addStrings(linesOnShift, cutStringTextComponent(behaviour, palette.color, palette.hColor, 1));
 		return this;
 	}
 
 	public ItemDescription withControl(String condition, String action) {
-		add(linesOnCtrl, new StringTextComponent(condition).formatted(GRAY));
+		add(linesOnCtrl, new TextComponent(condition).withStyle(GRAY));
 		addStrings(linesOnCtrl, cutStringTextComponent(action, palette.color, palette.hColor, 1));
 		return this;
 	}
@@ -215,37 +214,37 @@ public class ItemDescription {
 		if (hasDescription || hasControls) {
 			String[] holdDesc = Lang.translate("tooltip.holdForDescription", "$").getString().split("\\$");
 			String[] holdCtrl = Lang.translate("tooltip.holdForControls", "$").getString().split("\\$");
-			IFormattableTextComponent keyShift = Lang.translate("tooltip.keyShift");
-			IFormattableTextComponent keyCtrl = Lang.translate("tooltip.keyCtrl");
-			for (List<ITextComponent> list : Arrays.asList(lines, linesOnShift, linesOnCtrl)) {
+			MutableComponent keyShift = Lang.translate("tooltip.keyShift");
+			MutableComponent keyCtrl = Lang.translate("tooltip.keyCtrl");
+			for (List<Component> list : Arrays.asList(lines, linesOnShift, linesOnCtrl)) {
 				boolean shift = list == linesOnShift;
 				boolean ctrl = list == linesOnCtrl;
 
 				if (holdDesc.length != 2 || holdCtrl.length != 2) {
-					list.add(0, new StringTextComponent("Invalid lang formatting!"));
+					list.add(0, new TextComponent("Invalid lang formatting!"));
 					continue;
 				}
 
 				if (hasControls) {
-					IFormattableTextComponent tabBuilder = new StringTextComponent("");
-					tabBuilder.append(new StringTextComponent(holdCtrl[0]).formatted(DARK_GRAY));
-					tabBuilder.append(keyCtrl.copy()
-						.formatted(ctrl ? WHITE : GRAY));
-					tabBuilder.append(new StringTextComponent(holdCtrl[1]).formatted(DARK_GRAY));
+					MutableComponent tabBuilder = new TextComponent("");
+					tabBuilder.append(new TextComponent(holdCtrl[0]).withStyle(DARK_GRAY));
+					tabBuilder.append(keyCtrl.plainCopy()
+						.withStyle(ctrl ? WHITE : GRAY));
+					tabBuilder.append(new TextComponent(holdCtrl[1]).withStyle(DARK_GRAY));
 					list.add(0, tabBuilder);
 				}
 
 				if (hasDescription) {
-					IFormattableTextComponent tabBuilder = new StringTextComponent("");
-					tabBuilder.append(new StringTextComponent(holdDesc[0]).formatted(DARK_GRAY));
-					tabBuilder.append(keyShift.copy()
-						.formatted(shift ? WHITE : GRAY));
-					tabBuilder.append(new StringTextComponent(holdDesc[1]).formatted(DARK_GRAY));
+					MutableComponent tabBuilder = new TextComponent("");
+					tabBuilder.append(new TextComponent(holdDesc[0]).withStyle(DARK_GRAY));
+					tabBuilder.append(keyShift.plainCopy()
+						.withStyle(shift ? WHITE : GRAY));
+					tabBuilder.append(new TextComponent(holdDesc[1]).withStyle(DARK_GRAY));
 					list.add(0, tabBuilder);
 				}
 
 				if (shift || ctrl)
-					list.add(hasDescription && hasControls ? 2 : 1, new StringTextComponent(""));
+					list.add(hasDescription && hasControls ? 2 : 1, new TextComponent(""));
 			}
 		}
 
@@ -261,15 +260,15 @@ public class ItemDescription {
 		return palette.hColor + s + palette.color;
 	}
 
-	public static void addStrings(List<ITextComponent> infoList, List<ITextComponent> textLines) {
+	public static void addStrings(List<Component> infoList, List<Component> textLines) {
 		textLines.forEach(s -> add(infoList, s));
 	}
 
-	public static void add(List<ITextComponent> infoList, List<ITextComponent> textLines) {
+	public static void add(List<Component> infoList, List<Component> textLines) {
 		infoList.addAll(textLines);
 	}
 
-	public static void add(List<ITextComponent> infoList, ITextComponent line) {
+	public static void add(List<Component> infoList, Component line) {
 		infoList.add(line);
 	}
 
@@ -277,7 +276,7 @@ public class ItemDescription {
 		return palette;
 	}
 
-	public List<ITextComponent> addInformation(List<ITextComponent> tooltip) {
+	public List<Component> addInformation(List<Component> tooltip) {
 		if (Screen.hasShiftDown()) {
 			tooltip.addAll(linesOnShift);
 			return tooltip;
@@ -292,19 +291,19 @@ public class ItemDescription {
 		return tooltip;
 	}
 
-	public List<ITextComponent> getLines() {
+	public List<Component> getLines() {
 		return lines;
 	}
 
-	public List<ITextComponent> getLinesOnCtrl() {
+	public List<Component> getLinesOnCtrl() {
 		return linesOnCtrl;
 	}
 
-	public List<ITextComponent> getLinesOnShift() {
+	public List<Component> getLinesOnShift() {
 		return linesOnShift;
 	}
 
-	private static IFormattableTextComponent generatorSpeed(Block block, ITextComponent unitRPM) {
+	private static MutableComponent generatorSpeed(Block block, Component unitRPM) {
 		String value = "";
 
 		if (block instanceof WaterWheelBlock) {
@@ -323,7 +322,7 @@ public class ItemDescription {
 		}
 
 		return !value.equals("") ? Lang.translate("tooltip.generationSpeed", value, unitRPM)
-			: StringTextComponent.EMPTY.copy();
+			: TextComponent.EMPTY.plainCopy();
 	}
 
 }

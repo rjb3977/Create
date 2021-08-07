@@ -15,16 +15,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
-
-import net.minecraft.fluid.FlowingFluid;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
 
 public abstract class FluidIngredient implements Predicate<FluidStack> {
 
@@ -32,7 +31,7 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 	public List<FluidStack> matchingFluidStacks;
 
-	public static FluidIngredient fromTag(ITag.INamedTag<Fluid> tag, int amount) {
+	public static FluidIngredient fromTag(Tag.Named<Fluid> tag, int amount) {
 		FluidTagIngredient ingredient = new FluidTagIngredient();
 		ingredient.tag = tag;
 		ingredient.amountRequired = amount;
@@ -61,9 +60,9 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 	protected abstract boolean testInternal(FluidStack t);
 
-	protected abstract void readInternal(PacketBuffer buffer);
+	protected abstract void readInternal(FriendlyByteBuf buffer);
 
-	protected abstract void writeInternal(PacketBuffer buffer);
+	protected abstract void writeInternal(FriendlyByteBuf buffer);
 
 	protected abstract void readInternal(JsonObject json);
 
@@ -88,13 +87,13 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		return testInternal(t);
 	}
 
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeBoolean(this instanceof FluidTagIngredient);
 		buffer.writeVarInt(amountRequired);
 		writeInternal(buffer);
 	}
 
-	public static FluidIngredient read(PacketBuffer buffer) {
+	public static FluidIngredient read(FriendlyByteBuf buffer) {
 		boolean isTagIngredient = buffer.readBoolean();
 		FluidIngredient ingredient = isTagIngredient ? new FluidTagIngredient() : new FluidStackIngredient();
 		ingredient.amountRequired = buffer.readVarInt();
@@ -132,22 +131,22 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 		if (!json.has("amount"))
 			throw new JsonSyntaxException("Fluid ingredient has to define an amount");
-		ingredient.amountRequired = JSONUtils.getInt(json, "amount");
+		ingredient.amountRequired = GsonHelper.getAsInt(json, "amount");
 		return ingredient;
 	}
 
 	public static class FluidStackIngredient extends FluidIngredient {
 
 		protected Fluid fluid;
-		protected CompoundNBT tagToMatch;
+		protected CompoundTag tagToMatch;
 
 		public FluidStackIngredient() {
-			tagToMatch = new CompoundNBT();
+			tagToMatch = new CompoundTag();
 		}
 
 		void fixFlowing() {
 			if (fluid instanceof FlowingFluid)
-				fluid = ((FlowingFluid) fluid).getStillFluid();
+				fluid = ((FlowingFluid) fluid).getSource();
 		}
 
 		@Override
@@ -157,22 +156,22 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 				return false;
 			if (tagToMatch.isEmpty())
 				return true;
-			CompoundNBT tag = t.toTag();
+			CompoundTag tag = t.toTag();
 			return tag.copy()
 				.merge(tagToMatch)
 				.equals(tag);
 		}
 
 		@Override
-		protected void readInternal(PacketBuffer buffer) {
-			fluid = Registry.FLUID.getOrDefault(buffer.readResourceLocation());
-			tagToMatch = buffer.readCompoundTag();
+		protected void readInternal(FriendlyByteBuf buffer) {
+			fluid = Registry.FLUID.get(buffer.readResourceLocation());
+			tagToMatch = buffer.readNbt();
 		}
 
 		@Override
-		protected void writeInternal(PacketBuffer buffer) {
-			buffer.writeResourceLocation(Registry.FLUID_KEY.getValue());
-			buffer.writeCompoundTag(tagToMatch);
+		protected void writeInternal(FriendlyByteBuf buffer) {
+			buffer.writeResourceLocation(Registry.FLUID_REGISTRY.location());
+			buffer.writeNbt(tagToMatch);
 		}
 
 		@Override
@@ -184,7 +183,7 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 		@Override
 		protected void writeInternal(JsonObject json) {
-			json.addProperty("fluid", Registry.FLUID_KEY.getValue()
+			json.addProperty("fluid", Registry.FLUID_REGISTRY.location()
 				.toString());
 			json.add("nbt", new JsonParser().parse(tagToMatch.toString()));
 		}
@@ -199,7 +198,7 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 	public static class FluidTagIngredient extends FluidIngredient {
 
-		protected ITag.INamedTag<Fluid> tag;
+		protected Tag.Named<Fluid> tag;
 
 		@Override
 		protected boolean testInternal(FluidStack t) {
@@ -213,7 +212,7 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		}
 
 		@Override
-		protected void readInternal(PacketBuffer buffer) {
+		protected void readInternal(FriendlyByteBuf buffer) {
 			int size = buffer.readVarInt();
 			matchingFluidStacks = new ArrayList<>(size);
 //			for (int i = 0; i < size; i++)
@@ -221,7 +220,7 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		}
 
 		@Override
-		protected void writeInternal(PacketBuffer buffer) {
+		protected void writeInternal(FriendlyByteBuf buffer) {
 			// Tag has to be resolved on the server before sending
 			List<FluidStack> matchingFluidStacks = getMatchingFluidStacks();
 			buffer.writeVarInt(matchingFluidStacks.size());
@@ -231,10 +230,10 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 		@Override
 		protected void readInternal(JsonObject json) {
-			ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "fluidTag"));
-			Optional<? extends ITag.INamedTag<Fluid>> optionalINamedTag = FluidTags.getRequiredTags()
+			ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "fluidTag"));
+			Optional<? extends Tag.Named<Fluid>> optionalINamedTag = FluidTags.getWrappers()
 				.stream()
-				.filter(fluidINamedTag -> fluidINamedTag.getId()
+				.filter(fluidINamedTag -> fluidINamedTag.getName()
 					.equals(id))
 				.findFirst(); // fixme
 			if (!optionalINamedTag.isPresent())
@@ -244,17 +243,17 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 
 		@Override
 		protected void writeInternal(JsonObject json) {
-			json.addProperty("fluidTag", tag.getId()
+			json.addProperty("fluidTag", tag.getName()
 				.toString());
 		}
 
 		@Override
 		protected List<FluidStack> determineMatchingFluidStacks() {
-			return tag.values()
+			return tag.getValues()
 				.stream()
 				.map(f -> {
 					if (f instanceof FlowingFluid)
-						return ((FlowingFluid) f).getStillFluid();
+						return ((FlowingFluid) f).getSource();
 					return f;
 				})
 				.distinct()

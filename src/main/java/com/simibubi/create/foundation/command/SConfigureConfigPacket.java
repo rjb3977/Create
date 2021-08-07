@@ -19,16 +19,16 @@ import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public class SConfigureConfigPacket implements S2CPacket {
 
@@ -42,25 +42,25 @@ public class SConfigureConfigPacket implements S2CPacket {
 		this.value = value;
 	}
 
-	public SConfigureConfigPacket(PacketBuffer buffer) {
-		this.option = buffer.readString(32767);
-		this.value = buffer.readString(32767);
+	public SConfigureConfigPacket(FriendlyByteBuf buffer) {
+		this.option = buffer.readUtf(32767);
+		this.value = buffer.readUtf(32767);
 	}
 
 	@Override
-	public void read(PacketBuffer buf) {
-		this.option = buf.readString(32767);
-		this.value = buf.readString(32767);
+	public void read(FriendlyByteBuf buf) {
+		this.option = buf.readUtf(32767);
+		this.value = buf.readUtf(32767);
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
-		buffer.writeString(option);
-		buffer.writeString(value);
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeUtf(option);
+		buffer.writeUtf(value);
 	}
 
 	@Override
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client
 			.execute(() -> {
 				if (option.startsWith("SET")) {
@@ -80,7 +80,7 @@ public class SConfigureConfigPacket implements S2CPacket {
 	}
 
 	private static void trySetConfig(String option, String value) {
-		ClientPlayerEntity player = Minecraft.getInstance().player;
+		LocalPlayer player = Minecraft.getInstance().player;
 		if (player == null)
 			return;
 
@@ -88,7 +88,7 @@ public class SConfigureConfigPacket implements S2CPacket {
 		try {
 			configPath = ConfigHelper.ConfigPath.parse(option);
 		} catch (IllegalArgumentException e) {
-			player.sendStatusMessage(new StringTextComponent(e.getMessage()), false);
+			player.displayClientMessage(new TextComponent(e.getMessage()), false);
 			return;
 		}
 
@@ -99,11 +99,11 @@ public class SConfigureConfigPacket implements S2CPacket {
 
 		try {
 //			ConfigHelper.setConfigValue(configPath, value);
-			player.sendStatusMessage(new StringTextComponent("Great Success!"), false);
+			player.displayClientMessage(new TextComponent("Great Success!"), false);
 //		} catch (ConfigHelper.InvalidValueException e) {
-			player.sendStatusMessage(new StringTextComponent("Config could not be set the the specified value!"), false);
+			player.displayClientMessage(new TextComponent("Config could not be set the the specified value!"), false);
 		} catch (Exception e) {
-			player.sendStatusMessage(new StringTextComponent("Something went wrong while trying to set config value. Check the client logs for more information"), false);
+			player.displayClientMessage(new TextComponent("Something went wrong while trying to set config value. Check the client logs for more information"), false);
 			Create.LOGGER.warn("Exception during client-side config value set:", e);
 		}
 
@@ -138,39 +138,39 @@ public class SConfigureConfigPacket implements S2CPacket {
 				return;
 			}
 
-			ClientPlayerEntity player = Minecraft.getInstance().player;
+			LocalPlayer player = Minecraft.getInstance().player;
 			ConfigHelper.ConfigPath configPath;
 			try {
 				 configPath = ConfigHelper.ConfigPath.parse(value);
 			} catch (IllegalArgumentException e) {
-				player.sendStatusMessage(new StringTextComponent(e.getMessage()), false);
+				player.displayClientMessage(new TextComponent(e.getMessage()), false);
 				return;
 			}
 
 			try {
 //				ScreenOpener.open(SubMenuConfigScreen.find(configPath));
 			} catch (Exception e) {
-				player.sendStatusMessage(new StringTextComponent("Unable to find the specified config"), false);
+				player.displayClientMessage(new TextComponent("Unable to find the specified config"), false);
 			}
 		}
 
 		@Environment(EnvType.CLIENT)
 		private static void rainbowDebug(String value) {
-			ClientPlayerEntity player = Minecraft.getInstance().player;
+			LocalPlayer player = Minecraft.getInstance().player;
 			if (player == null || "".equals(value))
 				return;
 
 			if (value.equals("info")) {
-				ITextComponent text = new StringTextComponent("Rainbow Debug Utility is currently: ")
+				Component text = new TextComponent("Rainbow Debug Utility is currently: ")
 					.append(boolToText(AllConfigs.CLIENT.rainbowDebug.get()));
-				player.sendStatusMessage(text, false);
+				player.displayClientMessage(text, false);
 				return;
 			}
 
 			AllConfigs.CLIENT.rainbowDebug.set(Boolean.parseBoolean(value));
-			ITextComponent text = boolToText(AllConfigs.CLIENT.rainbowDebug.get())
-				.append(new StringTextComponent(" Rainbow Debug Utility").formatted(TextFormatting.WHITE));
-			player.sendStatusMessage(text, false);
+			Component text = boolToText(AllConfigs.CLIENT.rainbowDebug.get())
+				.append(new TextComponent(" Rainbow Debug Utility").withStyle(ChatFormatting.WHITE));
+			player.displayClientMessage(text, false);
 		}
 
 		@Environment(EnvType.CLIENT)
@@ -187,7 +187,7 @@ public class SConfigureConfigPacket implements S2CPacket {
 		@Environment(EnvType.CLIENT)
 		private static void experimentalLighting(String value) {
 //			ForgeConfig.CLIENT.experimentalForgeLightPipelineEnabled.set(true);
-			Minecraft.getInstance().worldRenderer.loadRenderers();
+			Minecraft.getInstance().levelRenderer.allChanged();
 		}
 
 		@Environment(EnvType.CLIENT)
@@ -210,14 +210,14 @@ public class SConfigureConfigPacket implements S2CPacket {
 		@Environment(EnvType.CLIENT)
 		private static void fabulousWarning(String value) {
 			AllConfigs.CLIENT.ignoreFabulousWarning.set(true);
-			Minecraft.getInstance().ingameGUI.addChatMessage(ChatType.CHAT,
-				new StringTextComponent("Disabled Fabulous graphics warning"),
-				Minecraft.getInstance().player.getUniqueID());
+			Minecraft.getInstance().gui.handleChat(ChatType.CHAT,
+				new TextComponent("Disabled Fabulous graphics warning"),
+				Minecraft.getInstance().player.getUUID());
 		}
 
-		private static IFormattableTextComponent boolToText(boolean b) {
-			return b ? new StringTextComponent("enabled").formatted(TextFormatting.DARK_GREEN)
-				: new StringTextComponent("disabled").formatted(TextFormatting.RED);
+		private static MutableComponent boolToText(boolean b) {
+			return b ? new TextComponent("enabled").withStyle(ChatFormatting.DARK_GREEN)
+				: new TextComponent("disabled").withStyle(ChatFormatting.RED);
 		}
 	}
 }

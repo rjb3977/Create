@@ -1,23 +1,23 @@
 package com.simibubi.create.foundation.config.ui;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.TextComponent;
 
-public class ConfigTextField extends TextFieldWidget {
+public class ConfigTextField extends EditBox {
 
-	protected FontRenderer font;
+	protected Font font;
 	protected String unit;
 
-	public ConfigTextField(FontRenderer font, int x, int y, int width, int height, String unit) {
-		super(font, x, y, width, height, StringTextComponent.EMPTY);
+	public ConfigTextField(Font font, int x, int y, int width, int height, String unit) {
+		super(font, x, y, width, height, TextComponent.EMPTY);
 		this.font = font;
 		this.unit = unit;
 	}
 
 	@Override
-	public void setFocused2(boolean focus) {
-		super.setFocused2(focus);
+	public void setFocus(boolean focus) {
+		super.setFocus(focus);
 
 		if (!focus) {
 			if (ConfigScreenList.currentText == this)
@@ -27,7 +27,7 @@ public class ConfigTextField extends TextFieldWidget {
 		}
 
 		if (ConfigScreenList.currentText != null && ConfigScreenList.currentText != this)
-			ConfigScreenList.currentText.setFocused2(false);
+			ConfigScreenList.currentText.setFocus(false);
 
 		ConfigScreenList.currentText = this;
 	}

@@ -1,18 +1,16 @@
 package com.simibubi.create.foundation.block.render;
 
 import java.util.Arrays;
-
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import com.simibubi.create.lib.helper.BakedQuadHelper;
-
-import net.minecraft.client.renderer.model.BakedQuad;
 
 public final class QuadHelper {
 
 	private QuadHelper() {}
 
 	public static BakedQuad clone(BakedQuad quad) {
-		return new BakedQuad(Arrays.copyOf(quad.getVertexData(), quad.getVertexData().length),
-			quad.getTintIndex(), quad.getFace(), BakedQuadHelper.getSprite(quad), quad.hasShade());
+		return new BakedQuad(Arrays.copyOf(quad.getVertices(), quad.getVertices().length),
+			quad.getTintIndex(), quad.getDirection(), BakedQuadHelper.getSprite(quad), quad.isShade());
 	}
 
 }

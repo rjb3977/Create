@@ -2,19 +2,17 @@ package com.simibubi.create.foundation.block;
 
 import java.util.HashSet;
 import java.util.Set;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.utility.VecHelper;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
 
 public class ItemUseOverrides {
 
@@ -24,23 +22,23 @@ public class ItemUseOverrides {
 		OVERRIDES.add(Registry.BLOCK.getKey(block));
 	}
 
-	public static ActionResultType onBlockActivated(PlayerEntity player, World world, Hand hand, BlockRayTraceResult traceResult) {
-		if (AllItems.WRENCH.isIn(player.getHeldItem(hand)))
-			return ActionResultType.PASS;
+	public static InteractionResult onBlockActivated(Player player, Level world, InteractionHand hand, BlockHitResult traceResult) {
+		if (AllItems.WRENCH.isIn(player.getItemInHand(hand)))
+			return InteractionResult.PASS;
 
 		BlockState state = world
-				.getBlockState(traceResult.getPos());
+				.getBlockState(traceResult.getBlockPos());
 		ResourceLocation id = Registry.BLOCK.getKey(state.getBlock());
 
 		if (!OVERRIDES.contains(id))
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
-		BlockRayTraceResult blockTrace =
-				new BlockRayTraceResult(VecHelper.getCenterOf(traceResult.getPos()), traceResult.getFace(), traceResult.getPos(), true);
-		ActionResultType result = state.onUse(world, player, hand, blockTrace);
+		BlockHitResult blockTrace =
+				new BlockHitResult(VecHelper.getCenterOf(traceResult.getBlockPos()), traceResult.getDirection(), traceResult.getBlockPos(), true);
+		InteractionResult result = state.use(world, player, hand, blockTrace);
 
-		if (!result.isAccepted())
-			return ActionResultType.PASS;
+		if (!result.consumesAction())
+			return InteractionResult.PASS;
 		else
 			return result;
 

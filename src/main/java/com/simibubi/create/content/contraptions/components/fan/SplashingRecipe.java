@@ -1,14 +1,12 @@
 package com.simibubi.create.content.contraptions.components.fan;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.world.level.Level;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.InWorldProcessing;
 import com.simibubi.create.content.contraptions.processing.InWorldProcessing.SplashingWrapper;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
-
-import net.minecraft.world.World;
 
 @ParametersAreNonnullByDefault
 public class SplashingRecipe extends ProcessingRecipe<InWorldProcessing.SplashingWrapper> {
@@ -18,7 +16,7 @@ public class SplashingRecipe extends ProcessingRecipe<InWorldProcessing.Splashin
 	}
 
 	@Override
-	public boolean matches(SplashingWrapper inv, World worldIn) {
+	public boolean matches(SplashingWrapper inv, Level worldIn) {
 		if (inv.isEmpty())
 			return false;
 		return ingredients.get(0)

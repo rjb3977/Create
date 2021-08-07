@@ -1,10 +1,9 @@
 package com.simibubi.create.foundation.utility.ghost;
 
 import java.util.function.Supplier;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class GhostBlockParams {
 
@@ -23,7 +22,7 @@ public class GhostBlockParams {
 	}
 
 	public static GhostBlockParams of(Block block) {
-		return of(block.getDefaultState());
+		return of(block.defaultBlockState());
 	}
 
 	public GhostBlockParams at(BlockPos pos) {

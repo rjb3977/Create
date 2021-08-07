@@ -1,11 +1,10 @@
 package com.simibubi.create.lib.mixin.accessor;
 
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.network.play.ServerPlayNetHandler;
-
-@Mixin(ServerPlayNetHandler.class)
+@Mixin(ServerGamePacketListenerImpl.class)
 public interface ServerPlayNetHandlerAccessor {
 	@Accessor("floatingTickCount")
 	int create$floatingTickCount();

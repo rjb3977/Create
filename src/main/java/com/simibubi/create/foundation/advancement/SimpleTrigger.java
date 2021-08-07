@@ -5,15 +5,13 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import com.google.gson.JsonObject;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.util.ResourceLocation;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -24,22 +22,22 @@ public class SimpleTrigger extends CriterionTriggerBase<SimpleTrigger.Instance> 
 	}
 
 	@Override
-	public Instance conditionsFromJson(JsonObject json, ConditionArrayParser context) {
-		return new Instance(getId());
+	public com.simibubi.create.foundation.advancement.SimpleTrigger.Instance createInstance(JsonObject json, DeserializationContext context) {
+		return new com.simibubi.create.foundation.advancement.SimpleTrigger.Instance(getId());
 	}
 
-	public void trigger(ServerPlayerEntity player) {
+	public void trigger(ServerPlayer player) {
 		super.trigger(player, null);
 	}
 
-	public Instance instance() {
-		return new Instance(getId());
+	public com.simibubi.create.foundation.advancement.SimpleTrigger.Instance instance() {
+		return new com.simibubi.create.foundation.advancement.SimpleTrigger.Instance(getId());
 	}
 
 	public static class Instance extends CriterionTriggerBase.Instance {
 
 		public Instance(ResourceLocation idIn) {
-			super(idIn, EntityPredicate.AndPredicate.EMPTY); // FIXME: Is this right?
+			super(idIn, EntityPredicate.Composite.ANY); // FIXME: Is this right?
 		}
 
 		@Override

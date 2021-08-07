@@ -2,16 +2,15 @@ package com.simibubi.create.lib.helper;
 
 import com.simibubi.create.lib.mixin.accessor.ClientPlayNetHandlerAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.client.network.play.ClientPlayNetHandler;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 
 public final class ClientPlayNetHandlerHelper {
 
-	public static int getViewDistance(ClientPlayNetHandler clientPlayNetHandler) {
+	public static int getViewDistance(ClientPacketListener clientPlayNetHandler) {
 		return get(clientPlayNetHandler).create$viewDistance();
 	}
 
-	private static ClientPlayNetHandlerAccessor get(ClientPlayNetHandler clientPlayNetHandler) {
+	private static ClientPlayNetHandlerAccessor get(ClientPacketListener clientPlayNetHandler) {
 		return MixinHelper.cast(clientPlayNetHandler);
 	}
 

@@ -1,11 +1,11 @@
 package com.simibubi.create.content.contraptions.fluids.pipes;
 
-import static net.minecraft.state.properties.BlockStateProperties.DOWN;
-import static net.minecraft.state.properties.BlockStateProperties.EAST;
-import static net.minecraft.state.properties.BlockStateProperties.NORTH;
-import static net.minecraft.state.properties.BlockStateProperties.SOUTH;
-import static net.minecraft.state.properties.BlockStateProperties.UP;
-import static net.minecraft.state.properties.BlockStateProperties.WEST;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.DOWN;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.EAST;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.SOUTH;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.UP;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WEST;
 
 import java.util.Map;
 import java.util.Random;
@@ -20,126 +20,126 @@ import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.utility.Iterate;
 
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.SixWayBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.network.DebugPacketSender;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.TickPriority;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.DebugPackets;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.TickPriority;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.PipeBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.HitResult;
 
-public class EncasedPipeBlock extends Block implements IWrenchable, ISpecialBlockItemRequirement, ITileEntityProvider, BlockPickInteractionAware {
+public class EncasedPipeBlock extends Block implements IWrenchable, ISpecialBlockItemRequirement, EntityBlock, BlockPickInteractionAware {
 
-	public static final Map<Direction, BooleanProperty> FACING_TO_PROPERTY_MAP = SixWayBlock.FACING_TO_PROPERTY_MAP;
+	public static final Map<Direction, BooleanProperty> FACING_TO_PROPERTY_MAP = PipeBlock.PROPERTY_BY_DIRECTION;
 
 	public EncasedPipeBlock(Properties p_i48339_1_) {
 		super(p_i48339_1_);
-		setDefaultState(getDefaultState().with(NORTH, false)
-			.with(SOUTH, false)
-			.with(DOWN, false)
-			.with(UP, false)
-			.with(WEST, false)
-			.with(EAST, false));
+		registerDefaultState(defaultBlockState().setValue(NORTH, false)
+			.setValue(SOUTH, false)
+			.setValue(DOWN, false)
+			.setValue(UP, false)
+			.setValue(WEST, false)
+			.setValue(EAST, false));
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
 		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
-		super.fillStateContainer(builder);
+		super.createBlockStateDefinition(builder);
 	}
 
 	@Override
-	public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
 		boolean blockTypeChanged = state.getBlock() != newState.getBlock();
-		if (blockTypeChanged && !world.isRemote)
+		if (blockTypeChanged && !world.isClientSide)
 			FluidPropagator.propagateChangedPipe(world, pos, state);
-		if (state.getBlock().hasBlockEntity() && (blockTypeChanged || !newState.getBlock().hasBlockEntity()))
-			world.removeTileEntity(pos);
+		if (state.getBlock().isEntityBlock() && (blockTypeChanged || !newState.getBlock().isEntityBlock()))
+			world.removeBlockEntity(pos);
 	}
 
 	@Override
-	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
-		if (!world.isRemote && state != oldState)
-			world.getPendingBlockTicks()
+	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
+		if (!world.isClientSide && state != oldState)
+			world.getBlockTicks()
 				.scheduleTick(pos, this, 1, TickPriority.HIGH);
 	}
 
 	@Override
-	public ItemStack getPickedStack(BlockState state, IBlockReader world, BlockPos pos, PlayerEntity player, RayTraceResult target) {
+	public ItemStack getPickedStack(BlockState state, BlockGetter world, BlockPos pos, Player player, HitResult target) {
 		return AllBlocks.FLUID_PIPE.asStack();
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World world, BlockPos pos, Block otherBlock, BlockPos neighborPos,
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock, BlockPos neighborPos,
 		boolean isMoving) {
-		DebugPacketSender.func_218806_a(world, pos);
+		DebugPackets.sendNeighborsUpdatePacket(world, pos);
 		Direction d = FluidPropagator.validateNeighbourChange(state, world, pos, otherBlock, neighborPos, isMoving);
 		if (d == null)
 			return;
-		if (!state.get(FACING_TO_PROPERTY_MAP.get(d)))
+		if (!state.getValue(FACING_TO_PROPERTY_MAP.get(d)))
 			return;
-		world.getPendingBlockTicks()
+		world.getBlockTicks()
 			.scheduleTick(pos, this, 1, TickPriority.HIGH);
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random r) {
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random r) {
 		FluidPropagator.propagateChangedPipe(world, pos, state);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.ENCASED_FLUID_PIPE.create();
 	}
 
 	@Override
-	public ActionResultType onWrenched(BlockState state, ItemUseContext context) {
-		World world = context.getWorld();
-		BlockPos pos = context.getPos();
+	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
+		Level world = context.getLevel();
+		BlockPos pos = context.getClickedPos();
 
-		if (world.isRemote)
-			return ActionResultType.SUCCESS;
+		if (world.isClientSide)
+			return InteractionResult.SUCCESS;
 
-		context.getWorld()
-			.playEvent(2001, context.getPos(), Block.getStateId(state));
+		context.getLevel()
+			.levelEvent(2001, context.getClickedPos(), Block.getId(state));
 		BlockState equivalentPipe = transferSixWayProperties(state, AllBlocks.FLUID_PIPE.getDefaultState());
 
 		Direction firstFound = Direction.UP;
 		for (Direction d : Iterate.directions)
-			if (state.get(FACING_TO_PROPERTY_MAP.get(d))) {
+			if (state.getValue(FACING_TO_PROPERTY_MAP.get(d))) {
 				firstFound = d;
 				break;
 			}
 
 		FluidTransportBehaviour.cacheFlows(world, pos);
-		world.setBlockState(pos, AllBlocks.FLUID_PIPE.get()
+		world.setBlockAndUpdate(pos, AllBlocks.FLUID_PIPE.get()
 			.updateBlockState(equivalentPipe, firstFound, null, world, pos));
 		FluidTransportBehaviour.loadFlows(world, pos);
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	public static BlockState transferSixWayProperties(BlockState from, BlockState to) {
 		for (Direction d : Iterate.directions) {
 			BooleanProperty property = FACING_TO_PROPERTY_MAP.get(d);
-			to = to.with(property, from.get(property));
+			to = to.setValue(property, from.getValue(property));
 		}
 		return to;
 	}
 
 	@Override
-	public ItemRequirement getRequiredItems(BlockState state, TileEntity te) {
+	public ItemRequirement getRequiredItems(BlockState state, BlockEntity te) {
 		return ItemRequirement.of(AllBlocks.FLUID_PIPE.getDefaultState(), te);
 	}
 

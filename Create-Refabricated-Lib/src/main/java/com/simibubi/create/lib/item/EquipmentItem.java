@@ -1,8 +1,8 @@
 package com.simibubi.create.lib.item;
 
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 
 public interface EquipmentItem {
-	EquipmentSlotType getEquipmentSlot(ItemStack stack);
+	EquipmentSlot getEquipmentSlot(ItemStack stack);
 }

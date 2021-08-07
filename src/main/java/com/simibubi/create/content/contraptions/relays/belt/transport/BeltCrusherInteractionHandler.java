@@ -5,14 +5,13 @@ import com.simibubi.create.content.contraptions.components.crusher.CrushingWheel
 import com.simibubi.create.content.contraptions.relays.belt.BeltHelper;
 
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BeltCrusherInteractionHandler {
 
@@ -22,17 +21,17 @@ public class BeltCrusherInteractionHandler {
         boolean beltMovementPositive = beltInventory.beltMovementPositive;
         int firstUpcomingSegment = (int) Math.floor(currentItem.beltPosition);
         int step = beltMovementPositive ? 1 : -1;
-        firstUpcomingSegment = MathHelper.clamp(firstUpcomingSegment, 0, beltInventory.belt.beltLength - 1);
+        firstUpcomingSegment = Mth.clamp(firstUpcomingSegment, 0, beltInventory.belt.beltLength - 1);
 
         for (int segment = firstUpcomingSegment; beltMovementPositive ? segment <= nextOffset
                 : segment + 1 >= nextOffset; segment += step) {
             BlockPos crusherPos = BeltHelper.getPositionForOffset(beltInventory.belt, segment)
-                    .up();
-            World world = beltInventory.belt.getWorld();
+                    .above();
+            Level world = beltInventory.belt.getLevel();
             BlockState crusherState = world.getBlockState(crusherPos);
             if (!(crusherState.getBlock() instanceof CrushingWheelControllerBlock))
                 continue;
-            Direction crusherFacing = crusherState.get(CrushingWheelControllerBlock.FACING);
+            Direction crusherFacing = crusherState.getValue(CrushingWheelControllerBlock.FACING);
             Direction movementFacing = beltInventory.belt.getMovementFacing();
             if (crusherFacing != movementFacing)
                 continue;
@@ -47,7 +46,7 @@ public class BeltCrusherInteractionHandler {
                 return false;
             currentItem.beltPosition = crusherEntry;
 
-            TileEntity te = world.getTileEntity(crusherPos);
+            BlockEntity te = world.getBlockEntity(crusherPos);
             if (!(te instanceof CrushingWheelControllerTileEntity))
                 return true;
 
@@ -56,7 +55,7 @@ public class BeltCrusherInteractionHandler {
             ItemStack toInsert = currentItem.stack.copy();
 
             ItemStack remainder = crusherTE.inventory.insert(toInsert);//.insertItemStacked(crusherTE.inventory, toInsert, false);
-            if (ItemStack.areItemStacksEqual(toInsert, remainder))
+            if (ItemStack.matches(toInsert, remainder))
                 return true;
 
             int notFilled = currentItem.stack.getCount() - toInsert.getCount();

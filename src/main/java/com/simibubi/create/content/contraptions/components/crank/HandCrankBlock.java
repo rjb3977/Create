@@ -7,27 +7,26 @@ import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.content.contraptions.base.DirectionalKineticBlock;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.config.AllConfigs;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HandCrankBlock extends DirectionalKineticBlock implements ITE<HandCrankTileEntity> {
 
@@ -36,8 +35,8 @@ public class HandCrankBlock extends DirectionalKineticBlock implements ITE<HandC
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-		return AllShapes.CRANK.get(state.get(FACING));
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+		return AllShapes.CRANK.get(state.getValue(FACING));
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -50,47 +49,47 @@ public class HandCrankBlock extends DirectionalKineticBlock implements ITE<HandC
 	}
 
 	@Override
-	public BlockRenderType getRenderType(BlockState state) {
-		return BlockRenderType.ENTITYBLOCK_ANIMATED;
+	public RenderShape getRenderShape(BlockState state) {
+		return RenderShape.ENTITYBLOCK_ANIMATED;
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-		BlockRayTraceResult hit) {
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
+		BlockHitResult hit) {
 
-		withTileEntityDo(worldIn, pos, te -> te.turn(player.isSneaking()));
-		player.addExhaustion(getRotationSpeed() * AllConfigs.SERVER.kinetics.crankHungerMultiplier.get());
-		return ActionResultType.SUCCESS;
+		withTileEntityDo(worldIn, pos, te -> te.turn(player.isShiftKeyDown()));
+		player.causeFoodExhaustion(getRotationSpeed() * AllConfigs.SERVER.kinetics.crankHungerMultiplier.get());
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		Direction preferred = getPreferredFacing(context);
 		if (preferred == null || (context.getPlayer() != null && context.getPlayer()
-			.isSneaking()))
-			return getDefaultState().with(FACING, context.getFace());
-		return getDefaultState().with(FACING, preferred.getOpposite());
+			.isShiftKeyDown()))
+			return defaultBlockState().setValue(FACING, context.getClickedFace());
+		return defaultBlockState().setValue(FACING, preferred.getOpposite());
 	}
 
 	@Override
-	public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
-		Direction facing = state.get(FACING)
+	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
+		Direction facing = state.getValue(FACING)
 			.getOpposite();
-		BlockPos neighbourPos = pos.offset(facing);
+		BlockPos neighbourPos = pos.relative(facing);
 		BlockState neighbour = worldIn.getBlockState(neighbourPos);
 		return !neighbour.getCollisionShape(worldIn, neighbourPos)
 			.isEmpty();
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 		boolean isMoving) {
-		if (worldIn.isRemote)
+		if (worldIn.isClientSide)
 			return;
 
-		Direction blockFacing = state.get(FACING);
-		if (fromPos.equals(pos.offset(blockFacing.getOpposite()))) {
-			if (!isValidPosition(state, worldIn, pos)) {
+		Direction blockFacing = state.getValue(FACING);
+		if (fromPos.equals(pos.relative(blockFacing.getOpposite()))) {
+			if (!canSurvive(state, worldIn, pos)) {
 				worldIn.destroyBlock(pos, true);
 				return;
 			}
@@ -98,19 +97,19 @@ public class HandCrankBlock extends DirectionalKineticBlock implements ITE<HandC
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.HAND_CRANK.create();
 	}
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
-		return face == state.get(FACING)
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
+		return face == state.getValue(FACING)
 			.getOpposite();
 	}
 
 	@Override
 	public Axis getRotationAxis(BlockState state) {
-		return state.get(FACING)
+		return state.getValue(FACING)
 			.getAxis();
 	}
 
@@ -120,7 +119,7 @@ public class HandCrankBlock extends DirectionalKineticBlock implements ITE<HandC
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

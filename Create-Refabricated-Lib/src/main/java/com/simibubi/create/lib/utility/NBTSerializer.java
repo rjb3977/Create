@@ -1,13 +1,13 @@
 package com.simibubi.create.lib.utility;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public class NBTSerializer {
-	public static void deserializeNBT(Object o, CompoundNBT nbt) {
+	public static void deserializeNBT(Object o, CompoundTag nbt) {
 		((NBTSerializable) o).create$deserializeNBT(nbt);
 	}
 
-	public static CompoundNBT serializeNBT(Object o) {
+	public static CompoundTag serializeNBT(Object o) {
 		return ((NBTSerializable) o).create$serializeNBT();
 	}
 }

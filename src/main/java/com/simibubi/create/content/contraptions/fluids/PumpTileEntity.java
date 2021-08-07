@@ -10,10 +10,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
+import com.simibubi.create.content.contraptions.fluids.PumpTileEntity.PumpFluidTransferBehaviour;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.BlockFace;
@@ -24,22 +32,13 @@ import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
-import net.minecraft.world.IWorld;
-
 public class PumpTileEntity extends KineticTileEntity {
 
 	LerpedFloat arrowDirection;
 	Couple<MutableBoolean> sidesToUpdate;
 	boolean reversed;
 
-	public PumpTileEntity(TileEntityType<?> typeIn) {
+	public PumpTileEntity(BlockEntityType<?> typeIn) {
 		super(typeIn);
 		arrowDirection = LerpedFloat.linear()
 			.startWithValue(1);
@@ -63,7 +62,7 @@ public class PumpTileEntity extends KineticTileEntity {
 		super.tick();
 		float speed = getSpeed();
 
-		if (world.isRemote) {
+		if (level.isClientSide) {
 			if (speed == 0)
 				return;
 			arrowDirection.chase(speed >= 0 ? 1 : -1, .5f, Chaser.EXP);
@@ -95,13 +94,13 @@ public class PumpTileEntity extends KineticTileEntity {
 			return;
 		if (speed != 0)
 			reversed = speed < 0;
-		if (world.isRemote && !isVirtual())
+		if (level.isClientSide && !isVirtual())
 			return;
 
-		BlockPos frontPos = pos.offset(getFront());
-		BlockPos backPos = pos.offset(getFront().getOpposite());
-		FluidPropagator.propagateChangedPipe(world, frontPos, world.getBlockState(frontPos));
-		FluidPropagator.propagateChangedPipe(world, backPos, world.getBlockState(backPos));
+		BlockPos frontPos = worldPosition.relative(getFront());
+		BlockPos backPos = worldPosition.relative(getFront().getOpposite());
+		FluidPropagator.propagateChangedPipe(level, frontPos, level.getBlockState(frontPos));
+		FluidPropagator.propagateChangedPipe(level, backPos, level.getBlockState(backPos));
 
 		FluidTransportBehaviour behaviour = getBehaviour(FluidTransportBehaviour.TYPE);
 		if (behaviour != null)
@@ -113,17 +112,17 @@ public class PumpTileEntity extends KineticTileEntity {
 		if (getSpeed() == 0)
 			return;
 
-		BlockFace start = new BlockFace(pos, side);
+		BlockFace start = new BlockFace(worldPosition, side);
 		boolean pull = isPullingOnSide(isFront(side));
 		Set<BlockFace> targets = new HashSet<>();
 		Map<BlockPos, Pair<Integer, Map<Direction, Boolean>>> pipeGraph = new HashMap<>();
 
 		if (!pull)
-			FluidPropagator.resetAffectedFluidNetworks(world, pos, side.getOpposite());
+			FluidPropagator.resetAffectedFluidNetworks(level, worldPosition, side.getOpposite());
 
-		if (!hasReachedValidEndpoint(world, start, pull)) {
+		if (!hasReachedValidEndpoint(level, start, pull)) {
 
-			pipeGraph.computeIfAbsent(pos, $ -> Pair.of(0, new IdentityHashMap<>()))
+			pipeGraph.computeIfAbsent(worldPosition, $ -> Pair.of(0, new IdentityHashMap<>()))
 				.getSecond()
 				.put(side, pull);
 			pipeGraph.computeIfAbsent(start.getConnectedPos(), $ -> Pair.of(1, new IdentityHashMap<>()))
@@ -140,13 +139,13 @@ public class PumpTileEntity extends KineticTileEntity {
 				int distance = entry.getFirst();
 				BlockPos currentPos = entry.getSecond();
 
-				if (!LoadedCheckUtil.isAreaLoaded(world, currentPos, 0))
+				if (!LoadedCheckUtil.isAreaLoaded(level, currentPos, 0))
 					continue;
 				if (visited.contains(currentPos))
 					continue;
 				visited.add(currentPos);
-				BlockState currentState = world.getBlockState(currentPos);
-				FluidTransportBehaviour pipe = FluidPropagator.getPipe(world, currentPos);
+				BlockState currentState = level.getBlockState(currentPos);
+				FluidTransportBehaviour pipe = FluidPropagator.getPipe(level, currentPos);
 				if (pipe == null)
 					continue;
 
@@ -154,11 +153,11 @@ public class PumpTileEntity extends KineticTileEntity {
 					BlockFace blockFace = new BlockFace(currentPos, face);
 					BlockPos connectedPos = blockFace.getConnectedPos();
 
-					if (!LoadedCheckUtil.isAreaLoaded(world, connectedPos, 0))
+					if (!LoadedCheckUtil.isAreaLoaded(level, connectedPos, 0))
 						continue;
 					if (blockFace.isEquivalent(start))
 						continue;
-					if (hasReachedValidEndpoint(world, blockFace, pull)) {
+					if (hasReachedValidEndpoint(level, blockFace, pull)) {
 						pipeGraph.computeIfAbsent(currentPos, $ -> Pair.of(distance, new IdentityHashMap<>()))
 							.getSecond()
 							.put(face, pull);
@@ -166,7 +165,7 @@ public class PumpTileEntity extends KineticTileEntity {
 						continue;
 					}
 
-					FluidTransportBehaviour pipeBehaviour = FluidPropagator.getPipe(world, connectedPos);
+					FluidTransportBehaviour pipeBehaviour = FluidPropagator.getPipe(level, connectedPos);
 					if (pipeBehaviour == null)
 						continue;
 					if (pipeBehaviour instanceof PumpFluidTransferBehaviour)
@@ -204,13 +203,13 @@ public class PumpTileEntity extends KineticTileEntity {
 				BlockPos pipePos = face.getPos();
 				Direction pipeSide = face.getFace();
 
-				if (pipePos.equals(pos))
+				if (pipePos.equals(worldPosition))
 					continue;
 
 				boolean inbound = pipeGraph.get(pipePos)
 					.getSecond()
 					.get(pipeSide);
-				FluidTransportBehaviour pipeBehaviour = FluidPropagator.getPipe(world, pipePos);
+				FluidTransportBehaviour pipeBehaviour = FluidPropagator.getPipe(level, pipePos);
 				if (pipeBehaviour == null)
 					continue;
 
@@ -247,7 +246,7 @@ public class PumpTileEntity extends KineticTileEntity {
 			if (map.get(nextFacing) != pull)
 				continue;
 			if (!searchForEndpointRecursively(pipeGraph, targets, validFaces,
-				new BlockFace(currentPos.offset(nextFacing), nextFacing.getOpposite()), pull))
+				new BlockFace(currentPos.relative(nextFacing), nextFacing.getOpposite()), pull))
 				continue;
 
 			validFaces.computeIfAbsent(distance, $ -> new HashSet<>())
@@ -262,14 +261,14 @@ public class PumpTileEntity extends KineticTileEntity {
 		return atLeastOneBranchSuccessful;
 	}
 
-	private boolean hasReachedValidEndpoint(IWorld world, BlockFace blockFace, boolean pull) {
+	private boolean hasReachedValidEndpoint(LevelAccessor world, BlockFace blockFace, boolean pull) {
 		BlockPos connectedPos = blockFace.getConnectedPos();
 		BlockState connectedState = world.getBlockState(connectedPos);
-		TileEntity tileEntity = world.getTileEntity(connectedPos);
+		BlockEntity tileEntity = world.getBlockEntity(connectedPos);
 		Direction face = blockFace.getFace();
 
 		// facing a pump
-		if (PumpBlock.isPump(connectedState) && connectedState.get(PumpBlock.FACING)
+		if (PumpBlock.isPump(connectedState) && connectedState.getValue(PumpBlock.FACING)
 			.getAxis() == face.getAxis() && tileEntity instanceof PumpTileEntity) {
 			PumpTileEntity pumpTE = (PumpTileEntity) tileEntity;
 			return pumpTE.isPullingOnSide(pumpTE.isFront(blockFace.getOppositeFace())) != pull;
@@ -293,13 +292,13 @@ public class PumpTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putBoolean("Reversed", reversed);
 		super.write(compound, clientPacket);
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		reversed = compound.getBoolean("Reversed");
 		super.fromTag(state, compound, clientPacket);
 	}
@@ -315,7 +314,7 @@ public class PumpTileEntity extends KineticTileEntity {
 		BlockState blockState = getBlockState();
 		if (!(blockState.getBlock() instanceof PumpBlock))
 			return false;
-		Direction front = blockState.get(PumpBlock.FACING);
+		Direction front = blockState.getValue(PumpBlock.FACING);
 		boolean isFront = side == front;
 		return isFront;
 	}
@@ -325,7 +324,7 @@ public class PumpTileEntity extends KineticTileEntity {
 		BlockState blockState = getBlockState();
 		if (!(blockState.getBlock() instanceof PumpBlock))
 			return null;
-		return blockState.get(PumpBlock.FACING);
+		return blockState.getValue(PumpBlock.FACING);
 	}
 
 	protected void updatePipeNetwork(boolean front) {
@@ -337,7 +336,7 @@ public class PumpTileEntity extends KineticTileEntity {
 		BlockState blockState = getBlockState();
 		if (!(blockState.getBlock() instanceof PumpBlock))
 			return false;
-		return blockState.get(PumpBlock.FACING)
+		return blockState.getValue(PumpBlock.FACING)
 			.getAxis() == side.getAxis();
 	}
 
@@ -368,7 +367,7 @@ public class PumpTileEntity extends KineticTileEntity {
 		}
 
 		@Override
-		public AttachmentTypes getRenderedRimAttachment(IBlockDisplayReader world, BlockPos pos, BlockState state,
+		public AttachmentTypes getRenderedRimAttachment(BlockAndTintGetter world, BlockPos pos, BlockState state,
 			Direction direction) {
 			AttachmentTypes attachment = super.getRenderedRimAttachment(world, pos, state, direction);
 			if (attachment == AttachmentTypes.RIM)

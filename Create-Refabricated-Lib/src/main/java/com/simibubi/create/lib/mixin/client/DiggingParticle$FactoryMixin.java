@@ -5,23 +5,23 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.simibubi.create.lib.extensions.BlockParticleDataExtensions;
 import com.simibubi.create.lib.extensions.DiggingParticle$FactoryExtensions;
-
+import com.simibubi.create.lib.extensions.DiggingParticle.FactoryExtensions;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.particle.DiggingParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BlockParticleData;
+import net.minecraft.client.particle.TerrainParticle;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.world.level.block.Blocks;
 
 @Environment(EnvType.CLIENT)
-@Mixin(DiggingParticle.Factory.class)
-public abstract class DiggingParticle$FactoryMixin implements DiggingParticle$FactoryExtensions {
+@Mixin(TerrainParticle.Provider.class)
+public abstract class DiggingParticle$FactoryMixin implements FactoryExtensions {
 	@Override
 	@Unique
-	public Particle create$makeParticleAtPos(BlockParticleData blockParticleData, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-		return !blockParticleData.getBlockState().isAir() && !blockParticleData.getBlockState().isIn(Blocks.MOVING_PISTON)
-				? ((DiggingParticle$FactoryExtensions) (new DiggingParticle(clientWorld, d, e, f, g, h, i, blockParticleData.getBlockState())).init()).create$updateSprite(((BlockParticleDataExtensions) blockParticleData).create$getPos())
+	public Particle create$makeParticleAtPos(BlockParticleOption blockParticleData, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
+		return !blockParticleData.getState().isAir() && !blockParticleData.getState().is(Blocks.MOVING_PISTON)
+				? ((FactoryExtensions) (new TerrainParticle(clientWorld, d, e, f, g, h, i, blockParticleData.getState())).init()).create$updateSprite(((BlockParticleDataExtensions) blockParticleData).create$getPos())
 				: null;
 	}
 }

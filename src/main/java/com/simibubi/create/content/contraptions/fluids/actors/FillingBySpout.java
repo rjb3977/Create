@@ -2,7 +2,9 @@ package com.simibubi.create.content.contraptions.fluids.actors;
 
 import java.util.List;
 import java.util.Optional;
-
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.itemAssembly.SequencedAssemblyRecipe;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
@@ -10,14 +12,10 @@ import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.world.World;
-
 public class FillingBySpout {
 
 	static RecipeWrapper wrapper = new RecipeWrapper(new ItemStackHandler(1));
-	public static boolean canItemBeFilled(World world, ItemStack stack) {
+	public static boolean canItemBeFilled(Level world, ItemStack stack) {
 		wrapper.setInventorySlotContents(0, stack);
 
 		Optional<FillingRecipe> assemblyRecipe =
@@ -31,7 +29,7 @@ public class FillingBySpout {
 		return GenericItemFilling.canItemBeFilled(world, stack);
 	}
 
-	public static int getRequiredAmountForItem(World world, ItemStack stack, FluidStack availableFluid) {
+	public static int getRequiredAmountForItem(Level world, ItemStack stack, FluidStack availableFluid) {
 		wrapper.setInventorySlotContents(0, stack);
 
 		Optional<FillingRecipe> assemblyRecipe =
@@ -43,8 +41,8 @@ public class FillingBySpout {
 				return requiredFluid.getRequiredAmount();
 		}
 
-		for (IRecipe<RecipeWrapper> recipe : world.getRecipeManager()
-			.getRecipes(AllRecipeTypes.FILLING.getType(), wrapper, world)) {
+		for (Recipe<RecipeWrapper> recipe : world.getRecipeManager()
+			.getRecipesFor(AllRecipeTypes.FILLING.getType(), wrapper, world)) {
 			FillingRecipe fillingRecipe = (FillingRecipe) recipe;
 			FluidIngredient requiredFluid = fillingRecipe.getRequiredFluid();
 			if (requiredFluid.test(availableFluid))
@@ -53,7 +51,7 @@ public class FillingBySpout {
 		return GenericItemFilling.getRequiredAmountForItem(world, stack, availableFluid);
 	}
 
-	public static ItemStack fillItem(World world, int requiredAmount, ItemStack stack, FluidStack availableFluid) {
+	public static ItemStack fillItem(Level world, int requiredAmount, ItemStack stack, FluidStack availableFluid) {
 		FluidStack toFill = (FluidStack) availableFluid.copy();
 		toFill.setAmount(requiredAmount);
 

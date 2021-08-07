@@ -1,9 +1,9 @@
 package com.simibubi.create.lib.entity;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public interface ExtraSpawnDataEntity {
-	void readSpawnData(PacketBuffer buf);
+	void readSpawnData(FriendlyByteBuf buf);
 
-	void writeSpawnData(PacketBuffer buf);
+	void writeSpawnData(FriendlyByteBuf buf);
 }

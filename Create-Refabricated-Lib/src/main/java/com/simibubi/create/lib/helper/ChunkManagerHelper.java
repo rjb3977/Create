@@ -4,27 +4,27 @@ import com.simibubi.create.lib.mixin.accessor.ChunkManagerAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
-import net.minecraft.world.server.ChunkHolder;
-import net.minecraft.world.server.ChunkManager;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkMap;
 
 public final class ChunkManagerHelper {
-	public static Long2ObjectLinkedOpenHashMap<ChunkHolder> getLoadedChunks(ChunkManager chunkManager) {
+	public static Long2ObjectLinkedOpenHashMap<ChunkHolder> getLoadedChunks(ChunkMap chunkManager) {
 		return get(chunkManager).create$loadedChunks();
 	}
 
-	public static Long2ObjectLinkedOpenHashMap<ChunkHolder> getChunksToUnload(ChunkManager chunkManager) {
+	public static Long2ObjectLinkedOpenHashMap<ChunkHolder> getChunksToUnload(ChunkMap chunkManager) {
 		return get(chunkManager).create$chunksToUnload();
 	}
 
-	public static void setImmutableLoadedChunksDirty(ChunkManager chunkManager, boolean v) {
+	public static void setImmutableLoadedChunksDirty(ChunkMap chunkManager, boolean v) {
 		get(chunkManager).create$immutableLoadedChunksDirty(v);
 	}
 
-	public static void scheduleSave(ChunkManager chunkManager, long l, ChunkHolder chunkHolder) {
+	public static void scheduleSave(ChunkMap chunkManager, long l, ChunkHolder chunkHolder) {
 		get(chunkManager).create$scheduleSave(l, chunkHolder);
 	}
 
-	private static ChunkManagerAccessor get(ChunkManager chunkManager) {
+	private static ChunkManagerAccessor get(ChunkMap chunkManager) {
 		return MixinHelper.cast(chunkManager);
 	}
 

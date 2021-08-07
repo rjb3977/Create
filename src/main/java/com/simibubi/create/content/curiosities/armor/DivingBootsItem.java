@@ -4,26 +4,25 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.lib.helper.LivingEntityHelper;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
-
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 public class DivingBootsItem extends CopperArmorItem {
 
 	public DivingBootsItem(Properties p_i48534_3_) {
-		super(EquipmentSlotType.FEET, p_i48534_3_);
+		super(EquipmentSlot.FEET, p_i48534_3_);
 	}
 
 	public static void accellerateDescentUnderwater(LivingEntity entity) {
 		if (!affects(entity))
 			return;
 
-		Vector3d motion = entity.getMotion();
+		Vec3 motion = entity.getDeltaMovement();
 		boolean isJumping = LivingEntityHelper.isFlying(entity);
-		entity.setOnGround(entity.isOnGround() | entity.collidedVertically);
+		entity.setOnGround(entity.isOnGround() | entity.verticalCollision);
 
 		if (isJumping && entity.isOnGround()) {
 			motion = motion.add(0, .5f, 0);
@@ -33,10 +32,10 @@ public class DivingBootsItem extends CopperArmorItem {
 		}
 
 		float multiplier = 1.3f;
-		if (motion.mul(1, 0, 1)
-			.length() < 0.145f && (entity.moveForward > 0 || entity.moveStrafing != 0) && !entity.isSneaking())
-			motion = motion.mul(multiplier, 1, multiplier);
-		entity.setMotion(motion);
+		if (motion.multiply(1, 0, 1)
+			.length() < 0.145f && (entity.zza > 0 || entity.xxa != 0) && !entity.isShiftKeyDown())
+			motion = motion.multiply(multiplier, 1, multiplier);
+		entity.setDeltaMovement(motion);
 	}
 
 	protected static boolean affects(LivingEntity entity) {
@@ -53,9 +52,9 @@ public class DivingBootsItem extends CopperArmorItem {
 			return false;
 		if (entity.getPose() == Pose.SWIMMING)
 			return false;
-		if (entity instanceof PlayerEntity) {
-			PlayerEntity playerEntity = (PlayerEntity) entity;
-			if (playerEntity.abilities.isFlying)
+		if (entity instanceof Player) {
+			Player playerEntity = (Player) entity;
+			if (playerEntity.abilities.flying)
 				return false;
 		}
 		return true;

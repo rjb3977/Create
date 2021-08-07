@@ -12,33 +12,33 @@ import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.world.level.block.state.BlockState;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ParticleManager.class)
+@Mixin(ParticleEngine.class)
 public abstract class ParticleManagerMixin implements ParticleManagerExtensions {
 	@Shadow
-	protected ClientWorld world;
+	protected ClientLevel world;
 
 	@Shadow
-	protected abstract <T extends IParticleData> void registerFactory(ParticleType<T> particleType, ParticleManager.IParticleMetaFactory<T> spriteAwareFactory);
+	protected abstract <T extends ParticleOptions> void registerFactory(ParticleType<T> particleType, ParticleEngine.SpriteParticleRegistration<T> spriteAwareFactory);
 
 	@Shadow
-	protected abstract <T extends IParticleData> void registerFactory(ParticleType<T> type, IParticleFactory<T> factory);
+	protected abstract <T extends ParticleOptions> void registerFactory(ParticleType<T> type, ParticleProvider<T> factory);
 
 	@Override
-	public <T extends IParticleData> void create$registerFactory0(ParticleType<T> particleType, ParticleManager.IParticleMetaFactory<T> spriteAwareFactory) {
+	public <T extends ParticleOptions> void create$registerFactory0(ParticleType<T> particleType, ParticleEngine.SpriteParticleRegistration<T> spriteAwareFactory) {
 		registerFactory(particleType, spriteAwareFactory);
 	}
 
 	@Override
-	public <T extends IParticleData> void create$registerFactory1(ParticleType<T> type, IParticleFactory<T> factory) {
+	public <T extends ParticleOptions> void create$registerFactory1(ParticleType<T> type, ParticleProvider<T> factory) {
 		registerFactory(type, factory);
 	}
 

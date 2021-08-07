@@ -1,9 +1,9 @@
 package com.simibubi.create.lib.item;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 
 public interface UseFirstBehaviorItem {
-	ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context);
+	InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context);
 }

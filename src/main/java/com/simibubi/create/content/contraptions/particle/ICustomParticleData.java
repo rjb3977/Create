@@ -3,17 +3,17 @@ package com.simibubi.create.content.contraptions.particle;
 import com.mojang.serialization.Codec;
 
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.IParticleData.IDeserializer;
-import net.minecraft.particles.ParticleType;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleOptions.Deserializer;
+import net.minecraft.core.particles.ParticleType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-public interface ICustomParticleData<T extends IParticleData> {
+public interface ICustomParticleData<T extends ParticleOptions> {
 
-	IDeserializer<T> getDeserializer();
+	Deserializer<T> getDeserializer();
 
 	Codec<T> getCodec(ParticleType<T> type);
 
@@ -21,17 +21,17 @@ public interface ICustomParticleData<T extends IParticleData> {
 		return new ParticleType<T>(false, getDeserializer()) {
 
 			@Override
-			public Codec<T> getCodec() {
+			public Codec<T> codec() {
 				return ICustomParticleData.this.getCodec(this);
 			}
 		};
 	}
 
 	@Environment(EnvType.CLIENT)
-	public IParticleFactory<T> getFactory();
+	public ParticleProvider<T> getFactory();
 
 	@Environment(EnvType.CLIENT)
-	public default void register(ParticleType<T> type, ParticleManager particles) {
+	public default void register(ParticleType<T> type, ParticleEngine particles) {
 		ParticleFactoryRegistry.getInstance().register(type, getFactory());
 	}
 

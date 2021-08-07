@@ -1,16 +1,15 @@
 package com.simibubi.create.lib.mixin.accessor;
 
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.StairsBlock;
-
-@Mixin(StairsBlock.class)
+@Mixin(StairBlock.class)
 public interface StairsBlockAccessor {
 	@Invoker("<init>")
-	static StairsBlock create$init(BlockState baseBlockState, AbstractBlock.Properties properties) {
+	static StairBlock create$init(BlockState baseBlockState, BlockBehaviour.Properties properties) {
 		throw new AssertionError();
 	}
 }

@@ -1,22 +1,20 @@
 package com.simibubi.create.content.contraptions.components.crusher;
 
 import java.util.Collection;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.lib.helper.DamageSourceHelper;
-
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
 
 public class CrushingWheelTileEntity extends KineticTileEntity {
 
 	public static DamageSource damageSource = DamageSourceHelper.create$createDamageSourceWhichBypassesArmor("create.crush").setDifficultyScaled();
 
-	public CrushingWheelTileEntity(TileEntityType<? extends CrushingWheelTileEntity> type) {
+	public CrushingWheelTileEntity(BlockEntityType<? extends CrushingWheelTileEntity> type) {
 		super(type);
 		setLazyTickRate(20);
 	}
@@ -29,7 +27,7 @@ public class CrushingWheelTileEntity extends KineticTileEntity {
 
 	public void fixControllers() {
 		for (Direction d : Iterate.directions)
-			((CrushingWheelBlock) getBlockState().getBlock()).updateControllers(getBlockState(), getWorld(), getPos(),
+			((CrushingWheelBlock) getBlockState().getBlock()).updateControllers(getBlockState(), getLevel(), getBlockPos(),
 					d);
 	}
 
@@ -53,9 +51,9 @@ public class CrushingWheelTileEntity extends KineticTileEntity {
 	public static boolean handleCrushedMobDrops(DamageSource source, Collection<ItemEntity> drops) {
 		if (source != CrushingWheelTileEntity.damageSource)
 			return false;
-		Vector3d outSpeed = Vector3d.ZERO;
+		Vec3 outSpeed = Vec3.ZERO;
 		for (ItemEntity outputItem : drops) {
-			outputItem.setMotion(outSpeed);
+			outputItem.setDeltaMovement(outSpeed);
 		}
 
 		return false;

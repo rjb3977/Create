@@ -2,7 +2,15 @@ package com.simibubi.create.content.contraptions.components.millstone;
 
 import java.util.List;
 import java.util.Optional;
-
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
@@ -15,16 +23,6 @@ import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.ItemParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-
 public class MillstoneTileEntity extends KineticTileEntity {
 
 	public ItemStackHandler inputInv;
@@ -33,7 +31,7 @@ public class MillstoneTileEntity extends KineticTileEntity {
 	public int timer;
 	private MillingRecipe lastRecipe;
 
-	public MillstoneTileEntity(TileEntityType<? extends MillstoneTileEntity> type) {
+	public MillstoneTileEntity(BlockEntityType<? extends MillstoneTileEntity> type) {
 		super(type);
 		inputInv = new ItemStackHandler(1);
 		outputInv = new ItemStackHandler(9);
@@ -60,7 +58,7 @@ public class MillstoneTileEntity extends KineticTileEntity {
 		if (timer > 0) {
 			timer -= getProcessingSpeed();
 
-			if (world.isRemote) {
+			if (level.isClientSide) {
 				spawnParticles();
 				return;
 			}
@@ -74,8 +72,8 @@ public class MillstoneTileEntity extends KineticTileEntity {
 			return;
 
 		RecipeWrapper inventoryIn = new RecipeWrapper(inputInv);
-		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, world)) {
-			Optional<MillingRecipe> recipe = AllRecipeTypes.MILLING.find(inventoryIn, world);
+		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, level)) {
+			Optional<MillingRecipe> recipe = AllRecipeTypes.MILLING.find(inventoryIn, level);
 			if (!recipe.isPresent()) {
 				timer = 100;
 				sendData();
@@ -92,16 +90,16 @@ public class MillstoneTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	public void remove() {
-		super.remove();
+	public void setRemoved() {
+		super.setRemoved();
 		capability.invalidate();
 	}
 
 	private void process() {
 		RecipeWrapper inventoryIn = new RecipeWrapper(inputInv);
 
-		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, world)) {
-			Optional<MillingRecipe> recipe = AllRecipeTypes.MILLING.find(inventoryIn, world);
+		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, level)) {
+			Optional<MillingRecipe> recipe = AllRecipeTypes.MILLING.find(inventoryIn, level);
 			if (!recipe.isPresent())
 				return;
 			lastRecipe = recipe.get();
@@ -113,7 +111,7 @@ public class MillstoneTileEntity extends KineticTileEntity {
 		lastRecipe.rollResults()
 			.forEach(stack -> ItemHandlerHelper.insertItemStacked(outputInv, stack, false));
 		sendData();
-		markDirty();
+		setChanged();
 	}
 
 	public void spawnParticles() {
@@ -121,19 +119,19 @@ public class MillstoneTileEntity extends KineticTileEntity {
 		if (stackInSlot.isEmpty())
 			return;
 
-		ItemParticleData data = new ItemParticleData(ParticleTypes.ITEM, stackInSlot);
-		float angle = world.rand.nextFloat() * 360;
-		Vector3d offset = new Vector3d(0, 0, 0.5f);
+		ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, stackInSlot);
+		float angle = level.random.nextFloat() * 360;
+		Vec3 offset = new Vec3(0, 0, 0.5f);
 		offset = VecHelper.rotate(offset, angle, Axis.Y);
-		Vector3d target = VecHelper.rotate(offset, getSpeed() > 0 ? 25 : -25, Axis.Y);
+		Vec3 target = VecHelper.rotate(offset, getSpeed() > 0 ? 25 : -25, Axis.Y);
 
-		Vector3d center = offset.add(VecHelper.getCenterOf(pos));
-		target = VecHelper.offsetRandomly(target.subtract(offset), world.rand, 1 / 128f);
-		world.addParticle(data, center.x, center.y, center.z, target.x, target.y, target.z);
+		Vec3 center = offset.add(VecHelper.getCenterOf(worldPosition));
+		target = VecHelper.offsetRandomly(target.subtract(offset), level.random, 1 / 128f);
+		level.addParticle(data, center.x, center.y, center.z, target.x, target.y, target.z);
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putInt("Timer", timer);
 		compound.put("InputInventory", inputInv.serializeNBT());
 		compound.put("OutputInventory", outputInv.serializeNBT());
@@ -141,7 +139,7 @@ public class MillstoneTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		timer = compound.getInt("Timer");
 		inputInv.deserializeNBT(compound.getCompound("InputInventory"));
 		outputInv.deserializeNBT(compound.getCompound("OutputInventory"));
@@ -149,7 +147,7 @@ public class MillstoneTileEntity extends KineticTileEntity {
 	}
 
 	public int getProcessingSpeed() {
-		return MathHelper.clamp((int) Math.abs(getSpeed() / 16f), 1, 512);
+		return Mth.clamp((int) Math.abs(getSpeed() / 16f), 1, 512);
 	}
 
 //	@Override
@@ -164,9 +162,9 @@ public class MillstoneTileEntity extends KineticTileEntity {
 		tester.setStackInSlot(0, stack);
 		RecipeWrapper inventoryIn = new RecipeWrapper(tester);
 
-		if (lastRecipe != null && lastRecipe.matches(inventoryIn, world))
+		if (lastRecipe != null && lastRecipe.matches(inventoryIn, level))
 			return true;
-		return AllRecipeTypes.MILLING.find(inventoryIn, world)
+		return AllRecipeTypes.MILLING.find(inventoryIn, level)
 			.isPresent();
 	}
 

@@ -12,10 +12,9 @@ import com.simibubi.create.foundation.ponder.content.PonderPalette;
 import com.simibubi.create.foundation.ponder.elements.InputWindowElement;
 import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.utility.Pointing;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -61,7 +60,7 @@ public class FluidMovementActorScenes {
 		scene.world.rotateBearing(bearing, 360, 70);
 		scene.world.rotateSection(contraption, 0, 360, 0, 70);
 		scene.overlay.showText(60)
-			.pointAt(util.vector.topOf(bearing.up(2)))
+			.pointAt(util.vector.topOf(bearing.above(2)))
 			.colored(PonderPalette.RED)
 			.placeNearTarget()
 			.attachKeyFrame()

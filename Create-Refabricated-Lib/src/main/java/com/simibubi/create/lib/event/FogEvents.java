@@ -1,11 +1,11 @@
 package com.simibubi.create.lib.event;
 
+import com.mojang.math.Vector3f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.Camera;
 
 @Environment(EnvType.CLIENT)
 public class FogEvents {
@@ -27,11 +27,11 @@ public class FogEvents {
 
 	@FunctionalInterface
 	public interface SetDensity {
-		float setDensity(ActiveRenderInfo activeRenderInfo, float density);
+		float setDensity(Camera activeRenderInfo, float density);
 	}
 
 	@FunctionalInterface
 	public interface SetColor {
-		Vector3f setColor(ActiveRenderInfo activeRenderInfo, Vector3f color);
+		Vector3f setColor(Camera activeRenderInfo, Vector3f color);
 	}
 }

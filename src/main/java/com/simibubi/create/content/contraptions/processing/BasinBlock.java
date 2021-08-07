@@ -21,43 +21,42 @@ import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.TransferUtil;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.item.Items;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.EntitySelectionContext;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
 
-public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchable, ITileEntityProvider {
+public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchable, EntityBlock {
 
-	public static final DirectionProperty FACING = BlockStateProperties.FACING_EXCEPT_UP;
+	public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
 
 	public BasinBlock(Properties p_i48440_1_) {
 		super(p_i48440_1_);
-		setDefaultState(getDefaultState().with(FACING, Direction.DOWN));
+		registerDefaultState(defaultBlockState().setValue(FACING, Direction.DOWN));
 	}
 
 //	@Override
@@ -66,55 +65,55 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 //	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> p_206840_1_) {
-		super.fillStateContainer(p_206840_1_.add(FACING));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> p_206840_1_) {
+		super.createBlockStateDefinition(p_206840_1_.add(FACING));
 	}
 
 	@Override
-	public boolean isValidPosition(BlockState state, IWorldReader world, BlockPos pos) {
-		TileEntity tileEntity = world.getTileEntity(pos.up());
+	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+		BlockEntity tileEntity = world.getBlockEntity(pos.above());
 		if (tileEntity instanceof BasinOperatingTileEntity)
 			return false;
 		return true;
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.BASIN.create();
 	}
 
 	@Override
-	public ActionResultType onWrenched(BlockState state, ItemUseContext context) {
-		if (!context.getWorld().isRemote)
-			withTileEntityDo(context.getWorld(), context.getPos(), bte -> bte.onWrenched(context.getFace()));
-		return ActionResultType.SUCCESS;
+	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
+		if (!context.getLevel().isClientSide)
+			withTileEntityDo(context.getLevel(), context.getClickedPos(), bte -> bte.onWrenched(context.getClickedFace()));
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-		BlockRayTraceResult hit) {
-		ItemStack heldItem = player.getHeldItem(handIn);
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
+		BlockHitResult hit) {
+		ItemStack heldItem = player.getItemInHand(handIn);
 
 		return onTileEntityUse(worldIn, pos, te -> {
 			if (!heldItem.isEmpty()) {
 				if (FluidHelper.tryEmptyItemIntoTE(worldIn, player, handIn, heldItem, te))
-					return ActionResultType.SUCCESS;
+					return InteractionResult.SUCCESS;
 				if (FluidHelper.tryFillItemFromTE(worldIn, player, handIn, heldItem, te))
-					return ActionResultType.SUCCESS;
+					return InteractionResult.SUCCESS;
 
 				if (EmptyingByBasin.canItemBeEmptied(worldIn, heldItem)
 						|| GenericItemFilling.canItemBeFilled(worldIn, heldItem))
-					return ActionResultType.SUCCESS;
+					return InteractionResult.SUCCESS;
 				if (heldItem.getItem()
 					.equals(Items.SPONGE)
 					&& !TransferUtil.getFluidHandler(te)
 						.map(iFluidHandler -> iFluidHandler.drain(Integer.MAX_VALUE, Simulation.ACTION))
 						.orElse(FluidStack.EMPTY)
 						.isEmpty()) {
-					return ActionResultType.SUCCESS;
+					return InteractionResult.SUCCESS;
 
 				}
-				return ActionResultType.PASS;
+				return InteractionResult.PASS;
 			}
 
 			IItemHandlerModifiable inv = te.itemCapability.orElse(new ItemStackHandler(1));
@@ -128,24 +127,24 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 				success = true;
 			}
 			if (success)
-				worldIn.playSound(null, pos, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, .2f,
+				worldIn.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f,
 						1f + Create.RANDOM.nextFloat());
 			te.onEmptied();
-			return ActionResultType.SUCCESS;
+			return InteractionResult.SUCCESS;
 		});
 	}
 
 	@Override
-	public void onLanded(IBlockReader worldIn, Entity entityIn) {
-		super.onLanded(worldIn, entityIn);
-		if (!AllBlocks.BASIN.has(worldIn.getBlockState(entityIn.getBlockPos())))
+	public void updateEntityAfterFallOn(BlockGetter worldIn, Entity entityIn) {
+		super.updateEntityAfterFallOn(worldIn, entityIn);
+		if (!AllBlocks.BASIN.has(worldIn.getBlockState(entityIn.blockPosition())))
 			return;
 		if (!(entityIn instanceof ItemEntity))
 			return;
 		if (!entityIn.isAlive())
 			return;
 		ItemEntity itemEntity = (ItemEntity) entityIn;
-		withTileEntityDo(worldIn, entityIn.getBlockPos(), te -> {
+		withTileEntityDo(worldIn, entityIn.blockPosition(), te -> {
 
 			// Tossed items bypass the quarter-stack limit
 			te.inputInventory.withMaxStackSize(64);
@@ -155,9 +154,9 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 
 			if (insertItem.isEmpty()) {
 				itemEntity.remove();
-				if (!itemEntity.world.isRemote)
-					AllTriggers.triggerForNearbyPlayers(AllTriggers.BASIN_THROW, itemEntity.world,
-						itemEntity.getBlockPos(), 3);
+				if (!itemEntity.level.isClientSide)
+					AllTriggers.triggerForNearbyPlayers(AllTriggers.BASIN_THROW, itemEntity.level,
+						itemEntity.blockPosition(), 3);
 				return;
 			}
 
@@ -166,44 +165,44 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 	}
 
 	@Override
-	public VoxelShape getRaytraceShape(BlockState p_199600_1_, IBlockReader p_199600_2_, BlockPos p_199600_3_) {
+	public VoxelShape getInteractionShape(BlockState p_199600_1_, BlockGetter p_199600_2_, BlockPos p_199600_3_) {
 		return AllShapes.BASIN_RAYTRACE_SHAPE;
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
 		return AllShapes.BASIN_BLOCK_SHAPE;
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext ctx) {
-		if (ctx instanceof EntitySelectionContext) {
-			if (((EntitySelectionContextExtensions) ((EntitySelectionContext) ctx)).create$getCachedEntity() instanceof ItemEntity)
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext ctx) {
+		if (ctx instanceof EntityCollisionContext) {
+			if (((EntitySelectionContextExtensions) ((EntityCollisionContext) ctx)).create$getCachedEntity() instanceof ItemEntity)
 				return AllShapes.BASIN_COLLISION_SHAPE;
 		}
 		return getShape(state, reader, pos, ctx);
 	}
 
 	@Override
-	public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!state.getBlock().hasBlockEntity() || state.getBlock() == newState.getBlock())
+	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+		if (!state.getBlock().isEntityBlock() || state.getBlock() == newState.getBlock())
 			return;
 		TileEntityBehaviour.destroy(worldIn, pos, FilteringBehaviour.TYPE);
 		withTileEntityDo(worldIn, pos, te -> {
 			ItemHelper.dropContents(worldIn, pos, te.inputInventory);
 			ItemHelper.dropContents(worldIn, pos, te.outputInventory);
-			te.spoutputBuffer.forEach(is -> Block.spawnAsEntity(worldIn, pos, is));
+			te.spoutputBuffer.forEach(is -> Block.popResource(worldIn, pos, is));
 		});
-		worldIn.removeTileEntity(pos);
+		worldIn.removeBlockEntity(pos);
 	}
 
 	@Override
-	public boolean hasComparatorInputOverride(BlockState state) {
+	public boolean hasAnalogOutputSignal(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getComparatorInputOverride(BlockState blockState, World worldIn, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos) {
 		return getTileEntityOptional(worldIn, pos).map(BasinTileEntity::getInputInventory)
 			.map(ItemHelper::calcRedstoneFromInventory)
 			.orElse(0);
@@ -214,9 +213,9 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 		return BasinTileEntity.class;
 	}
 
-	public static boolean canOutputTo(IBlockReader world, BlockPos basinPos, Direction direction) {
-		BlockPos neighbour = basinPos.offset(direction);
-		BlockPos output = neighbour.down();
+	public static boolean canOutputTo(BlockGetter world, BlockPos basinPos, Direction direction) {
+		BlockPos neighbour = basinPos.relative(direction);
+		BlockPos output = neighbour.below();
 		BlockState blockState = world.getBlockState(neighbour);
 
 		if (FunnelBlock.isFunnel(blockState)) {
@@ -226,7 +225,7 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 			.isEmpty()) {
 			return false;
 		} else {
-			TileEntity tileEntity = world.getTileEntity(output);
+			BlockEntity tileEntity = world.getBlockEntity(output);
 			if (tileEntity instanceof BeltTileEntity) {
 				BeltTileEntity belt = (BeltTileEntity) tileEntity;
 				return belt.getSpeed() == 0 || belt.getMovementFacing() != direction.getOpposite();
@@ -241,7 +240,7 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

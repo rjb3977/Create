@@ -30,10 +30,10 @@ import com.simibubi.create.lib.utility.MinecartController;
 import com.tterrag.registrate.util.NonNullLazyValue;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeGenerationSettings;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
 
 public class Create implements ModInitializer {
 
@@ -47,8 +47,8 @@ public class Create implements ModInitializer {
 		.disableHtmlEscaping()
 		.create();
 
-	public static final ItemGroup BASE_CREATIVE_TAB = new CreateItemGroup();
-	public static final ItemGroup PALETTES_CREATIVE_TAB = new PalettesItemGroup();
+	public static final CreativeModeTab BASE_CREATIVE_TAB = new CreateItemGroup();
+	public static final CreativeModeTab PALETTES_CREATIVE_TAB = new PalettesItemGroup();
 
 	public static final ServerSchematicLoader SCHEMATIC_RECEIVER = new ServerSchematicLoader();
 	public static final RedstoneLinkNetworkHandler REDSTONE_LINK_NETWORK_HANDLER = new RedstoneLinkNetworkHandler();
@@ -136,7 +136,7 @@ public class Create implements ModInitializer {
 //		ProcessingRecipeGen.registerAll(gen);
 //	}
 
-	public static BiomeGenerationSettings.Builder onBiomeLoad(ResourceLocation key, Biome.Category category, BiomeGenerationSettings.Builder generation) {
+	public static BiomeGenerationSettings.Builder onBiomeLoad(ResourceLocation key, Biome.BiomeCategory category, BiomeGenerationSettings.Builder generation) {
 		return AllWorldFeatures.reload(key, category, generation);
 	}
 

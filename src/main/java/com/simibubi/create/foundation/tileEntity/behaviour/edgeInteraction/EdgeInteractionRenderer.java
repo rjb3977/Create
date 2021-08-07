@@ -9,33 +9,33 @@ import com.simibubi.create.foundation.tileEntity.behaviour.ValueBox;
 import com.simibubi.create.foundation.utility.VecHelper;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class EdgeInteractionRenderer {
 
 	public static void tick() {
 		Minecraft mc = Minecraft.getInstance();
-		RayTraceResult target = mc.objectMouseOver;
-		if (target == null || !(target instanceof BlockRayTraceResult))
+		HitResult target = mc.hitResult;
+		if (target == null || !(target instanceof BlockHitResult))
 			return;
 
-		BlockRayTraceResult result = (BlockRayTraceResult) target;
-		ClientWorld world = mc.world;
-		BlockPos pos = result.getPos();
-		PlayerEntity player = mc.player;
-		ItemStack heldItem = player.getHeldItemMainhand();
+		BlockHitResult result = (BlockHitResult) target;
+		ClientLevel world = mc.level;
+		BlockPos pos = result.getBlockPos();
+		Player player = mc.player;
+		ItemStack heldItem = player.getMainHandItem();
 
-		if (player.isSneaking())
+		if (player.isShiftKeyDown())
 			return;
 		EdgeInteractionBehaviour behaviour = TileEntityBehaviour.get(world, pos, EdgeInteractionBehaviour.TYPE);
 		if (behaviour == null)
@@ -43,16 +43,16 @@ public class EdgeInteractionRenderer {
 		if (behaviour.requiredItem.orElse(heldItem.getItem()) != heldItem.getItem())
 			return;
 
-		Direction face = result.getFace();
+		Direction face = result.getDirection();
 		List<Direction> connectiveSides = EdgeInteractionHandler.getConnectiveSides(world, pos, face, behaviour);
 		if (connectiveSides.isEmpty())
 			return;
 
 		Direction closestEdge = connectiveSides.get(0);
 		double bestDistance = Double.MAX_VALUE;
-		Vector3d center = VecHelper.getCenterOf(pos);
+		Vec3 center = VecHelper.getCenterOf(pos);
 		for (Direction direction : connectiveSides) {
-			double distance = Vector3d.of(direction.getDirectionVec()).subtract(target.getHitVec()
+			double distance = Vec3.atLowerCornerOf(direction.getNormal()).subtract(target.getLocation()
 				.subtract(center))
 				.length();
 			if (distance > bestDistance)
@@ -61,11 +61,11 @@ public class EdgeInteractionRenderer {
 			closestEdge = direction;
 		}
 
-		AxisAlignedBB bb = EdgeInteractionHandler.getBB(pos, closestEdge);
-		boolean hit = bb.contains(target.getHitVec());
+		AABB bb = EdgeInteractionHandler.getBB(pos, closestEdge);
+		boolean hit = bb.contains(target.getLocation());
 
-		ValueBox box = new ValueBox(StringTextComponent.EMPTY, bb.offset(-pos.getX(), -pos.getY(), -pos.getZ()), pos);
-		Vector3d textOffset = Vector3d.ZERO;
+		ValueBox box = new ValueBox(TextComponent.EMPTY, bb.move(-pos.getX(), -pos.getY(), -pos.getZ()), pos);
+		Vec3 textOffset = Vec3.ZERO;
 
 		boolean positive = closestEdge.getAxisDirection() == AxisDirection.POSITIVE;
 		if (positive) {

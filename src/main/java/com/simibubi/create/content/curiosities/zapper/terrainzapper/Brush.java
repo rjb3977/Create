@@ -1,14 +1,12 @@
 package com.simibubi.create.content.curiosities.zapper.terrainzapper;
 
 import java.util.Collection;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.IWorld;
 
 public abstract class Brush {
 
@@ -51,7 +49,7 @@ public abstract class Brush {
 		return 0;
 	}
 
-	ITextComponent getParamLabel(int paramIndex) {
+	Component getParamLabel(int paramIndex) {
 		return Lang
 			.translate(paramIndex == 0 ? "generic.width" : paramIndex == 1 ? "generic.height" : "generic.length");
 	}
@@ -60,11 +58,11 @@ public abstract class Brush {
 		return paramIndex == 0 ? param0 : paramIndex == 1 ? param1 : param2;
 	}
 
-	public BlockPos getOffset(Vector3d ray, Direction face, PlacementOptions option) {
+	public BlockPos getOffset(Vec3 ray, Direction face, PlacementOptions option) {
 		return BlockPos.ZERO;
 	}
 
-	public abstract Collection<BlockPos> addToGlobalPositions(IWorld world, BlockPos targetPos, Direction targetFace,
+	public abstract Collection<BlockPos> addToGlobalPositions(LevelAccessor world, BlockPos targetPos, Direction targetFace,
 		Collection<BlockPos> affectedPositions, TerrainTools usedTool);
 
 }

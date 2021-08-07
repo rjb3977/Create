@@ -6,46 +6,45 @@ import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public class CubeParticle extends Particle {
 
-	public static final Vector3d[] CUBE = {
+	public static final Vec3[] CUBE = {
 		// TOP
-		new Vector3d(1, 1, -1), new Vector3d(1, 1, 1), new Vector3d(-1, 1, 1), new Vector3d(-1, 1, -1),
+		new Vec3(1, 1, -1), new Vec3(1, 1, 1), new Vec3(-1, 1, 1), new Vec3(-1, 1, -1),
 
 		// BOTTOM
-		new Vector3d(-1, -1, -1), new Vector3d(-1, -1, 1), new Vector3d(1, -1, 1), new Vector3d(1, -1, -1),
+		new Vec3(-1, -1, -1), new Vec3(-1, -1, 1), new Vec3(1, -1, 1), new Vec3(1, -1, -1),
 
 		// FRONT
-		new Vector3d(-1, -1, 1), new Vector3d(-1, 1, 1), new Vector3d(1, 1, 1), new Vector3d(1, -1, 1),
+		new Vec3(-1, -1, 1), new Vec3(-1, 1, 1), new Vec3(1, 1, 1), new Vec3(1, -1, 1),
 
 		// BACK
-		new Vector3d(1, -1, -1), new Vector3d(1, 1, -1), new Vector3d(-1, 1, -1), new Vector3d(-1, -1, -1),
+		new Vec3(1, -1, -1), new Vec3(1, 1, -1), new Vec3(-1, 1, -1), new Vec3(-1, -1, -1),
 
 		// LEFT
-		new Vector3d(-1, -1, -1), new Vector3d(-1, 1, -1), new Vector3d(-1, 1, 1), new Vector3d(-1, -1, 1),
+		new Vec3(-1, -1, -1), new Vec3(-1, 1, -1), new Vec3(-1, 1, 1), new Vec3(-1, -1, 1),
 
 		// RIGHT
-		new Vector3d(1, -1, 1), new Vector3d(1, 1, 1), new Vector3d(1, 1, -1), new Vector3d(1, -1, -1) };
+		new Vec3(1, -1, 1), new Vec3(1, 1, 1), new Vec3(1, 1, -1), new Vec3(1, -1, -1) };
 
-	public static final Vector3d[] CUBE_NORMALS = {
+	public static final Vec3[] CUBE_NORMALS = {
 		// modified normals for the sides
-		new Vector3d(0, 1, 0), new Vector3d(0, -1, 0), new Vector3d(0, 0, 1), new Vector3d(0, 0, 1), new Vector3d(0, 0, 1),
-		new Vector3d(0, 0, 1),
+		new Vec3(0, 1, 0), new Vec3(0, -1, 0), new Vec3(0, 0, 1), new Vec3(0, 0, 1), new Vec3(0, 0, 1),
+		new Vec3(0, 0, 1),
 
 		/*
 		 * new Vector3d(0, 1, 0), new Vector3d(0, -1, 0), new Vector3d(0, 0, 1), new Vector3d(0, 0,
@@ -53,9 +52,9 @@ public class CubeParticle extends Particle {
 		 */
 	};
 
-	private static final IParticleRenderType renderType = new IParticleRenderType() {
+	private static final ParticleRenderType renderType = new ParticleRenderType() {
 		@Override
-		public void beginRender(BufferBuilder builder, TextureManager textureManager) {
+		public void begin(BufferBuilder builder, TextureManager textureManager) {
 			RenderSystem.disableTexture();
 
 			// transparent, additive blending
@@ -70,12 +69,12 @@ public class CubeParticle extends Particle {
 //			RenderSystem.disableBlend();
 //			RenderSystem.enableLighting();
 
-			builder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+			builder.begin(GL11.GL_QUADS, DefaultVertexFormat.BLOCK);
 		}
 
 		@Override
-		public void finishRender(Tessellator tessellator) {
-			tessellator.draw();
+		public void end(Tesselator tessellator) {
+			tessellator.end();
 			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 			RenderSystem.disableLighting();
@@ -86,11 +85,11 @@ public class CubeParticle extends Particle {
 	protected float scale;
 	protected boolean hot;
 
-	public CubeParticle(ClientWorld world, double x, double y, double z, double motionX, double motionY, double motionZ) {
+	public CubeParticle(ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ) {
 		super(world, x, y, z);
-		this.motionX = motionX;
-		this.motionY = motionY;
-		this.motionZ = motionZ;
+		this.xd = motionX;
+		this.yd = motionY;
+		this.zd = motionZ;
 
 		setScale(0.2F);
 	}
@@ -101,7 +100,7 @@ public class CubeParticle extends Particle {
 	}
 
 	public void averageAge(int age) {
-		this.maxAge = (int) (age + (rand.nextDouble() * 2D - 1D) * 8);
+		this.lifetime = (int) (age + (random.nextDouble() * 2D - 1D) * 8);
 	}
 
 	public void setHot(boolean hot) {
@@ -113,49 +112,49 @@ public class CubeParticle extends Particle {
 	@Override
 	public void tick() {
 		if (this.hot && this.age > 0) {
-			if (this.prevPosY == this.posY) {
+			if (this.yo == this.y) {
 				billowing = true;
 				ParticleHelper.setField_21507(this, false); // Prevent motion being ignored due to vertical collision
-				if (this.motionX == 0 && this.motionZ == 0) {
-					Vector3d diff = Vector3d.of(new BlockPos(posX, posY, posZ)).add(0.5, 0.5, 0.5).subtract(posX, posY, posZ);
-					this.motionX = -diff.x * 0.1;
-					this.motionZ = -diff.z * 0.1;
+				if (this.xd == 0 && this.zd == 0) {
+					Vec3 diff = Vec3.atLowerCornerOf(new BlockPos(x, y, z)).add(0.5, 0.5, 0.5).subtract(x, y, z);
+					this.xd = -diff.x * 0.1;
+					this.zd = -diff.z * 0.1;
 				}
-				this.motionX *= 1.1;
-				this.motionY *= 0.9;
-				this.motionZ *= 1.1;
+				this.xd *= 1.1;
+				this.yd *= 0.9;
+				this.zd *= 1.1;
 			} else if (billowing) {
-				this.motionY *= 1.2;
+				this.yd *= 1.2;
 			}
 		}
 		super.tick();
 	}
 
 	@Override
-	public void buildGeometry(IVertexBuilder builder, ActiveRenderInfo renderInfo, float p_225606_3_) {
-		Vector3d projectedView = renderInfo.getProjectedView();
-		float lerpedX = (float) (MathHelper.lerp(p_225606_3_, this.prevPosX, this.posX) - projectedView.getX());
-		float lerpedY = (float) (MathHelper.lerp(p_225606_3_, this.prevPosY, this.posY) - projectedView.getY());
-		float lerpedZ = (float) (MathHelper.lerp(p_225606_3_, this.prevPosZ, this.posZ) - projectedView.getZ());
+	public void render(VertexConsumer builder, Camera renderInfo, float p_225606_3_) {
+		Vec3 projectedView = renderInfo.getPosition();
+		float lerpedX = (float) (Mth.lerp(p_225606_3_, this.xo, this.x) - projectedView.x());
+		float lerpedY = (float) (Mth.lerp(p_225606_3_, this.yo, this.y) - projectedView.y());
+		float lerpedZ = (float) (Mth.lerp(p_225606_3_, this.zo, this.z) - projectedView.z());
 
 		// int light = getBrightnessForRender(p_225606_3_);
 		int light = 15728880;// 15<<20 && 15<<4
-		double ageMultiplier = 1 - Math.pow(age, 3) / Math.pow(maxAge, 3);
+		double ageMultiplier = 1 - Math.pow(age, 3) / Math.pow(lifetime, 3);
 
 		for (int i = 0; i < 6; i++) {
 			// 6 faces to a cube
 			for (int j = 0; j < 4; j++) {
-				Vector3d vec = CUBE[i * 4 + j];
+				Vec3 vec = CUBE[i * 4 + j];
 				vec = vec
 					/* .rotate(?) */
 					.scale(scale * ageMultiplier)
 					.add(lerpedX, lerpedY, lerpedZ);
 
-				Vector3d normal = CUBE_NORMALS[i];
+				Vec3 normal = CUBE_NORMALS[i];
 				builder.vertex(vec.x, vec.y, vec.z)
-					.color(particleRed, particleGreen, particleBlue, particleAlpha)
-					.texture(0, 0)
-					.light(light)
+					.color(rCol, gCol, bCol, alpha)
+					.uv(0, 0)
+					.uv2(light)
 					.normal((float) normal.x, (float) normal.y, (float) normal.z)
 					.endVertex();
 			}
@@ -163,16 +162,16 @@ public class CubeParticle extends Particle {
 	}
 
 	@Override
-	public IParticleRenderType getRenderType() {
+	public ParticleRenderType getRenderType() {
 		return renderType;
 	}
 
-	public static class Factory implements IParticleFactory<CubeParticleData> {
+	public static class Factory implements ParticleProvider<CubeParticleData> {
 
 		public Factory() {}
 
 		@Override
-		public Particle makeParticle(CubeParticleData data, ClientWorld world, double x, double y, double z, double motionX,
+		public Particle makeParticle(CubeParticleData data, ClientLevel world, double x, double y, double z, double motionX,
 			double motionY, double motionZ) {
 			CubeParticle particle = new CubeParticle(world, x, y, z, motionX, motionY, motionZ);
 			particle.setColor(data.r, data.g, data.b);

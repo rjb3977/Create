@@ -1,7 +1,37 @@
 package com.simibubi.create.content.curiosities.armor;
 
 import java.util.Optional;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
@@ -9,78 +39,46 @@ import com.simibubi.create.content.contraptions.base.HorizontalKineticBlock;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.lib.helper.FakePlayerHelper;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-
 public class CopperBacktankBlock extends HorizontalKineticBlock
-	implements ITE<CopperBacktankTileEntity>, IWaterLoggable {
+	implements ITE<CopperBacktankTileEntity>, SimpleWaterloggedBlock {
 
 	public CopperBacktankBlock(Properties properties) {
 		super(properties);
-		setDefaultState(super.getDefaultState().with(BlockStateProperties.WATERLOGGED, false));
+		registerDefaultState(super.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, false));
 	}
 
 	@Override
 	public FluidState getFluidState(BlockState state) {
-		return state.get(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getStillFluidState(false)
-			: Fluids.EMPTY.getDefaultState();
+		return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false)
+			: Fluids.EMPTY.defaultFluidState();
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
 		builder.add(BlockStateProperties.WATERLOGGED);
-		super.fillStateContainer(builder);
+		super.createBlockStateDefinition(builder);
 	}
 
 	@Override
-	public BlockState updatePostPlacement(BlockState state, Direction direction, BlockState neighbourState,
-		IWorld world, BlockPos pos, BlockPos neighbourPos) {
-		if (state.get(BlockStateProperties.WATERLOGGED)) {
-			world.getPendingFluidTicks()
-				.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState,
+		LevelAccessor world, BlockPos pos, BlockPos neighbourPos) {
+		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
+			world.getLiquidTicks()
+				.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
 		}
 		return state;
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		FluidState ifluidstate = context.getWorld()
-			.getFluidState(context.getPos());
-		return super.getStateForPlacement(context).with(BlockStateProperties.WATERLOGGED,
-			Boolean.valueOf(ifluidstate.getFluid() == Fluids.WATER));
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		FluidState ifluidstate = context.getLevel()
+			.getFluidState(context.getClickedPos());
+		return super.getStateForPlacement(context).setValue(BlockStateProperties.WATERLOGGED,
+			Boolean.valueOf(ifluidstate.getType() == Fluids.WATER));
 	}
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
 		return face == Direction.UP;
 	}
 
@@ -90,66 +88,66 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 	}
 
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-		super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-		if (worldIn.isRemote)
+	public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+		super.setPlacedBy(worldIn, pos, state, placer, stack);
+		if (worldIn.isClientSide)
 			return;
 		if (stack == null)
 			return;
 		withTileEntityDo(worldIn, pos, te -> {
 			te.setAirLevel(stack.getOrCreateTag()
 				.getInt("Air"));
-			if (stack.hasDisplayName())
-				te.setCustomName(stack.getDisplayName());
+			if (stack.hasCustomHoverName())
+				te.setCustomName(stack.getHoverName());
 		});
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand p_225533_5_,
-		BlockRayTraceResult p_225533_6_) {
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand p_225533_5_,
+		BlockHitResult p_225533_6_) {
 		if (player == null)
-			return ActionResultType.PASS;
-		if (FakePlayerHelper.isFakePlayer((ServerPlayerEntity) player))
-			return ActionResultType.PASS;
-		if (player.isSneaking())
-			return ActionResultType.PASS;
-		if (player.getHeldItemMainhand()
+			return InteractionResult.PASS;
+		if (FakePlayerHelper.isFakePlayer((ServerPlayer) player))
+			return InteractionResult.PASS;
+		if (player.isShiftKeyDown())
+			return InteractionResult.PASS;
+		if (player.getMainHandItem()
 			.getItem() instanceof BlockItem)
-			return ActionResultType.PASS;
-		if (!player.getItemStackFromSlot(EquipmentSlotType.CHEST)
+			return InteractionResult.PASS;
+		if (!player.getItemBySlot(EquipmentSlot.CHEST)
 			.isEmpty())
-			return ActionResultType.PASS;
-		if (!world.isRemote) {
-			world.playSound(null, pos, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, .75f, 1);
-			player.setItemStackToSlot(EquipmentSlotType.CHEST, getItem(world, pos, state));
+			return InteractionResult.PASS;
+		if (!world.isClientSide) {
+			world.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .75f, 1);
+			player.setItemSlot(EquipmentSlot.CHEST, getCloneItemStack(world, pos, state));
 			world.destroyBlock(pos, false);
 		}
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public ItemStack getItem(IBlockReader p_185473_1_, BlockPos p_185473_2_, BlockState p_185473_3_) {
+	public ItemStack getCloneItemStack(BlockGetter p_185473_1_, BlockPos p_185473_2_, BlockState p_185473_3_) {
 		ItemStack item = AllItems.COPPER_BACKTANK.asStack();
 		Optional<CopperBacktankTileEntity> tileEntityOptional = getTileEntityOptional(p_185473_1_, p_185473_2_);
 		int air = tileEntityOptional.map(CopperBacktankTileEntity::getAirLevel)
 			.orElse(0);
-		ITextComponent customName = tileEntityOptional.map(CopperBacktankTileEntity::getCustomName)
+		Component customName = tileEntityOptional.map(CopperBacktankTileEntity::getCustomName)
 			.orElse(null);
 		item.getOrCreateTag()
 			.putInt("Air", air);
 		if (customName != null)
-			item.setDisplayName(customName);
+			item.setHoverName(customName);
 		return item;
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_,
-		ISelectionContext p_220053_4_) {
+	public VoxelShape getShape(BlockState p_220053_1_, BlockGetter p_220053_2_, BlockPos p_220053_3_,
+		CollisionContext p_220053_4_) {
 		return AllShapes.BACKTANK;
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.COPPER_BACKTANK.create();
 	}
 
@@ -159,7 +157,7 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

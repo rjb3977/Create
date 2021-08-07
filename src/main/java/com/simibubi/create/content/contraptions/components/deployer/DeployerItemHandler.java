@@ -1,13 +1,11 @@
 package com.simibubi.create.content.contraptions.components.deployer;
 
 import java.util.Iterator;
-
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
 
 public class DeployerItemHandler implements IItemHandlerModifiable {
 
@@ -32,16 +30,16 @@ public class DeployerItemHandler implements IItemHandlerModifiable {
 	public ItemStack getHeld() {
 		if (player == null)
 			return ItemStack.EMPTY;
-		return player.getHeldItemMainhand();
+		return player.getMainHandItem();
 	}
 
 	public void set(ItemStack stack) {
 		if (player == null)
 			return;
-		if (te.getWorld().isRemote)
+		if (te.getLevel().isClientSide)
 			return;
-		player.setHeldItem(Hand.MAIN_HAND, stack);
-		te.markDirty();
+		player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+		te.setChanged();
 		te.sendData();
 	}
 
@@ -119,7 +117,7 @@ public class DeployerItemHandler implements IItemHandlerModifiable {
 				.split(amount);
 
 		ItemStack toReturn = held.split(amount);
-		te.markDirty();
+		te.setChanged();
 		te.sendData();
 		return toReturn;
 	}

@@ -3,18 +3,16 @@ package com.simibubi.create.content.curiosities.tools;
 import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.content.curiosities.tools.SandPaperPolishingRecipe.SandPaperInv;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 
 @ParametersAreNonnullByDefault
 public class SandPaperPolishingRecipe extends ProcessingRecipe<SandPaperInv> {
@@ -24,7 +22,7 @@ public class SandPaperPolishingRecipe extends ProcessingRecipe<SandPaperInv> {
 	}
 
 	@Override
-	public boolean matches(SandPaperInv inv, World worldIn) {
+	public boolean matches(SandPaperInv inv, Level worldIn) {
 		return ingredients.get(0)
 			.test(inv.getStackInSlot(0));
 	}
@@ -39,22 +37,22 @@ public class SandPaperPolishingRecipe extends ProcessingRecipe<SandPaperInv> {
 		return 1;
 	}
 
-	public static boolean canPolish(World world, ItemStack stack) {
+	public static boolean canPolish(Level world, ItemStack stack) {
 		return !getMatchingRecipes(world, stack).isEmpty();
 	}
 
-	public static ItemStack applyPolish(World world, Vector3d position, ItemStack stack, ItemStack sandPaperStack) {
-		List<IRecipe<SandPaperInv>> matchingRecipes = getMatchingRecipes(world, stack);
+	public static ItemStack applyPolish(Level world, Vec3 position, ItemStack stack, ItemStack sandPaperStack) {
+		List<Recipe<SandPaperInv>> matchingRecipes = getMatchingRecipes(world, stack);
 		if (!matchingRecipes.isEmpty())
 			return matchingRecipes.get(0)
-				.getCraftingResult(new SandPaperInv(stack))
+				.assemble(new SandPaperInv(stack))
 				.copy();
 		return stack;
 	}
 
-	public static List<IRecipe<SandPaperInv>> getMatchingRecipes(World world, ItemStack stack) {
+	public static List<Recipe<SandPaperInv>> getMatchingRecipes(Level world, ItemStack stack) {
 		return world.getRecipeManager()
-			.getRecipes(AllRecipeTypes.SANDPAPER_POLISHING.getType(), new SandPaperInv(stack), world);
+			.getRecipesFor(AllRecipeTypes.SANDPAPER_POLISHING.getType(), new SandPaperInv(stack), world);
 	}
 
 	public static class SandPaperInv extends RecipeWrapper {

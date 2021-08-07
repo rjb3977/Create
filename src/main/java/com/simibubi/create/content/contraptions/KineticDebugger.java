@@ -7,20 +7,19 @@ import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.utility.ColorHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class KineticDebugger {
 
@@ -37,23 +36,23 @@ public class KineticDebugger {
 		if (te == null)
 			return;
 
-		World world = Minecraft.getInstance().world;
-		BlockPos toOutline = te.hasSource() ? te.source : te.getPos();
+		Level world = Minecraft.getInstance().level;
+		BlockPos toOutline = te.hasSource() ? te.source : te.getBlockPos();
 		BlockState state = te.getBlockState();
 		VoxelShape shape = world.getBlockState(toOutline)
-			.getRenderShape(world, toOutline);
+			.getBlockSupportShape(world, toOutline);
 
 		if (te.getTheoreticalSpeed() != 0 && !shape.isEmpty())
-			CreateClient.OUTLINER.chaseAABB("kineticSource", shape.getBoundingBox()
-					.offset(toOutline))
+			CreateClient.OUTLINER.chaseAABB("kineticSource", shape.bounds()
+					.move(toOutline))
 					.lineWidth(1 / 16f)
 					.colored(te.hasSource() ? ColorHelper.colorFromLong(te.network) : 0xffcc00);
 
 		if (state.getBlock() instanceof IRotate) {
 			Axis axis = ((IRotate) state.getBlock()).getRotationAxis(state);
-			Vector3d vec = Vector3d.of(Direction.getFacingFromAxis(AxisDirection.POSITIVE, axis)
-					.getDirectionVec());
-			Vector3d center = VecHelper.getCenterOf(te.getPos());
+			Vec3 vec = Vec3.atLowerCornerOf(Direction.get(AxisDirection.POSITIVE, axis)
+					.getNormal());
+			Vec3 center = VecHelper.getCenterOf(te.getBlockPos());
 			CreateClient.OUTLINER.showLine("rotationAxis", center.add(vec), center.subtract(vec))
 					.lineWidth(1 / 16f);
 		}
@@ -61,21 +60,21 @@ public class KineticDebugger {
 	}
 
 	public static boolean isActive() {
-		return Minecraft.getInstance().gameSettings.showDebugInfo && AllConfigs.CLIENT.rainbowDebug.get();
+		return Minecraft.getInstance().options.renderDebug && AllConfigs.CLIENT.rainbowDebug.get();
 	}
 
 	public static KineticTileEntity getSelectedTE() {
-		RayTraceResult obj = Minecraft.getInstance().objectMouseOver;
-		ClientWorld world = Minecraft.getInstance().world;
+		HitResult obj = Minecraft.getInstance().hitResult;
+		ClientLevel world = Minecraft.getInstance().level;
 		if (obj == null)
 			return null;
 		if (world == null)
 			return null;
-		if (!(obj instanceof BlockRayTraceResult))
+		if (!(obj instanceof BlockHitResult))
 			return null;
 
-		BlockRayTraceResult ray = (BlockRayTraceResult) obj;
-		TileEntity te = world.getTileEntity(ray.getPos());
+		BlockHitResult ray = (BlockHitResult) obj;
+		BlockEntity te = world.getBlockEntity(ray.getBlockPos());
 		if (!(te instanceof KineticTileEntity))
 			return null;
 

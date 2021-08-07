@@ -11,32 +11,32 @@ import com.simibubi.create.lib.item.UseFirstBehaviorItem;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.multiplayer.PlayerController;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.phys.BlockHitResult;
 
 @Environment(EnvType.CLIENT)
-@Mixin(PlayerController.class)
+@Mixin(MultiPlayerGameMode.class)
 public abstract class PlayerControllerMixin {
 	@Final
 	@Shadow
-	private ClientPlayNetHandler connection;
+	private ClientPacketListener connection;
 
 	@Inject(at = @At("HEAD"),
 			method = "func_217292_a(Lnet/minecraft/client/entity/player/ClientPlayerEntity;Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/util/Hand;Lnet/minecraft/util/math/BlockRayTraceResult;)Lnet/minecraft/util/ActionResultType;",
 			cancellable = true)
-	public void create$func_217292_a(ClientPlayerEntity clientPlayerEntity, ClientWorld clientWorld, Hand hand, BlockRayTraceResult blockRayTraceResult, CallbackInfoReturnable<ActionResultType> cir) {
-		if (clientPlayerEntity.getHeldItem(hand).getItem() instanceof UseFirstBehaviorItem) {
-			ItemUseContext create$itemUseContext = new ItemUseContext(clientPlayerEntity, hand, blockRayTraceResult);
-			ActionResultType create$result = ((UseFirstBehaviorItem) clientPlayerEntity.getHeldItem(hand).getItem()).onItemUseFirst(clientPlayerEntity.getHeldItem(hand), create$itemUseContext);
-			if (create$result != ActionResultType.PASS) {
-				this.connection.sendPacket(new CPlayerTryUseItemOnBlockPacket(hand, blockRayTraceResult));
+	public void create$func_217292_a(LocalPlayer clientPlayerEntity, ClientLevel clientWorld, InteractionHand hand, BlockHitResult blockRayTraceResult, CallbackInfoReturnable<InteractionResult> cir) {
+		if (clientPlayerEntity.getItemInHand(hand).getItem() instanceof UseFirstBehaviorItem) {
+			UseOnContext create$itemUseContext = new UseOnContext(clientPlayerEntity, hand, blockRayTraceResult);
+			InteractionResult create$result = ((UseFirstBehaviorItem) clientPlayerEntity.getItemInHand(hand).getItem()).onItemUseFirst(clientPlayerEntity.getItemInHand(hand), create$itemUseContext);
+			if (create$result != InteractionResult.PASS) {
+				this.connection.send(new ServerboundUseItemOnPacket(hand, blockRayTraceResult));
 				cir.setReturnValue(create$result);
 			}
 		}

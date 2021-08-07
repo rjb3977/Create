@@ -10,17 +10,17 @@ import org.apache.logging.log4j.Logger;
 import com.simibubi.create.lib.helper.ChunkManagerHelper;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.server.ChunkHolder;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 public class ChunkUtil {
 	private static final Logger LOGGER = LogManager.getLogger("Create/ChunkUtil");
-	public final EnumSet<Heightmap.Type> POST_FEATURES = EnumSet.of(Heightmap.Type.OCEAN_FLOOR, Heightmap.Type.WORLD_SURFACE,
-		Heightmap.Type.MOTION_BLOCKING, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES);
+	public final EnumSet<Heightmap.Types> POST_FEATURES = EnumSet.of(Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE,
+		Heightmap.Types.MOTION_BLOCKING, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
 
 	public final List<Long> markedChunks;
 	private final List<Long> interestingChunks;
@@ -52,26 +52,26 @@ public class ChunkUtil {
 		ServerChunkEvents.CHUNK_UNLOAD.register(this::chunkUnload);
 	}
 
-	public boolean reloadChunk(ServerChunkProvider provider, ChunkPos pos) {
-		ChunkHolder holder = ChunkManagerHelper.getLoadedChunks(provider.chunkManager).remove(pos.asLong());
-		ChunkManagerHelper.setImmutableLoadedChunksDirty(provider.chunkManager, true);
+	public boolean reloadChunk(ServerChunkCache provider, ChunkPos pos) {
+		ChunkHolder holder = ChunkManagerHelper.getLoadedChunks(provider.chunkMap).remove(pos.toLong());
+		ChunkManagerHelper.setImmutableLoadedChunksDirty(provider.chunkMap, true);
 		if (holder != null) {
-			ChunkManagerHelper.getChunksToUnload(provider.chunkManager).put(pos.asLong(), holder);
-			ChunkManagerHelper.scheduleSave(provider.chunkManager, pos.asLong(), holder);
+			ChunkManagerHelper.getChunksToUnload(provider.chunkMap).put(pos.toLong(), holder);
+			ChunkManagerHelper.scheduleSave(provider.chunkMap, pos.toLong(), holder);
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public boolean unloadChunk(ServerChunkProvider provider, ChunkPos pos) {
-		this.interestingChunks.add(pos.asLong());
-		this.markedChunks.add(pos.asLong());
+	public boolean unloadChunk(ServerChunkCache provider, ChunkPos pos) {
+		this.interestingChunks.add(pos.toLong());
+		this.markedChunks.add(pos.toLong());
 
 		return this.reloadChunk(provider, pos);
 	}
 
-	public int clear(ServerChunkProvider provider) {
+	public int clear(ServerChunkCache provider) {
 		LinkedList<Long> copy = new LinkedList<>(this.markedChunks);
 
 		int size = this.markedChunks.size();
@@ -82,31 +82,31 @@ public class ChunkUtil {
 		return size;
 	}
 
-	public void reForce(ServerChunkProvider provider, ChunkPos pos) {
-		provider.forceChunk(pos, true);
-		provider.forceChunk(pos, false);
+	public void reForce(ServerChunkCache provider, ChunkPos pos) {
+		provider.updateChunkForced(pos, true);
+		provider.updateChunkForced(pos, false);
 	}
 
-	public void chunkUnload(ServerWorld serverWorld, Chunk chunk) {
+	public void chunkUnload(ServerLevel serverWorld, LevelChunk chunk) {
 		// LOGGER.debug("Chunk Unload: " + event.getChunk().getPos().toString());
 		if (interestingChunks.contains(chunk
 			.getPos()
-			.asLong())) {
+			.toLong())) {
 			LOGGER.info("Interesting Chunk Unload: " + chunk
 				.getPos()
 				.toString());
 		}
 	}
 
-	public void chunkLoad(ServerWorld serverWorld, Chunk chunk) {
+	public void chunkLoad(ServerLevel serverWorld, LevelChunk chunk) {
 		// LOGGER.debug("Chunk Load: " + event.getChunk().getPos().toString());
 
 		ChunkPos pos = chunk
 			.getPos();
-		if (interestingChunks.contains(pos.asLong())) {
+		if (interestingChunks.contains(pos.toLong())) {
 			LOGGER.info("Interesting Chunk Load: " + pos.toString());
-			if (!markedChunks.contains(pos.asLong()))
-				interestingChunks.remove(pos.asLong());
+			if (!markedChunks.contains(pos.toLong()))
+				interestingChunks.remove(pos.toLong());
 		}
 
 	}

@@ -7,13 +7,12 @@ import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.schematics.ISpecialBlockItemRequirement;
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.tterrag.registrate.util.entry.BlockEntry;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class EncasedShaftBlock extends AbstractEncasedShaftBlock implements ISpecialBlockItemRequirement {
 
@@ -33,7 +32,7 @@ public class EncasedShaftBlock extends AbstractEncasedShaftBlock implements ISpe
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.ENCASED_SHAFT.create();
 	}
 
@@ -42,16 +41,16 @@ public class EncasedShaftBlock extends AbstractEncasedShaftBlock implements ISpe
 	}
 
 	@Override
-	public ActionResultType onSneakWrenched(BlockState state, ItemUseContext context) {
-		if (context.getWorld().isRemote)
-			return ActionResultType.SUCCESS;
-		context.getWorld().playEvent(2001, context.getPos(), Block.getStateId(state));
-		KineticTileEntity.switchToBlockState(context.getWorld(), context.getPos(), AllBlocks.SHAFT.getDefaultState().with(AXIS, state.get(AXIS)));
-		return ActionResultType.SUCCESS;
+	public InteractionResult onSneakWrenched(BlockState state, UseOnContext context) {
+		if (context.getLevel().isClientSide)
+			return InteractionResult.SUCCESS;
+		context.getLevel().levelEvent(2001, context.getClickedPos(), Block.getId(state));
+		KineticTileEntity.switchToBlockState(context.getLevel(), context.getClickedPos(), AllBlocks.SHAFT.getDefaultState().setValue(AXIS, state.getValue(AXIS)));
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public ItemRequirement getRequiredItems(BlockState state, TileEntity te) {
+	public ItemRequirement getRequiredItems(BlockState state, BlockEntity te) {
 		return ItemRequirement.of(AllBlocks.SHAFT.getDefaultState(), te);
 	}
 

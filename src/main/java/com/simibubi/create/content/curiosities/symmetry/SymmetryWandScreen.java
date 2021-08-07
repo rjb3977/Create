@@ -1,6 +1,7 @@
 package com.simibubi.create.content.curiosities.symmetry;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.content.curiosities.symmetry.mirror.CrossPlaneMirror;
 import com.simibubi.create.content.curiosities.symmetry.mirror.EmptyMirror;
 import com.simibubi.create.content.curiosities.symmetry.mirror.PlaneMirror;
@@ -17,14 +18,12 @@ import com.simibubi.create.foundation.gui.widgets.SelectionScrollInput;
 import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.networking.NbtPacket;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public class SymmetryWandScreen extends AbstractSimiScreen {
 
@@ -36,21 +35,21 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 	private Label labelAlign;
 	private IconButton confirmButton;
 
-	private final ITextComponent mirrorType = Lang.translate("gui.symmetryWand.mirrorType");
-	private final ITextComponent orientation = Lang.translate("gui.symmetryWand.orientation");
+	private final Component mirrorType = Lang.translate("gui.symmetryWand.mirrorType");
+	private final Component orientation = Lang.translate("gui.symmetryWand.orientation");
 
 	private SymmetryMirror currentElement;
 	private ItemStack wand;
-	private Hand hand;
+	private InteractionHand hand;
 
-	public SymmetryWandScreen(ItemStack wand, Hand hand) {
+	public SymmetryWandScreen(ItemStack wand, InteractionHand hand) {
 		super();
 
 		background = AllGuiTextures.WAND_OF_SYMMETRY;
 
 		currentElement = SymmetryWandItem.getMirror(wand);
 		if (currentElement instanceof EmptyMirror) {
-			currentElement = new PlaneMirror(Vector3d.ZERO);
+			currentElement = new PlaneMirror(Vec3.ZERO);
 		}
 		this.hand = hand;
 		this.wand = wand;
@@ -66,15 +65,15 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 		int x = guiLeft;
 		int y = guiTop;
 
-		labelType = new Label(x + 49, y + 28, StringTextComponent.EMPTY).colored(0xFFFFFFFF)
+		labelType = new Label(x + 49, y + 28, TextComponent.EMPTY).colored(0xFFFFFFFF)
 			.withShadow();
-		labelAlign = new Label(x + 49, y + 50, StringTextComponent.EMPTY).colored(0xFFFFFFFF)
+		labelAlign = new Label(x + 49, y + 50, TextComponent.EMPTY).colored(0xFFFFFFFF)
 			.withShadow();
 
 		int state =
 			currentElement instanceof TriplePlaneMirror ? 2 : currentElement instanceof CrossPlaneMirror ? 1 : 0;
 		areaType = new SelectionScrollInput(x + 45, y + 21, 109, 18).forOptions(SymmetryMirror.getMirrors())
-			.titled(mirrorType.copy())
+			.titled(mirrorType.plainCopy())
 			.writingTo(labelType)
 			.setState(state);
 
@@ -110,7 +109,7 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 			widgets.remove(areaAlign);
 
 		areaAlign = new SelectionScrollInput(x + 45, y + 43, 109, 18).forOptions(element.getAlignToolTips())
-			.titled(orientation.copy())
+			.titled(orientation.plainCopy())
 			.writingTo(labelAlign)
 			.setState(element.getOrientationIndex())
 			.calling(element::setOrientation);
@@ -119,12 +118,12 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		int x = guiLeft;
 		int y = guiTop;
 
 		background.draw(ms, this, x, y);
-		textRenderer.draw(ms, wand.getDisplayName(), x + 11, y + 4, 0x6B3802);
+		font.draw(ms, wand.getHoverName(), x + 11, y + 4, 0x6B3802);
 
 		renderBlock(ms, x, y);
 		GuiGameElement.of(wand)
@@ -134,34 +133,34 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 				.render(ms);
 	}
 
-	protected void renderBlock(MatrixStack ms, int x, int y) {
-		ms.push();
+	protected void renderBlock(PoseStack ms, int x, int y) {
+		ms.pushPose();
 		ms.translate(x + 26, y + 39, 20);
 		ms.scale(16, 16, 16);
-		ms.multiply(new Vector3f(.3f, 1f, 0f).getDegreesQuaternion(-22.5f));
+		ms.mulPose(new Vector3f(.3f, 1f, 0f).rotationDegrees(-22.5f));
 		currentElement.applyModelTransform(ms);
 		// RenderSystem.multMatrix(ms.peek().getModel());
 		GuiGameElement.of(currentElement.getModel())
 			.render(ms);
 
-		ms.pop();
+		ms.popPose();
 	}
 
 	@Override
 	public void removed() {
-		ItemStack heldItem = client.player.getHeldItem(hand);
-		CompoundNBT compound = heldItem.getTag();
+		ItemStack heldItem = minecraft.player.getItemInHand(hand);
+		CompoundTag compound = heldItem.getTag();
 		compound.put(SymmetryWandItem.SYMMETRY, currentElement.writeToNbt());
 		heldItem.setTag(compound);
 		AllPackets.channel.sendToServer(new NbtPacket(heldItem, hand));
-		client.player.setHeldItem(hand, heldItem);
+		minecraft.player.setItemInHand(hand, heldItem);
 		super.removed();
 	}
 
 	@Override
 	public boolean mouseClicked(double x, double y, int button) {
 		if (confirmButton.isHovered()) {
-			client.player.closeScreen();
+			minecraft.player.closeContainer();
 			return true;
 		}
 

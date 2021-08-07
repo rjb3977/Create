@@ -5,11 +5,11 @@ import com.simibubi.create.foundation.tileEntity.SyncedTileEntity;
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * A server to client version of {@link TileEntityConfigurationPacket}
@@ -22,7 +22,7 @@ public abstract class TileEntityDataPacket<TE extends SyncedTileEntity> implemen
 
 	protected TileEntityDataPacket() {}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		tilePos = buffer.readBlockPos();
 	}
 
@@ -31,20 +31,20 @@ public abstract class TileEntityDataPacket<TE extends SyncedTileEntity> implemen
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(tilePos);
 		writeData(buffer);
 	}
 
 	@Override
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client.execute(() -> {
-			ClientWorld world = Minecraft.getInstance().world;
+			ClientLevel world = Minecraft.getInstance().level;
 
 			if (world == null)
 				return;
 
-			TileEntity tile = world.getTileEntity(tilePos);
+			BlockEntity tile = world.getBlockEntity(tilePos);
 
 			if (tile instanceof SyncedTileEntity) {
 				handlePacket((TE) tile);
@@ -52,7 +52,7 @@ public abstract class TileEntityDataPacket<TE extends SyncedTileEntity> implemen
 		});
 	}
 
-	protected abstract void writeData(PacketBuffer buffer);
+	protected abstract void writeData(FriendlyByteBuf buffer);
 
 	protected abstract void handlePacket(TE tile);
 }

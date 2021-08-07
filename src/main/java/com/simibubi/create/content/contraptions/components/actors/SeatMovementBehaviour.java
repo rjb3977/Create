@@ -3,20 +3,18 @@ package com.simibubi.create.content.contraptions.components.actors;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementContext;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.state.properties.SlabType;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
 
 public class SeatMovementBehaviour extends MovementBehaviour {
 
@@ -41,8 +39,8 @@ public class SeatMovementBehaviour extends MovementBehaviour {
 
 		Map<UUID, Integer> seatMapping = context.contraption.getSeatMapping();
 		BlockState blockState = context.world.getBlockState(pos);
-		boolean slab = blockState.getBlock() instanceof SlabBlock && blockState.get(SlabBlock.TYPE) == SlabType.BOTTOM;
-		boolean solid = blockState.isSolid() || slab;
+		boolean slab = blockState.getBlock() instanceof SlabBlock && blockState.getValue(SlabBlock.TYPE) == SlabType.BOTTOM;
+		boolean solid = blockState.canOcclude() || slab;
 
 		// Occupied
 		if (seatMapping.containsValue(index)) {
@@ -54,16 +52,16 @@ public class SeatMovementBehaviour extends MovementBehaviour {
 					continue;
 				for (Entity entity : contraptionEntity.getPassengers()) {
 					if (!entry.getKey()
-						.equals(entity.getUniqueID()))
+						.equals(entity.getUUID()))
 						continue;
 					toDismount = entity;
 				}
 			}
 			if (toDismount != null) {
 				toDismount.stopRiding();
-				Vector3d position = VecHelper.getCenterOf(pos)
+				Vec3 position = VecHelper.getCenterOf(pos)
 					.add(0, slab ? .5f : 1f, 0);
-				toDismount.setPositionAndUpdate(position.x, position.y, position.z);
+				toDismount.teleportTo(position.x, position.y, position.z);
 				ExtraDataUtil.getExtraData(toDismount)
 						.remove("ContraptionDismountLocation");
 			}
@@ -73,8 +71,8 @@ public class SeatMovementBehaviour extends MovementBehaviour {
 		if (solid)
 			return;
 
-		List<Entity> nearbyEntities = context.world.getEntitiesWithinAABB(Entity.class,
-			new AxisAlignedBB(pos).shrink(1 / 16f), SeatBlock::canBePickedUp);
+		List<Entity> nearbyEntities = context.world.getEntitiesOfClass(Entity.class,
+			new AABB(pos).deflate(1 / 16f), SeatBlock::canBePickedUp);
 		if (!nearbyEntities.isEmpty())
 			contraptionEntity.addSittingPassenger(nearbyEntities.get(0), index);
 	}

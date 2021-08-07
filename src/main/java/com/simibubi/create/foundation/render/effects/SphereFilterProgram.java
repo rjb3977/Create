@@ -1,7 +1,7 @@
 package com.simibubi.create.foundation.render.effects;
 
 import java.util.ArrayList;
-
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 
@@ -11,9 +11,7 @@ import com.jozufozu.flywheel.backend.gl.buffer.MappedBuffer;
 import com.jozufozu.flywheel.backend.gl.shader.GlProgram;
 import com.jozufozu.flywheel.backend.loading.Program;
 import com.jozufozu.flywheel.core.shader.IMultiProgram;
-
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
+import com.mojang.math.Matrix4f;
 
 public class SphereFilterProgram extends GlProgram implements IMultiProgram<SphereFilterProgram> {
 
@@ -76,7 +74,7 @@ public class SphereFilterProgram extends GlProgram implements IMultiProgram<Sphe
 		GL20.glUniform1f(uFarPlane, farPlane);
 	}
 
-	public void setCameraPos(Vector3d pos) {
+	public void setCameraPos(Vec3 pos) {
 		GL20.glUniform3f(uCameraPos, (float) pos.x, (float) pos.y, (float) pos.z);
 	}
 

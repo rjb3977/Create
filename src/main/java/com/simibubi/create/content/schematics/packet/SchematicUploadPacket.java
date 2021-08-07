@@ -5,11 +5,11 @@ import com.simibubi.create.content.schematics.block.SchematicTableContainer;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 public class SchematicUploadPacket implements C2SPacket {
 
@@ -45,9 +45,9 @@ public class SchematicUploadPacket implements C2SPacket {
 		return new SchematicUploadPacket(FINISH, schematic);
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		code = buffer.readInt();
-		schematic = buffer.readString(256);
+		schematic = buffer.readUtf(256);
 
 		if (code == BEGIN)
 			size = buffer.readLong();
@@ -55,9 +55,9 @@ public class SchematicUploadPacket implements C2SPacket {
 			data = buffer.readByteArray();
 	}
 
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(code);
-		buffer.writeString(schematic);
+		buffer.writeUtf(schematic);
 
 		if (code == BEGIN)
 			buffer.writeLong(size);
@@ -65,14 +65,14 @@ public class SchematicUploadPacket implements C2SPacket {
 			buffer.writeByteArray(data);
 	}
 
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, ResponseTarget responseTarget) {
 		server
 			.execute(() -> {
 				if (player == null)
 					return;
 				if (code == BEGIN) {
-					BlockPos pos = ((SchematicTableContainer) player.openContainer).getTileEntity()
-							.getPos();
+					BlockPos pos = ((SchematicTableContainer) player.containerMenu).getTileEntity()
+							.getBlockPos();
 					Create.SCHEMATIC_RECEIVER.handleNewUpload(player, schematic, size, pos);
 				}
 				if (code == WRITE)

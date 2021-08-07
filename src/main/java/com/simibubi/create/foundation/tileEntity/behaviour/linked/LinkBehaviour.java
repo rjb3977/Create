@@ -3,7 +3,11 @@ package com.simibubi.create.foundation.tileEntity.behaviour.linked;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.simibubi.create.Create;
@@ -14,12 +18,7 @@ import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import com.simibubi.create.foundation.tileEntity.behaviour.linked.LinkBehaviour.Mode;
 
 public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinkable {
 
@@ -33,7 +32,7 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 	Frequency frequencyLast;
 	ValueBoxTransform firstSlot;
 	ValueBoxTransform secondSlot;
-	Vector3d textShift;
+	Vec3 textShift;
 
 	public boolean newPosition;
 	private Mode mode;
@@ -46,7 +45,7 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 		frequencyLast = Frequency.EMPTY;
 		firstSlot = slots.getLeft();
 		secondSlot = slots.getRight();
-		textShift = Vector3d.ZERO;
+		textShift = Vec3.ZERO;
 		newPosition = true;
 	}
 
@@ -66,7 +65,7 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 		return behaviour;
 	}
 
-	public LinkBehaviour moveText(Vector3d shift) {
+	public LinkBehaviour moveText(Vec3 shift) {
 		textShift = shift;
 		return this;
 	}
@@ -102,7 +101,7 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 	@Override
 	public void initialize() {
 		super.initialize();
-		if (getWorld().isRemote)
+		if (getWorld().isClientSide)
 			return;
 		getHandler().addToNetwork(getWorld(), this);
 		newPosition = true;
@@ -116,7 +115,7 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 	@Override
 	public void remove() {
 		super.remove();
-		if (getWorld().isRemote)
+		if (getWorld().isClientSide)
 			return;
 		getHandler().removeFromNetwork(getWorld(), this);
 	}
@@ -127,26 +126,26 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 	}
 
 	@Override
-	public void write(CompoundNBT nbt, boolean clientPacket) {
+	public void write(CompoundTag nbt, boolean clientPacket) {
 		super.write(nbt, clientPacket);
 		nbt.put("FrequencyFirst", frequencyFirst.getStack()
-			.write(new CompoundNBT()));
+			.save(new CompoundTag()));
 		nbt.put("FrequencyLast", frequencyLast.getStack()
-			.write(new CompoundNBT()));
-		nbt.putLong("LastKnownPosition", tileEntity.getPos()
-			.toLong());
+			.save(new CompoundTag()));
+		nbt.putLong("LastKnownPosition", tileEntity.getBlockPos()
+			.asLong());
 	}
 
 	@Override
-	public void read(CompoundNBT nbt, boolean clientPacket) {
-		long positionInTag = tileEntity.getPos()
-			.toLong();
+	public void read(CompoundTag nbt, boolean clientPacket) {
+		long positionInTag = tileEntity.getBlockPos()
+			.asLong();
 		long positionKey = nbt.getLong("LastKnownPosition");
 		newPosition = positionInTag != positionKey;
 
 		super.read(nbt, clientPacket);
-		frequencyFirst = Frequency.of(ItemStack.read(nbt.getCompound("FrequencyFirst")));
-		frequencyLast = Frequency.of(ItemStack.read(nbt.getCompound("FrequencyLast")));
+		frequencyFirst = Frequency.of(ItemStack.of(nbt.getCompound("FrequencyFirst")));
+		frequencyLast = Frequency.of(ItemStack.of(nbt.getCompound("FrequencyLast")));
 	}
 
 	public void setFrequency(boolean first, ItemStack stack) {
@@ -154,7 +153,7 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 		stack.setCount(1);
 		ItemStack toCompare = first ? frequencyFirst.getStack() : frequencyLast.getStack();
 		boolean changed =
-			!ItemStack.areItemsEqual(stack, toCompare) || !ItemStack.areItemStackTagsEqual(stack, toCompare);
+			!ItemStack.isSame(stack, toCompare) || !ItemStack.tagMatches(stack, toCompare);
 
 		if (changed)
 			getHandler().removeFromNetwork(getWorld(), this);
@@ -181,12 +180,12 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 	}
 
 	public static class SlotPositioning {
-		Function<BlockState, Pair<Vector3d, Vector3d>> offsets;
-		Function<BlockState, Vector3d> rotation;
+		Function<BlockState, Pair<Vec3, Vec3>> offsets;
+		Function<BlockState, Vec3> rotation;
 		float scale;
 
-		public SlotPositioning(Function<BlockState, Pair<Vector3d, Vector3d>> offsetsForState,
-			Function<BlockState, Vector3d> rotationForState) {
+		public SlotPositioning(Function<BlockState, Pair<Vec3, Vec3>> offsetsForState,
+			Function<BlockState, Vec3> rotationForState) {
 			offsets = offsetsForState;
 			rotation = rotationForState;
 			scale = 1;
@@ -199,15 +198,15 @@ public class LinkBehaviour extends TileEntityBehaviour implements IRedstoneLinka
 
 	}
 
-	public boolean testHit(Boolean first, Vector3d hit) {
+	public boolean testHit(Boolean first, Vec3 hit) {
 		BlockState state = tileEntity.getBlockState();
-		Vector3d localHit = hit.subtract(Vector3d.of(tileEntity.getPos()));
+		Vec3 localHit = hit.subtract(Vec3.atLowerCornerOf(tileEntity.getBlockPos()));
 		return (first ? firstSlot : secondSlot).testHit(state, localHit);
 	}
 
 	@Override
 	public boolean isAlive() {
-		return !tileEntity.isRemoved() && getWorld().getTileEntity(getPos()) == tileEntity;
+		return !tileEntity.isRemoved() && getWorld().getBlockEntity(getPos()) == tileEntity;
 	}
 
 	@Override

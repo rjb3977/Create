@@ -2,7 +2,10 @@ package com.simibubi.create.content.contraptions.processing;
 
 import java.util.List;
 import java.util.Optional;
-
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.fluids.potion.PotionFluidHandler;
 import com.simibubi.create.foundation.utility.Pair;
@@ -14,16 +17,12 @@ import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.TransferUtil;
 
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.PotionItem;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.world.World;
 
 public class EmptyingByBasin {
 
 	static RecipeWrapper wrapper = new RecipeWrapper(new ItemStackHandler(1));
 
-	public static boolean canItemBeEmptied(World world, ItemStack stack) {
+	public static boolean canItemBeEmptied(Level world, ItemStack stack) {
 		if (stack.getItem() instanceof PotionItem)
 			return true;
 
@@ -45,7 +44,7 @@ public class EmptyingByBasin {
 		return false;
 	}
 
-	public static Pair<FluidStack, ItemStack> emptyItem(World world, ItemStack stack, boolean simulate) {
+	public static Pair<FluidStack, ItemStack> emptyItem(Level world, ItemStack stack, boolean simulate) {
 		FluidStack resultingFluid = FluidStack.EMPTY;
 		ItemStack resultingItem = ItemStack.EMPTY;
 
@@ -53,7 +52,7 @@ public class EmptyingByBasin {
 			return PotionFluidHandler.emptyPotion(stack, simulate);
 
 		wrapper.setInventorySlotContents(0, stack);
-		Optional<IRecipe<RecipeWrapper>> recipe = AllRecipeTypes.EMPTYING.find(wrapper, world);
+		Optional<Recipe<RecipeWrapper>> recipe = AllRecipeTypes.EMPTYING.find(wrapper, world);
 		if (recipe.isPresent()) {
 			EmptyingRecipe emptyingRecipe = (EmptyingRecipe) recipe.get();
 			List<ItemStack> results = emptyingRecipe.rollResults();

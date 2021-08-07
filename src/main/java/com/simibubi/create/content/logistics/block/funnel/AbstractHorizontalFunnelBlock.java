@@ -1,13 +1,13 @@
 package com.simibubi.create.content.logistics.block.funnel;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
 public abstract class AbstractHorizontalFunnelBlock extends AbstractFunnelBlock {
 
@@ -18,23 +18,23 @@ public abstract class AbstractHorizontalFunnelBlock extends AbstractFunnelBlock 
 	}
 	
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		super.fillStateContainer(builder.add(HORIZONTAL_FACING));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder.add(HORIZONTAL_FACING));
 	}
 
 	@Override
 	protected Direction getFacing(BlockState state) {
-		return state.get(HORIZONTAL_FACING);
+		return state.getValue(HORIZONTAL_FACING);
 	}
 	
 	@Override
 	public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
-		return p_185499_1_.with(HORIZONTAL_FACING, p_185499_2_.rotate(p_185499_1_.get(HORIZONTAL_FACING)));
+		return p_185499_1_.setValue(HORIZONTAL_FACING, p_185499_2_.rotate(p_185499_1_.getValue(HORIZONTAL_FACING)));
 	}
 
 	@Override
 	public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
-		return p_185471_1_.rotate(p_185471_2_.toRotation(p_185471_1_.get(HORIZONTAL_FACING)));
+		return p_185471_1_.rotate(p_185471_2_.getRotation(p_185471_1_.getValue(HORIZONTAL_FACING)));
 	}
 
 }

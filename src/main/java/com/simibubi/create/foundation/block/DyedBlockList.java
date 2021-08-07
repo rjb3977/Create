@@ -2,11 +2,9 @@ package com.simibubi.create.foundation.block;
 
 import java.util.Arrays;
 import java.util.function.Function;
-
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Block;
 import com.tterrag.registrate.util.entry.BlockEntry;
-
-import net.minecraft.block.Block;
-import net.minecraft.item.DyeColor;
 
 public class DyedBlockList<T extends Block> {
 

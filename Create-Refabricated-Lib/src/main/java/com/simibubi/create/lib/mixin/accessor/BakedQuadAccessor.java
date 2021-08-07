@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 @Environment(EnvType.CLIENT)

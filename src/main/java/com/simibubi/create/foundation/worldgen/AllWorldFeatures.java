@@ -2,22 +2,20 @@ package com.simibubi.create.foundation.worldgen;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biome.BiomeCategory;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.GenerationStep;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.palettes.AllPaletteBlocks;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
-
-import net.minecraft.block.Block;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.WorldGenRegistries;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biome.Category;
-import net.minecraft.world.biome.BiomeGenerationSettings;
-import net.minecraft.world.biome.Biomes;
-import net.minecraft.world.gen.GenerationStage;
 
 public class AllWorldFeatures {
 
@@ -62,20 +60,20 @@ public class AllWorldFeatures {
 		Registry.register(Registry.DECORATOR, "create_config_driven_decorator", ConfigDrivenDecorator.INSTANCE);
 		entries.entrySet()
 				.forEach(entry -> {
-					Registry.register(WorldGenRegistries.CONFIGURED_FEATURE, Create.ID + "_" + entry.getKey(),
+					Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, Create.ID + "_" + entry.getKey(),
 							entry.getValue()
 									.getFeature());
 				});
 	}
 
-	public static BiomeGenerationSettings.Builder reload(ResourceLocation key, Biome.Category category, BiomeGenerationSettings.Builder generation) {
+	public static BiomeGenerationSettings.Builder reload(ResourceLocation key, Biome.BiomeCategory category, BiomeGenerationSettings.Builder generation) {
 		entries.values()
 			.forEach(entry -> {
-				if (key == Biomes.THE_VOID.getValue()) // uhhh???
+				if (key == Biomes.THE_VOID.location()) // uhhh???
 					return;
-				if (category == Category.NETHER)
+				if (category == BiomeCategory.NETHER)
 					return;
-				generation.feature(GenerationStage.Decoration.UNDERGROUND_ORES, entry.getFeature());
+				generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, entry.getFeature());
 			});
 		return generation;
 	}

@@ -1,17 +1,15 @@
 package com.simibubi.create.content.contraptions.components.crafter;
 
 import java.util.function.Supplier;
-
+import net.minecraft.core.Direction;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.base.RotatingData;
 import com.simibubi.create.content.contraptions.base.SingleRotatingInstance;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.util.Direction;
 
 public class MechanicalCrafterInstance extends SingleRotatingInstance {
 
@@ -23,8 +21,8 @@ public class MechanicalCrafterInstance extends SingleRotatingInstance {
     protected Instancer<RotatingData> getModel() {
         Direction facing = blockState.get(MechanicalCrafterBlock.HORIZONTAL_FACING);
 
-        Supplier<MatrixStack> ms = () -> {
-            MatrixStack stack = new MatrixStack();
+        Supplier<PoseStack> ms = () -> {
+            PoseStack stack = new PoseStack();
             MatrixStacker stacker = MatrixStacker.of(stack).centre();
 
             if (facing.getAxis() == Direction.Axis.X)

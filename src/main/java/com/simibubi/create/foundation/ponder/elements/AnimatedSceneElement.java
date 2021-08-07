@@ -1,18 +1,17 @@
 package com.simibubi.create.foundation.ponder.elements;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.ponder.PonderWorld;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class AnimatedSceneElement extends PonderSceneElement {
 
-	protected Vector3d fadeVec;
+	protected Vec3 fadeVec;
 	protected LerpedFloat fade;
 
 	public AnimatedSceneElement() {
@@ -28,36 +27,36 @@ public abstract class AnimatedSceneElement extends PonderSceneElement {
 		this.fade.setValue(fade);
 	}
 
-	public void setFadeVec(Vector3d fadeVec) {
+	public void setFadeVec(Vec3 fadeVec) {
 		this.fadeVec = fadeVec;
 	}
 
 	@Override
-	public final void renderFirst(PonderWorld world, IRenderTypeBuffer buffer, MatrixStack ms, float pt) {
-		ms.push();
+	public final void renderFirst(PonderWorld world, MultiBufferSource buffer, PoseStack ms, float pt) {
+		ms.pushPose();
 		float currentFade = applyFade(ms, pt);
 		renderFirst(world, buffer, ms, currentFade, pt);
-		ms.pop();
+		ms.popPose();
 	}
 
 	@Override
-	public final void renderLayer(PonderWorld world, IRenderTypeBuffer buffer, RenderType type, MatrixStack ms,
+	public final void renderLayer(PonderWorld world, MultiBufferSource buffer, RenderType type, PoseStack ms,
 		float pt) {
-		ms.push();
+		ms.pushPose();
 		float currentFade = applyFade(ms, pt);
 		renderLayer(world, buffer, type, ms, currentFade, pt);
-		ms.pop();
+		ms.popPose();
 	}
 
 	@Override
-	public final void renderLast(PonderWorld world, IRenderTypeBuffer buffer, MatrixStack ms, float pt) {
-		ms.push();
+	public final void renderLast(PonderWorld world, MultiBufferSource buffer, PoseStack ms, float pt) {
+		ms.pushPose();
 		float currentFade = applyFade(ms, pt);
 		renderLast(world, buffer, ms, currentFade, pt);
-		ms.pop();
+		ms.popPose();
 	}
 
-	protected float applyFade(MatrixStack ms, float pt) {
+	protected float applyFade(PoseStack ms, float pt) {
 		float currentFade = fade.getValue(pt);
 		if (fadeVec != null)
 			MatrixStacker.of(ms)
@@ -65,17 +64,17 @@ public abstract class AnimatedSceneElement extends PonderSceneElement {
 		return currentFade;
 	}
 
-	protected void renderLayer(PonderWorld world, IRenderTypeBuffer buffer, RenderType type, MatrixStack ms, float fade,
+	protected void renderLayer(PonderWorld world, MultiBufferSource buffer, RenderType type, PoseStack ms, float fade,
 		float pt) {}
 
-	protected void renderFirst(PonderWorld world, IRenderTypeBuffer buffer, MatrixStack ms, float fade, float pt) {}
+	protected void renderFirst(PonderWorld world, MultiBufferSource buffer, PoseStack ms, float fade, float pt) {}
 
-	protected void renderLast(PonderWorld world, IRenderTypeBuffer buffer, MatrixStack ms, float fade, float pt) {}
+	protected void renderLast(PonderWorld world, MultiBufferSource buffer, PoseStack ms, float fade, float pt) {}
 
 	protected int lightCoordsFromFade(float fade) {
 		int light = 0xF000F0;
 		if (fade != 1) {
-			light = (int) (MathHelper.lerp(fade, 5, 0xF));
+			light = (int) (Mth.lerp(fade, 5, 0xF));
 			light = light << 4 | light << 20;
 		}
 		return light;

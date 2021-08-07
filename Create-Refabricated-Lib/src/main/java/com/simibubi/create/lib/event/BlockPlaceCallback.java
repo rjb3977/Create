@@ -2,19 +2,19 @@ package com.simibubi.create.lib.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.context.UseOnContext;
 
 public interface BlockPlaceCallback {
 	public static final Event<BlockPlaceCallback> EVENT = EventFactory.createArrayBacked(BlockPlaceCallback.class, callbacks -> (context) -> {
 		for (BlockPlaceCallback callback : callbacks) {
-			ActionResultType result = callback.onBlockPlace(context);
-			if (result != ActionResultType.PASS) {
+			InteractionResult result = callback.onBlockPlace(context);
+			if (result != InteractionResult.PASS) {
 				return result;
 			}
 		}
-		return ActionResultType.PASS;
+		return InteractionResult.PASS;
 	});
 
-	ActionResultType onBlockPlace(ItemUseContext context);
+	InteractionResult onBlockPlace(UseOnContext context);
 }

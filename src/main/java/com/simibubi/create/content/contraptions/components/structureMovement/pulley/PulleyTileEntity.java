@@ -9,26 +9,25 @@ import com.simibubi.create.content.contraptions.components.structureMovement.pis
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.tileEntity.behaviour.CenteredSideValueBoxTransform;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 
 public class PulleyTileEntity extends LinearActuatorTileEntity {
 
 	protected int initialOffset;
 	private float prevAnimatedOffset;
 
-	public PulleyTileEntity(TileEntityType<? extends PulleyTileEntity> type) {
+	public PulleyTileEntity(BlockEntityType<? extends PulleyTileEntity> type) {
 		super(type);
 	}
 
@@ -38,8 +37,8 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 //	}
 
 	@Override
-	public double getMaxRenderDistanceSquared() {
-		return super.getMaxRenderDistanceSquared() + offset * offset;
+	public double getViewDistance() {
+		return super.getViewDistance() + offset * offset;
 	}
 
 	@Override
@@ -51,7 +50,7 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 
 	@Override
 	protected void assemble() throws AssemblyException {
-		if (!(world.getBlockState(pos)
+		if (!(level.getBlockState(worldPosition)
 			.getBlock() instanceof PulleyBlock))
 			return;
 		if (speed == 0)
@@ -59,8 +58,8 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 		int maxLength = AllConfigs.SERVER.kinetics.maxRopeLength.get();
 		int i = 1;
 		while (i <= maxLength) {
-			BlockPos ropePos = pos.down(i);
-			BlockState ropeState = world.getBlockState(ropePos);
+			BlockPos ropePos = worldPosition.below(i);
+			BlockState ropeState = level.getBlockState(ropePos);
 			if (!AllBlocks.ROPE.has(ropeState) && !AllBlocks.PULLEY_MAGNET.has(ropeState)) {
 				break;
 			}
@@ -73,15 +72,15 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 			return;
 
 		// Collect Construct
-		if (!world.isRemote) {
-			BlockPos anchor = pos.down(MathHelper.floor(offset + 1));
-			initialOffset = MathHelper.floor(offset);
+		if (!level.isClientSide) {
+			BlockPos anchor = worldPosition.below(Mth.floor(offset + 1));
+			initialOffset = Mth.floor(offset);
 			PulleyContraption contraption = new PulleyContraption(initialOffset);
-			boolean canAssembleStructure = contraption.assemble(world, anchor);
+			boolean canAssembleStructure = contraption.assemble(level, anchor);
 
 			if (canAssembleStructure) {
 				Direction movementDirection = getSpeed() > 0 ? Direction.DOWN : Direction.UP;
-				if (ContraptionCollider.isCollidingWithWorld(world, contraption, anchor.offset(movementDirection),
+				if (ContraptionCollider.isCollidingWithWorld(level, contraption, anchor.relative(movementDirection),
 					movementDirection))
 					canAssembleStructure = false;
 			}
@@ -90,21 +89,21 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 				return;
 
 			for (i = ((int) offset); i > 0; i--) {
-				BlockPos offset = pos.down(i);
-				BlockState oldState = world.getBlockState(offset);
-				if (oldState.getBlock() instanceof IWaterLoggable && oldState.contains(BlockStateProperties.WATERLOGGED)
-					&& oldState.get(BlockStateProperties.WATERLOGGED)) {
-					world.setBlockState(offset, Blocks.WATER.getDefaultState(), 66);
+				BlockPos offset = worldPosition.below(i);
+				BlockState oldState = level.getBlockState(offset);
+				if (oldState.getBlock() instanceof SimpleWaterloggedBlock && oldState.hasProperty(BlockStateProperties.WATERLOGGED)
+					&& oldState.getValue(BlockStateProperties.WATERLOGGED)) {
+					level.setBlock(offset, Blocks.WATER.defaultBlockState(), 66);
 					continue;
 				}
-				world.setBlockState(offset, Blocks.AIR.getDefaultState(), 66);
+				level.setBlock(offset, Blocks.AIR.defaultBlockState(), 66);
 			}
 
 			if (!contraption.getBlocks().isEmpty()) {
-				contraption.removeBlocksFromWorld(world, BlockPos.ZERO);
-				movedContraption = ControlledContraptionEntity.create(world, this, contraption);
-				movedContraption.setPosition(anchor.getX(), anchor.getY(), anchor.getZ());
-				world.addEntity(movedContraption);
+				contraption.removeBlocksFromWorld(level, BlockPos.ZERO);
+				movedContraption = ControlledContraptionEntity.create(level, this, contraption);
+				movedContraption.setPos(anchor.getX(), anchor.getY(), anchor.getZ());
+				level.addFreshEntity(movedContraption);
 				forceMove = true;
 			}
 		}
@@ -122,33 +121,33 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 		if (movedContraption != null)
 			applyContraptionPosition();
 
-		if (!world.isRemote) {
-			if (!removed) {
+		if (!level.isClientSide) {
+			if (!remove) {
 				if (offset > 0) {
-					BlockPos magnetPos = pos.down((int) offset);
-					FluidState ifluidstate = world.getFluidState(magnetPos);
-					world.destroyBlock(magnetPos, world.getBlockState(magnetPos)
-						.getCollisionShape(world, magnetPos)
+					BlockPos magnetPos = worldPosition.below((int) offset);
+					FluidState ifluidstate = level.getFluidState(magnetPos);
+					level.destroyBlock(magnetPos, level.getBlockState(magnetPos)
+						.getCollisionShape(level, magnetPos)
 						.isEmpty());
-					world.setBlockState(magnetPos, AllBlocks.PULLEY_MAGNET.getDefaultState()
-						.with(BlockStateProperties.WATERLOGGED,
-							Boolean.valueOf(ifluidstate.getFluid() == Fluids.WATER)),
+					level.setBlock(magnetPos, AllBlocks.PULLEY_MAGNET.getDefaultState()
+						.setValue(BlockStateProperties.WATERLOGGED,
+							Boolean.valueOf(ifluidstate.getType() == Fluids.WATER)),
 						66);
 				}
 
 				boolean[] waterlog = new boolean[(int) offset];
 
 				for (int i = 1; i <= ((int) offset) - 1; i++) {
-					BlockPos ropePos = pos.down(i);
-					FluidState ifluidstate = world.getFluidState(ropePos);
-					waterlog[i] = ifluidstate.getFluid() == Fluids.WATER;
-					world.destroyBlock(ropePos, world.getBlockState(ropePos)
-						.getCollisionShape(world, ropePos)
+					BlockPos ropePos = worldPosition.below(i);
+					FluidState ifluidstate = level.getFluidState(ropePos);
+					waterlog[i] = ifluidstate.getType() == Fluids.WATER;
+					level.destroyBlock(ropePos, level.getBlockState(ropePos)
+						.getCollisionShape(level, ropePos)
 						.isEmpty());
 				}
 				for (int i = 1; i <= ((int) offset) - 1; i++)
-					world.setBlockState(pos.down(i), AllBlocks.ROPE.getDefaultState()
-						.with(BlockStateProperties.WATERLOGGED, waterlog[i]), 66);
+					level.setBlock(worldPosition.below(i), AllBlocks.ROPE.getDefaultState()
+						.setValue(BlockStateProperties.WATERLOGGED, waterlog[i]), 66);
 			}
 
 			if (movedContraption != null)
@@ -164,28 +163,28 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 	}
 
 	@Override
-	protected Vector3d toPosition(float offset) {
+	protected Vec3 toPosition(float offset) {
 		if (movedContraption.getContraption() instanceof PulleyContraption) {
 			PulleyContraption contraption = (PulleyContraption) movedContraption.getContraption();
-			return Vector3d.of(contraption.anchor).add(0, contraption.initialOffset - offset, 0);
+			return Vec3.atLowerCornerOf(contraption.anchor).add(0, contraption.initialOffset - offset, 0);
 
 		}
-		return Vector3d.ZERO;
+		return Vec3.ZERO;
 	}
 
 	@Override
 	protected void visitNewPosition() {
 		super.visitNewPosition();
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
 		if (movedContraption != null)
 			return;
 		if (getSpeed() <= 0)
 			return;
 
-		BlockPos posBelow = pos.down((int) (offset + getMovementSpeed()) + 1);
-		BlockState state = world.getBlockState(posBelow);
-		if (!BlockMovementChecks.isMovementNecessary(state, world, posBelow))
+		BlockPos posBelow = worldPosition.below((int) (offset + getMovementSpeed()) + 1);
+		BlockState state = level.getBlockState(posBelow);
+		if (!BlockMovementChecks.isMovementNecessary(state, level, posBelow))
 			return;
 		if (BlockMovementChecks.isBrittle(state))
 			return;
@@ -195,20 +194,20 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		initialOffset = compound.getInt("InitialOffset");
 		super.fromTag(state, compound, clientPacket);
 	}
 
 	@Override
-	public void write(CompoundNBT compound, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putInt("InitialOffset", initialOffset);
 		super.write(compound, clientPacket);
 	}
 
 	@Override
 	protected int getExtensionRange() {
-		return Math.max(0, Math.min(AllConfigs.SERVER.kinetics.maxRopeLength.get(), pos.getY() - 1));
+		return Math.max(0, Math.min(AllConfigs.SERVER.kinetics.maxRopeLength.get(), worldPosition.getY() - 1));
 	}
 
 	@Override
@@ -217,8 +216,8 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 	}
 
 	@Override
-	protected Vector3d toMotionVector(float speed) {
-		return new Vector3d(0, -speed, 0);
+	protected Vec3 toMotionVector(float speed) {
+		return new Vec3(0, -speed, 0);
 	}
 
 	@Override
@@ -229,7 +228,7 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 	@Override
 	public float getInterpolatedOffset(float partialTicks) {
 		if (isVirtual())
-			return MathHelper.lerp(partialTicks, prevAnimatedOffset, offset);
+			return Mth.lerp(partialTicks, prevAnimatedOffset, offset);
 		boolean moving = running && (movedContraption == null || !movedContraption.isStalled());
 		return super.getInterpolatedOffset(moving ? partialTicks : 0.5f);
 	}

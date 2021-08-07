@@ -11,6 +11,7 @@ import java.util.function.Function;
 
 import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.Create;
+import com.simibubi.create.content.palettes.PaletteBlockPattern.PatternNameType;
 import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 import com.simibubi.create.foundation.block.connected.CTSpriteShifter.CTType;
 import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
@@ -20,10 +21,10 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
-import net.minecraft.block.RotatedPillarBlock;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 
 public class PaletteBlockPattern {
 

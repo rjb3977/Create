@@ -2,26 +2,24 @@ package com.simibubi.create.foundation.ponder.instructions;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.foundation.ponder.ElementLink;
 import com.simibubi.create.foundation.ponder.PonderScene;
 import com.simibubi.create.foundation.ponder.elements.PonderSceneElement;
 
-import net.minecraft.util.math.vector.Vector3d;
-
 public class AnimateElementInstruction<T extends PonderSceneElement> extends TickingInstruction {
 
-	protected Vector3d deltaPerTick;
-	protected Vector3d totalDelta;
-	protected Vector3d target;
+	protected Vec3 deltaPerTick;
+	protected Vec3 totalDelta;
+	protected Vec3 target;
 	protected ElementLink<T> link;
 	protected T element;
 
-	private BiConsumer<T, Vector3d> setter;
-	private Function<T, Vector3d> getter;
+	private BiConsumer<T, Vec3> setter;
+	private Function<T, Vec3> getter;
 
-	protected AnimateElementInstruction(ElementLink<T> link, Vector3d totalDelta, int ticks,
-		BiConsumer<T, Vector3d> setter, Function<T, Vector3d> getter) {
+	protected AnimateElementInstruction(ElementLink<T> link, Vec3 totalDelta, int ticks,
+		BiConsumer<T, Vec3> setter, Function<T, Vec3> getter) {
 		super(false, ticks);
 		this.link = link;
 		this.setter = setter;

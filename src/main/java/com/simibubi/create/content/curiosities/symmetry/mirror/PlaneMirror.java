@@ -3,23 +3,21 @@ package com.simibubi.create.content.curiosities.symmetry.mirror;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.google.common.collect.ImmutableList;
 import com.jozufozu.flywheel.core.PartialModel;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-
 public class PlaneMirror extends SymmetryMirror {
 
-	public static enum Align implements IStringSerializable {
+	public static enum Align implements StringRepresentable {
 		XY("xy"), YZ("yz");
 
 		private final String name;
@@ -29,7 +27,7 @@ public class PlaneMirror extends SymmetryMirror {
 		}
 
 		@Override
-		public String getString() {
+		public String getSerializedName() {
 			return name;
 		}
 
@@ -39,7 +37,7 @@ public class PlaneMirror extends SymmetryMirror {
 		}
 	}
 
-	public PlaneMirror(Vector3d pos) {
+	public PlaneMirror(Vec3 pos) {
 		super(pos);
 		orientation = Align.XY;
 	}
@@ -88,7 +86,7 @@ public class PlaneMirror extends SymmetryMirror {
 	}
 
 	@Override
-	public void applyModelTransform(MatrixStack ms) {
+	public void applyModelTransform(PoseStack ms) {
 		super.applyModelTransform(ms);
 		MatrixStacker.of(ms)
 			.centre()
@@ -97,7 +95,7 @@ public class PlaneMirror extends SymmetryMirror {
 	}
 
 	@Override
-	public List<ITextComponent> getAlignToolTips() {
+	public List<Component> getAlignToolTips() {
 		return ImmutableList.of(Lang.translate("orientation.alongZ"), Lang.translate("orientation.alongX"));
 	}
 

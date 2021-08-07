@@ -6,10 +6,10 @@ import com.simibubi.create.lib.lba.fluid.FluidStack;
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 
 public class ContraptionFluidPacket implements S2CPacket {
 
@@ -26,24 +26,24 @@ public class ContraptionFluidPacket implements S2CPacket {
 	}
 
 	@Override
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		entityId = buffer.readInt();
 		localPos = buffer.readBlockPos();
 		containedFluid = FluidStack.readFromPacket(buffer);
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(entityId);
 		buffer.writeBlockPos(localPos);
 		containedFluid.writeToPacket(buffer);
 	}
 
 	@Override
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client
 			.execute(() -> {
-				Entity entityByID = Minecraft.getInstance().world.getEntityByID(entityId);
+				Entity entityByID = Minecraft.getInstance().level.getEntity(entityId);
 				if (!(entityByID instanceof AbstractContraptionEntity))
 					return;
 				AbstractContraptionEntity contraptionEntity = (AbstractContraptionEntity) entityByID;

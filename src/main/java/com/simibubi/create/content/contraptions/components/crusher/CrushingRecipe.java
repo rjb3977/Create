@@ -1,12 +1,10 @@
 package com.simibubi.create.content.contraptions.components.crusher;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.world.level.Level;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
-
-import net.minecraft.world.World;
 
 @ParametersAreNonnullByDefault
 public class CrushingRecipe extends AbstractCrushingRecipe {
@@ -16,7 +14,7 @@ public class CrushingRecipe extends AbstractCrushingRecipe {
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, World worldIn) {
+	public boolean matches(RecipeWrapper inv, Level worldIn) {
 		if (inv.isEmpty())
 			return false;
 		return ingredients.get(0)

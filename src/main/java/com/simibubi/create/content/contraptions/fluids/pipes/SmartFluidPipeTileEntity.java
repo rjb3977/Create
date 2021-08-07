@@ -1,9 +1,17 @@
 package com.simibubi.create.content.contraptions.fluids.pipes;
 
 import java.util.List;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.contraptions.fluids.FluidPropagator;
+import com.simibubi.create.content.contraptions.fluids.pipes.SmartFluidPipeTileEntity.SmartPipeBehaviour;
+import com.simibubi.create.content.contraptions.fluids.pipes.SmartFluidPipeTileEntity.SmartPipeFilterSlot;
 import com.simibubi.create.content.contraptions.fluids.pipes.StraightPipeTileEntity.StraightPipeFluidTransportBehaviour;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
@@ -14,19 +22,11 @@ import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.properties.AttachFace;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.vector.Vector3d;
-
 public class SmartFluidPipeTileEntity extends SmartTileEntity {
 
 	private FilteringBehaviour filter;
 
-	public SmartFluidPipeTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public SmartFluidPipeTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 
@@ -38,9 +38,9 @@ public class SmartFluidPipeTileEntity extends SmartTileEntity {
 	}
 
 	private void onFilterChanged(ItemStack newFilter) {
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
-		FluidPropagator.propagateChangedPipe(world, pos, getBlockState());
+		FluidPropagator.propagateChangedPipe(level, worldPosition, getBlockState());
 	}
 
 	class SmartPipeBehaviour extends StraightPipeFluidTransportBehaviour {
@@ -67,24 +67,24 @@ public class SmartFluidPipeTileEntity extends SmartTileEntity {
 	class SmartPipeFilterSlot extends ValueBoxTransform {
 
 		@Override
-		protected Vector3d getLocalOffset(BlockState state) {
-			AttachFace face = state.get(SmartFluidPipeBlock.FACE);
+		protected Vec3 getLocalOffset(BlockState state) {
+			AttachFace face = state.getValue(SmartFluidPipeBlock.FACE);
 			float y = face == AttachFace.CEILING ? 0.3f : face == AttachFace.WALL ? 11.3f : 15.3f;
 			float z = face == AttachFace.CEILING ? 4.6f : face == AttachFace.WALL ? 0.6f : 4.6f;
 			return VecHelper.rotateCentered(VecHelper.voxelSpace(8, y, z), angleY(state), Axis.Y);
 		}
 
 		@Override
-		protected void rotate(BlockState state, MatrixStack ms) {
-			AttachFace face = state.get(SmartFluidPipeBlock.FACE);
+		protected void rotate(BlockState state, PoseStack ms) {
+			AttachFace face = state.getValue(SmartFluidPipeBlock.FACE);
 			MatrixStacker.of(ms)
 				.rotateY(angleY(state))
 				.rotateX(face == AttachFace.CEILING ? -45 : 45);
 		}
 
 		protected float angleY(BlockState state) {
-			AttachFace face = state.get(SmartFluidPipeBlock.FACE);
-			float horizontalAngle = AngleHelper.horizontalAngle(state.get(SmartFluidPipeBlock.HORIZONTAL_FACING));
+			AttachFace face = state.getValue(SmartFluidPipeBlock.FACE);
+			float horizontalAngle = AngleHelper.horizontalAngle(state.getValue(SmartFluidPipeBlock.FACING));
 			if (face == AttachFace.WALL)
 				horizontalAngle += 180;
 			return horizontalAngle;

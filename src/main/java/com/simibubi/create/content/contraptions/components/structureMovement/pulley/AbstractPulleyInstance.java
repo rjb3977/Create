@@ -1,7 +1,11 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.pulley;
 
 import java.util.Arrays;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.LightLayer;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.backend.instancing.MaterialManager;
@@ -12,15 +16,9 @@ import com.jozufozu.flywheel.core.materials.OrientedData;
 import com.jozufozu.flywheel.light.GridAlignedBB;
 import com.jozufozu.flywheel.light.ILightUpdateListener;
 import com.jozufozu.flywheel.light.LightUpdater;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.relays.encased.ShaftInstance;
-
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.IBlockDisplayReader;
-import net.minecraft.world.LightType;
 
 public abstract class AbstractPulleyInstance extends ShaftInstance implements IDynamicInstance, ILightUpdateListener {
 
@@ -40,8 +38,8 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 	public AbstractPulleyInstance(MaterialManager<?> dispatcher, KineticTileEntity tile) {
 		super(dispatcher, tile);
 
-		rotatingAbout = Direction.getFacingFromAxis(Direction.AxisDirection.POSITIVE, axis);
-		rotationAxis = rotatingAbout.getUnitVector();
+		rotatingAbout = Direction.get(Direction.AxisDirection.POSITIVE, axis);
+		rotationAxis = rotatingAbout.step();
 
 		coil = getCoilModel()
 				.createInstance()
@@ -66,7 +64,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 	private void transformModels() {
 		resizeRope();
 
-		coil.setRotation(rotationAxis.getDegreesQuaternion(offset * 180));
+		coil.setRotation(rotationAxis.rotationDegrees(offset * 180));
 		magnet.update().get().ifPresent(data ->
 				{
 					int index = Math.max(0, MathHelper.floor(offset));
@@ -134,7 +132,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 		int neededRopeCount = getNeededRopeCount();
 		rope.resize(neededRopeCount);
 
-		int length = MathHelper.ceil(offset);
+		int length = Mth.ceil(offset);
 
 		if (volume == null || bLight.length < length + 1) {
 			volume = GridAlignedBB.from(pos.down(length), pos);
@@ -154,7 +152,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 	}
 
 	private int getNeededRopeCount() {
-		return Math.max(0, MathHelper.ceil(offset - 1.25f));
+		return Math.max(0, Mth.ceil(offset - 1.25f));
 	}
 
 	private boolean shouldRenderHalfRope() {
@@ -176,7 +174,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 	}
 
 	@Override
-	public boolean onLightUpdate(IBlockDisplayReader world, LightType type, GridAlignedBB changed) {
+	public boolean onLightUpdate(BlockAndTintGetter world, LightLayer type, GridAlignedBB changed) {
 		changed.intersectAssign(volume);
 
 		initLight(world, changed);
@@ -184,9 +182,9 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 		return false;
 	}
 
-	private void initLight(IBlockDisplayReader world, GridAlignedBB changed) {
+	private void initLight(BlockAndTintGetter world, GridAlignedBB changed) {
 		int top = this.pos.getY();
-		BlockPos.Mutable pos = new BlockPos.Mutable();
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		changed.forEachContained((x, y, z) -> {
 			pos.setPos(x, y, z);
 			byte block = (byte) world.getLightLevel(LightType.BLOCK, pos);

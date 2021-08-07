@@ -1,7 +1,14 @@
 package com.simibubi.create.foundation.ponder.content;
 
 import java.util.Collection;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -18,15 +25,6 @@ import com.simibubi.create.foundation.utility.Pointing;
 
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-
 public class CrafterScenes {
 
 	public static void setup(SceneBuilder scene, SceneBuildingUtil util) {
@@ -40,7 +38,7 @@ public class CrafterScenes {
 		BlockPos depotPos = util.grid.at(0, 1, 2);
 		Selection crafters = util.select.fromTo(1, 1, 2, 3, 3, 2);
 
-		scene.world.modifyBlocks(crafters, s -> s.with(MechanicalCrafterBlock.POINTING, Pointing.DOWN), false);
+		scene.world.modifyBlocks(crafters, s -> s.setValue(MechanicalCrafterBlock.POINTING, Pointing.DOWN), false);
 		scene.world.setKineticSpeed(crafters, 0);
 
 		for (int y = 0; y < 3; y++) {
@@ -106,12 +104,12 @@ public class CrafterScenes {
 
 		for (Couple<BlockPos> c : couples) {
 			scene.idle(5);
-			Vector3d p1 = util.vector.blockSurface(c.getFirst(), Direction.NORTH)
+			Vec3 p1 = util.vector.blockSurface(c.getFirst(), Direction.NORTH)
 				.add(0, 0, -0.125);
-			Vector3d p2 = util.vector.blockSurface(c.getSecond(), Direction.NORTH)
+			Vec3 p2 = util.vector.blockSurface(c.getSecond(), Direction.NORTH)
 				.add(0, 0, -0.125);
-			AxisAlignedBB point = new AxisAlignedBB(p1, p1);
-			AxisAlignedBB line = new AxisAlignedBB(p1, p2);
+			AABB point = new AABB(p1, p1);
+			AABB line = new AABB(p1, p2);
 			scene.overlay.chaseBoundingBoxOutline(PonderPalette.GREEN, p1, point, 2);
 			scene.idle(1);
 			scene.overlay.chaseBoundingBoxOutline(PonderPalette.GREEN, p1, line, 30);
@@ -280,8 +278,8 @@ public class CrafterScenes {
 		scene.rotateCameraY(-60 - 90 - 30);
 		scene.idle(40);
 
-		Vector3d v = util.vector.blockSurface(util.grid.at(2, 2, 2), Direction.WEST);
-		AxisAlignedBB bb = new AxisAlignedBB(v, v).grow(.125f, .5, .5);
+		Vec3 v = util.vector.blockSurface(util.grid.at(2, 2, 2), Direction.WEST);
+		AABB bb = new AABB(v, v).inflate(.125f, .5, .5);
 		v = v.add(0, 0, .5);
 
 		scene.overlay.chaseBoundingBoxOutline(PonderPalette.WHITE, new Object(), bb, 45);
@@ -349,7 +347,7 @@ public class CrafterScenes {
 		scene.configureBasePlate(0, 0, 5);
 		scene.world.showSection(util.select.layer(0), Direction.UP);
 
-		scene.world.setBlock(util.grid.at(2, 2, 2), Blocks.AIR.getDefaultState(), false);
+		scene.world.setBlock(util.grid.at(2, 2, 2), Blocks.AIR.defaultBlockState(), false);
 
 		Selection kinetics = util.select.fromTo(3, 1, 2, 3, 1, 5);
 		scene.world.setKineticSpeed(util.select.fromTo(1, 2, 2, 3, 1, 2), 0);

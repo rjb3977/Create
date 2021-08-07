@@ -12,19 +12,19 @@ import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.model.SpriteFinder;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachedBlockView;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BeltModel extends ForwardingBakedModel {
 
-	private static final ThreadLocal<SpriteFinder> SPRITE_FINDER = ThreadLocal.withInitial(() -> SpriteFinder.get(Minecraft.getInstance().getModelManager().method_24153(AtlasTexture.LOCATION_BLOCKS_TEXTURE)));
+	private static final ThreadLocal<SpriteFinder> SPRITE_FINDER = ThreadLocal.withInitial(() -> SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS)));
 
-	public BeltModel(IBakedModel template) {
+	public BeltModel(BakedModel template) {
 		wrapped = template;
 	}
 
@@ -34,7 +34,7 @@ public class BeltModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public void emitBlockQuads(IBlockDisplayReader blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
+	public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 		Object attachment = ((RenderAttachedBlockView) blockView).getBlockEntityRenderAttachment(pos);
 		boolean applyTransform = false;
 		if (attachment instanceof CasingType) {
@@ -49,8 +49,8 @@ public class BeltModel extends ForwardingBakedModel {
 				for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
 					float u = quad.spriteU(vertexIndex, 0);
 					float v = quad.spriteV(vertexIndex, 0);
-					u = target.getInterpolatedU(SuperByteBuffer.getUnInterpolatedU(original, u));
-					v = target.getInterpolatedV(SuperByteBuffer.getUnInterpolatedV(original, v));
+					u = target.getU(SuperByteBuffer.getUnInterpolatedU(original, u));
+					v = target.getV(SuperByteBuffer.getUnInterpolatedV(original, v));
 					quad.sprite(vertexIndex, 0, u, v);
 				}
 				return true;

@@ -3,7 +3,17 @@ package com.simibubi.create.content.contraptions.processing;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
+import net.minecraft.client.renderer.block.model.multipart.Condition;
+import net.minecraft.core.NonNullList;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.Fluid;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.simibubi.create.AllRecipeTypes;
@@ -16,23 +26,11 @@ import com.simibubi.create.lib.condition.ModLoadedCondition;
 import com.simibubi.create.lib.condition.NotCondition;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
-import net.minecraft.client.renderer.model.multipart.ICondition;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-
 public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 
 	protected ProcessingRecipeFactory<T> factory;
 	protected ProcessingRecipeParams params;
-	protected List<ICondition> recipeConditions;
+	protected List<Condition> recipeConditions;
 
 	public ProcessingRecipeBuilder(ProcessingRecipeFactory<T> factory, ResourceLocation recipeId) {
 		params = new ProcessingRecipeParams(recipeId);
@@ -41,7 +39,7 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 	}
 
 	public ProcessingRecipeBuilder<T> withItemIngredients(Ingredient... ingredients) {
-		return withItemIngredients(NonNullList.from(Ingredient.EMPTY, ingredients));
+		return withItemIngredients(NonNullList.of(Ingredient.EMPTY, ingredients));
 	}
 
 	public ProcessingRecipeBuilder<T> withItemIngredients(NonNullList<Ingredient> ingredients) {
@@ -54,7 +52,7 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 	}
 
 	public ProcessingRecipeBuilder<T> withItemOutputs(ProcessingOutput... outputs) {
-		return withItemOutputs(NonNullList.from(ProcessingOutput.EMPTY, outputs));
+		return withItemOutputs(NonNullList.of(ProcessingOutput.EMPTY, outputs));
 	}
 
 	public ProcessingRecipeBuilder<T> withItemOutputs(NonNullList<ProcessingOutput> outputs) {
@@ -63,7 +61,7 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 	}
 
 	public ProcessingRecipeBuilder<T> withFluidIngredients(FluidIngredient... ingredients) {
-		return withFluidIngredients(NonNullList.from(FluidIngredient.EMPTY, ingredients));
+		return withFluidIngredients(NonNullList.of(FluidIngredient.EMPTY, ingredients));
 	}
 
 	public ProcessingRecipeBuilder<T> withFluidIngredients(NonNullList<FluidIngredient> ingredients) {
@@ -72,7 +70,7 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 	}
 
 	public ProcessingRecipeBuilder<T> withFluidOutputs(FluidStack... outputs) {
-		return withFluidOutputs(NonNullList.from(FluidStack.EMPTY, outputs));
+		return withFluidOutputs(NonNullList.of(FluidStack.EMPTY, outputs));
 	}
 
 	public ProcessingRecipeBuilder<T> withFluidOutputs(NonNullList<FluidStack> outputs) {
@@ -98,18 +96,18 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		return factory.create(params);
 	}
 
-	public void build(Consumer<IFinishedRecipe> consumer) {
+	public void build(Consumer<FinishedRecipe> consumer) {
 		consumer.accept(new DataGenResult<>(build(), recipeConditions));
 	}
 
 	// Datagen shortcuts
 
-	public ProcessingRecipeBuilder<T> require(ITag.INamedTag<Item> tag) {
-		return require(Ingredient.fromTag(tag));
+	public ProcessingRecipeBuilder<T> require(Tag.Named<Item> tag) {
+		return require(Ingredient.of(tag));
 	}
 
-	public ProcessingRecipeBuilder<T> require(IItemProvider item) {
-		return require(Ingredient.fromItems(item));
+	public ProcessingRecipeBuilder<T> require(ItemLike item) {
+		return require(Ingredient.of(item));
 	}
 
 	public ProcessingRecipeBuilder<T> require(Ingredient ingredient) {
@@ -121,7 +119,7 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		return require(FluidIngredient.fromFluid(fluid, amount));
 	}
 
-	public ProcessingRecipeBuilder<T> require(ITag.INamedTag<Fluid> fluidTag, int amount) {
+	public ProcessingRecipeBuilder<T> require(Tag.Named<Fluid> fluidTag, int amount) {
 		return require(FluidIngredient.fromTag(fluidTag, amount));
 	}
 
@@ -130,19 +128,19 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		return this;
 	}
 
-	public ProcessingRecipeBuilder<T> output(IItemProvider item) {
+	public ProcessingRecipeBuilder<T> output(ItemLike item) {
 		return output(item, 1);
 	}
 
-	public ProcessingRecipeBuilder<T> output(float chance, IItemProvider item) {
+	public ProcessingRecipeBuilder<T> output(float chance, ItemLike item) {
 		return output(chance, item, 1);
 	}
 
-	public ProcessingRecipeBuilder<T> output(IItemProvider item, int amount) {
+	public ProcessingRecipeBuilder<T> output(ItemLike item, int amount) {
 		return output(1, item, amount);
 	}
 
-	public ProcessingRecipeBuilder<T> output(float chance, IItemProvider item, int amount) {
+	public ProcessingRecipeBuilder<T> output(float chance, ItemLike item, int amount) {
 		return output(chance, new ItemStack(item, amount));
 	}
 
@@ -180,7 +178,7 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		return withCondition(new NotCondition(new ModLoadedCondition(modid)));
 	}
 
-	public ProcessingRecipeBuilder<T> withCondition(ICondition condition) {
+	public ProcessingRecipeBuilder<T> withCondition(Condition condition) {
 		recipeConditions.add(condition);
 		return this;
 	}
@@ -212,15 +210,15 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 
 	}
 
-	public static class DataGenResult<S extends ProcessingRecipe<?>> implements IFinishedRecipe {
+	public static class DataGenResult<S extends ProcessingRecipe<?>> implements FinishedRecipe {
 
-		private List<ICondition> recipeConditions;
+		private List<Condition> recipeConditions;
 		private ProcessingRecipeSerializer<S> serializer;
 		private ResourceLocation id;
 		private S recipe;
 
 		@SuppressWarnings("unchecked")
-		public DataGenResult(S recipe, List<ICondition> recipeConditions) {
+		public DataGenResult(S recipe, List<Condition> recipeConditions) {
 			this.recipeConditions = recipeConditions;
 			AllRecipeTypes recipeType = recipe.getEnumType();
 			String typeName = Lang.asId(recipeType.name());
@@ -235,7 +233,7 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		}
 
 		@Override
-		public void serialize(JsonObject json) {
+		public void serializeRecipeData(JsonObject json) {
 			serializer.write(json, recipe);
 			if (recipeConditions.isEmpty())
 				return;
@@ -246,22 +244,22 @@ public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 		}
 
 		@Override
-		public ResourceLocation getID() {
+		public ResourceLocation getId() {
 			return id;
 		}
 
 		@Override
-		public IRecipeSerializer<?> getSerializer() {
+		public RecipeSerializer<?> getType() {
 			return serializer;
 		}
 
 		@Override
-		public JsonObject getAdvancementJson() {
+		public JsonObject serializeAdvancement() {
 			return null;
 		}
 
 		@Override
-		public ResourceLocation getAdvancementID() {
+		public ResourceLocation getAdvancementId() {
 			return null;
 		}
 

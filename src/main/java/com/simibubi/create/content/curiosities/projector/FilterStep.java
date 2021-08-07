@@ -2,12 +2,10 @@ package com.simibubi.create.content.curiosities.projector;
 
 import java.util.Iterator;
 import java.util.Vector;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import com.mojang.math.Matrix4f;
 import com.simibubi.create.foundation.render.effects.ColorMatrices;
-
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.math.vector.Matrix4f;
 
 public class FilterStep {
 
@@ -24,7 +22,7 @@ public class FilterStep {
 		this.value = value;
 	}
 
-	public FilterStep(CompoundNBT nbt) {
+	public FilterStep(CompoundTag nbt) {
 		this.filter = ColorEffect.lookup.get(nbt.getString("id"));
 		this.value = nbt.getInt("value");
 	}
@@ -33,8 +31,8 @@ public class FilterStep {
 		return filter.filter.create(value / filter.divisor);
 	}
 
-	public CompoundNBT write() {
-		CompoundNBT nbt = new CompoundNBT();
+	public CompoundTag write() {
+		CompoundTag nbt = new CompoundTag();
 
 		nbt.putString("id", filter.name);
 		nbt.putInt("value", value);
@@ -42,7 +40,7 @@ public class FilterStep {
 		return nbt;
 	}
 
-	public static Vector<FilterStep> readAll(ListNBT list) {
+	public static Vector<FilterStep> readAll(ListTag list) {
 		Vector<FilterStep> steps = new Vector<>(MAX_STEPS);
 
 		for (int i = 0; i < list.size(); i++) {
@@ -52,8 +50,8 @@ public class FilterStep {
 		return steps;
 	}
 
-	public static ListNBT writeAll(Vector<FilterStep> filters) {
-		ListNBT out = new ListNBT();
+	public static ListTag writeAll(Vector<FilterStep> filters) {
+		ListTag out = new ListTag();
 
 		for (FilterStep filter : filters) {
 			out.add(filter.write());

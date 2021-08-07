@@ -8,24 +8,24 @@ import com.simibubi.create.AllItems;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class LitBlazeBurnerBlock extends Block implements BlockPickInteractionAware {
 
@@ -46,47 +46,47 @@ public class LitBlazeBurnerBlock extends Block implements BlockPickInteractionAw
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-		BlockRayTraceResult blockRayTraceResult) {
-		ItemStack heldItem = player.getHeldItem(hand);
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
+		BlockHitResult blockRayTraceResult) {
+		ItemStack heldItem = player.getItemInHand(hand);
 
 		// Check for 'Shovels'
-		if (!heldItem.canHarvestBlock(Blocks.SNOW.getDefaultState()))
-			return ActionResultType.PASS;
+		if (!heldItem.isCorrectToolForDrops(Blocks.SNOW.defaultBlockState()))
+			return InteractionResult.PASS;
 
-		world.playSound(player, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, .5f, 2);
+		world.playSound(player, pos, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, .5f, 2);
 
-		if (world.isRemote)
-			return ActionResultType.SUCCESS;
+		if (world.isClientSide)
+			return InteractionResult.SUCCESS;
 		if (!player.isCreative())
-			heldItem.damageItem(1, player, p -> p.sendBreakAnimation(hand));
+			heldItem.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
 
-		world.setBlockState(pos, AllBlocks.BLAZE_BURNER.getDefaultState());
-		return ActionResultType.SUCCESS;
+		world.setBlockAndUpdate(pos, AllBlocks.BLAZE_BURNER.getDefaultState());
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext context) {
+	public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext context) {
 		return AllBlocks.BLAZE_BURNER.get()
 			.getShape(state, reader, pos, context);
 	}
 
 	@Override
-	public ItemStack getPickedStack(BlockState state, IBlockReader world, BlockPos pos, PlayerEntity player, RayTraceResult target) {
+	public ItemStack getPickedStack(BlockState state, BlockGetter world, BlockPos pos, Player player, HitResult target) {
 		return AllItems.EMPTY_BLAZE_BURNER.asStack();
 	}
 
 	@Environment(EnvType.CLIENT)
-	public void animateTick(BlockState p_180655_1_, World world, BlockPos pos, Random random) {
-		world.addOptionalParticle(ParticleTypes.LARGE_SMOKE, true,
+	public void animateTick(BlockState p_180655_1_, Level world, BlockPos pos, Random random) {
+		world.addAlwaysVisibleParticle(ParticleTypes.LARGE_SMOKE, true,
 			(double) pos.getX() + 0.5D + random.nextDouble() / 3.0D * (double) (random.nextBoolean() ? 1 : -1),
 			(double) pos.getY() + random.nextDouble() + random.nextDouble(),
 			(double) pos.getZ() + 0.5D + random.nextDouble() / 3.0D * (double) (random.nextBoolean() ? 1 : -1), 0.0D,
 			0.07D, 0.0D);
 
 		if (random.nextInt(10) == 0) {
-			world.playSound((double) ((float) pos.getX() + 0.5F), (double) ((float) pos.getY() + 0.5F),
-				(double) ((float) pos.getZ() + 0.5F), SoundEvents.BLOCK_CAMPFIRE_CRACKLE, SoundCategory.BLOCKS,
+			world.playLocalSound((double) ((float) pos.getX() + 0.5F), (double) ((float) pos.getY() + 0.5F),
+				(double) ((float) pos.getZ() + 0.5F), SoundEvents.CAMPFIRE_CRACKLE, SoundSource.BLOCKS,
 				0.25F + random.nextFloat() * .25f, random.nextFloat() * 0.7F + 0.6F, false);
 		}
 
@@ -100,24 +100,24 @@ public class LitBlazeBurnerBlock extends Block implements BlockPickInteractionAw
 	}
 	
 	@Override
-	public boolean hasComparatorInputOverride(BlockState p_149740_1_) {
+	public boolean hasAnalogOutputSignal(BlockState p_149740_1_) {
 		return true;
 	}
 	
 	@Override
-	public int getComparatorInputOverride(BlockState state, World p_180641_2_, BlockPos p_180641_3_) {
+	public int getAnalogOutputSignal(BlockState state, Level p_180641_2_, BlockPos p_180641_3_) {
 		return 1;
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, IBlockReader reader, BlockPos pos,
-		ISelectionContext context) {
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter reader, BlockPos pos,
+		CollisionContext context) {
 		return AllBlocks.BLAZE_BURNER.get()
 			.getCollisionShape(state, reader, pos, context);
 	}
 	
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

@@ -4,14 +4,13 @@ import com.simibubi.create.lib.extensions.EntityExtensions;
 
 import com.simibubi.create.lib.mixin.accessor.EntityAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 
 public final class EntityHelper {
 	public static final String EXTRA_DATA_KEY = "create_ExtraEntityData";
 
-	public static CompoundNBT getExtraCustomData(Entity entity) {
+	public static CompoundTag getExtraCustomData(Entity entity) {
 		return ((EntityExtensions) entity).create$getExtraCustomData();
 	}
 

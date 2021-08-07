@@ -6,10 +6,10 @@ import com.simibubi.create.content.schematics.block.SchematicannonTileEntity.Sta
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 public class ConfigureSchematicannonPacket implements C2SPacket {
 
@@ -27,22 +27,22 @@ public class ConfigureSchematicannonPacket implements C2SPacket {
 		this.set = set;
 	}
 
-	public void read(PacketBuffer buffer) {
-		option = buffer.readEnumValue(Option.class);
+	public void read(FriendlyByteBuf buffer) {
+		option = buffer.readEnum(Option.class);
 		set = buffer.readBoolean();
 	}
 
-	public void write(PacketBuffer buffer) {
-		buffer.writeEnumValue(option);
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeEnum(option);
 		buffer.writeBoolean(set);
 	}
 
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, ResponseTarget responseTarget) {
 		server.execute(() -> {
-			if (player == null || !(player.openContainer instanceof SchematicannonContainer))
+			if (player == null || !(player.containerMenu instanceof SchematicannonContainer))
 				return;
 
-			SchematicannonTileEntity te = ((SchematicannonContainer) player.openContainer).getTileEntity();
+			SchematicannonTileEntity te = ((SchematicannonContainer) player.containerMenu).getTileEntity();
 			switch (option) {
 			case DONT_REPLACE:
 			case REPLACE_ANY:

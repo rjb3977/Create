@@ -1,12 +1,12 @@
 package com.simibubi.create.lib.lba.item;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class SlotItemHandler extends Slot {
-	public SlotItemHandler(IInventory iInventory, int i, int j, int k) {
+	public SlotItemHandler(Container iInventory, int i, int j, int k) {
 		super(iInventory, i, j, k);
 	}
 
@@ -14,12 +14,12 @@ public class SlotItemHandler extends Slot {
 		super(handlerToInv(handler), index, x, y);
 	}
 
-	public static Inventory handlerToInv(IItemHandler handler) {
+	public static SimpleContainer handlerToInv(IItemHandler handler) {
 		ItemStack[] itemStacks = new ItemStack[handler.getSlots()];
 		for (int i = 0; i < handler.getSlots(); i++) {
 			itemStacks[i] = handler.getStackInSlot(i);
 		}
-		return new Inventory(itemStacks);
+		return new SimpleContainer(itemStacks);
 	}
 
 	/**
@@ -31,7 +31,7 @@ public class SlotItemHandler extends Slot {
 		for (int i = 0; i < handler.getSlots(); i++) {
 			itemStacks[i] = handler.getStackInSlot(i);
 		}
-		Inventory inv = new Inventory(itemStacks);
+		SimpleContainer inv = new SimpleContainer(itemStacks);
 		return new SlotItemHandler(inv, index, x, y);
 	}
 }

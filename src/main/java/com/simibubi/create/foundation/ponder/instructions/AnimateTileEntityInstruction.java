@@ -3,15 +3,13 @@ package com.simibubi.create.foundation.ponder.instructions;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import com.simibubi.create.content.contraptions.components.deployer.DeployerTileEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.bearing.IBearingTileEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.pulley.PulleyTileEntity;
 import com.simibubi.create.foundation.ponder.PonderScene;
 import com.simibubi.create.foundation.ponder.PonderWorld;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 
 public class AnimateTileEntityInstruction extends TickingInstruction {
 
@@ -74,7 +72,7 @@ public class AnimateTileEntityInstruction extends TickingInstruction {
 	}
 
 	private static <T> Optional<T> castIfPresent(PonderWorld world, BlockPos pos, Class<T> teType) {
-		TileEntity tileEntity = world.getTileEntity(pos);
+		BlockEntity tileEntity = world.getBlockEntity(pos);
 		if (teType.isInstance(tileEntity))
 			return Optional.of(teType.cast(tileEntity));
 		return Optional.empty();

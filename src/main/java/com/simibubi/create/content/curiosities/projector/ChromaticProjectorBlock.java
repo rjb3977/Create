@@ -5,19 +5,18 @@ import javax.annotation.Nullable;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.gui.ScreenOpener;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
@@ -28,20 +27,20 @@ public class ChromaticProjectorBlock extends Block implements ITE<ChromaticProje
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-								  BlockRayTraceResult hit) {
-		ItemStack held = player.getHeldItemMainhand();
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
+								  BlockHitResult hit) {
+		ItemStack held = player.getMainHandItem();
 		if (AllItems.WRENCH.isIn(held))
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
 				() -> () -> withTileEntityDo(worldIn, pos, te -> this.displayScreen(te, player)));
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@OnlyIn(value = Dist.CLIENT)
-	protected void displayScreen(ChromaticProjectorTileEntity te, PlayerEntity player) {
-		if (player instanceof ClientPlayerEntity)
+	protected void displayScreen(ChromaticProjectorTileEntity te, Player player) {
+		if (player instanceof LocalPlayer)
 			ScreenOpener.open(new ChromaticProjectorScreen(te));
 	}
 
@@ -52,7 +51,7 @@ public class ChromaticProjectorBlock extends Block implements ITE<ChromaticProje
 
 	@Nullable
 	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+	public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
 		return null;//AllTileEntities.CHROMATIC_PROJECTOR.create();
 	}
 

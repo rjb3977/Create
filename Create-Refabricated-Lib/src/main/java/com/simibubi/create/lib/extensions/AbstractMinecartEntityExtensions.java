@@ -1,9 +1,8 @@
 package com.simibubi.create.lib.extensions;
 
 import com.simibubi.create.lib.utility.MinecartController;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 
 public interface AbstractMinecartEntityExtensions {
 	void create$moveMinecartOnRail(BlockPos pos);

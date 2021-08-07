@@ -15,14 +15,14 @@ public class InputEvents {
 	public static void onKeyInput(int key, int scancode, int action, int mods) {
 		boolean pressed = action != 0;
 
-		if (Minecraft.getInstance().currentScreen != null)
+		if (Minecraft.getInstance().screen != null)
 			return;
 
 		CreateClient.SCHEMATIC_HANDLER.onKeyInput(key, pressed);
 	}
 
 	public static boolean onMouseScrolled(double delta) {
-		if (Minecraft.getInstance().currentScreen != null)
+		if (Minecraft.getInstance().screen != null)
 			return false;
 
 		// upstream comment
@@ -34,7 +34,7 @@ public class InputEvents {
 	}
 
 	public static void onMouseInput(int button, int action, int mods) {
-		if (Minecraft.getInstance().currentScreen != null)
+		if (Minecraft.getInstance().screen != null)
 			return;
 
 		boolean pressed = action != 0;
@@ -44,7 +44,7 @@ public class InputEvents {
 	}
 
 	public static void onClickInput(int button, int action, int mods) {
-		if (Minecraft.getInstance().currentScreen != null)
+		if (Minecraft.getInstance().screen != null)
 			return;
 
 		if (button == 1)

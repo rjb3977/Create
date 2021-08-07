@@ -2,7 +2,7 @@ package com.simibubi.create.foundation.data;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import NonNullSupplier;
 import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
 import com.jozufozu.flywheel.backend.instancing.entity.IEntityInstanceFactory;
 import com.tterrag.registrate.AbstractRegistrate;
@@ -12,9 +12,9 @@ import com.tterrag.registrate.builders.EntityBuilder;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
 import net.fabricmc.api.EnvType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 
 @ParametersAreNonnullByDefault
 public class CreateEntityBuilder<T extends Entity, P> extends EntityBuilder<T, P> {
@@ -22,11 +22,11 @@ public class CreateEntityBuilder<T extends Entity, P> extends EntityBuilder<T, P
 	@Nullable
 	private NonNullSupplier<IEntityInstanceFactory<? super T>> instanceFactory;
 
-	public static <T extends Entity, P> EntityBuilder<T, P> create(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, EntityType.IFactory<T> factory, EntityClassification classification) {
+	public static <T extends Entity, P> EntityBuilder<T, P> create(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, EntityType.EntityFactory<T> factory, MobCategory classification) {
 		return (new CreateEntityBuilder<>(owner, parent, name, callback, factory, classification)).defaultLang();
 	}
 
-	public CreateEntityBuilder(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, EntityType.IFactory<T> factory, EntityClassification classification) {
+	public CreateEntityBuilder(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, EntityType.EntityFactory<T> factory, MobCategory classification) {
 		super(owner, parent, name, callback, factory, classification);
 	}
 

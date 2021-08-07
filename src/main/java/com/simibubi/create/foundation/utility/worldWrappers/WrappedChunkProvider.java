@@ -5,19 +5,17 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkSource;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import com.simibubi.create.foundation.utility.worldWrappers.chunk.EmptierChunk;
 import com.simibubi.create.foundation.utility.worldWrappers.chunk.WrappedChunk;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.chunk.AbstractChunkProvider;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.lighting.WorldLightManager;
-
-public class WrappedChunkProvider extends AbstractChunkProvider {
+public class WrappedChunkProvider extends ChunkSource {
     private PlacementSimulationWorld world;
 
     public HashMap<Long, WrappedChunk> chunks;
@@ -32,28 +30,28 @@ public class WrappedChunkProvider extends AbstractChunkProvider {
         return world.blocksAdded
                 .entrySet()
                 .stream()
-                .filter(it -> it.getValue().getLightValue() != 0)
+                .filter(it -> it.getValue().getLightEmission() != 0)
                 .map(Map.Entry::getKey);
     }
 
     @Nullable
     @Override
-    public IBlockReader getChunkForLight(int x, int z) {
+    public BlockGetter getChunkForLighting(int x, int z) {
         return getChunk(x, z);
     }
 
     @Override
-    public IBlockReader getWorld() {
+    public BlockGetter getLevel() {
         return world;
     }
 
     @Nullable
     @Override
-    public IChunk getChunk(int x, int z, ChunkStatus status, boolean p_212849_4_) {
+    public ChunkAccess getChunk(int x, int z, ChunkStatus status, boolean p_212849_4_) {
         return getChunk(x, z);
     }
 
-    public IChunk getChunk(int x, int z) {
+    public ChunkAccess getChunk(int x, int z) {
         long pos = ChunkPos.asLong(x, z);
 
         if (chunks == null)
@@ -63,12 +61,12 @@ public class WrappedChunkProvider extends AbstractChunkProvider {
     }
 
     @Override
-    public String makeString() {
+    public String gatherStats() {
         return "WrappedChunkProvider";
     }
 
     @Override
-    public WorldLightManager getLightManager() {
-        return world.getLightingProvider();
+    public LevelLightEngine getLightEngine() {
+        return world.getLightEngine();
     }
 }

@@ -16,78 +16,78 @@ import com.simibubi.create.lib.extensions.BlockExtensions;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 
-public abstract class AbstractFunnelBlock extends Block implements ITE<FunnelTileEntity>, IWrenchable, ITileEntityProvider, BlockExtensions {
+public abstract class AbstractFunnelBlock extends Block implements ITE<FunnelTileEntity>, IWrenchable, EntityBlock, BlockExtensions {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
 	protected AbstractFunnelBlock(Properties p_i48377_1_) {
 		super(p_i48377_1_);
-		setDefaultState(getDefaultState().with(POWERED, false));
+		registerDefaultState(defaultBlockState().setValue(POWERED, false));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		return getDefaultState().with(POWERED, context.getWorld()
-			.isBlockPowered(context.getPos()));
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return defaultBlockState().setValue(POWERED, context.getLevel()
+			.hasNeighborSignal(context.getClickedPos()));
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		super.fillStateContainer(builder.add(POWERED));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder.add(POWERED));
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public boolean create$addDestroyEffects(BlockState state, World world, BlockPos pos, ParticleManager manager) {
+	public boolean create$addDestroyEffects(BlockState state, Level world, BlockPos pos, ParticleEngine manager) {
 		BlockHelper.addReducedDestroyEffects(state, world, pos, manager);
 		return true;
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 		boolean isMoving) {
-		if (worldIn.isRemote)
+		if (worldIn.isClientSide)
 			return;
 		InvManipulationBehaviour behaviour = TileEntityBehaviour.get(worldIn, pos, InvManipulationBehaviour.TYPE);
 		if (behaviour != null)
 			behaviour.onNeighborChanged(fromPos);
-		if (!worldIn.getPendingBlockTicks()
-			.isTickPending(pos, this))
-			worldIn.getPendingBlockTicks()
+		if (!worldIn.getBlockTicks()
+			.willTickThisTick(pos, this))
+			worldIn.getBlockTicks()
 				.scheduleTick(pos, this, 0);
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random r) {
-		boolean previouslyPowered = state.get(POWERED);
-		if (previouslyPowered != worldIn.isBlockPowered(pos))
-			worldIn.setBlockState(pos, state.cycle(POWERED), 2);
+	public void tick(BlockState state, ServerLevel worldIn, BlockPos pos, Random r) {
+		boolean previouslyPowered = state.getValue(POWERED);
+		if (previouslyPowered != worldIn.hasNeighborSignal(pos))
+			worldIn.setBlock(pos, state.cycle(POWERED), 2);
 	}
 
-	public static ItemStack tryInsert(World worldIn, BlockPos pos, ItemStack toInsert, boolean simulate) {
+	public static ItemStack tryInsert(Level worldIn, BlockPos pos, ItemStack toInsert, boolean simulate) {
 		FilteringBehaviour filter = TileEntityBehaviour.get(worldIn, pos, FilteringBehaviour.TYPE);
 		InvManipulationBehaviour inserter = TileEntityBehaviour.get(worldIn, pos, InvManipulationBehaviour.TYPE);
 		if (inserter == null)
@@ -99,7 +99,7 @@ public abstract class AbstractFunnelBlock extends Block implements ITE<FunnelTil
 		ItemStack insert = inserter.insert(toInsert);
 
 		if (!simulate && insert.getCount() != toInsert.getCount()) {
-			TileEntity tileEntity = worldIn.getTileEntity(pos);
+			BlockEntity tileEntity = worldIn.getBlockEntity(pos);
 			if (tileEntity instanceof FunnelTileEntity) {
 				FunnelTileEntity funnelTileEntity = (FunnelTileEntity) tileEntity;
 				funnelTileEntity.onTransfer(toInsert);
@@ -116,13 +116,13 @@ public abstract class AbstractFunnelBlock extends Block implements ITE<FunnelTil
 //	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.FUNNEL.create();
 	}
 
 	@Override
-	public boolean isValidPosition(BlockState state, IWorldReader world, BlockPos pos) {
-		Block block = world.getBlockState(pos.offset(getFunnelFacing(state).getOpposite()))
+	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+		Block block = world.getBlockState(pos.relative(getFunnelFacing(state).getOpposite()))
 			.getBlock();
 		return !(block instanceof AbstractFunnelBlock);
 	}
@@ -142,12 +142,12 @@ public abstract class AbstractFunnelBlock extends Block implements ITE<FunnelTil
 	protected abstract Direction getFacing(BlockState state);
 
 	@Override
-	public void onReplaced(BlockState p_196243_1_, World p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
+	public void onRemove(BlockState p_196243_1_, Level p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
 		boolean p_196243_5_) {
-		if (p_196243_1_.getBlock().hasBlockEntity() && (p_196243_1_.getBlock() != p_196243_4_.getBlock() && !isFunnel(p_196243_4_)
-			|| !p_196243_4_.getBlock().hasBlockEntity())) {
+		if (p_196243_1_.getBlock().isEntityBlock() && (p_196243_1_.getBlock() != p_196243_4_.getBlock() && !isFunnel(p_196243_4_)
+			|| !p_196243_4_.getBlock().isEntityBlock())) {
 			TileEntityBehaviour.destroy(p_196243_2_, p_196243_3_, FilteringBehaviour.TYPE);
-			p_196243_2_.removeTileEntity(p_196243_3_);
+			p_196243_2_.removeBlockEntity(p_196243_3_);
 		}
 	}
 

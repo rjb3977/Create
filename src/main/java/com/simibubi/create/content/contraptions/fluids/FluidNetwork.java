@@ -11,7 +11,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import com.simibubi.create.content.contraptions.fluids.PipeConnection.Flow;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
@@ -24,15 +26,12 @@ import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 
 import alexiil.mc.lib.attributes.Simulation;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 public class FluidNetwork {
 
 	private static int CYCLES_PER_TICK = 16;
 
-	World world;
+	Level world;
 	BlockFace start;
 
 	Supplier<LazyOptional<IFluidHandler>> sourceSupplier;
@@ -47,7 +46,7 @@ public class FluidNetwork {
 	List<Pair<BlockFace, IFluidHandler>> targets;
 	Map<BlockPos, WeakReference<FluidTransportBehaviour>> cache;
 
-	public FluidNetwork(World world, BlockFace location, Supplier<LazyOptional<IFluidHandler>> sourceSupplier) {
+	public FluidNetwork(Level world, BlockFace location, Supplier<LazyOptional<IFluidHandler>> sourceSupplier) {
 		this.world = world;
 		this.start = location;
 		this.sourceSupplier = sourceSupplier;

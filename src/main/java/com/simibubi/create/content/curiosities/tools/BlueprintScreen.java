@@ -5,9 +5,13 @@ import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.logistics.item.filter.FilterScreenPacket;
 import com.simibubi.create.content.logistics.item.filter.FilterScreenPacket.Option;
@@ -21,21 +25,15 @@ import com.simibubi.create.foundation.utility.Lang;
 
 import com.simibubi.create.lib.mixin.accessor.SlotAccessor;
 
-import net.minecraft.client.renderer.Rectangle2d;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-
 public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContainer> {
 
 	protected AllGuiTextures background;
-	private List<Rectangle2d> extraAreas = Collections.emptyList();
+	private List<Rect2i> extraAreas = Collections.emptyList();
 
 	private IconButton resetButton;
 	private IconButton confirmButton;
 
-	public BlueprintScreen(BlueprintContainer container, PlayerInventory inv, ITextComponent title) {
+	public BlueprintScreen(BlueprintContainer container, Inventory inv, Component title) {
 		super(container, inv, title);
 		this.background = AllGuiTextures.BLUEPRINT;
 	}
@@ -47,8 +45,8 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContai
 		super.init();
 		widgets.clear();
 
-		int x = guiLeft;
-		int y = guiTop;
+		int x = leftPos;
+		int y = topPos;
 
 		resetButton = new IconButton(x + background.width - 62, y + background.height - 24, AllIcons.I_TRASH);
 		confirmButton = new IconButton(x + background.width - 33, y + background.height - 24, AllIcons.I_CONFIRM);
@@ -57,21 +55,21 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContai
 		widgets.add(confirmButton);
 
 		extraAreas = ImmutableList.of(
-			new Rectangle2d(x + background.width, y + background.height - 36, 56, 44)
+			new Rect2i(x + background.width, y + background.height - 36, 56, 44)
 		);
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		int invX = getLeftOfCentered(PLAYER_INVENTORY.width);
-		int invY = guiTop + background.height + 4;
+		int invY = topPos + background.height + 4;
 		renderPlayerInventory(ms, invX, invY);
 
-		int x = guiLeft;
-		int y = guiTop;
+		int x = leftPos;
+		int y = topPos;
 
 		background.draw(ms, this, x, y);
-		textRenderer.draw(ms, title, x + 15, y + 4, 0xFFFFFF);
+		font.draw(ms, title, x + 15, y + 4, 0xFFFFFF);
 
 		GuiGameElement.of(AllBlockPartials.CRAFTING_BLUEPRINT_1x1)
 			.<GuiGameElement.GuiRenderBuilder>at(x + background.width + 20, y + background.height - 32, 0)
@@ -81,50 +79,50 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContai
 	}
 
 	@Override
-	protected void drawMouseoverTooltip(MatrixStack ms, int x, int y) {
-		if (!this.client.player.inventory.getItemStack()
-			.isEmpty() || this.hoveredSlot == null || this.hoveredSlot.getHasStack()
-			|| hoveredSlot.inventory == container.playerInventory) {
-			super.drawMouseoverTooltip(ms, x, y);
+	protected void renderTooltip(PoseStack ms, int x, int y) {
+		if (!this.minecraft.player.inventory.getCarried()
+			.isEmpty() || this.hoveredSlot == null || this.hoveredSlot.hasItem()
+			|| hoveredSlot.container == menu.playerInventory) {
+			super.renderTooltip(ms, x, y);
 			return;
 		}
 		renderTooltip(ms, addToTooltip(new LinkedList<>(), ((SlotAccessor) hoveredSlot).getSlotIndex(), true), x, y);
 	}
 
 	@Override
-	public List<ITextComponent> getTooltipFromItem(ItemStack stack) {
-		List<ITextComponent> list = super.getTooltipFromItem(stack);
-		if (hoveredSlot.inventory == container.playerInventory)
+	public List<Component> getTooltipFromItem(ItemStack stack) {
+		List<Component> list = super.getTooltipFromItem(stack);
+		if (hoveredSlot.container == menu.playerInventory)
 			return list;
 		return hoveredSlot != null ? addToTooltip(list, ((SlotAccessor) hoveredSlot).getSlotIndex(), false) : list;
 	}
 
-	private List<ITextComponent> addToTooltip(List<ITextComponent> list, int slot, boolean isEmptySlot) {
+	private List<Component> addToTooltip(List<Component> list, int slot, boolean isEmptySlot) {
 		if (slot < 0 || slot > 10)
 			return list;
 
 		if (slot < 9) {
 			list.add(Lang.createTranslationTextComponent("crafting_blueprint.crafting_slot")
-				.formatted(TextFormatting.GOLD));
+				.withStyle(ChatFormatting.GOLD));
 			if (isEmptySlot)
 				list.add(Lang.createTranslationTextComponent("crafting_blueprint.filter_items_viable")
-					.formatted(TextFormatting.GRAY));
+					.withStyle(ChatFormatting.GRAY));
 
 		} else if (slot == 9) {
 			list.add(Lang.createTranslationTextComponent("crafting_blueprint.display_slot")
-				.formatted(TextFormatting.GOLD));
+				.withStyle(ChatFormatting.GOLD));
 			if (!isEmptySlot)
 				list.add(Lang
 					.createTranslationTextComponent("crafting_blueprint."
-						+ (container.contentHolder.inferredIcon ? "inferred" : "manually_assigned"))
-					.formatted(TextFormatting.GRAY));
+						+ (menu.contentHolder.inferredIcon ? "inferred" : "manually_assigned"))
+					.withStyle(ChatFormatting.GRAY));
 
 		} else if (slot == 10) {
 			list.add(Lang.createTranslationTextComponent("crafting_blueprint.secondary_display_slot")
-				.formatted(TextFormatting.GOLD));
+				.withStyle(ChatFormatting.GOLD));
 			if (isEmptySlot)
 				list.add(Lang.createTranslationTextComponent("crafting_blueprint.optional")
-					.formatted(TextFormatting.GRAY));
+					.withStyle(ChatFormatting.GRAY));
 		}
 
 		return list;
@@ -135,8 +133,8 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContai
 //		handleTooltips();
 		super.tick();
 
-		if (!container.contentHolder.isEntityAlive())
-			client.player.closeScreen();
+		if (!menu.contentHolder.isEntityAlive())
+			minecraft.player.closeContainer();
 	}
 
 //	protected void handleTooltips() {
@@ -165,13 +163,13 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContai
 
 		if (button == 0) {
 			if (confirmButton.isHovered()) {
-				client.player.closeScreen();
+				minecraft.player.closeContainer();
 				return true;
 			}
 			if (resetButton.isHovered()) {
-				container.clearContents();
+				menu.clearContents();
 				contentsCleared();
-				container.sendClearPacket();
+				menu.sendClearPacket();
 				return true;
 			}
 		}
@@ -186,7 +184,7 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContai
 	}
 
 	@Override
-	public List<Rectangle2d> getExtraAreas() {
+	public List<Rect2i> getExtraAreas() {
 		return extraAreas;
 	}
 

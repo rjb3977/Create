@@ -1,7 +1,12 @@
 package com.simibubi.create.content.contraptions.components.flywheel.engine;
 
 import java.util.List;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import com.jozufozu.flywheel.backend.instancing.IInstanceRendered;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.components.flywheel.FlywheelBlock;
@@ -9,20 +14,13 @@ import com.simibubi.create.content.contraptions.components.flywheel.FlywheelTile
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-
 public class EngineTileEntity extends SmartTileEntity implements IInstanceRendered {
 
 	public float appliedCapacity;
 	public float appliedSpeed;
 	protected FlywheelTileEntity poweredWheel;
 
-	public EngineTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public EngineTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 
@@ -30,7 +28,7 @@ public class EngineTileEntity extends SmartTileEntity implements IInstanceRender
 	public void addBehaviours(List<TileEntityBehaviour> behaviours) {
 	}
 
-	protected AxisAlignedBB cachedBoundingBox;
+	protected AABB cachedBoundingBox;
 //	@Override
 //	@Environment(EnvType.CLIENT)
 //	public AxisAlignedBB getRenderBoundingBox() {
@@ -43,7 +41,7 @@ public class EngineTileEntity extends SmartTileEntity implements IInstanceRender
 	@Override
 	public void lazyTick() {
 		super.lazyTick();
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
 		if (poweredWheel != null && poweredWheel.isRemoved())
 			poweredWheel = null;
@@ -52,23 +50,23 @@ public class EngineTileEntity extends SmartTileEntity implements IInstanceRender
 	}
 
 	public void attachWheel() {
-		Direction engineFacing = getBlockState().get(EngineBlock.HORIZONTAL_FACING);
-		BlockPos wheelPos = pos.offset(engineFacing, 2);
-		BlockState wheelState = world.getBlockState(wheelPos);
+		Direction engineFacing = getBlockState().getValue(EngineBlock.FACING);
+		BlockPos wheelPos = worldPosition.relative(engineFacing, 2);
+		BlockState wheelState = level.getBlockState(wheelPos);
 		if (!AllBlocks.FLYWHEEL.has(wheelState))
 			return;
-		Direction wheelFacing = wheelState.get(FlywheelBlock.HORIZONTAL_FACING);
-		if (wheelFacing.getAxis() != engineFacing.rotateY().getAxis())
+		Direction wheelFacing = wheelState.getValue(FlywheelBlock.HORIZONTAL_FACING);
+		if (wheelFacing.getAxis() != engineFacing.getClockWise().getAxis())
 			return;
 		if (FlywheelBlock.isConnected(wheelState)
 				&& FlywheelBlock.getConnection(wheelState) != engineFacing.getOpposite())
 			return;
-		TileEntity te = world.getTileEntity(wheelPos);
+		BlockEntity te = level.getBlockEntity(wheelPos);
 		if (te.isRemoved())
 			return;
 		if (te instanceof FlywheelTileEntity) {
 			if (!FlywheelBlock.isConnected(wheelState))
-				FlywheelBlock.setConnection(world, te.getPos(), te.getBlockState(), engineFacing.getOpposite());
+				FlywheelBlock.setConnection(level, te.getBlockPos(), te.getBlockState(), engineFacing.getOpposite());
 			poweredWheel = (FlywheelTileEntity) te;
 			refreshWheelSpeed();
 		}
@@ -78,14 +76,14 @@ public class EngineTileEntity extends SmartTileEntity implements IInstanceRender
 		if (poweredWheel == null || poweredWheel.isRemoved())
 			return;
 		poweredWheel.setRotation(0, 0);
-		FlywheelBlock.setConnection(world, poweredWheel.getPos(), poweredWheel.getBlockState(), null);
+		FlywheelBlock.setConnection(level, poweredWheel.getBlockPos(), poweredWheel.getBlockState(), null);
 		poweredWheel = null;
 	}
 
 	@Override
-	public void remove() {
+	public void setRemoved() {
 		detachWheel();
-		super.remove();
+		super.setRemoved();
 	}
 
 	protected void refreshWheelSpeed() {

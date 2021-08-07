@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.fluids.actors;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
@@ -11,7 +11,6 @@ import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 
 import alexiil.mc.lib.attributes.Simulation;
 import alexiil.mc.lib.attributes.fluid.FixedFluidInvView;
-import net.minecraft.util.math.BlockPos;
 
 public class HosePulleyFluidHandler implements IFluidHandler {
 

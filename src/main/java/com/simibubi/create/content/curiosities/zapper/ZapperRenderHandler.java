@@ -4,24 +4,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.CreateClient;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.FirstPersonRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public class ZapperRenderHandler extends ShootableGadgetRenderHandler {
 
@@ -54,19 +47,19 @@ public class ZapperRenderHandler extends ShootableGadgetRenderHandler {
 	}
 
 	@Override
-	protected void transformTool(MatrixStack ms, float flip, float equipProgress, float recoil, float pt) {
+	protected void transformTool(PoseStack ms, float flip, float equipProgress, float recoil, float pt) {
 		ms.translate(flip * -0.1f, 0.1f, -0.4f);
-		ms.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(flip * 5.0F));
+		ms.mulPose(Vector3f.YP.rotationDegrees(flip * 5.0F));
 	}
 
 	@Override
-	protected void transformHand(MatrixStack ms, float flip, float equipProgress, float recoil, float pt) {}
+	protected void transformHand(PoseStack ms, float flip, float equipProgress, float recoil, float pt) {}
 
 	@Override
-	protected void playSound(Hand hand, Vector3d position) {
-		float pitch = hand == Hand.MAIN_HAND ? 0.1f : 0.9f;
+	protected void playSound(InteractionHand hand, Vec3 position) {
+		float pitch = hand == InteractionHand.MAIN_HAND ? 0.1f : 0.9f;
 		Minecraft mc = Minecraft.getInstance();
-		AllSoundEvents.WORLDSHAPER_PLACE.play(mc.world, mc.player, position, 0.1f, pitch);
+		AllSoundEvents.WORLDSHAPER_PLACE.play(mc.level, mc.player, position, 0.1f, pitch);
 	}
 
 	public void addBeam(LaserBeam beam) {
@@ -74,7 +67,7 @@ public class ZapperRenderHandler extends ShootableGadgetRenderHandler {
 		double x = beam.end.x;
 		double y = beam.end.y;
 		double z = beam.end.z;
-		ClientWorld world = Minecraft.getInstance().world;
+		ClientLevel world = Minecraft.getInstance().level;
 		Supplier<Double> randomSpeed = () -> (r.nextDouble() - .5d) * .2f;
 		Supplier<Double> randomOffset = () -> (r.nextDouble() - .5d) * .2f;
 		for (int i = 0; i < 10; i++) {
@@ -88,10 +81,10 @@ public class ZapperRenderHandler extends ShootableGadgetRenderHandler {
 
 	public static class LaserBeam {
 		float itensity;
-		Vector3d start;
-		Vector3d end;
+		Vec3 start;
+		Vec3 end;
 
-		public LaserBeam(Vector3d start, Vector3d end) {
+		public LaserBeam(Vec3 start, Vec3 end) {
 			this.start = start;
 			this.end = end;
 			itensity = 1;

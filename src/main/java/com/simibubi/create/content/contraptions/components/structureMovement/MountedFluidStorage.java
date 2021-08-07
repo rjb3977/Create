@@ -14,37 +14,36 @@ import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import com.simibubi.create.lib.utility.TransferUtil;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class MountedFluidStorage {
 
 	SmartFluidTank tank;
 	private boolean valid;
-	private TileEntity te;
+	private BlockEntity te;
 
 	private int packetCooldown = 0;
 	private boolean sendPacket = false;
 
-	public static boolean canUseAsStorage(TileEntity te) {
+	public static boolean canUseAsStorage(BlockEntity te) {
 		if (te instanceof FluidTankTileEntity)
 			return ((FluidTankTileEntity) te).isController();
 		return false;
 	}
 
-	public MountedFluidStorage(TileEntity te) {
+	public MountedFluidStorage(BlockEntity te) {
 		assignTileEntity(te);
 	}
 
-	public void assignTileEntity(TileEntity te) {
+	public void assignTileEntity(BlockEntity te) {
 		this.te = te;
 		tank = createMountedTank(te);
 	}
 
-	private SmartFluidTank createMountedTank(TileEntity te) {
+	private SmartFluidTank createMountedTank(BlockEntity te) {
 		if (te instanceof CreativeFluidTankTileEntity)
 			return new CreativeSmartFluidTank(
 				((FluidTankTileEntity) te).getTotalTankSize() * FluidTankTileEntity.getCapacityMultiplier(), $ -> {
@@ -63,7 +62,7 @@ public class MountedFluidStorage {
 			else if (sendPacket) {
 				sendPacket = false;
 				AllPackets.channel.sendToClientsTracking(
-					new ContraptionFluidPacket(entity.getEntityId(), pos, tank.getFluid()), entity);
+					new ContraptionFluidPacket(entity.getId(), pos, tank.getFluid()), entity);
 				packetCooldown = 8;
 			}
 			return;
@@ -110,7 +109,7 @@ public class MountedFluidStorage {
 		sendPacket = true;
 	}
 
-	public void addStorageToWorld(TileEntity te) {
+	public void addStorageToWorld(BlockEntity te) {
 		if (tank instanceof CreativeSmartFluidTank)
 			return;
 
@@ -127,21 +126,21 @@ public class MountedFluidStorage {
 		return (IFluidHandler) tank;
 	}
 
-	public CompoundNBT serialize() {
+	public CompoundTag serialize() {
 		if (!valid)
 			return null;
-		CompoundNBT tag = tank.writeToNBT(new CompoundNBT());
+		CompoundTag tag = tank.writeToNBT(new CompoundTag());
 		tag.putInt("Capacity", tank.getCapacity());
 
 		if (tank instanceof CreativeSmartFluidTank) {
 			NBTHelper.putMarker(tag, "Bottomless");
 			tag.put("ProvidedStack", tank.getFluid()
-				.writeToNBT(new CompoundNBT()));
+				.writeToNBT(new CompoundTag()));
 		}
 		return tag;
 	}
 
-	public static MountedFluidStorage deserialize(CompoundNBT nbt) {
+	public static MountedFluidStorage deserialize(CompoundTag nbt) {
 		MountedFluidStorage storage = new MountedFluidStorage(null);
 		if (nbt == null)
 			return storage;

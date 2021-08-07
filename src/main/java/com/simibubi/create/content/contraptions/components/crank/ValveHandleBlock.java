@@ -5,20 +5,19 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.utility.DyeHelper;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 @ParametersAreNonnullByDefault
 public class ValveHandleBlock extends HandCrankBlock {
@@ -38,32 +37,32 @@ public class ValveHandleBlock extends HandCrankBlock {
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-		BlockRayTraceResult hit) {
-		ItemStack heldItem = player.getHeldItem(handIn);
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
+		BlockHitResult hit) {
+		ItemStack heldItem = player.getItemInHand(handIn);
 		for (DyeColor color : DyeColor.values()) {
 			if (!heldItem.getItem()
-					.isIn(DyeHelper.getTagOfDye(color)))
+					.is(DyeHelper.getTagOfDye(color)))
 				continue;
-			if (worldIn.isRemote)
-				return ActionResultType.SUCCESS;
+			if (worldIn.isClientSide)
+				return InteractionResult.SUCCESS;
 
 			BlockState newState = AllBlocks.DYED_VALVE_HANDLES.get(color)
 					.getDefaultState()
-					.with(FACING, state.get(FACING));
+					.setValue(FACING, state.getValue(FACING));
 			if (newState != state)
-				worldIn.setBlockState(pos, newState);
-			return ActionResultType.SUCCESS;
+				worldIn.setBlockAndUpdate(pos, newState);
+			return InteractionResult.SUCCESS;
 		}
 
-		return super.onUse(state, worldIn, pos, player, handIn, hit);
+		return super.use(state, worldIn, pos, player, handIn, hit);
 	}
 
 	@Override
-	public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> p_149666_2_) {
-		if (group != ItemGroup.SEARCH && !inCreativeTab)
+	public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> p_149666_2_) {
+		if (group != CreativeModeTab.TAB_SEARCH && !inCreativeTab)
 			return;
-		super.fillItemGroup(group, p_149666_2_);
+		super.fillItemCategory(group, p_149666_2_);
 	}
 
 	@Override

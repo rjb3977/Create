@@ -1,8 +1,7 @@
 package com.simibubi.create.foundation.config.ui.entries;
 
 import java.util.Locale;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.BoxElement;
 import com.simibubi.create.foundation.gui.DelegatedStencilElement;
@@ -25,7 +24,7 @@ public class EnumEntry<T> extends ValueEntry<T> {
 	public EnumEntry(String label, ConfigValue<T> value) {
 		super(label, value);
 
-		valueText = new TextStencilElement(Minecraft.getInstance().fontRenderer, "YEP").centered(true, true);
+		valueText = new TextStencilElement(Minecraft.getInstance().font, "YEP").centered(true, true);
 		valueText.withElementRenderer((ms, width, height, alpha) -> UIRenderHelper.angledGradient(ms, 0, 0, height / 2,
 			height, width, Theme.p(Theme.Key.TEXT)));
 
@@ -72,7 +71,7 @@ public class EnumEntry<T> extends ValueEntry<T> {
 	}
 
 	@Override
-	public void render(MatrixStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY,
+	public void render(PoseStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY,
 		boolean p_230432_9_, float partialTicks) {
 		super.render(ms, index, y, x, width, height, mouseX, mouseY, p_230432_9_, partialTicks);
 

@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.gantry;
 
-import static net.minecraft.state.properties.BlockStateProperties.FACING;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllSoundEvents;
@@ -10,21 +10,20 @@ import com.simibubi.create.content.contraptions.components.structureMovement.Con
 import com.simibubi.create.content.contraptions.components.structureMovement.IDisplayAssemblyExceptions;
 import com.simibubi.create.content.contraptions.relays.advanced.GantryShaftBlock;
 import com.simibubi.create.content.contraptions.relays.advanced.GantryShaftTileEntity;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class GantryCarriageTileEntity extends KineticTileEntity implements IDisplayAssemblyExceptions {
 
 	boolean assembleNextTick;
 	protected AssemblyException lastException;
 
-	public GantryCarriageTileEntity(TileEntityType<?> typeIn) {
+	public GantryCarriageTileEntity(BlockEntityType<?> typeIn) {
 		super(typeIn);
 	}
 
@@ -41,8 +40,8 @@ public class GantryCarriageTileEntity extends KineticTileEntity implements IDisp
 	@Override
 	public void initialize() {
 		super.initialize();
-		if (!getBlockState().isValidPosition(world, pos))
-			world.destroyBlock(pos, true);
+		if (!getBlockState().canSurvive(level, worldPosition))
+			level.destroyBlock(worldPosition, true);
 	}
 
 	public void queueAssembly() {
@@ -53,7 +52,7 @@ public class GantryCarriageTileEntity extends KineticTileEntity implements IDisp
 	public void tick() {
 		super.tick();
 
-		if (world.isRemote)
+		if (level.isClientSide)
 			return;
 
 		if (assembleNextTick) {
@@ -72,10 +71,10 @@ public class GantryCarriageTileEntity extends KineticTileEntity implements IDisp
 		if (!(blockState.getBlock() instanceof GantryCarriageBlock))
 			return;
 
-		Direction direction = blockState.get(FACING);
+		Direction direction = blockState.getValue(FACING);
 		GantryContraption contraption = new GantryContraption(direction);
 
-		TileEntity shaftTe = world.getTileEntity(pos.offset(direction.getOpposite()));
+		BlockEntity shaftTe = level.getBlockEntity(worldPosition.relative(direction.getOpposite()));
 		if (!(shaftTe instanceof GantryShaftTileEntity))
 			return;
 		BlockState shaftState = shaftTe.getBlockState();
@@ -83,14 +82,14 @@ public class GantryCarriageTileEntity extends KineticTileEntity implements IDisp
 			return;
 
 		float pinionMovementSpeed = ((GantryShaftTileEntity) shaftTe).getPinionMovementSpeed();
-		Direction shaftOrientation = shaftState.get(GantryShaftBlock.FACING);
+		Direction shaftOrientation = shaftState.getValue(GantryShaftBlock.FACING);
 		Direction movementDirection = shaftOrientation;
 		if (pinionMovementSpeed < 0)
 			movementDirection = movementDirection.getOpposite();
 
 		try {
 			lastException = null;
-			if (!contraption.assemble(world, pos))
+			if (!contraption.assemble(level, worldPosition))
 				return;
 
 			sendData();
@@ -99,27 +98,27 @@ public class GantryCarriageTileEntity extends KineticTileEntity implements IDisp
 			sendData();
 			return;
 		}
-		if (ContraptionCollider.isCollidingWithWorld(world, contraption, pos.offset(movementDirection),
+		if (ContraptionCollider.isCollidingWithWorld(level, contraption, worldPosition.relative(movementDirection),
 			movementDirection))
 			return;
 
-		contraption.removeBlocksFromWorld(world, BlockPos.ZERO);
+		contraption.removeBlocksFromWorld(level, BlockPos.ZERO);
 		GantryContraptionEntity movedContraption =
-			GantryContraptionEntity.create(world, contraption, shaftOrientation);
-		BlockPos anchor = pos;
-		movedContraption.setPosition(anchor.getX(), anchor.getY(), anchor.getZ());
-		AllSoundEvents.CONTRAPTION_ASSEMBLE.playOnServer(world, pos);
-		world.addEntity(movedContraption);
+			GantryContraptionEntity.create(level, contraption, shaftOrientation);
+		BlockPos anchor = worldPosition;
+		movedContraption.setPos(anchor.getX(), anchor.getY(), anchor.getZ());
+		AllSoundEvents.CONTRAPTION_ASSEMBLE.playOnServer(level, worldPosition);
+		level.addFreshEntity(movedContraption);
 	}
 
 	@Override
-	protected void write(CompoundNBT compound, boolean clientPacket) {
+	protected void write(CompoundTag compound, boolean clientPacket) {
 		AssemblyException.write(compound, lastException);
 		super.write(compound, clientPacket);
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundNBT compound, boolean clientPacket) {
+	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		lastException = AssemblyException.read(compound);
 		super.fromTag(state, compound, clientPacket);
 	}
@@ -134,19 +133,19 @@ public class GantryCarriageTileEntity extends KineticTileEntity implements IDisp
 			return defaultModifier;
 		if (!AllBlocks.GANTRY_SHAFT.has(stateTo))
 			return defaultModifier;
-		if (!stateTo.get(GantryShaftBlock.POWERED))
+		if (!stateTo.getValue(GantryShaftBlock.POWERED))
 			return defaultModifier;
 
-		Direction direction = Direction.getFacingFromVector(diff.getX(), diff.getY(), diff.getZ());
-		if (stateFrom.get(GantryCarriageBlock.FACING) != direction.getOpposite())
+		Direction direction = Direction.getNearest(diff.getX(), diff.getY(), diff.getZ());
+		if (stateFrom.getValue(GantryCarriageBlock.FACING) != direction.getOpposite())
 			return defaultModifier;
-		return getGantryPinionModifier(stateTo.get(GantryShaftBlock.FACING), stateFrom.get(GantryCarriageBlock.FACING));
+		return getGantryPinionModifier(stateTo.getValue(GantryShaftBlock.FACING), stateFrom.getValue(GantryCarriageBlock.FACING));
 	}
 
 	public static float getGantryPinionModifier(Direction shaft, Direction pinionDirection) {
 		Axis shaftAxis = shaft.getAxis();
 		float directionModifier = shaft.getAxisDirection()
-			.getOffset();
+			.getStep();
 		if (shaftAxis == Axis.Y)
 			if (pinionDirection == Direction.NORTH || pinionDirection == Direction.EAST)
 				return -directionModifier;
@@ -163,14 +162,14 @@ public class GantryCarriageTileEntity extends KineticTileEntity implements IDisp
 		BlockState blockState = getBlockState();
 		if (!(blockState.getBlock() instanceof GantryCarriageBlock))
 			return false;
-		Direction facing = blockState.get(GantryCarriageBlock.FACING)
+		Direction facing = blockState.getValue(GantryCarriageBlock.FACING)
 			.getOpposite();
-		BlockState shaftState = world.getBlockState(pos.offset(facing));
+		BlockState shaftState = level.getBlockState(worldPosition.relative(facing));
 		if (!(shaftState.getBlock() instanceof GantryShaftBlock))
 			return false;
-		if (shaftState.get(GantryShaftBlock.POWERED))
+		if (shaftState.getValue(GantryShaftBlock.POWERED))
 			return false;
-		TileEntity te = world.getTileEntity(pos.offset(facing));
+		BlockEntity te = level.getBlockEntity(worldPosition.relative(facing));
 		return te instanceof GantryShaftTileEntity && ((GantryShaftTileEntity) te).canAssembleOn();
 	}
 

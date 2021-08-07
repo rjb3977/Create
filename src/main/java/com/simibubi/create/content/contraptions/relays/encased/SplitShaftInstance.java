@@ -1,7 +1,8 @@
 package com.simibubi.create.content.contraptions.relays.encased;
 
 import java.util.ArrayList;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.InstanceMaterial;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
@@ -11,9 +12,6 @@ import com.simibubi.create.content.contraptions.base.IRotate;
 import com.simibubi.create.content.contraptions.base.KineticTileInstance;
 import com.simibubi.create.content.contraptions.base.RotatingData;
 import com.simibubi.create.foundation.utility.Iterate;
-
-import net.minecraft.block.Block;
-import net.minecraft.util.Direction;
 
 public class SplitShaftInstance extends KineticTileInstance<SplitShaftTileEntity> {
 

@@ -6,10 +6,10 @@ import com.simibubi.create.lib.utility.MixinHelper;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 
 /**
  * Removal of parts of this class should be considered because Fabric API provides almost an exact replacement.
@@ -18,19 +18,19 @@ import net.minecraft.particles.ParticleType;
  */
 @Deprecated
 public final class ParticleManagerHelper {
-	public static <T extends IParticleData> void registerFactory(ParticleManager $this, ParticleType<T> type, ParticleManager.IParticleMetaFactory<T> factory) {
+	public static <T extends ParticleOptions> void registerFactory(ParticleEngine $this, ParticleType<T> type, ParticleEngine.SpriteParticleRegistration<T> factory) {
 		get($this).create$registerFactory0(type, factory);
 	}
 
-	public static <T extends IParticleData> void registerFactory(ParticleManager $this, ParticleType<T> type, IParticleFactory<T> factory) {
+	public static <T extends ParticleOptions> void registerFactory(ParticleEngine $this, ParticleType<T> type, ParticleProvider<T> factory) {
 		get($this).create$registerFactory1(type, factory);
 	}
 
-	public static Int2ObjectMap<IParticleFactory<?>> getFactories(ParticleManager manager) {
+	public static Int2ObjectMap<ParticleProvider<?>> getFactories(ParticleEngine manager) {
 		return ((ParticleManagerAccessor) manager).getFactories();
 	}
 
-	private static ParticleManagerExtensions get(ParticleManager manager) {
+	private static ParticleManagerExtensions get(ParticleEngine manager) {
 		return MixinHelper.cast(manager);
 	}
 

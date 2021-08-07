@@ -10,26 +10,25 @@ import com.simibubi.create.lib.block.MinecartPassHandlerBlock;
 import com.simibubi.create.lib.extensions.AbstractMinecartEntityExtensions;
 import com.simibubi.create.lib.utility.MinecartController;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
-@Mixin(AbstractMinecartEntity.class)
+@Mixin(AbstractMinecart.class)
 public abstract class AbstractMinecartEntityMixin extends Entity implements AbstractMinecartEntityExtensions {
 	public boolean create$canUseRail = true;
 	public MinecartController create$controller = null;
 
-	private AbstractMinecartEntityMixin(EntityType<?> entityType, World world) {
+	private AbstractMinecartEntityMixin(EntityType<?> entityType, Level world) {
 		super(entityType, world);
 	}
 
@@ -37,15 +36,15 @@ public abstract class AbstractMinecartEntityMixin extends Entity implements Abst
 	protected abstract double getMaximumSpeed();
 
 	@Shadow
-	public abstract AbstractMinecartEntity.Type getMinecartType();
+	public abstract AbstractMinecart.Type getMinecartType();
 
 	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V")
-	public void create$abstractMinecartEntity(EntityType<?> entityType, World world, CallbackInfo ci) {
+	public void create$abstractMinecartEntity(EntityType<?> entityType, Level world, CallbackInfo ci) {
 		create$controller = MinecartController.InitController.initController.create(MixinHelper.cast(this));
 	}
 
 	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;DDD)V")
-	public void create$abstractMinecartEntity(EntityType<?> entityType, World world, double d, double e, double f, CallbackInfo ci) {
+	public void create$abstractMinecartEntity(EntityType<?> entityType, Level world, double d, double e, double f, CallbackInfo ci) {
 		create$controller = MinecartController.InitController.initController.create(MixinHelper.cast(this));
 	}
 
@@ -53,16 +52,16 @@ public abstract class AbstractMinecartEntityMixin extends Entity implements Abst
 			method = "moveAlongTrack(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V")
 	protected void create$moveAlongTrack(BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
 		if (blockState.getBlock() instanceof MinecartPassHandlerBlock) {
-			((MinecartPassHandlerBlock) blockState.getBlock()).onMinecartPass(blockState, MixinHelper.<Entity>cast(this).world, blockPos, MixinHelper.cast(this));
+			((MinecartPassHandlerBlock) blockState.getBlock()).onMinecartPass(blockState, MixinHelper.<Entity>cast(this).level, blockPos, MixinHelper.cast(this));
 		}
 	}
 
 	@Override
 	public void create$moveMinecartOnRail(BlockPos pos) {
-		double d24 = isBeingRidden() ? 0.75D : 1.0D;
+		double d24 = isVehicle() ? 0.75D : 1.0D;
 		double d25 = getMaximumSpeed(); // getMaximumSpeed instead of getMaxSpeedWithRail *should* be fine after intense pain looking at Forge patches
-		Vector3d vec3d1 = getMotion();
-		move(MoverType.SELF, new Vector3d(MathHelper.clamp(d24 * vec3d1.x, -d25, d25), 0.0D, MathHelper.clamp(d24 * vec3d1.z, -d25, d25)));
+		Vec3 vec3d1 = getDeltaMovement();
+		move(MoverType.SELF, new Vec3(Mth.clamp(d24 * vec3d1.x, -d25, d25), 0.0D, Mth.clamp(d24 * vec3d1.z, -d25, d25)));
 	}
 
 	@Override
@@ -90,9 +89,9 @@ public abstract class AbstractMinecartEntityMixin extends Entity implements Abst
 
 	@Override
 	public BlockPos create$getCurrentRailPos() {
-		BlockPos pos = new BlockPos(MathHelper.floor(getX()), MathHelper.floor(getY()), MathHelper.floor(getZ()));
-		if (world.getBlockState(pos.down()).isIn(BlockTags.RAILS)) {
-			pos = pos.down();
+		BlockPos pos = new BlockPos(Mth.floor(getX()), Mth.floor(getY()), Mth.floor(getZ()));
+		if (level.getBlockState(pos.below()).is(BlockTags.RAILS)) {
+			pos = pos.below();
 		}
 
 		return pos;

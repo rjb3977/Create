@@ -42,11 +42,6 @@ allprojects {
 	}
 }
 
-tasks.register("createMappings", com.simibubi.create.grdl.task.CreateMappingsTask::class)
-
-val cleanMappings by tasks.creating(com.simibubi.create.grdl.task.CleanMappingsTask::class);
-tasks["clean"].dependsOn(cleanMappings)
-
 val setupBasicFabric: Project.() -> Unit = {
 	apply(plugin = "fabric-loom")
 //	apply(plugin = "io.github.juuxel.loom-quiltflower")
@@ -77,31 +72,6 @@ val setupBasicFabric: Project.() -> Unit = {
 	}
 }
 
-val setupMCP: Project.() -> Unit = {
-	dependencies {
-		val mcp_mappings: String by rootProject
-		val mcp_minecraft_version: String by rootProject
-
-		fun setupMappings(p: Project = rootProject) {
-			if (p.file(".gradle/mappings/.marker.${mcp_minecraft_version}__$mcp_mappings").exists() &&
-				p.file(".gradle/mappings/output.jar").exists()) {
-				return
-			}
-			com.simibubi.create.grdl.MappingsUtil(p).convertAndMoveMappings(com.simibubi.create.grdl.HasAnt.from(p), mcp_mappings, mcp_minecraft_version)
-		}
-		setupMappings()
-		mappings(fileTree("dir" to "${rootProject.projectDir}/.gradle/mappings", "include" to "output.jar"))
-	}
-}
-
-val setupYarn: Project.() -> Unit = {
-	dependencies {
-		val yarn_mappings: String by rootProject
-
-		mappings("net.fabricmc", "yarn", yarn_mappings, classifier = "v2")
-	}
-}
-
 val setupMojmap: Project.() -> Unit = {
 	dependencies {
 		mappings(minecraft.officialMojangMappings())
@@ -123,11 +93,11 @@ val setupCheckstyle: Project.() -> Unit = {
 }
 
 project.setupBasicFabric()
-project.setupMCP()
+project.setupMojmap()
 project.setupCheckstyle()
 
 project(":Create-Refabricated-Lib").setupBasicFabric()
-project(":Create-Refabricated-Lib").setupMCP()
+project(":Create-Refabricated-Lib").setupMojmap()
 project(":Create-Refabricated-Lib").setupCheckstyle()
 
 repositories {

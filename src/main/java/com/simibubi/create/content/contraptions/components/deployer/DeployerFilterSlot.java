@@ -1,22 +1,21 @@
 package com.simibubi.create.content.contraptions.components.deployer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.foundation.utility.VecHelper;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class DeployerFilterSlot extends ValueBoxTransform {
 
 	@Override
-	protected Vector3d getLocalOffset(BlockState state) {
-		Direction facing = state.get(DeployerBlock.FACING);
-		Vector3d vec = VecHelper.voxelSpace(8f, 13.5f, 11.5f);
+	protected Vec3 getLocalOffset(BlockState state) {
+		Direction facing = state.getValue(DeployerBlock.FACING);
+		Vec3 vec = VecHelper.voxelSpace(8f, 13.5f, 11.5f);
 
 		float yRot = AngleHelper.horizontalAngle(facing);
 		float zRot = facing == Direction.UP ? 270 : facing == Direction.DOWN ? 90 : 0;
@@ -27,8 +26,8 @@ public class DeployerFilterSlot extends ValueBoxTransform {
 	}
 
 	@Override
-	protected void rotate(BlockState state, MatrixStack ms) {
-		Direction facing = state.get(DeployerBlock.FACING);
+	protected void rotate(BlockState state, PoseStack ms) {
+		Direction facing = state.getValue(DeployerBlock.FACING);
 		float xRot = facing == Direction.UP ? 90 : facing == Direction.DOWN ? 270 : 0;
 		float yRot = AngleHelper.horizontalAngle(facing) + 180;
 		MatrixStacker.of(ms)

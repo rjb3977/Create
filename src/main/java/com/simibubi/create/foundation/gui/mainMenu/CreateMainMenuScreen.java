@@ -1,10 +1,20 @@
 package com.simibubi.create.foundation.gui.mainMenu;
 
 import java.awt.Color;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.renderer.CubeMap;
+import net.minecraft.client.renderer.PanoramaRenderer;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.config.ui.BaseConfigScreen;
@@ -21,103 +31,91 @@ import com.simibubi.create.foundation.utility.MatrixStacker;
 
 import com.simibubi.create.lib.mixin.accessor.MainMenuScreenAccessor;
 
-import net.minecraft.client.gui.screen.ConfirmOpenLinkScreen;
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.RenderSkybox;
-import net.minecraft.client.renderer.RenderSkyboxCube;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-
 public class CreateMainMenuScreen extends AbstractSimiScreen {
 
 	protected final Screen parent;
 	protected boolean returnOnClose;
 
-	private static final RenderSkyboxCube PANORAMA_RESOURCES =
-		new RenderSkyboxCube(Create.asResource("textures/gui/title/background/panorama"));
+	private static final CubeMap PANORAMA_RESOURCES =
+		new CubeMap(Create.asResource("textures/gui/title/background/panorama"));
 	private static final ResourceLocation PANORAMA_OVERLAY_TEXTURES =
 		new ResourceLocation("textures/gui/title/background/panorama_overlay.png");
-	private RenderSkybox vanillaPanorama = new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES);
-	private RenderSkybox panorama = new RenderSkybox(PANORAMA_RESOURCES);
+	private PanoramaRenderer vanillaPanorama = new PanoramaRenderer(TitleScreen.CUBE_MAP);
+	private PanoramaRenderer panorama = new PanoramaRenderer(PANORAMA_RESOURCES);
 	private long firstRenderTime;
 	private Button gettingStarted;
 
 	public CreateMainMenuScreen(Screen parent) {
 		this.parent = parent;
 		returnOnClose = true;
-		if (parent instanceof MainMenuScreen)
+		if (parent instanceof TitleScreen)
 			vanillaPanorama = ((MainMenuScreenAccessor) parent).getPanorama();
 	}
 
 	@Override
-	public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	public void render(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		if (firstRenderTime == 0L)
-			this.firstRenderTime = Util.milliTime();
+			this.firstRenderTime = Util.getMillis();
 		super.render(ms, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
-		float f = (float) (Util.milliTime() - this.firstRenderTime) / 1000.0F;
-		float alpha = MathHelper.clamp(f, 0.0F, 1.0F);
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
+		float f = (float) (Util.getMillis() - this.firstRenderTime) / 1000.0F;
+		float alpha = Mth.clamp(f, 0.0F, 1.0F);
 
-		if (parent instanceof MainMenuScreen) {
+		if (parent instanceof TitleScreen) {
 			if (alpha < 1)
 				vanillaPanorama.render(partialTicks, 1);
 			panorama.render(partialTicks, alpha);
 
-			client.getTextureManager()
-				.bindTexture(PANORAMA_OVERLAY_TEXTURES);
+			minecraft.getTextureManager()
+				.bind(PANORAMA_OVERLAY_TEXTURES);
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			drawTexture(ms, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
+			blit(ms, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
 		}
 
 		RenderSystem.enableDepthTest();
 
 		for (int side : Iterate.positiveAndNegative) {
-			ms.push();
+			ms.pushPose();
 			ms.translate(width / 2, 60, 200);
 			ms.scale(24 * side, 24 * side, 32);
 			ms.translate(-1.75 * ((alpha * alpha) / 2f + .5f), .25f, 0);
 			MatrixStacker.of(ms)
 				.rotateX(45);
 			GuiGameElement.of(AllBlocks.LARGE_COGWHEEL.getDefaultState())
-				.rotateBlock(0, Util.milliTime() / 32f * side, 0)
+				.rotateBlock(0, Util.getMillis() / 32f * side, 0)
 				.render(ms);
 			ms.translate(-1, 0, -1);
 			GuiGameElement.of(AllBlocks.COGWHEEL.getDefaultState())
-				.rotateBlock(0, Util.milliTime() / -16f * side + 22.5f, 0)
+				.rotateBlock(0, Util.getMillis() / -16f * side + 22.5f, 0)
 				.render(ms);
-			ms.pop();
+			ms.popPose();
 		}
 
-		ms.push();
+		ms.pushPose();
 		ms.translate(width / 2 - 32, 32, -10);
-		ms.push();
+		ms.pushPose();
 		ms.scale(0.25f, 0.25f, 0.25f);
 		AllGuiTextures.LOGO.draw(ms, 0, 0);
-		ms.pop();
+		ms.popPose();
 		new BoxElement().withBackground(0x88_000000)
 			.flatBorder(new Color(0x01_000000, true))
 			.at(-32, 56, 100)
 			.withBounds(128, 11)
 			.render(ms);
-		ms.pop();
+		ms.popPose();
 
-		ms.push();
+		ms.pushPose();
 		ms.translate(0, 0, 200);
-		drawCenteredText(ms, textRenderer, new StringTextComponent(Create.NAME).formatted(TextFormatting.BOLD)
+		drawCenteredString(ms, font, new TextComponent(Create.NAME).withStyle(ChatFormatting.BOLD)
 			.append(
-				new StringTextComponent(" v" + Create.VERSION).formatted(TextFormatting.BOLD, TextFormatting.WHITE)),
+				new TextComponent(" v" + Create.VERSION).withStyle(ChatFormatting.BOLD, ChatFormatting.WHITE)),
 			width / 2, 89, 0xff_E4BB67);
-		ms.pop();
+		ms.popPose();
 
 		RenderSystem.disableDepthTest();
 	}
@@ -131,7 +129,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	private void addButtons() {
 		buttons.clear();
 
-		int yStart = height / 4 + (parent instanceof MainMenuScreen ? 40 : 40);
+		int yStart = height / 4 + (parent instanceof TitleScreen ? 40 : 40);
 		int center = width / 2;
 		int bHeight = 20;
 		int bShortWidth = 98;
@@ -144,7 +142,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 
 		gettingStarted = new Button(center + 2, yStart + 48 + -16, bShortWidth, bHeight,
 			Lang.translate("menu.ponder_index"), $ -> linkTo(new PonderTagIndexScreen()));
-		gettingStarted.active = !(parent instanceof MainMenuScreen);
+		gettingStarted.active = !(parent instanceof TitleScreen);
 		addButton(gettingStarted);
 
 		String projectLink = "https://www.curseforge.com/minecraft/mc-mods/create";
@@ -160,17 +158,17 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindowForeground(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindowForeground(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		super.renderWindowForeground(ms, mouseX, mouseY, partialTicks);
 		buttons.forEach(w -> w.render(ms, mouseX, mouseY, partialTicks));
 
-		if (parent instanceof MainMenuScreen) {
+		if (parent instanceof TitleScreen) {
 			if (mouseX < gettingStarted.x || mouseX > gettingStarted.x + 98)
 				return;
 			if (mouseY < gettingStarted.y || mouseY > gettingStarted.y + 20)
 				return;
-			renderTooltip(ms, TooltipHelper.cutTextComponent(Lang.translate("menu.only_ingame"), TextFormatting.GRAY,
-				TextFormatting.GRAY), mouseX, mouseY);
+			renderComponentTooltip(ms, TooltipHelper.cutTextComponent(Lang.translate("menu.only_ingame"), ChatFormatting.GRAY,
+				ChatFormatting.GRAY), mouseX, mouseY);
 		}
 	}
 
@@ -185,11 +183,11 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 
 	private void linkTo(String url) {
 		returnOnClose = false;
-		ScreenOpener.open(new ConfirmOpenLinkScreen((p_213069_2_) -> {
+		ScreenOpener.open(new ConfirmLinkScreen((p_213069_2_) -> {
 			if (p_213069_2_)
-				Util.getOSType()
-					.openURI(url);
-			this.client.displayGuiScreen(this);
+				Util.getPlatform()
+					.openUri(url);
+			this.minecraft.setScreen(this);
 		}, url, true));
 	}
 

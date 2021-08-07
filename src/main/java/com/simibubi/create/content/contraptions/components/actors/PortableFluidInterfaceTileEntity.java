@@ -3,14 +3,13 @@ package com.simibubi.create.content.contraptions.components.actors;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
-
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTileEntity {
 
 	protected LazyOptional<IFluidHandler> capability;
 
-	public PortableFluidInterfaceTileEntity(TileEntityType<?> tileEntityTypeIn) {
+	public PortableFluidInterfaceTileEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 		capability = createEmptyHandler();
 	}

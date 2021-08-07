@@ -16,15 +16,14 @@ import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuild
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
@@ -36,7 +35,7 @@ public class DeployerApplicationRecipe extends ProcessingRecipe<RecipeWrapper> i
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, World p_77569_2_) {
+	public boolean matches(RecipeWrapper inv, Level p_77569_2_) {
 		return ingredients.get(0)
 			.test(inv.getStackInSlot(0))
 			&& ingredients.get(1)
@@ -65,13 +64,13 @@ public class DeployerApplicationRecipe extends ProcessingRecipe<RecipeWrapper> i
 		return ingredients.get(0);
 	}
 
-	public static List<DeployerApplicationRecipe> convert(List<IRecipe<?>> sandpaperRecipes) {
+	public static List<DeployerApplicationRecipe> convert(List<Recipe<?>> sandpaperRecipes) {
 		return sandpaperRecipes.stream()
 			.map(r -> new ProcessingRecipeBuilder<>(DeployerApplicationRecipe::new, Create.asResource(r.getId()
 				.getPath() + "_using_deployer")).require(r.getIngredients()
 					.get(0))
-					.require(Ingredient.fromItems(AllItems.SAND_PAPER.get(), AllItems.RED_SAND_PAPER.get()))
-					.output(r.getRecipeOutput())
+					.require(Ingredient.of(AllItems.SAND_PAPER.get(), AllItems.RED_SAND_PAPER.get()))
+					.output(r.getResultItem())
 					.build())
 			.collect(Collectors.toList());
 	}
@@ -83,17 +82,17 @@ public class DeployerApplicationRecipe extends ProcessingRecipe<RecipeWrapper> i
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public ITextComponent getDescriptionForAssembly() {
+	public Component getDescriptionForAssembly() {
 		ItemStack[] matchingStacks = ingredients.get(1)
-			.getMatchingStacks();
+			.getItems();
 		if (matchingStacks.length == 0)
-			return new StringTextComponent("Invalid");
+			return new TextComponent("Invalid");
 		return Lang.translate("recipe.assembly.deploying_item",
-			new TranslationTextComponent(matchingStacks[0].getTranslationKey()).getString());
+			new TranslatableComponent(matchingStacks[0].getDescriptionId()).getString());
 	}
 
 	@Override
-	public void addRequiredMachines(Set<IItemProvider> list) {
+	public void addRequiredMachines(Set<ItemLike> list) {
 		list.add(AllBlocks.DEPLOYER.get());
 	}
 

@@ -6,29 +6,28 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.simibubi.create.lib.extensions.AbstractRailBlockExtensions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.BaseRailBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.RailShape;
 
-import net.minecraft.block.AbstractRailBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.state.Property;
-import net.minecraft.state.properties.RailShape;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-
-@Mixin(AbstractRailBlock.class)
+@Mixin(BaseRailBlock.class)
 public abstract class AbstractRailBlockMixin implements AbstractRailBlockExtensions {
 	@Shadow
 	public abstract Property<RailShape> getShapeProperty();
 
 	@Unique
 	@Override
-	public RailShape create$getRailDirection(BlockState state, IBlockReader world, BlockPos pos, @Nullable AbstractMinecartEntity cart) {
-		return state.get(getShapeProperty());
+	public RailShape create$getRailDirection(BlockState state, BlockGetter world, BlockPos pos, @Nullable AbstractMinecart cart) {
+		return state.getValue(getShapeProperty());
 	}
 
 	@Unique
 	@Override
 	public RailShape create$getRailDirection(BlockState state) {
-		return state.get(getShapeProperty());
+		return state.getValue(getShapeProperty());
 	}
 }

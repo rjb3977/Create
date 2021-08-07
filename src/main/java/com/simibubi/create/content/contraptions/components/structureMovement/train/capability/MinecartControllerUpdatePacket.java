@@ -8,52 +8,52 @@ import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
 
 public class MinecartControllerUpdatePacket implements S2CPacket {
 
 	int entityID;
-	CompoundNBT nbt;
+	CompoundTag nbt;
 
 	protected MinecartControllerUpdatePacket() {}
 
 	public MinecartControllerUpdatePacket(MinecartController controller) {
 		entityID = controller.cart()
-			.getEntityId();
+			.getId();
 		nbt = controller.create$serializeNBT();
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		entityID = buffer.readInt();
-		nbt = buffer.readCompoundTag();
+		nbt = buffer.readNbt();
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
  		buffer.writeInt(entityID);
-		buffer.writeCompoundTag(nbt);
+		buffer.writeNbt(nbt);
 	}
 
 	@Override
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client
 			.execute(this::handleCL);
 	}
 
 	@Environment(EnvType.CLIENT)
 	private void handleCL() {
-		ClientWorld world = Minecraft.getInstance().world;
+		ClientLevel world = Minecraft.getInstance().level;
 		if (world == null)
 			return;
-		Entity entityByID = world.getEntityByID(entityID);
+		Entity entityByID = world.getEntity(entityID);
 		if (entityByID == null)
 			return;
-		LazyOptional.ofObject(MinecartAndRailUtil.getController((AbstractMinecartEntity) entityByID))
+		LazyOptional.ofObject(MinecartAndRailUtil.getController((AbstractMinecart) entityByID))
 			.ifPresent(mc -> ((MinecartController) mc).create$deserializeNBT(nbt));
 
 	}

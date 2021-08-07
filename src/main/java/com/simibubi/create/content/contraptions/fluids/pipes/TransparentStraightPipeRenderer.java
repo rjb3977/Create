@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.fluids.pipes;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.contraptions.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.contraptions.fluids.PipeConnection.Flow;
 import com.simibubi.create.foundation.fluid.FluidRenderer;
@@ -9,19 +9,18 @@ import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
-
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.Direction;
 
 public class TransparentStraightPipeRenderer extends SafeTileEntityRenderer<StraightPipeTileEntity> {
 
-	public TransparentStraightPipeRenderer(TileEntityRendererDispatcher dispatcher) {
+	public TransparentStraightPipeRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	protected void renderSafe(StraightPipeTileEntity te, float partialTicks, MatrixStack ms, IRenderTypeBuffer buffer,
+	protected void renderSafe(StraightPipeTileEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 		int light, int overlay) {
 		FluidTransportBehaviour pipe = te.getBehaviour(FluidTransportBehaviour.TYPE);
 		if (pipe == null)
@@ -47,8 +46,8 @@ public class TransparentStraightPipeRenderer extends SafeTileEntityRenderer<Stra
 					if (opposite == null)
 						value -= 1e-6f;
 				} else {
-					FluidTransportBehaviour adjacent = TileEntityBehaviour.get(te.getWorld(), te.getPos()
-						.offset(side), FluidTransportBehaviour.TYPE);
+					FluidTransportBehaviour adjacent = TileEntityBehaviour.get(te.getLevel(), te.getBlockPos()
+						.relative(side), FluidTransportBehaviour.TYPE);
 					if (adjacent == null)
 						value -= 1e-6f;
 					else {

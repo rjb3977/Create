@@ -1,7 +1,14 @@
 package com.simibubi.create.lib.mixin.common;
 
 import java.util.Collection;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,35 +29,26 @@ import com.simibubi.create.lib.utility.ListenerProvider;
 import com.simibubi.create.lib.utility.MixinHelper;
 import com.simibubi.create.lib.utility.NBTSerializable;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 @Mixin(Entity.class)
 public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 	@Unique
 	private static final Logger CREATE$LOGGER = LogManager.getLogger();
 	@Shadow
-	public World world;
+	public Level world;
 	@Shadow
 	private BlockPos blockPos;
 	@Shadow
 	private float eyeHeight;
 	@Unique
-	private CompoundNBT create$extraCustomData;
+	private CompoundTag create$extraCustomData;
 	@Unique
 	private Collection<ItemEntity> create$captureDrops = null;
 
 	@Shadow
-	public abstract void read(CompoundNBT compoundNBT);
+	public abstract void read(CompoundTag compoundNBT);
 
 	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V")
-	public void create$entityInit(EntityType<?> entityType, World world, CallbackInfo ci) {
+	public void create$entityInit(EntityType<?> entityType, Level world, CallbackInfo ci) {
 		int newEyeHeight = EntityEyeHeightCallback.EVENT.invoker().onEntitySize((Entity) (Object) this);
 		if (newEyeHeight != -1)
 			eyeHeight = newEyeHeight;
@@ -84,7 +82,7 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;writeAdditional(Lnet/minecraft/nbt/CompoundNBT;)V"),
 			method = "writeWithoutTypeId(Lnet/minecraft/nbt/CompoundNBT;)Lnet/minecraft/nbt/CompoundNBT;")
-	public void create$beforeWriteCustomData(CompoundNBT tag, CallbackInfoReturnable<CompoundNBT> cir) {
+	public void create$beforeWriteCustomData(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
 		if (create$extraCustomData != null && !create$extraCustomData.isEmpty()) {
 			CREATE$LOGGER.debug("Create: writing custom data to entity [{}]", MixinHelper.<Entity>cast(this).toString());
 			tag.put(EntityHelper.EXTRA_DATA_KEY, create$extraCustomData);
@@ -92,7 +90,7 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;readAdditional(Lnet/minecraft/nbt/CompoundNBT;)V"), method = "read(Lnet/minecraft/nbt/CompoundNBT;)V")
-	public void create$beforeReadCustomData(CompoundNBT tag, CallbackInfo ci) {
+	public void create$beforeReadCustomData(CompoundTag tag, CallbackInfo ci) {
 		if (tag.contains(EntityHelper.EXTRA_DATA_KEY)) {
 			create$extraCustomData = tag.getCompound(EntityHelper.EXTRA_DATA_KEY);
 		}
@@ -121,24 +119,24 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;canBeRidden(Lnet/minecraft/entity/Entity;)Z", shift = At.Shift.BEFORE),
 			method = "startRiding(Lnet/minecraft/entity/Entity;Z)Z", cancellable = true)
 	public void create$startRiding(Entity entity, boolean bl, CallbackInfoReturnable<Boolean> cir) {
-		if (StartRidingCallback.EVENT.invoker().onStartRiding(MixinHelper.cast(this), entity) == ActionResultType.FAIL) {
+		if (StartRidingCallback.EVENT.invoker().onStartRiding(MixinHelper.cast(this), entity) == InteractionResult.FAIL) {
 			cir.setReturnValue(false);
 		}
 	}
 
 	@Unique
 	@Override
-	public CompoundNBT create$getExtraCustomData() {
+	public CompoundTag create$getExtraCustomData() {
 		if (create$extraCustomData == null) {
-			create$extraCustomData = new CompoundNBT();
+			create$extraCustomData = new CompoundTag();
 		}
 		return create$extraCustomData;
 	}
 
 	@Unique
 	@Override
-	public CompoundNBT create$serializeNBT() {
-		CompoundNBT nbt = new CompoundNBT();
+	public CompoundTag create$serializeNBT() {
+		CompoundTag nbt = new CompoundTag();
 		String id = EntityHelper.getEntityString(MixinHelper.cast(this));
 
 		if (id != null) {
@@ -150,7 +148,7 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 
 	@Unique
 	@Override
-	public void create$deserializeNBT(CompoundNBT nbt) {
+	public void create$deserializeNBT(CompoundTag nbt) {
 		read(nbt);
 	}
 }

@@ -2,11 +2,9 @@ package com.simibubi.create.content.contraptions.relays.advanced.sequencer;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.network.chat.Component;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.util.text.ITextComponent;
 
 public enum SequencerInstructions {
 
@@ -45,8 +43,8 @@ public enum SequencerInstructions {
 		parameterKey = translationKey + "." + parameterName;
 	}
 
-	static List<ITextComponent> getOptions() {
-		List<ITextComponent> options = new ArrayList<>();
+	static List<Component> getOptions() {
+		List<Component> options = new ArrayList<>();
 		for (SequencerInstructions entry : values())
 			options.add(Lang.translate(entry.descriptiveTranslationKey));
 		return options;

@@ -3,55 +3,54 @@ package com.simibubi.create.content.contraptions.components.motor;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.content.contraptions.base.DirectionalKineticBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-
-public class CreativeMotorBlock extends DirectionalKineticBlock implements ITileEntityProvider {
+public class CreativeMotorBlock extends DirectionalKineticBlock implements EntityBlock {
 
 	public CreativeMotorBlock(Properties properties) {
 		super(properties);
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-		return AllShapes.MOTOR_BLOCK.get(state.get(FACING));
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+		return AllShapes.MOTOR_BLOCK.get(state.getValue(FACING));
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.MOTOR.create();
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		Direction preferred = getPreferredFacing(context);
 		if ((context.getPlayer() != null && context.getPlayer()
-			.isSneaking()) || preferred == null)
+			.isShiftKeyDown()) || preferred == null)
 			return super.getStateForPlacement(context);
-		return getDefaultState().with(FACING, preferred);
+		return defaultBlockState().setValue(FACING, preferred);
 	}
 
 	// IRotate:
 
 	@Override
-	public boolean hasShaftTowards(IWorldReader world, BlockPos pos, BlockState state, Direction face) {
-		return face == state.get(FACING);
+	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
+		return face == state.getValue(FACING);
 	}
 
 	@Override
 	public Axis getRotationAxis(BlockState state) {
-		return state.get(FACING)
+		return state.getValue(FACING)
 			.getAxis();
 	}
 
@@ -61,7 +60,7 @@ public class CreativeMotorBlock extends DirectionalKineticBlock implements ITile
 	}
 
 	@Override
-	public boolean allowsMovement(BlockState state, IBlockReader reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
 		return false;
 	}
 

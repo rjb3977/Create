@@ -4,8 +4,7 @@ import java.awt.Color;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.gui.BoxElement;
 import com.simibubi.create.foundation.gui.DelegatedStencilElement;
 import com.simibubi.create.foundation.gui.Theme;
@@ -100,14 +99,14 @@ public class BoxWidget extends ElementWidget {
 	}
 
 	@Override
-	protected void beforeRender(@Nonnull MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void beforeRender(@Nonnull PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		super.beforeRender(ms, mouseX, mouseY, partialTicks);
 
-		if (hovered != wasHovered) {
+		if (isHovered != wasHovered) {
 			startGradientAnimation(
 					getColorForState(true),
 					getColorForState(false),
-					hovered
+					isHovered
 			);
 		}
 
@@ -123,7 +122,7 @@ public class BoxWidget extends ElementWidget {
 	}
 
 	@Override
-	public void renderButton(@Nonnull MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@Nonnull PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		float fadeValue = fade.getValue(partialTicks);
 		if (fadeValue < .1f)
 			return;
@@ -137,7 +136,7 @@ public class BoxWidget extends ElementWidget {
 
 		super.renderButton(ms, mouseX, mouseY, partialTicks);
 
-		wasHovered = hovered;
+		wasHovered = isHovered;
 	}
 
 	@Override
@@ -192,7 +191,7 @@ public class BoxWidget extends ElementWidget {
 		if (!active)
 			return Theme.p(getDisabledTheme()).get(first);
 
-		if (hovered) {
+		if (isHovered) {
 			if (first)
 				return customBorderTop != null ? customBorderTop.darker() : Theme.c(getHoverTheme(), true);
 			else

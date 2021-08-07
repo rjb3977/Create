@@ -3,8 +3,8 @@ package com.simibubi.create.content.contraptions.components.structureMovement.ga
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class GantryContraptionUpdatePacket implements S2CPacket {
 
@@ -20,21 +20,21 @@ public class GantryContraptionUpdatePacket implements S2CPacket {
 		this.motion = motion;
 	}
 
-	public void read(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		entityID = buffer.readInt();
 		coord = buffer.readFloat();
 		motion = buffer.readFloat();
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(entityID);
 		buffer.writeFloat((float) coord);
 		buffer.writeFloat((float) motion);
 	}
 
 	@Override
-	public void handle(Minecraft client, ClientPlayNetHandler handler, ResponseTarget responseTarget) {
+	public void handle(Minecraft client, ClientPacketListener handler, ResponseTarget responseTarget) {
 		client
 			.execute(
 				() -> GantryContraptionEntity.handlePacket(this));

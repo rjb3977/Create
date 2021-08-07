@@ -1,7 +1,8 @@
 package com.simibubi.create.content.curiosities.tools;
 
 import com.jozufozu.flywheel.core.PartialModel;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix3f;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.curiosities.tools.BlueprintEntity.BlueprintSection;
 import com.simibubi.create.foundation.render.PartialBufferer;
@@ -9,101 +10,99 @@ import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.MatrixStacker;
 import com.simibubi.create.lib.extensions.Matrix3fExtensions;
-
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix3f;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 
 public class BlueprintRenderer extends EntityRenderer<BlueprintEntity> {
 
-	public BlueprintRenderer(EntityRendererManager manager) {
+	public BlueprintRenderer(EntityRenderDispatcher manager) {
 		super(manager);
 	}
 
 	@Override
-	public void render(BlueprintEntity entity, float yaw, float pt, MatrixStack ms, IRenderTypeBuffer buffer,
+	public void render(BlueprintEntity entity, float yaw, float pt, PoseStack ms, MultiBufferSource buffer,
 		int light) {
 		PartialModel partialModel = entity.size == 3 ? AllBlockPartials.CRAFTING_BLUEPRINT_3x3
 			: entity.size == 2 ? AllBlockPartials.CRAFTING_BLUEPRINT_2x2 : AllBlockPartials.CRAFTING_BLUEPRINT_1x1;
-		SuperByteBuffer sbb = PartialBufferer.get(partialModel, Blocks.AIR.getDefaultState());
+		SuperByteBuffer sbb = PartialBufferer.get(partialModel, Blocks.AIR.defaultBlockState());
 		sbb.matrixStacker()
 			.rotateY(-yaw)
-			.rotateX(90.0F + entity.rotationPitch)
+			.rotateX(90.0F + entity.xRot)
 			.translate(-.5, -1 / 32f, -.5);
 		if (entity.size == 2)
 			sbb.translate(.5, 0, -.5);
 
 		sbb.forEntityRender()
 			.light(light)
-			.renderInto(ms, buffer.getBuffer(Atlases.getEntitySolid()));
+			.renderInto(ms, buffer.getBuffer(Sheets.solidBlockSheet()));
 		super.render(entity, yaw, pt, ms, buffer, light);
 
-		ms.push();
+		ms.pushPose();
 
 		float fakeNormalXRotation = -15;
 		int bl = light >> 4 & 0xf;
 		int sl = light >> 20 & 0xf;
-		boolean vertical = entity.rotationPitch != 0;
-		if (entity.rotationPitch == -90)
+		boolean vertical = entity.xRot != 0;
+		if (entity.xRot == -90)
 			fakeNormalXRotation = -45;
-		else if (entity.rotationPitch == 90 || yaw % 180 != 0) {
+		else if (entity.xRot == 90 || yaw % 180 != 0) {
 			bl /= 1.35;
 			sl /= 1.35;
 		}
-		int itemLight = MathHelper.floor(sl + .5) << 20 | (MathHelper.floor(bl + .5) & 0xf) << 4;
+		int itemLight = Mth.floor(sl + .5) << 20 | (Mth.floor(bl + .5) & 0xf) << 4;
 
 		MatrixStacker.of(ms)
 			.rotateY(vertical ? 0 : -yaw)
 			.rotateX(fakeNormalXRotation);
-		Matrix3f copy = ms.peek()
-			.getNormal()
+		Matrix3f copy = ms.last()
+			.normal()
 			.copy();
 
-		ms.pop();
-		ms.push();
+		ms.popPose();
+		ms.pushPose();
 
 		MatrixStacker.of(ms)
 			.rotateY(-yaw)
-			.rotateX(entity.rotationPitch)
+			.rotateX(entity.xRot)
 			.translate(0, 0, 1 / 32f + .001);
 
 		if (entity.size == 3)
 			ms.translate(-1, -1, 0);
 
-		MatrixStack squashedMS = new MatrixStack();
-		squashedMS.peek()
-			.getModel()
-			.multiply(ms.peek()
-				.getModel());
+		PoseStack squashedMS = new PoseStack();
+		squashedMS.last()
+			.pose()
+			.multiply(ms.last()
+				.pose());
 
 		for (int x = 0; x < entity.size; x++) {
-			squashedMS.push();
+			squashedMS.pushPose();
 			for (int y = 0; y < entity.size; y++) {
 				BlueprintSection section = entity.getSection(x * entity.size + y);
 				Couple<ItemStack> displayItems = section.getDisplayItems();
-				squashedMS.push();
+				squashedMS.pushPose();
 				squashedMS.scale(.5f, .5f, 1 / 1024f);
 				displayItems.forEachWithContext((stack, primary) -> {
 					if (stack.isEmpty())
 						return;
 
-					squashedMS.push();
+					squashedMS.pushPose();
 					if (!primary) {
 						squashedMS.translate(0.325f, -0.325f, 1);
 						squashedMS.scale(.625f, .625f, 1);
 					}
 
-					Matrix3f n = squashedMS.peek()
-						.getNormal();
+					Matrix3f n = squashedMS.last()
+						.normal();
 
 					((Matrix3fExtensions)(Object) n).create$set(copy);
 //					n.a00 = copy.a00;
@@ -118,17 +117,17 @@ public class BlueprintRenderer extends EntityRenderer<BlueprintEntity> {
 
 					Minecraft.getInstance()
 						.getItemRenderer()
-						.renderItem(stack, TransformType.GUI, itemLight, OverlayTexture.DEFAULT_UV, squashedMS, buffer);
-					squashedMS.pop();
+						.renderStatic(stack, TransformType.GUI, itemLight, OverlayTexture.NO_OVERLAY, squashedMS, buffer);
+					squashedMS.popPose();
 				});
-				squashedMS.pop();
+				squashedMS.popPose();
 				squashedMS.translate(1, 0, 0);
 			}
-			squashedMS.pop();
+			squashedMS.popPose();
 			squashedMS.translate(0, 1, 0);
 		}
 
-		ms.pop();
+		ms.popPose();
 	}
 
 	@Override

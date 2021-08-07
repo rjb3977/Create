@@ -57,27 +57,27 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
-import net.minecraft.block.BlockState;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.resources.DataPackRegistries;
-import net.minecraft.resources.IFutureReloadListener;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerResources;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.EntityHitResult;
 
 public class CommonEvents {
 
@@ -87,19 +87,19 @@ public class CommonEvents {
 		ServerSpeedProvider.serverTick(server);
 	}
 
-	public static void onChunkUnloaded(World world, Chunk chunk) {
+	public static void onChunkUnloaded(Level world, LevelChunk chunk) {
 		CapabilityMinecartController.onChunkUnloaded(world, chunk);
 	}
 
-	public static BlockState whenFluidsMeet(IWorld world, BlockPos pos, BlockState state) {
+	public static BlockState whenFluidsMeet(LevelAccessor world, BlockPos pos, BlockState state) {
 		FluidState fluidState = state.getFluidState();
 
-		if (fluidState.isSource() && FluidHelper.isLava(fluidState.getFluid()))
+		if (fluidState.isSource() && FluidHelper.isLava(fluidState.getType()))
 			return null;
 
 		for (Direction direction : Iterate.directions) {
-			FluidState metFluidState = fluidState.isSource() ? fluidState : world.getFluidState(pos.offset(direction));
-			if (!metFluidState.isTagged(FluidTags.WATER))
+			FluidState metFluidState = fluidState.isSource() ? fluidState : world.getFluidState(pos.relative(direction));
+			if (!metFluidState.is(FluidTags.WATER))
 				continue;
 			BlockState lavaInteraction = AllFluids.getLavaInteraction(metFluidState);
 			if (lavaInteraction == null)
@@ -110,7 +110,7 @@ public class CommonEvents {
 		return null;
 	}
 
-	public static void onWorldTick(World world) {
+	public static void onWorldTick(Level world) {
 		ContraptionHandler.tick(world);
 		CapabilityMinecartController.tick(world);
 		CouplingPhysics.tick(world);
@@ -118,27 +118,27 @@ public class CommonEvents {
 	}
 
 	public static void onUpdateLivingEntity(LivingEntity entityLiving) {
-		World world = entityLiving.world;
+		Level world = entityLiving.level;
 		if (world == null)
 			return;
 		ContraptionHandler.entitiesWhoJustDismountedGetSentToTheRightLocation(entityLiving, world);
 	}
 
-	public static void onEntityAdded(Entity entity, World world) {
+	public static void onEntityAdded(Entity entity, Level world) {
 		ContraptionHandler.addSpawnedContraptionsToCollisionList(entity, world);
 	}
 
-	public static ActionResultType onEntityAttackedByPlayer(PlayerEntity playerEntity, World world, Hand hand, Entity entity, @Nullable EntityRayTraceResult entityRayTraceResult) {
+	public static InteractionResult onEntityAttackedByPlayer(Player playerEntity, Level world, InteractionHand hand, Entity entity, @Nullable EntityHitResult entityRayTraceResult) {
 		WrenchItem.wrenchInstaKillsMinecarts(playerEntity, world, hand, entity, entityRayTraceResult);
-		return ActionResultType.PASS;
+		return InteractionResult.PASS;
 	}
 
-	public static void registerCommands(CommandDispatcher<CommandSource> dispatcher, boolean dedicated) {
+	public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
 		AllCommands.register(dispatcher);
 	}
 
-	public static List<IFutureReloadListener> registerReloadListeners(DataPackRegistries dataPackRegistries) {
-		List<IFutureReloadListener> listeners = new ArrayList<>();
+	public static List<PreparableReloadListener> registerReloadListeners(ServerResources dataPackRegistries) {
+		List<PreparableReloadListener> listeners = new ArrayList<>();
 		listeners.add(RecipeFinder.LISTENER);
 		listeners.add(PotionMixingRecipeManager.LISTENER);
 		listeners.add(FluidTransferRecipes.LISTENER);
@@ -149,27 +149,27 @@ public class CommonEvents {
 		Create.SCHEMATIC_RECEIVER.shutdown();
 	}
 
-	public static void onLoadWorld(World world) {
+	public static void onLoadWorld(Level world) {
 		Create.REDSTONE_LINK_NETWORK_HANDLER.onLoadWorld(world);
 		Create.TORQUE_PROPAGATOR.onLoadWorld(world);
 	}
 
-	public static void onUnloadWorld(World world) {
+	public static void onUnloadWorld(Level world) {
 		Create.REDSTONE_LINK_NETWORK_HANDLER.onUnloadWorld(world);
 		Create.TORQUE_PROPAGATOR.onUnloadWorld(world);
 		WorldAttached.invalidateWorld(world);
 	}
 
-	public static void attachCapabilities(AbstractMinecartEntity cart) {
+	public static void attachCapabilities(AbstractMinecart cart) {
 		CapabilityMinecartController.attach(cart);
 	}
 
-	public static void startTracking(Entity target, ServerPlayerEntity player) {
+	public static void startTracking(Entity target, ServerPlayer player) {
 		CapabilityMinecartController.startTracking(target);
 	}
 
-	public static void leftClickEmpty(PlayerEntity player) {
-		ItemStack stack = player.getHeldItemMainhand();
+	public static void leftClickEmpty(Player player) {
+		ItemStack stack = player.getMainHandItem();
 		if (stack.getItem() instanceof ZapperItem) {
 			ZapperInteractionHandler.trySelect(stack, player);
 		}

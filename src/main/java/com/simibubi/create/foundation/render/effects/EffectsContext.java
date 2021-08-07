@@ -6,8 +6,7 @@ import com.jozufozu.flywheel.backend.gl.shader.ShaderType;
 import com.jozufozu.flywheel.backend.loading.Shader;
 import com.jozufozu.flywheel.core.shader.spec.ProgramSpec;
 import com.simibubi.create.foundation.render.AllProgramSpecs;
-
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class EffectsContext extends ShaderContext<SphereFilterProgram> {
 

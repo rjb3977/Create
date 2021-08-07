@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import net.minecraft.resources.ResourceLocation;
 import com.simibubi.create.Create;
-
-import net.minecraft.util.ResourceLocation;
 
 public class SpriteShifter {
 

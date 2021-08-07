@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.tileEntity.behaviour.linked;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.simibubi.create.AllSpecialTextures;
 import com.simibubi.create.CreateClient;
@@ -13,39 +13,39 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class LinkRenderer {
 
 	public static void tick() {
 		Minecraft mc = Minecraft.getInstance();
-		RayTraceResult target = mc.objectMouseOver;
-		if (target == null || !(target instanceof BlockRayTraceResult))
+		HitResult target = mc.hitResult;
+		if (target == null || !(target instanceof BlockHitResult))
 			return;
 
-		BlockRayTraceResult result = (BlockRayTraceResult) target;
-		ClientWorld world = mc.world;
-		BlockPos pos = result.getPos();
+		BlockHitResult result = (BlockHitResult) target;
+		ClientLevel world = mc.level;
+		BlockPos pos = result.getBlockPos();
 
 		LinkBehaviour behaviour = TileEntityBehaviour.get(world, pos, LinkBehaviour.TYPE);
 		if (behaviour == null)
 			return;
 
-		ITextComponent freq1 = Lang.translate("logistics.firstFrequency");
-		ITextComponent freq2 = Lang.translate("logistics.secondFrequency");
+		Component freq1 = Lang.translate("logistics.firstFrequency");
+		Component freq2 = Lang.translate("logistics.secondFrequency");
 
 		for (boolean first : Iterate.trueAndFalse) {
-			AxisAlignedBB bb = new AxisAlignedBB(Vector3d.ZERO, Vector3d.ZERO).grow(.25f);
-			ITextComponent label = first ? freq2 : freq1;
-			boolean hit = behaviour.testHit(first, target.getHitVec());
+			AABB bb = new AABB(Vec3.ZERO, Vec3.ZERO).inflate(.25f);
+			Component label = first ? freq2 : freq1;
+			boolean hit = behaviour.testHit(first, target.getLocation());
 			ValueBoxTransform transform = first ? behaviour.firstSlot : behaviour.secondSlot;
 
 			ValueBox box = new ValueBox(label, bb, pos).withColors(0x601F18, 0xB73C2D)
@@ -54,12 +54,12 @@ public class LinkRenderer {
 			CreateClient.OUTLINER.showValueBox(Pair.of(Boolean.valueOf(first), pos), box.transform(transform))
 					.lineWidth(1 / 64f)
 					.withFaceTexture(hit ? AllSpecialTextures.THIN_CHECKERED : null)
-					.highlightFace(result.getFace());
+					.highlightFace(result.getDirection());
 		}
 	}
 
-	public static void renderOnTileEntity(SmartTileEntity te, float partialTicks, MatrixStack ms,
-		IRenderTypeBuffer buffer, int light, int overlay) {
+	public static void renderOnTileEntity(SmartTileEntity te, float partialTicks, PoseStack ms,
+		MultiBufferSource buffer, int light, int overlay) {
 
 		if (te == null || te.isRemoved())
 			return;
@@ -71,10 +71,10 @@ public class LinkRenderer {
 			ValueBoxTransform transform = first ? behaviour.firstSlot : behaviour.secondSlot;
 			ItemStack stack = first ? behaviour.frequencyFirst.getStack() : behaviour.frequencyLast.getStack();
 
-			ms.push();
+			ms.pushPose();
 			transform.transform(te.getBlockState(), ms);
 			ValueBoxRenderer.renderItemIntoValueBox(stack, ms, buffer, light, overlay);
-			ms.pop();
+			ms.popPose();
 		}
 
 	}

@@ -13,16 +13,16 @@ import com.simibubi.create.foundation.utility.Iterate;
 
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class PipeAttachmentModel extends ForwardingBakedModel {
 
-	public PipeAttachmentModel(IBakedModel template) {
+	public PipeAttachmentModel(BakedModel template) {
 		wrapped = template;
 	}
 
@@ -32,7 +32,7 @@ public class PipeAttachmentModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public void emitBlockQuads(IBlockDisplayReader blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
+	public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 		PipeModelData data = new PipeModelData();
 		FluidTransportBehaviour transport = TileEntityBehaviour.get(blockView, pos, FluidTransportBehaviour.TYPE);
 		BracketedTileEntityBehaviour bracket = TileEntityBehaviour.get(blockView, pos, BracketedTileEntityBehaviour.TYPE);
@@ -52,7 +52,7 @@ public class PipeAttachmentModel extends ForwardingBakedModel {
 				context.fallbackConsumer().accept(AllBlockPartials.PIPE_ATTACHMENTS.get(data.getRim(d)).get(d).get());
 		if (data.isEncased())
 			context.fallbackConsumer().accept(AllBlockPartials.FLUID_PIPE_CASING.get());
-		IBakedModel bracket1 = data.getBracket();
+		BakedModel bracket1 = data.getBracket();
 		if (bracket1 != null)
 			context.fallbackConsumer().accept(bracket1);
 	}
@@ -60,7 +60,7 @@ public class PipeAttachmentModel extends ForwardingBakedModel {
 	private class PipeModelData {
 		AttachmentTypes[] rims;
 		boolean encased;
-		IBakedModel bracket;
+		BakedModel bracket;
 
 		public PipeModelData() {
 			rims = new AttachmentTypes[6];
@@ -69,16 +69,16 @@ public class PipeAttachmentModel extends ForwardingBakedModel {
 
 		public void putBracket(BlockState state) {
 			this.bracket = Minecraft.getInstance()
-				.getBlockRendererDispatcher()
-				.getModelForState(state);
+				.getBlockRenderer()
+				.getBlockModel(state);
 		}
 
-		public IBakedModel getBracket() {
+		public BakedModel getBracket() {
 			return bracket;
 		}
 
 		public void putRim(Direction face, AttachmentTypes rim) {
-			rims[face.getIndex()] = rim;
+			rims[face.get3DDataValue()] = rim;
 		}
 
 		public void setEncased(boolean encased) {
@@ -86,11 +86,11 @@ public class PipeAttachmentModel extends ForwardingBakedModel {
 		}
 
 		public boolean hasRim(Direction face) {
-			return rims[face.getIndex()] != AttachmentTypes.NONE;
+			return rims[face.get3DDataValue()] != AttachmentTypes.NONE;
 		}
 
 		public AttachmentTypes getRim(Direction face) {
-			return rims[face.getIndex()];
+			return rims[face.get3DDataValue()];
 		}
 
 		public boolean isEncased() {

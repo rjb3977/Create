@@ -1,18 +1,16 @@
 package com.simibubi.create.foundation.command;
 
 import java.util.Arrays;
-
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerPlayer;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.config.ui.ConfigHelper;
 import com.simibubi.create.foundation.networking.AllPackets;
-
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.StringTextComponent;
 
 /**
  * Examples:
@@ -22,10 +20,10 @@ import net.minecraft.util.text.StringTextComponent;
  */
 public class ConfigCommand {
 
-	public static ArgumentBuilder<CommandSource, ?> register() {
+	public static ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal("config")
 				.executes(ctx -> {
-					ServerPlayerEntity player = ctx.getSource().asPlayer();
+					ServerPlayer player = ctx.getSource().getPlayerOrException();
 					AllPackets.channel.sendToClient(new SConfigureConfigPacket(SConfigureConfigPacket.Actions.configScreen.name(), ""), player);
 //					AllPackets.channel.send(
 //							PacketDistributor.PLAYER.with(() -> player),
@@ -36,7 +34,7 @@ public class ConfigCommand {
 				})
 				.then(Commands.argument("path", StringArgumentType.string())
 						.executes(ctx -> {
-							ServerPlayerEntity player = ctx.getSource().asPlayer();
+							ServerPlayer player = ctx.getSource().getPlayerOrException();
 							AllPackets.channel.sendToClient(new SConfigureConfigPacket(SConfigureConfigPacket.Actions.configScreen.name(), StringArgumentType.getString(ctx, "path")), player);
 //							AllPackets.channel.send(
 //									PacketDistributor.PLAYER.with(() -> player),
@@ -46,7 +44,7 @@ public class ConfigCommand {
 							return Command.SINGLE_SUCCESS;
 						})
 						.then(Commands.literal("set")
-								.requires(cs -> cs.hasPermissionLevel(2))
+								.requires(cs -> cs.hasPermission(2))
 								.then(Commands.argument("value", StringArgumentType.string())
 										.executes(ctx -> {
 											String path = StringArgumentType.getString(ctx, "path");
@@ -57,12 +55,12 @@ public class ConfigCommand {
 											try {
 												configPath = ConfigHelper.ConfigPath.parse(path);
 											} catch (IllegalArgumentException e) {
-												ctx.getSource().sendErrorMessage(new StringTextComponent(e.getMessage()));
+												ctx.getSource().sendFailure(new TextComponent(e.getMessage()));
 												return 0;
 											}
 
 											if (Arrays.asList(configPath.getPath()).contains("client")) {
-												ServerPlayerEntity player = ctx.getSource().asPlayer();
+												ServerPlayer player = ctx.getSource().getPlayerOrException();
 												AllPackets.channel.sendToClient(new SConfigureConfigPacket("SET" + path, value), player);
 //												AllPackets.channel.send(
 //														PacketDistributor.PLAYER.with(() -> player),
@@ -74,13 +72,13 @@ public class ConfigCommand {
 
 											try {
 												ConfigHelper.setConfigValue(configPath, value);
-												ctx.getSource().sendFeedback(new StringTextComponent("Great Success!"), false);
+												ctx.getSource().sendSuccess(new TextComponent("Great Success!"), false);
 												return Command.SINGLE_SUCCESS;
 											} catch (Exception /*ConfigHelper.InvalidValueException*/ e) {
-												ctx.getSource().sendErrorMessage(new StringTextComponent("Config could not be set the the specified value!"));
+												ctx.getSource().sendFailure(new TextComponent("Config could not be set the the specified value!"));
 //												return 0;
 //											} catch (Exception e) {
-												ctx.getSource().sendErrorMessage(new StringTextComponent("Something went wrong while trying to set config value. Check the server logs for more information"));
+												ctx.getSource().sendFailure(new TextComponent("Something went wrong while trying to set config value. Check the server logs for more information"));
 												Create.LOGGER.warn("Exception during server-side config value set:", e);
 												return 0;
 											}

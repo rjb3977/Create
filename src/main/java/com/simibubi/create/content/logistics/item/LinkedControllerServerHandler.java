@@ -8,18 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.IRedstoneLinkable;
 import com.simibubi.create.content.logistics.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.logistics.item.LinkedControllerServerHandler.ManualFrequencyEntry;
 import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.IntAttached;
 import com.simibubi.create.foundation.utility.WorldAttached;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
 
 public class LinkedControllerServerHandler {
 
@@ -27,7 +26,7 @@ public class LinkedControllerServerHandler {
 		new WorldAttached<>(HashMap::new);
 	static final int TIMEOUT = 30;
 
-	public static void tick(IWorld world) {
+	public static void tick(LevelAccessor world) {
 		Map<UUID, Collection<ManualFrequencyEntry>> map = receivedInputs.get(world);
 		for (Iterator<Entry<UUID, Collection<ManualFrequencyEntry>>> iterator = map.entrySet()
 			.iterator(); iterator.hasNext();) {
@@ -49,7 +48,7 @@ public class LinkedControllerServerHandler {
 		}
 	}
 
-	public static void receivePressed(IWorld world, BlockPos pos, UUID uniqueID, List<Couple<Frequency>> collect,
+	public static void receivePressed(LevelAccessor world, BlockPos pos, UUID uniqueID, List<Couple<Frequency>> collect,
 		boolean pressed) {
 		Map<UUID, Collection<ManualFrequencyEntry>> map = receivedInputs.get(world);
 		Collection<ManualFrequencyEntry> list = map.computeIfAbsent(uniqueID, $ -> new ArrayList<>());

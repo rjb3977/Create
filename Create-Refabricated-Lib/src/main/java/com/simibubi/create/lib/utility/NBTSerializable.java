@@ -1,9 +1,9 @@
 package com.simibubi.create.lib.utility;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public interface NBTSerializable {
-	CompoundNBT create$serializeNBT();
+	CompoundTag create$serializeNBT();
 
-	void create$deserializeNBT(CompoundNBT nbt);
+	void create$deserializeNBT(CompoundTag nbt);
 }

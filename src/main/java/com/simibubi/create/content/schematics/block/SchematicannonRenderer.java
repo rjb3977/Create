@@ -3,32 +3,31 @@ package com.simibubi.create.content.schematics.block;
 import java.util.Random;
 
 import com.jozufozu.flywheel.backend.Backend;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.schematics.block.LaunchedItem.ForBlockState;
 import com.simibubi.create.content.schematics.block.LaunchedItem.ForEntity;
 import com.simibubi.create.foundation.render.PartialBufferer;
 import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class SchematicannonRenderer extends SafeTileEntityRenderer<SchematicannonTileEntity> {
 
-	public SchematicannonRenderer(TileEntityRendererDispatcher dispatcher) {
+	public SchematicannonRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
@@ -38,16 +37,16 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 	}
 
 	@Override
-	protected void renderSafe(SchematicannonTileEntity tileEntityIn, float partialTicks, MatrixStack ms,
-			IRenderTypeBuffer buffer, int light, int overlay) {
+	protected void renderSafe(SchematicannonTileEntity tileEntityIn, float partialTicks, PoseStack ms,
+			MultiBufferSource buffer, int light, int overlay) {
 
 		boolean blocksLaunching = !tileEntityIn.flyingBlocks.isEmpty();
 		if (blocksLaunching)
 			renderLaunchedBlocks(tileEntityIn, partialTicks, ms, buffer, light, overlay);
 
-		if (Backend.getInstance().canUseInstancing(tileEntityIn.getWorld())) return;
+		if (Backend.getInstance().canUseInstancing(tileEntityIn.getLevel())) return;
 
-		BlockPos pos = tileEntityIn.getPos();
+		BlockPos pos = tileEntityIn.getBlockPos();
 
 		double[] cannonAngles = getCannonAngles(tileEntityIn, pos, partialTicks);
 
@@ -56,11 +55,11 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 
 		double recoil = getRecoil(tileEntityIn, partialTicks);
 
-		ms.push();
+		ms.pushPose();
 		BlockState state = tileEntityIn.getBlockState();
-		int lightCoords = WorldRenderer.getLightmapCoordinates(tileEntityIn.getWorld(), pos);
+		int lightCoords = LevelRenderer.getLightColor(tileEntityIn.getLevel(), pos);
 
-		IVertexBuilder vb = buffer.getBuffer(RenderType.getSolid());
+		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
 
 		SuperByteBuffer connector = PartialBufferer.get(AllBlockPartials.SCHEMATICANNON_CONNECTOR, state);
 		connector.translate(.5f, 0, .5f);
@@ -76,7 +75,7 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 		pipe.translate(0, -recoil / 100, 0);
 		pipe.light(lightCoords).renderInto(ms, vb);
 
-		ms.pop();
+		ms.popPose();
 	}
 
 	public static double[] getCannonAngles(SchematicannonTileEntity tile, BlockPos pos, float partialTicks) {
@@ -87,21 +86,21 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 		if (target != null) {
 
 			// Calculate Angle of Cannon
-			Vector3d diff = Vector3d.of(target.subtract(pos));
+			Vec3 diff = Vec3.atLowerCornerOf(target.subtract(pos));
 			if (tile.previousTarget != null) {
-				diff = (Vector3d.of(tile.previousTarget)
-						.add(Vector3d.of(target.subtract(tile.previousTarget)).scale(partialTicks)))
-						.subtract(Vector3d.of(pos));
+				diff = (Vec3.atLowerCornerOf(tile.previousTarget)
+						.add(Vec3.atLowerCornerOf(target.subtract(tile.previousTarget)).scale(partialTicks)))
+						.subtract(Vec3.atLowerCornerOf(pos));
 			}
 
-			double diffX = diff.getX();
-			double diffZ = diff.getZ();
-			yaw = MathHelper.atan2(diffX, diffZ);
+			double diffX = diff.x();
+			double diffZ = diff.z();
+			yaw = Mth.atan2(diffX, diffZ);
 			yaw = yaw / Math.PI * 180;
 
-			float distance = MathHelper.sqrt(diffX * diffX + diffZ * diffZ);
+			float distance = Mth.sqrt(diffX * diffX + diffZ * diffZ);
 			double yOffset = 0 + distance * 2f;
-			pitch = MathHelper.atan2(distance, diff.getY() * 3 + yOffset);
+			pitch = Mth.atan2(distance, diff.y() * 3 + yOffset);
 			pitch = pitch / Math.PI * 180 + 10;
 
 		}
@@ -124,66 +123,66 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 		return recoil;
 	}
 
-	private static void renderLaunchedBlocks(SchematicannonTileEntity tileEntityIn, float partialTicks, MatrixStack ms, IRenderTypeBuffer buffer, int light, int overlay) {
+	private static void renderLaunchedBlocks(SchematicannonTileEntity tileEntityIn, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		for (LaunchedItem launched : tileEntityIn.flyingBlocks) {
 
 			if (launched.ticksRemaining == 0)
 				continue;
 
 			// Calculate position of flying block
-			Vector3d start = Vector3d.of(tileEntityIn.getPos().add(.5f, 1, .5f));
-			Vector3d target = Vector3d.of(launched.target).add(-.5, 0, 1);
-			Vector3d distance = target.subtract(start);
+			Vec3 start = Vec3.atLowerCornerOf(tileEntityIn.getBlockPos().offset(.5f, 1, .5f));
+			Vec3 target = Vec3.atLowerCornerOf(launched.target).add(-.5, 0, 1);
+			Vec3 distance = target.subtract(start);
 
 			double targetY = target.y - start.y;
-			double throwHeight = Math.sqrt(distance.lengthSquared()) * .6f + targetY;
-			Vector3d cannonOffset = distance.add(0, throwHeight, 0).normalize().scale(2);
+			double throwHeight = Math.sqrt(distance.lengthSqr()) * .6f + targetY;
+			Vec3 cannonOffset = distance.add(0, throwHeight, 0).normalize().scale(2);
 			start = start.add(cannonOffset);
 
 			float progress =
 				((float) launched.totalTicks - (launched.ticksRemaining + 1 - partialTicks)) / launched.totalTicks;
-			Vector3d blockLocationXZ = new Vector3d(.5, .5, .5).add(target.subtract(start).scale(progress).mul(1, 0, 1));
+			Vec3 blockLocationXZ = new Vec3(.5, .5, .5).add(target.subtract(start).scale(progress).multiply(1, 0, 1));
 
 			// Height is determined through a bezier curve
 			float t = progress;
 			double yOffset = 2 * (1 - t) * t * throwHeight + t * t * targetY;
-			Vector3d blockLocation = blockLocationXZ.add(0, yOffset + 1, 0).add(cannonOffset);
+			Vec3 blockLocation = blockLocationXZ.add(0, yOffset + 1, 0).add(cannonOffset);
 
 			// Offset to position
-			ms.push();
+			ms.pushPose();
 			ms.translate(blockLocation.x, blockLocation.y, blockLocation.z);
 
-			ms.multiply(new Vector3f(0, 1, 0).getDegreesQuaternion(360 * t * 2));
-			ms.multiply(new Vector3f(1, 0, 0).getDegreesQuaternion(360 * t * 2));
+			ms.mulPose(new Vector3f(0, 1, 0).rotationDegrees(360 * t * 2));
+			ms.mulPose(new Vector3f(1, 0, 0).rotationDegrees(360 * t * 2));
 
 			// Render the Block
 			if (launched instanceof ForBlockState) {
 				float scale = .3f;
 				ms.scale(scale, scale, scale);
-				Minecraft.getInstance().getBlockRendererDispatcher().renderBlockAsEntity(((ForBlockState) launched).state, ms, buffer, light, overlay);
+				Minecraft.getInstance().getBlockRenderer().renderSingleBlock(((ForBlockState) launched).state, ms, buffer, light, overlay);
 			}
 
 			// Render the item
 			if (launched instanceof ForEntity) {
 				float scale = 1.2f;
 				ms.scale(scale, scale, scale);
-				Minecraft.getInstance().getItemRenderer().renderItem(launched.stack, TransformType.GROUND, light, overlay, ms, buffer);
+				Minecraft.getInstance().getItemRenderer().renderStatic(launched.stack, TransformType.GROUND, light, overlay, ms, buffer);
 			}
 
-			ms.pop();
+			ms.popPose();
 
 			// Render particles for launch
 			if (launched.ticksRemaining == launched.totalTicks && tileEntityIn.firstRenderTick) {
 				tileEntityIn.firstRenderTick = false;
 				for (int i = 0; i < 10; i++) {
-					Random r = tileEntityIn.getWorld().getRandom();
+					Random r = tileEntityIn.getLevel().getRandom();
 					double sX = cannonOffset.x * .01f;
 					double sY = (cannonOffset.y + 1) * .01f;
 					double sZ = cannonOffset.z * .01f;
 					double rX = r.nextFloat() - sX * 40;
 					double rY = r.nextFloat() - sY * 40;
 					double rZ = r.nextFloat() - sZ * 40;
-					tileEntityIn.getWorld().addParticle(ParticleTypes.CLOUD, start.x + rX, start.y + rY,
+					tileEntityIn.getLevel().addParticle(ParticleTypes.CLOUD, start.x + rX, start.y + rY,
 														start.z + rZ, sX, sY, sZ);
 				}
 			}

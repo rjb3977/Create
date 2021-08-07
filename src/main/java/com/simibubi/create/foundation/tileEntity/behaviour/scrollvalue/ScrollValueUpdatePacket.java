@@ -2,9 +2,8 @@ package com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue;
 
 import com.simibubi.create.foundation.networking.TileEntityConfigurationPacket;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
-
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ScrollValueUpdatePacket extends TileEntityConfigurationPacket<SmartTileEntity> {
 
@@ -18,12 +17,12 @@ public class ScrollValueUpdatePacket extends TileEntityConfigurationPacket<Smart
 	}
 
 	@Override
-	protected void writeSettings(PacketBuffer buffer) {
+	protected void writeSettings(FriendlyByteBuf buffer) {
 		buffer.writeInt(value);
 	}
 
 	@Override
-	protected void readSettings(PacketBuffer buffer) {
+	protected void readSettings(FriendlyByteBuf buffer) {
 		value = buffer.readInt();
 	}
 

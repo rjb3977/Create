@@ -3,8 +3,7 @@ package com.simibubi.create.foundation.ponder.ui;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.gui.Theme;
 import com.simibubi.create.foundation.gui.UIRenderHelper;
 import com.simibubi.create.foundation.gui.widgets.AbstractSimiWidget;
@@ -29,9 +28,9 @@ public class ChapterLabel extends AbstractSimiWidget {
 	}
 
 	@Override
-	public void render(@Nonnull MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		UIRenderHelper.streak(ms, 0, x, y + height / 2, height - 2, width);
-		Minecraft.getInstance().fontRenderer.draw(ms, Lang.translate("ponder.chapter." + chapter.getId()), x + 50,
+		Minecraft.getInstance().font.draw(ms, Lang.translate("ponder.chapter." + chapter.getId()), x + 50,
 			y + 20, Theme.i(Theme.Key.TEXT_ACCENT_SLIGHT));
 
 		button.renderButton(ms, mouseX, mouseY, partialTicks);

@@ -2,8 +2,10 @@ package com.simibubi.create.content.curiosities.projector;
 
 import java.util.Collections;
 import java.util.Vector;
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.item.ItemStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.gui.AbstractSimiScreen;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
@@ -14,10 +16,6 @@ import com.simibubi.create.foundation.gui.widgets.SelectionScrollInput;
 import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueBehaviour;
 import com.simibubi.create.foundation.utility.Lang;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 
 public class ChromaticProjectorScreen extends AbstractSimiScreen {
 
@@ -165,13 +163,13 @@ public class ChromaticProjectorScreen extends AbstractSimiScreen {
 
 		int channelX = x + 39;
 		rChannel = new IconButton(channelX, y, AllIcons.I_FX_BLEND);
-		rChannel.setToolTip(new StringTextComponent("R"));
+		rChannel.setToolTip(new TextComponent("R"));
 		channelX += 18;
 		gChannel = new IconButton(channelX, y, AllIcons.I_FX_BLEND);
-		gChannel.setToolTip(new StringTextComponent("G"));
+		gChannel.setToolTip(new TextComponent("G"));
 		channelX += 18;
 		bChannel = new IconButton(channelX, y, AllIcons.I_FX_BLEND);
-		bChannel.setToolTip(new StringTextComponent("B"));
+		bChannel.setToolTip(new TextComponent("B"));
 
 		fieldEffect = new IconButton(x + 135, y, tile.field ? AllIcons.I_FX_FIELD_ON : AllIcons.I_FX_FIELD_OFF);
 		fieldEffect.setToolTip(Lang.translate("gui.chromatic_projector.field"));
@@ -187,7 +185,7 @@ public class ChromaticProjectorScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		int x = guiLeft;
 		int y = guiTop;
 
@@ -209,8 +207,8 @@ public class ChromaticProjectorScreen extends AbstractSimiScreen {
 				label(ms, 36, yOffset - 3, Lang.translate(def.translationKey));
 			if (def.hasParameter) {
 				String text = step.filter.formatValue(step.value);
-				int stringWidth = textRenderer.getStringWidth(text);
-				label(ms, 118 + (12 - stringWidth / 2), yOffset - 3, new StringTextComponent(text));
+				int stringWidth = font.width(text);
+				label(ms, 118 + (12 - stringWidth / 2), yOffset - 3, new TextComponent(text));
 			}
 		}
 
@@ -221,7 +219,7 @@ public class ChromaticProjectorScreen extends AbstractSimiScreen {
 
 		renderScroll(ms, strength, 100f);
 
-		drawCenteredText(ms, textRenderer, title, x + (background.width - 8) / 2, y + 3, 0xFFFFFF);
+		drawCenteredString(ms, font, title, x + (background.width - 8) / 2, y + 3, 0xFFFFFF);
 
 		GuiGameElement.of(renderedItem)
 				.scale(5)
@@ -229,15 +227,15 @@ public class ChromaticProjectorScreen extends AbstractSimiScreen {
 				.render(ms);
 	}
 
-	private void renderScroll(MatrixStack matrixStack, ScrollInput input, float divisor) {
+	private void renderScroll(PoseStack matrixStack, ScrollInput input, float divisor) {
 		String text = String.valueOf(input.getState() / divisor);
 
 //		int stringWidth = textRenderer.getStringWidth(text);
-		textRenderer.drawWithShadow(matrixStack, text, input.x + 2, input.y + 5, 0xFFFFEE);
+		font.drawShadow(matrixStack, text, input.x + 2, input.y + 5, 0xFFFFEE);
 	}
 
-	private void label(MatrixStack matrixStack, int x, int y, ITextComponent text) {
-		textRenderer.drawWithShadow(matrixStack, text, guiLeft + x, guiTop + 26 + y, 0xFFFFEE);
+	private void label(PoseStack matrixStack, int x, int y, Component text) {
+		font.drawShadow(matrixStack, text, guiLeft + x, guiTop + 26 + y, 0xFFFFEE);
 	}
 
 	private static Integer step(ScrollValueBehaviour.StepContext ctx, int base) {
@@ -277,7 +275,7 @@ public class ChromaticProjectorScreen extends AbstractSimiScreen {
 	@Override
 	public boolean mouseClicked(double x, double y, int button) {
 		if (confirmButton.isHovered()) {
-			client.player.closeScreen();
+			minecraft.player.closeContainer();
 			return true;
 		}
 

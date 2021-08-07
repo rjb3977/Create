@@ -17,29 +17,29 @@ import com.tterrag.registrate.fabric.EnvExecutor;
 import alexiil.mc.lib.attributes.item.ItemAttributes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class StockpileSwitchBlock extends HorizontalBlock implements ITE<StockpileSwitchTileEntity>, IWrenchable, CanConnectRedstoneBlock, ITileEntityProvider, BlockExtensions {
+public class StockpileSwitchBlock extends HorizontalDirectionalBlock implements ITE<StockpileSwitchTileEntity>, IWrenchable, CanConnectRedstoneBlock, EntityBlock, BlockExtensions {
 
 	public static final IntegerProperty INDICATOR = IntegerProperty.create("indicator", 0, 6);
 
@@ -48,13 +48,13 @@ public class StockpileSwitchBlock extends HorizontalBlock implements ITE<Stockpi
 	}
 
 	@Override
-	public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
+	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
 		updateObservedInventory(state, worldIn, pos);
 	}
 
 	@Override
-	public void create$onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
-		if (world.isRemote())
+	public void create$onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbor) {
+		if (world.isClientSide())
 			return;
 		if (!isObserving(state, pos, neighbor))
 			return;
@@ -62,32 +62,32 @@ public class StockpileSwitchBlock extends HorizontalBlock implements ITE<Stockpi
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader p_220053_2_, BlockPos p_220053_3_,
-		ISelectionContext p_220053_4_) {
-		return AllShapes.STOCKPILE_SWITCH.get(state.get(HORIZONTAL_FACING));
+	public VoxelShape getShape(BlockState state, BlockGetter p_220053_2_, BlockPos p_220053_3_,
+		CollisionContext p_220053_4_) {
+		return AllShapes.STOCKPILE_SWITCH.get(state.getValue(FACING));
 	}
 
-	private void updateObservedInventory(BlockState state, IWorldReader world, BlockPos pos) {
+	private void updateObservedInventory(BlockState state, LevelReader world, BlockPos pos) {
 		withTileEntityDo(world, pos, StockpileSwitchTileEntity::updateCurrentLevel);
 	}
 
 	private boolean isObserving(BlockState state, BlockPos pos, BlockPos observing) {
-		return observing.equals(pos.offset(state.get(HORIZONTAL_FACING)));
+		return observing.equals(pos.relative(state.getValue(FACING)));
 	}
 
 	@Override
-	public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
-		return side != null && side.getOpposite() != state.get(HORIZONTAL_FACING);
+	public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, Direction side) {
+		return side != null && side.getOpposite() != state.getValue(FACING);
 	}
 
 	@Override
-	public boolean canProvidePower(BlockState state) {
+	public boolean isSignalSource(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		if (side == blockState.get(HORIZONTAL_FACING).getOpposite())
+	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+		if (side == blockState.getValue(FACING).getOpposite())
 			return 0;
 		return getTileEntityOptional(blockAccess, pos).filter(StockpileSwitchTileEntity::isPowered)
 				.map($ -> 15)
@@ -95,41 +95,41 @@ public class StockpileSwitchBlock extends HorizontalBlock implements ITE<Stockpi
 	}
 
 	@Override
-	public void scheduledTick(BlockState blockState, ServerWorld world, BlockPos pos, Random random) {
+	public void tick(BlockState blockState, ServerLevel world, BlockPos pos, Random random) {
 		getTileEntityOptional(world, pos).ifPresent(StockpileSwitchTileEntity::updatePowerAfterDelay);
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		builder.add(HORIZONTAL_FACING, INDICATOR);
-		super.fillStateContainer(builder);
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		builder.add(FACING, INDICATOR);
+		super.createBlockStateDefinition(builder);
 	}
 
 	@Override
-	public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-		BlockRayTraceResult hit) {
-		if (player != null && AllItems.WRENCH.isIn(player.getHeldItem(handIn)))
-			return ActionResultType.PASS;
+	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
+		BlockHitResult hit) {
+		if (player != null && AllItems.WRENCH.isIn(player.getItemInHand(handIn)))
+			return InteractionResult.PASS;
 		EnvExecutor.runWhenOn(EnvType.CLIENT,
 			() -> () -> withTileEntityDo(worldIn, pos, te -> this.displayScreen(te, player)));
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Environment(value = EnvType.CLIENT)
-	protected void displayScreen(StockpileSwitchTileEntity te, PlayerEntity player) {
-		if (player instanceof ClientPlayerEntity)
+	protected void displayScreen(StockpileSwitchTileEntity te, Player player) {
+		if (player instanceof LocalPlayer)
 			ScreenOpener.open(new StockpileSwitchScreen(te));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		BlockState state = getDefaultState();
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		BlockState state = defaultBlockState();
 
 		Direction preferredFacing = null;
 		for (Direction face : Iterate.horizontalDirections) {
-			TileEntity te = context.getWorld()
-				.getTileEntity(context.getPos()
-					.offset(face));
+			BlockEntity te = context.getLevel()
+				.getBlockEntity(context.getClickedPos()
+					.relative(face));
 			if (te != null && LazyOptional.of(() -> ItemAttributes.INSERTABLE.getFirstOrNull(te.getWorld(), te.getPos()))
 				.isPresent())
 				if (preferredFacing == null)
@@ -141,13 +141,13 @@ public class StockpileSwitchBlock extends HorizontalBlock implements ITE<Stockpi
 		}
 
 		if (preferredFacing != null) {
-			state = state.with(HORIZONTAL_FACING, preferredFacing);
-		} else if (context.getFace()
+			state = state.setValue(FACING, preferredFacing);
+		} else if (context.getClickedFace()
 			.getAxis()
 			.isHorizontal()) {
-			state = state.with(HORIZONTAL_FACING, context.getFace());
+			state = state.setValue(FACING, context.getClickedFace());
 		} else {
-			state = state.with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing()
+			state = state.setValue(FACING, context.getHorizontalDirection()
 				.getOpposite());
 		}
 
@@ -160,7 +160,7 @@ public class StockpileSwitchBlock extends HorizontalBlock implements ITE<Stockpi
 //	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader world) {
+	public BlockEntity newBlockEntity(BlockGetter world) {
 		return AllTileEntities.STOCKPILE_SWITCH.create();
 	}
 

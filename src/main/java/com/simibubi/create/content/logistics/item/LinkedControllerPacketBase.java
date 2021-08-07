@@ -4,13 +4,13 @@ import com.simibubi.create.AllItems;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public abstract class LinkedControllerPacketBase implements C2SPacket {
 
@@ -20,7 +20,7 @@ public abstract class LinkedControllerPacketBase implements C2SPacket {
 		this.lecternPos = lecternPos;
 	}
 
-	public LinkedControllerPacketBase(PacketBuffer buffer) {
+	public LinkedControllerPacketBase(FriendlyByteBuf buffer) {
 		if (buffer.readBoolean()) {
 			lecternPos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
 		}
@@ -31,7 +31,7 @@ public abstract class LinkedControllerPacketBase implements C2SPacket {
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeBoolean(inLectern());
 		if (inLectern()) {
 			buffer.writeInt(lecternPos.getX());
@@ -41,20 +41,20 @@ public abstract class LinkedControllerPacketBase implements C2SPacket {
 	}
 
 	@Override
-	public void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetHandler handler, SimpleChannel.ResponseTarget responseTarget) {
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, SimpleChannel.ResponseTarget responseTarget) {
 		server.execute(() -> {
 			if (player == null)
 				return;
 
 			if (inLectern()) {
-				TileEntity te = player.world.getTileEntity(lecternPos);
+				BlockEntity te = player.level.getBlockEntity(lecternPos);
 				if (!(te instanceof LecternControllerTileEntity))
 					return;
 				handleLectern(player, (LecternControllerTileEntity) te);
 			} else {
-				ItemStack controller = player.getHeldItemMainhand();
+				ItemStack controller = player.getMainHandItem();
 				if (!AllItems.LINKED_CONTROLLER.isIn(controller)) {
-					controller = player.getHeldItemOffhand();
+					controller = player.getOffhandItem();
 					if (!AllItems.LINKED_CONTROLLER.isIn(controller))
 						return;
 				}
@@ -63,7 +63,7 @@ public abstract class LinkedControllerPacketBase implements C2SPacket {
 		});
 	}
 
-	protected abstract void handleItem(ServerPlayerEntity player, ItemStack heldItem);
-	protected abstract void handleLectern(ServerPlayerEntity player, LecternControllerTileEntity lectern);
+	protected abstract void handleItem(ServerPlayer player, ItemStack heldItem);
+	protected abstract void handleLectern(ServerPlayer player, LecternControllerTileEntity lectern);
 
 }

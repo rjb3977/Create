@@ -8,14 +8,13 @@ import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBe
 import com.simibubi.create.foundation.tileEntity.behaviour.inventory.InvManipulationBehaviour;
 
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BeltFunnelInteractionHandler {
 
@@ -24,26 +23,26 @@ public class BeltFunnelInteractionHandler {
 		boolean beltMovementPositive = beltInventory.beltMovementPositive;
 		int firstUpcomingSegment = (int) Math.floor(currentItem.beltPosition);
 		int step = beltMovementPositive ? 1 : -1;
-		firstUpcomingSegment = MathHelper.clamp(firstUpcomingSegment, 0, beltInventory.belt.beltLength - 1);
+		firstUpcomingSegment = Mth.clamp(firstUpcomingSegment, 0, beltInventory.belt.beltLength - 1);
 
 		for (int segment = firstUpcomingSegment; beltMovementPositive ? segment <= nextOffset
 			: segment + 1 >= nextOffset; segment += step) {
 			BlockPos funnelPos = BeltHelper.getPositionForOffset(beltInventory.belt, segment)
-				.up();
-			World world = beltInventory.belt.getWorld();
+				.above();
+			Level world = beltInventory.belt.getLevel();
 			BlockState funnelState = world.getBlockState(funnelPos);
 			if (!(funnelState.getBlock() instanceof BeltFunnelBlock))
 				continue;
-			Direction funnelFacing = funnelState.get(BeltFunnelBlock.HORIZONTAL_FACING);
+			Direction funnelFacing = funnelState.getValue(BeltFunnelBlock.HORIZONTAL_FACING);
 			Direction movementFacing = beltInventory.belt.getMovementFacing();
 			boolean blocking = funnelFacing == movementFacing.getOpposite();
 			if (funnelFacing == movementFacing)
 				continue;
-			if (funnelState.get(BeltFunnelBlock.SHAPE) == Shape.PUSHING)
+			if (funnelState.getValue(BeltFunnelBlock.SHAPE) == Shape.PUSHING)
 				continue;
 
 			float funnelEntry = segment + .5f;
-			if (funnelState.get(BeltFunnelBlock.SHAPE) == Shape.EXTENDED)
+			if (funnelState.getValue(BeltFunnelBlock.SHAPE) == Shape.EXTENDED)
 				funnelEntry += .499f * (beltMovementPositive ? -1 : 1);
 
 			boolean hasCrossed = nextOffset > funnelEntry && beltMovementPositive
@@ -53,13 +52,13 @@ public class BeltFunnelInteractionHandler {
 			if (blocking)
 				currentItem.beltPosition = funnelEntry;
 
-			if (world.isRemote || funnelState.method_28500(BeltFunnelBlock.POWERED).orElse(false))
+			if (world.isClientSide || funnelState.getOptionalValue(BeltFunnelBlock.POWERED).orElse(false))
 				if (blocking)
 					return true;
 				else
 					continue;
 
-			TileEntity te = world.getTileEntity(funnelPos);
+			BlockEntity te = world.getBlockEntity(funnelPos);
 			if (!(te instanceof FunnelTileEntity))
 				return true;
 
@@ -85,7 +84,7 @@ public class BeltFunnelInteractionHandler {
 				toInsert.setCount(amountToExtract);
 
 			ItemStack remainder = inserting.insert(toInsert);
-			if (ItemStack.areItemStacksEqual(toInsert, remainder))
+			if (ItemStack.matches(toInsert, remainder))
 				if (blocking)
 					return true;
 				else

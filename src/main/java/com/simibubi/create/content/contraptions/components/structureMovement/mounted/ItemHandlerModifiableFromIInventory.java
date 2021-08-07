@@ -2,37 +2,35 @@ package com.simibubi.create.content.contraptions.components.structureMovement.mo
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
 
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class ItemHandlerModifiableFromIInventory implements IItemHandlerModifiable {
-	private final IInventory inventory;
+	private final Container inventory;
 
-	public ItemHandlerModifiableFromIInventory(IInventory inventory) {
+	public ItemHandlerModifiableFromIInventory(Container inventory) {
 		this.inventory = inventory;
 	}
 
 	@Override
 	public void setStackInSlot(int slot, ItemStack stack) {
-		inventory.setInventorySlotContents(slot, stack);
+		inventory.setItem(slot, stack);
 	}
 
 	@Override
 	public int getSlots() {
-		return inventory.getSizeInventory();
+		return inventory.getContainerSize();
 	}
 
 	@Override
 	public ItemStack getStackInSlot(int slot) {
-		return inventory.getStackInSlot(slot);
+		return inventory.getItem(slot);
 	}
 
 	@Override
@@ -120,12 +118,12 @@ public class ItemHandlerModifiableFromIInventory implements IItemHandlerModifiab
 
 	@Override
 	public int getSlotLimit(int slot) {
-		return inventory.getInventoryStackLimit();
+		return inventory.getMaxStackSize();
 	}
 
 	@Override
 	public boolean isItemValid(int slot, ItemStack stack) {
-		return inventory.isItemValidForSlot(slot, stack);
+		return inventory.canPlaceItem(slot, stack);
 	}
 
 	private void validateSlotIndex(int slot)

@@ -1,10 +1,10 @@
 package com.simibubi.create.lib.event;
 
-import net.minecraft.item.ItemStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
 public interface RenderTooltipBorderColorCallback {

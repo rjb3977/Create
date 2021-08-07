@@ -14,10 +14,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 public class AllFluids {
 
@@ -49,7 +49,7 @@ public class AllFluids {
 							.blastResistance(100f))
 //					.tag(AllFluidTags.HONEY.tag)
 					.bucket()
-					.properties(p -> (FabricItemSettings) p.maxStackSize(1))
+					.properties(p -> (FabricItemSettings) p.stacksTo(1))
 					.build()
 					.register();
 
@@ -64,7 +64,7 @@ public class AllFluids {
 							.flowSpeed(3)
 							.blastResistance(100f))
 					.bucket()
-			.properties(p -> (FabricItemSettings) p.maxStackSize(1))
+			.properties(p -> (FabricItemSettings) p.stacksTo(1))
 			.build()
 			.register();
 
@@ -82,18 +82,18 @@ public class AllFluids {
 //		RenderTypeLookup.setRenderLayer(fluid.getStillFluid(), RenderType.getTranslucent());
 
 		// fabric
-		BlockRenderLayerMap.INSTANCE.putFluid(entry.get(), RenderType.getTranslucent());
-		BlockRenderLayerMap.INSTANCE.putFluid(entry.get().getStillFluid(), RenderType.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putFluid(entry.get(), RenderType.translucent());
+		BlockRenderLayerMap.INSTANCE.putFluid(entry.get().getSource(), RenderType.translucent());
 	}
 
 	@Nullable
 	public static BlockState getLavaInteraction(FluidState fluidState) {
-		Fluid fluid = fluidState.getFluid();
-		if (fluid.isEquivalentTo(HONEY.get()))
+		Fluid fluid = fluidState.getType();
+		if (fluid.isSame(HONEY.get()))
 			return fluidState.isSource() ? AllPaletteBlocks.LIMESTONE.getDefaultState()
 				: AllPaletteBlocks.LIMESTONE_VARIANTS.registeredBlocks.get(0)
 					.getDefaultState();
-		if (fluid.isEquivalentTo(CHOCOLATE.get()))
+		if (fluid.isSame(CHOCOLATE.get()))
 			return fluidState.isSource() ? AllPaletteBlocks.SCORIA.getDefaultState()
 				: AllPaletteBlocks.SCORIA_VARIANTS.registeredBlocks.get(0)
 					.getDefaultState();

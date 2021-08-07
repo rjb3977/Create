@@ -2,8 +2,8 @@ package com.simibubi.create.lib.lba.fluid;
 
 import alexiil.mc.lib.attributes.Simulation;
 import alexiil.mc.lib.attributes.fluid.amount.FluidAmount;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * An Item that acts as a wrapper for a {@link SimpleFluidTank}, allowing it to be used for interactions while held

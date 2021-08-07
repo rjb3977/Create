@@ -8,18 +8,17 @@ import com.simibubi.create.content.curiosities.zapper.ZapperItem;
 import com.simibubi.create.foundation.gui.ScreenOpener;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.NBTHelper;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class WorldshaperItem extends ZapperItem {
 
@@ -44,7 +43,7 @@ public class WorldshaperItem extends ZapperItem {
 	}
 
 	@Override
-	public ITextComponent validateUsage(ItemStack item) {
+	public Component validateUsage(ItemStack item) {
 		if (!item.getOrCreateTag()
 			.contains("BrushParams"))
 			return Lang.createTranslationTextComponent("terrainzapper.shiftRightClickToSet");
@@ -53,31 +52,31 @@ public class WorldshaperItem extends ZapperItem {
 
 	@Override
 	protected boolean canActivateWithoutSelectedBlock(ItemStack stack) {
-		CompoundNBT tag = stack.getOrCreateTag();
+		CompoundTag tag = stack.getOrCreateTag();
 		TerrainTools tool = NBTHelper.readEnum(tag, "Tool", TerrainTools.class);
 		return !tool.requiresSelectedBlock();
 	}
 
 	@Override
-	protected boolean activate(World world, PlayerEntity player, ItemStack stack, BlockState stateToUse,
-		BlockRayTraceResult raytrace, CompoundNBT data) {
+	protected boolean activate(Level world, Player player, ItemStack stack, BlockState stateToUse,
+		BlockHitResult raytrace, CompoundTag data) {
 
-		BlockPos targetPos = raytrace.getPos();
+		BlockPos targetPos = raytrace.getBlockPos();
 		List<BlockPos> affectedPositions = new ArrayList<>();
 
-		CompoundNBT tag = stack.getOrCreateTag();
+		CompoundTag tag = stack.getOrCreateTag();
 		Brush brush = NBTHelper.readEnum(tag, "Brush", TerrainBrushes.class)
 			.get();
-		BlockPos params = NBTUtil.readBlockPos(tag.getCompound("BrushParams"));
+		BlockPos params = NbtUtils.readBlockPos(tag.getCompound("BrushParams"));
 		PlacementOptions option = NBTHelper.readEnum(tag, "Placement", PlacementOptions.class);
 		TerrainTools tool = NBTHelper.readEnum(tag, "Tool", TerrainTools.class);
 
 		brush.set(params.getX(), params.getY(), params.getZ());
-		targetPos = targetPos.add(brush.getOffset(player.getLookVec(), raytrace.getFace(), option));
-		brush.addToGlobalPositions(world, targetPos, raytrace.getFace(), affectedPositions, tool);
+		targetPos = targetPos.offset(brush.getOffset(player.getLookAngle(), raytrace.getDirection(), option));
+		brush.addToGlobalPositions(world, targetPos, raytrace.getDirection(), affectedPositions, tool);
 		PlacementPatterns.applyPattern(affectedPositions, stack);
 		brush.redirectTool(tool)
-			.run(world, affectedPositions, raytrace.getFace(), stateToUse, data, player);
+			.run(world, affectedPositions, raytrace.getDirection(), stateToUse, data, player);
 
 		return true;
 	}

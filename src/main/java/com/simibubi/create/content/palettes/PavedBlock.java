@@ -1,13 +1,13 @@
 package com.simibubi.create.content.palettes;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 public class PavedBlock extends Block {
 
@@ -15,26 +15,26 @@ public class PavedBlock extends Block {
 
 	public PavedBlock(Properties properties) {
 		super(properties);
-		setDefaultState(getDefaultState().with(COVERED, false));
+		registerDefaultState(defaultBlockState().setValue(COVERED, false));
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
-		super.fillStateContainer(builder.add(COVERED));
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder.add(COVERED));
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		return getDefaultState().with(COVERED, context.getWorld()
-				.getBlockState(context.getPos().up())
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return defaultBlockState().setValue(COVERED, context.getLevel()
+				.getBlockState(context.getClickedPos().above())
 				.getBlock() == this);
 	}
 
 	@Override
-	public BlockState updatePostPlacement(BlockState stateIn, Direction face, BlockState neighbour, IWorld worldIn,
+	public BlockState updateShape(BlockState stateIn, Direction face, BlockState neighbour, LevelAccessor worldIn,
 			BlockPos currentPos, BlockPos facingPos) {
 		if (face == Direction.UP)
-			return stateIn.with(COVERED, worldIn.getBlockState(facingPos).getBlock() == this);
+			return stateIn.setValue(COVERED, worldIn.getBlockState(facingPos).getBlock() == this);
 		return stateIn;
 	}
 

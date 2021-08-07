@@ -2,19 +2,18 @@ package com.simibubi.create.lib.helper;
 
 import com.simibubi.create.lib.mixin.accessor.ServerPlayNetHandlerAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 public final class ServerPlayNetHandlerHelper {
-	public static int getFloatingTickCount(ServerPlayNetHandler handler) {
+	public static int getFloatingTickCount(ServerGamePacketListenerImpl handler) {
 		return get(handler).create$floatingTickCount();
 	}
 
-	public static void setFloatingTickCount(ServerPlayNetHandler handler, int floatingTickCount) {
+	public static void setFloatingTickCount(ServerGamePacketListenerImpl handler, int floatingTickCount) {
 		get(handler).create$floatingTickCount(floatingTickCount);
 	}
 
-	private static ServerPlayNetHandlerAccessor get(ServerPlayNetHandler handler) {
+	private static ServerPlayNetHandlerAccessor get(ServerGamePacketListenerImpl handler) {
 		return MixinHelper.cast(handler);
 	}
 

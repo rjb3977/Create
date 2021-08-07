@@ -1,11 +1,9 @@
 package com.simibubi.create.lib.mixin.accessor;
 
 import java.util.Set;
-
+import net.minecraft.world.level.block.state.properties.WoodType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
-import net.minecraft.block.WoodType;
 
 @Mixin(WoodType.class)
 public interface WoodTypeAccessor {

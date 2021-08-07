@@ -4,36 +4,35 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.networking.AllPackets;
 
 import com.simibubi.create.lib.event.PlayerTickEndCallback;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 public class HauntedBellPulser {
 
 	public static final int DISTANCE = 3;
 	public static final int RECHARGE_TICKS = 8;
 
-	public static void hauntedBellCreatesPulse(PlayerEntity player) {
+	public static void hauntedBellCreatesPulse(Player player) {
 //		if (event.phase != TickEvent.Phase.END)
 //			return;
-		if (player.world.isRemote())
+		if (player.level.isClientSide())
 			return;
 		if (player.isSpectator())
 			return;
 
-		if (player.world.getGameTime() % RECHARGE_TICKS != 0)
+		if (player.level.getGameTime() % RECHARGE_TICKS != 0)
 			return;
 
 		if (player.isHolding(AllBlocks.HAUNTED_BELL::is))
-			sendPulse(player.world, player.getBlockPos(), DISTANCE, false);
+			sendPulse(player.level, player.blockPosition(), DISTANCE, false);
 	}
 
-	public static void sendPulse(World world, BlockPos pos, int distance, boolean canOverlap) {
-		Chunk chunk = world.getChunkAt(pos);
-		AllPackets.channel.sendToClientsTracking(new SoulPulseEffectPacket(pos, distance, canOverlap), (ServerWorld) chunk.getWorld(), chunk.getPos());
+	public static void sendPulse(Level world, BlockPos pos, int distance, boolean canOverlap) {
+		LevelChunk chunk = world.getChunkAt(pos);
+		AllPackets.channel.sendToClientsTracking(new SoulPulseEffectPacket(pos, distance, canOverlap), (ServerLevel) chunk.getLevel(), chunk.getPos());
 	}
 
 }

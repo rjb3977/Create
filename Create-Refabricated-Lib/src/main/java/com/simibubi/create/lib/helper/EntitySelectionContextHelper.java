@@ -2,19 +2,18 @@ package com.simibubi.create.lib.helper;
 
 import com.simibubi.create.lib.extensions.EntitySelectionContextExtensions;
 import com.simibubi.create.lib.utility.MixinHelper;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.shapes.EntitySelectionContext;
-import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 
 public final class EntitySelectionContextHelper {
-	public static Entity getEntity(EntitySelectionContext context) {
+	public static Entity getEntity(EntityCollisionContext context) {
 		return MixinHelper.<EntitySelectionContextExtensions>cast(context).create$getCachedEntity();
 	}
 
-	public static Entity getEntity(ISelectionContext context) {
-		if (context instanceof EntitySelectionContext) {
-			return getEntity((EntitySelectionContext) context);
+	public static Entity getEntity(CollisionContext context) {
+		if (context instanceof EntityCollisionContext) {
+			return getEntity((EntityCollisionContext) context);
 		}
 		return null;
 	}

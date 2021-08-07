@@ -5,19 +5,17 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.Item;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.item.Item;
-
 public class CustomRenderedItems {
 
-	private List<Pair<Supplier<? extends Item>, NonNullFunction<IBakedModel, ? extends CustomRenderedItemModel>>> registered;
-	private Map<Item, NonNullFunction<IBakedModel, ? extends CustomRenderedItemModel>> customModels;
+	private List<Pair<Supplier<? extends Item>, NonNullFunction<BakedModel, ? extends CustomRenderedItemModel>>> registered;
+	private Map<Item, NonNullFunction<BakedModel, ? extends CustomRenderedItemModel>> customModels;
 
 	public CustomRenderedItems() {
 		registered = new ArrayList<>();
@@ -25,12 +23,12 @@ public class CustomRenderedItems {
 	}
 
 	public void register(Supplier<? extends Item> entry,
-		NonNullFunction<IBakedModel, ? extends CustomRenderedItemModel> behaviour) {
+		NonNullFunction<BakedModel, ? extends CustomRenderedItemModel> behaviour) {
 		registered.add(Pair.of(entry, behaviour));
 	}
 
 	public void foreach(
-		NonNullBiConsumer<Item, NonNullFunction<IBakedModel, ? extends CustomRenderedItemModel>> consumer) {
+		NonNullBiConsumer<Item, NonNullFunction<BakedModel, ? extends CustomRenderedItemModel>> consumer) {
 		loadEntriesIfMissing();
 		customModels.forEach(consumer);
 	}

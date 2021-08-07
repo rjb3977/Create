@@ -1,10 +1,10 @@
 package com.simibubi.create.lib.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface WeakPowerCheckingBlock {
-	boolean shouldCheckWeakPower(BlockState state, IWorldReader world, BlockPos pos, Direction side);
+	boolean shouldCheckWeakPower(BlockState state, LevelReader world, BlockPos pos, Direction side);
 }

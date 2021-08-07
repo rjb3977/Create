@@ -11,18 +11,17 @@ import org.lwjgl.opengl.GL30;
 import com.jozufozu.flywheel.backend.Backend;
 import com.jozufozu.flywheel.core.FullscreenQuad;
 import com.jozufozu.flywheel.util.RenderUtil;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlConst;
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.math.Matrix4f;
 import com.simibubi.create.foundation.render.AllProgramSpecs;
 import com.simibubi.create.foundation.render.CreateContexts;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-
-import net.minecraft.client.MainWindow;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.client.shader.FramebufferConstants;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 public class EffectsHandler {
 
@@ -47,19 +46,19 @@ public class EffectsHandler {
 	}
 
 	public static float getFarPlane() {
-		return Minecraft.getInstance().gameRenderer.getFarPlaneDistance() * 4;
+		return Minecraft.getInstance().gameRenderer.getRenderDistance() * 4;
 	}
 
 	private final Backend backend;
-	private final Framebuffer framebuffer;
+	private final RenderTarget framebuffer;
 	private final ArrayList<FilterSphere> spheres;
 
 	public EffectsHandler(Backend backend) {
 		this.backend = backend;
 		spheres = new ArrayList<>();
 
-		Framebuffer render = Minecraft.getInstance().getFramebuffer();
-		framebuffer = new Framebuffer(render.framebufferWidth, render.framebufferHeight, false, Minecraft.IS_RUNNING_ON_MAC);
+		RenderTarget render = Minecraft.getInstance().getMainRenderTarget();
+		framebuffer = new RenderTarget(render.viewWidth, render.viewHeight, false, Minecraft.ON_OSX);
 
 	}
 
@@ -78,21 +77,21 @@ public class EffectsHandler {
 
 		prepFramebufferSize();
 
-		Framebuffer mainBuffer = Minecraft.getInstance().getFramebuffer();
+		RenderTarget mainBuffer = Minecraft.getInstance().getMainRenderTarget();
 
-		backend.compat.fbo.bindFramebuffer(FramebufferConstants.FRAME_BUFFER, framebuffer.framebufferObject);
+		backend.compat.fbo.bindFramebuffer(GlConst.GL_FRAMEBUFFER, framebuffer.frameBufferId);
 		GL11.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
 		SphereFilterProgram program = CreateContexts.EFFECTS.getProgram(AllProgramSpecs.CHROMATIC);
 		program.bind();
 
-		program.bindColorTexture(mainBuffer.getColorAttachment());
-		program.bindDepthTexture(mainBuffer.getDepthAttachment());
+		program.bindColorTexture(mainBuffer.getColorTextureId());
+		program.bindDepthTexture(mainBuffer.getDepthTextureId());
 
 		GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
-		ActiveRenderInfo activeRenderInfo = gameRenderer.getActiveRenderInfo();
-		Matrix4f projection = gameRenderer.getBasicProjectionMatrix(activeRenderInfo, AnimationTickHolder.getPartialTicks(), true);
-		projection.a33 = 1;
+		Camera activeRenderInfo = gameRenderer.getMainCamera();
+		Matrix4f projection = gameRenderer.getProjectionMatrix(activeRenderInfo, AnimationTickHolder.getPartialTicks(), true);
+		projection.m33 = 1;
 		projection.invert();
 		program.bindInverseProjection(projection);
 
@@ -100,9 +99,9 @@ public class EffectsHandler {
 		inverseView.invert();
 		program.bindInverseView(inverseView);
 
-		Vector3d cameraPos = activeRenderInfo.getProjectedView();
+		Vec3 cameraPos = activeRenderInfo.getPosition();
 
-		program.setCameraPos(cameraPos.inverse());
+		program.setCameraPos(cameraPos.reverse());
 
 		for (FilterSphere sphere : spheres) {
 			sphere.x -= cameraPos.x;
@@ -130,22 +129,22 @@ public class EffectsHandler {
 		program.unbind();
 		spheres.clear();
 
-		backend.compat.fbo.bindFramebuffer(GL30.GL_READ_FRAMEBUFFER, framebuffer.framebufferObject);
-		backend.compat.fbo.bindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, mainBuffer.framebufferObject);
-		backend.compat.blit.blitFramebuffer(0, 0, mainBuffer.framebufferWidth, mainBuffer.framebufferHeight, 0, 0, mainBuffer.framebufferWidth, mainBuffer.framebufferHeight, GL30.GL_COLOR_BUFFER_BIT, GL20.GL_LINEAR);
-		backend.compat.fbo.bindFramebuffer(FramebufferConstants.FRAME_BUFFER, mainBuffer.framebufferObject);
+		backend.compat.fbo.bindFramebuffer(GL30.GL_READ_FRAMEBUFFER, framebuffer.frameBufferId);
+		backend.compat.fbo.bindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, mainBuffer.frameBufferId);
+		backend.compat.blit.blitFramebuffer(0, 0, mainBuffer.viewWidth, mainBuffer.viewHeight, 0, 0, mainBuffer.viewWidth, mainBuffer.viewHeight, GL30.GL_COLOR_BUFFER_BIT, GL20.GL_LINEAR);
+		backend.compat.fbo.bindFramebuffer(GlConst.GL_FRAMEBUFFER, mainBuffer.frameBufferId);
 	}
 
 	public void delete() {
-		framebuffer.deleteFramebuffer();
+		framebuffer.destroyBuffers();
 	}
 
 	private void prepFramebufferSize() {
-		MainWindow window = Minecraft.getInstance().getWindow();
-		if (framebuffer.framebufferWidth != window.getFramebufferWidth()
-				|| framebuffer.framebufferHeight != window.getFramebufferHeight()) {
-			framebuffer.func_216491_a(window.getFramebufferWidth(), window.getFramebufferHeight(),
-					Minecraft.IS_RUNNING_ON_MAC);
+		Window window = Minecraft.getInstance().getWindow();
+		if (framebuffer.viewWidth != window.getWidth()
+				|| framebuffer.viewHeight != window.getHeight()) {
+			framebuffer.resize(window.getWidth(), window.getHeight(),
+					Minecraft.ON_OSX);
 		}
 	}
 }

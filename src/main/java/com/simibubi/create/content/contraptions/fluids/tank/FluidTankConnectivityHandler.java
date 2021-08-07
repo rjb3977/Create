@@ -11,7 +11,15 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.simibubi.create.content.contraptions.fluids.tank.CreativeFluidTankTileEntity.CreativeSmartFluidTank;
@@ -19,26 +27,16 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-
 public class FluidTankConnectivityHandler {
 
 	public static void formTanks(FluidTankTileEntity te) {
 		TankSearchCache cache = new TankSearchCache();
 		List<FluidTankTileEntity> frontier = new ArrayList<>();
 		frontier.add(te);
-		formTanks(te.getType(), te.getWorld(), cache, frontier);
+		formTanks(te.getType(), te.getLevel(), cache, frontier);
 	}
 
-	private static void formTanks(TileEntityType<?> type, IBlockReader world, TankSearchCache cache,
+	private static void formTanks(BlockEntityType<?> type, BlockGetter world, TankSearchCache cache,
 		List<FluidTankTileEntity> frontier) {
 		PriorityQueue<Pair<Integer, FluidTankTileEntity>> creationQueue = makeCreationQueue();
 		Set<BlockPos> visited = new HashSet<>();
@@ -46,7 +44,7 @@ public class FluidTankConnectivityHandler {
 		int minX = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
 		for (FluidTankTileEntity fluidTankTileEntity : frontier) {
-			BlockPos pos = fluidTankTileEntity.getPos();
+			BlockPos pos = fluidTankTileEntity.getBlockPos();
 			minX = Math.min(pos.getX(), minX);
 			minZ = Math.min(pos.getZ(), minZ);
 		}
@@ -55,7 +53,7 @@ public class FluidTankConnectivityHandler {
 
 		while (!frontier.isEmpty()) {
 			FluidTankTileEntity tank = frontier.remove(0);
-			BlockPos tankPos = tank.getPos();
+			BlockPos tankPos = tank.getBlockPos();
 			if (visited.contains(tankPos))
 				continue;
 
@@ -66,8 +64,8 @@ public class FluidTankConnectivityHandler {
 				creationQueue.add(Pair.of(amount, tank));
 
 			for (Axis axis : Iterate.axes) {
-				Direction d = Direction.getFacingFromAxis(AxisDirection.NEGATIVE, axis);
-				BlockPos next = tankPos.offset(d);
+				Direction d = Direction.get(AxisDirection.NEGATIVE, axis);
+				BlockPos next = tankPos.relative(d);
 
 				if (next.getX() <= minX || next.getZ() <= minZ)
 					continue;
@@ -87,9 +85,9 @@ public class FluidTankConnectivityHandler {
 		while (!creationQueue.isEmpty()) {
 			Pair<Integer, FluidTankTileEntity> next = creationQueue.poll();
 			FluidTankTileEntity toCreate = next.getValue();
-			if (visited.contains(toCreate.getPos()))
+			if (visited.contains(toCreate.getBlockPos()))
 				continue;
-			visited.add(toCreate.getPos());
+			visited.add(toCreate.getBlockPos());
 			tryToFormNewTank(toCreate, cache, false);
 		}
 
@@ -127,15 +125,15 @@ public class FluidTankConnectivityHandler {
 
 			BlockState state = te.getBlockState();
 			if (FluidTankBlock.isTank(state)) {
-				state = state.with(FluidTankBlock.BOTTOM, true);
-				state = state.with(FluidTankBlock.TOP, te.height == 1);
-				te.getWorld()
-					.setBlockState(te.getPos(), state, 22);
+				state = state.setValue(FluidTankBlock.BOTTOM, true);
+				state = state.setValue(FluidTankBlock.TOP, te.height == 1);
+				te.getLevel()
+					.setBlock(te.getBlockPos(), state, 22);
 			}
 
 			te.setWindows(te.window);
 			te.onFluidStackChanged(te.tankInventory.getInvFluid(0));
-			te.markDirty();
+			te.setChanged();
 		}
 
 		return bestAmount;
@@ -145,9 +143,9 @@ public class FluidTankConnectivityHandler {
 		boolean simulate) {
 		int amount = 0;
 		int height = 0;
-		TileEntityType<?> type = te.getType();
-		World world = te.getWorld();
-		BlockPos origin = te.getPos();
+		BlockEntityType<?> type = te.getType();
+		Level world = te.getLevel();
+		BlockPos origin = te.getBlockPos();
 //		LazyOptional<IFluidHandler> capability = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY);
 //		FluidTank teTank = (FluidTank) capability.orElse(null);
 //		FluidStack fluid = capability.map(ifh -> ifh.getFluidInTank(0))
@@ -159,7 +157,7 @@ public class FluidTankConnectivityHandler {
 			for (int xOffset = 0; xOffset < width; xOffset++) {
 				for (int zOffset = 0; zOffset < width; zOffset++) {
 
-					BlockPos pos = origin.add(xOffset, yOffset, zOffset);
+					BlockPos pos = origin.offset(xOffset, yOffset, zOffset);
 					Optional<FluidTankTileEntity> tank = cache.getOrCache(type, world, pos);
 					if (!tank.isPresent())
 						break Search;
@@ -169,7 +167,7 @@ public class FluidTankConnectivityHandler {
 					if (otherWidth > width)
 						break Search;
 
-					BlockPos controllerPos = controller.getPos();
+					BlockPos controllerPos = controller.getBlockPos();
 					if (!controllerPos.equals(origin)) {
 						if (controllerPos.getX() < origin.getX())
 							break Search;
@@ -201,7 +199,7 @@ public class FluidTankConnectivityHandler {
 		for (int yOffset = 0; yOffset < height; yOffset++) {
 			for (int xOffset = 0; xOffset < width; xOffset++) {
 				for (int zOffset = 0; zOffset < width; zOffset++) {
-					BlockPos pos = origin.add(xOffset, yOffset, zOffset);
+					BlockPos pos = origin.offset(xOffset, yOffset, zOffset);
 					FluidTankTileEntity tank = tankAt(type, world, pos);
 					if (tank == te)
 						continue;
@@ -224,9 +222,9 @@ public class FluidTankConnectivityHandler {
 					BlockState state = world.getBlockState(pos);
 					if (!FluidTankBlock.isTank(state))
 						continue;
-					state = state.with(FluidTankBlock.BOTTOM, yOffset == 0);
-					state = state.with(FluidTankBlock.TOP, yOffset == height - 1);
-					world.setBlockState(pos, state, 22);
+					state = state.setValue(FluidTankBlock.BOTTOM, yOffset == 0);
+					state = state.setValue(FluidTankBlock.TOP, yOffset == height - 1);
+					world.setBlock(pos, state, 22);
 				}
 			}
 		}
@@ -249,8 +247,8 @@ public class FluidTankConnectivityHandler {
 		if (width == 1 && height == 1)
 			return;
 
-		World world = te.getWorld();
-		BlockPos origin = te.getPos();
+		Level world = te.getLevel();
+		BlockPos origin = te.getBlockPos();
 		List<FluidTankTileEntity> frontier = new ArrayList<>();
 		FluidStack toDistribute = (FluidStack) te.tankInventory.getFluid()
 			.copy();
@@ -263,7 +261,7 @@ public class FluidTankConnectivityHandler {
 			for (int xOffset = 0; xOffset < width; xOffset++) {
 				for (int zOffset = 0; zOffset < width; zOffset++) {
 
-					BlockPos pos = origin.add(xOffset, yOffset, zOffset);
+					BlockPos pos = origin.offset(xOffset, yOffset, zOffset);
 					FluidTankTileEntity tankAt = tankAt(te.getType(), world, pos);
 					if (tankAt == null)
 						continue;
@@ -312,16 +310,16 @@ public class FluidTankConnectivityHandler {
 	}
 
 	@Nullable
-	public static FluidTankTileEntity tankAt(TileEntityType<?> type, IBlockReader world, BlockPos pos) {
-		TileEntity te = world.getTileEntity(pos);
+	public static FluidTankTileEntity tankAt(BlockEntityType<?> type, BlockGetter world, BlockPos pos) {
+		BlockEntity te = world.getBlockEntity(pos);
 		if (te instanceof FluidTankTileEntity && te.getType() == type)
 			return (FluidTankTileEntity) te;
 		return null;
 	}
 
 	@Nullable
-	public static FluidTankTileEntity anyTankAt(IBlockReader world, BlockPos pos) {
-		TileEntity te = world.getTileEntity(pos);
+	public static FluidTankTileEntity anyTankAt(BlockGetter world, BlockPos pos) {
+		BlockEntity te = world.getBlockEntity(pos);
 		if (te instanceof FluidTankTileEntity)
 			return (FluidTankTileEntity) te;
 		return null;
@@ -346,7 +344,7 @@ public class FluidTankConnectivityHandler {
 			return controllerMap.containsKey(pos);
 		}
 
-		Optional<FluidTankTileEntity> getOrCache(TileEntityType<?> type, IBlockReader world, BlockPos pos) {
+		Optional<FluidTankTileEntity> getOrCache(BlockEntityType<?> type, BlockGetter world, BlockPos pos) {
 			if (hasVisited(pos))
 				return controllerMap.get(pos);
 			FluidTankTileEntity tankAt = tankAt(type, world, pos);
@@ -365,9 +363,9 @@ public class FluidTankConnectivityHandler {
 
 	}
 
-	public static boolean isConnected(IBlockReader world, BlockPos tankPos, BlockPos otherTankPos) {
-		TileEntity te1 = world.getTileEntity(tankPos);
-		TileEntity te2 = world.getTileEntity(otherTankPos);
+	public static boolean isConnected(BlockGetter world, BlockPos tankPos, BlockPos otherTankPos) {
+		BlockEntity te1 = world.getBlockEntity(tankPos);
+		BlockEntity te2 = world.getBlockEntity(otherTankPos);
 		if (!(te1 instanceof FluidTankTileEntity) || !(te2 instanceof FluidTankTileEntity))
 			return false;
 		return ((FluidTankTileEntity) te1).getController()

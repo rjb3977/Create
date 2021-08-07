@@ -6,21 +6,20 @@ import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.pulley.AbstractPulleyRenderer;
 import com.simibubi.create.foundation.render.PartialBufferer;
 import com.simibubi.create.foundation.render.SuperByteBuffer;
-
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction.Axis;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.Direction.Axis;
 
 public class HosePulleyRenderer extends AbstractPulleyRenderer {
 
-	public HosePulleyRenderer(TileEntityRendererDispatcher dispatcher) {
+	public HosePulleyRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher, AllBlockPartials.HOSE_HALF, AllBlockPartials.HOSE_HALF_MAGNET);
 	}
 
 	@Override
 	protected Axis getShaftAxis(KineticTileEntity te) {
 		return te.getBlockState()
-			.get(HosePulleyBlock.HORIZONTAL_FACING)
-			.rotateY()
+			.getValue(HosePulleyBlock.HORIZONTAL_FACING)
+			.getClockWise()
 			.getAxis();
 	}
 

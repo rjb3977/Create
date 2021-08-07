@@ -1,7 +1,12 @@
 package com.simibubi.create.content.contraptions.processing;
 
 import java.util.Random;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemStack;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -9,13 +14,6 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.utility.Pair;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
 public class ProcessingOutput {
 
@@ -79,16 +77,16 @@ public class ProcessingOutput {
 			throw new JsonSyntaxException("ProcessingOutput must be a json object");
 
 		JsonObject json = je.getAsJsonObject();
-		String itemId = JSONUtils.getString(json, "item");
-		int count = JSONUtils.getInt(json, "count", 1);
-		float chance = JSONUtils.hasField(json, "chance") ? JSONUtils.getFloat(json, "chance") : 1;
-		ItemStack itemstack = new ItemStack(Registry.ITEM.getOrDefault(new ResourceLocation(itemId)), count);
+		String itemId = GsonHelper.getAsString(json, "item");
+		int count = GsonHelper.getAsInt(json, "count", 1);
+		float chance = GsonHelper.isValidNode(json, "chance") ? GsonHelper.getAsFloat(json, "chance") : 1;
+		ItemStack itemstack = new ItemStack(Registry.ITEM.get(new ResourceLocation(itemId)), count);
 
-		if (JSONUtils.hasField(json, "nbt")) {
+		if (GsonHelper.isValidNode(json, "nbt")) {
 			try {
 				JsonElement element = json.get("nbt");
-				itemstack.setTag(JsonToNBT.getTagFromJson(
-					element.isJsonObject() ? Create.GSON.toJson(element) : JSONUtils.getString(element, "nbt")));
+				itemstack.setTag(TagParser.parseTag(
+					element.isJsonObject() ? Create.GSON.toJson(element) : GsonHelper.convertToString(element, "nbt")));
 			} catch (CommandSyntaxException e) {
 				e.printStackTrace();
 			}
@@ -97,13 +95,13 @@ public class ProcessingOutput {
 		return new ProcessingOutput(itemstack, chance);
 	}
 
-	public void write(PacketBuffer buf) {
-		buf.writeItemStack(getStack());
+	public void write(FriendlyByteBuf buf) {
+		buf.writeItem(getStack());
 		buf.writeFloat(getChance());
 	}
 
-	public static ProcessingOutput read(PacketBuffer buf) {
-		return new ProcessingOutput(buf.readItemStack(), buf.readFloat());
+	public static ProcessingOutput read(FriendlyByteBuf buf) {
+		return new ProcessingOutput(buf.readItem(), buf.readFloat());
 	}
 
 }

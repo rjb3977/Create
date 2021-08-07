@@ -11,52 +11,51 @@ import com.simibubi.create.lib.extensions.TileEntityExtensions;
 import com.simibubi.create.lib.helper.TileEntityHelper;
 import com.simibubi.create.lib.utility.MixinHelper;
 import com.simibubi.create.lib.utility.NBTSerializable;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-
-@Mixin(TileEntity.class)
+@Mixin(BlockEntity.class)
 public abstract class TileEntityMixin implements TileEntityExtensions, NBTSerializable {
 	@Unique
-	private CompoundNBT create$extraCustomData;
+	private CompoundTag create$extraCustomData;
 
 	@Override
-	public CompoundNBT create$getExtraCustomData() {
+	public CompoundTag create$getExtraCustomData() {
 		if (create$extraCustomData == null) {
-			create$extraCustomData = new CompoundNBT();
+			create$extraCustomData = new CompoundTag();
 		}
 		return create$extraCustomData;
 	}
 
 	@Inject(method = "fromTag(Lnet/minecraft/block/BlockState;Lnet/minecraft/nbt/CompoundNBT;)V",
 			at = @At("TAIL"))
-	public void fromTag(BlockState blockState, CompoundNBT compoundNBT, CallbackInfo ci) {
+	public void fromTag(BlockState blockState, CompoundTag compoundNBT, CallbackInfo ci) {
 		if (compoundNBT.contains(TileEntityHelper.EXTRA_DATA_KEY))
 			this.create$extraCustomData = compoundNBT.getCompound(TileEntityHelper.EXTRA_DATA_KEY);
 	}
 
 	@Inject(method = "writeInternal(Lnet/minecraft/nbt/CompoundNBT;)Lnet/minecraft/nbt/CompoundNBT;",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundNBT;putString(Ljava/lang/String;Ljava/lang/String;)V"))
-	private void writeInternal(CompoundNBT compoundNBT, CallbackInfoReturnable<CompoundNBT> cir) {
+	private void writeInternal(CompoundTag compoundNBT, CallbackInfoReturnable<CompoundTag> cir) {
 		if (this.create$extraCustomData != null) {
 			compoundNBT.put(TileEntityHelper.EXTRA_DATA_KEY, this.create$extraCustomData);
 		}
 	}
 
 	@Override
-	public CompoundNBT create$serializeNBT() {
-		CompoundNBT nbt = new CompoundNBT();
-		MixinHelper.<TileEntity>cast(this).write(nbt);
+	public CompoundTag create$serializeNBT() {
+		CompoundTag nbt = new CompoundTag();
+		MixinHelper.<BlockEntity>cast(this).save(nbt);
 		return nbt;
 	}
 
 	@Override
-	public void create$deserializeNBT(CompoundNBT nbt) {
+	public void create$deserializeNBT(CompoundTag nbt) {
 		create$deserializeNBT(null, nbt);
 	}
 
-	public void create$deserializeNBT(BlockState state, CompoundNBT nbt) {
-		MixinHelper.<TileEntity>cast(this).fromTag(state, nbt);
+	public void create$deserializeNBT(BlockState state, CompoundTag nbt) {
+		MixinHelper.<BlockEntity>cast(this).load(state, nbt);
 	}
 }

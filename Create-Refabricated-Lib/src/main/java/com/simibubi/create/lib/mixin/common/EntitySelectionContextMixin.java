@@ -8,11 +8,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.simibubi.create.lib.extensions.EntitySelectionContextExtensions;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.shapes.EntitySelectionContext;
-
-@Mixin(EntitySelectionContext.class)
+@Mixin(EntityCollisionContext.class)
 public abstract class EntitySelectionContextMixin implements EntitySelectionContextExtensions {
 	@Unique
 	private Entity create$cachedEntity;

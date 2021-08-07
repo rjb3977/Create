@@ -1,17 +1,17 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class DrillTileEntity extends BlockBreakingKineticTileEntity {
 
-	public DrillTileEntity(TileEntityType<? extends DrillTileEntity> type) {
+	public DrillTileEntity(BlockEntityType<? extends DrillTileEntity> type) {
 		super(type);
 	}
 
 	@Override
 	protected BlockPos getBreakingPos() {
-		return getPos().offset(getBlockState().get(DrillBlock.FACING));
+		return getBlockPos().relative(getBlockState().getValue(DrillBlock.FACING));
 	}
 
 }

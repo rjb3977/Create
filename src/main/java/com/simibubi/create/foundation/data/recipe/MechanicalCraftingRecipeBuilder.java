@@ -7,21 +7,19 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.SetTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.ItemLike;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.simibubi.create.AllRecipeTypes;
-
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.Item;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.Tag;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
 
 public class MechanicalCraftingRecipeBuilder {
 
@@ -30,7 +28,7 @@ public class MechanicalCraftingRecipeBuilder {
 	private final List<String> pattern = Lists.newArrayList();
 	private final Map<Character, Ingredient> key = Maps.newLinkedHashMap();
 
-	public MechanicalCraftingRecipeBuilder(IItemProvider p_i48261_1_, int p_i48261_2_) {
+	public MechanicalCraftingRecipeBuilder(ItemLike p_i48261_1_, int p_i48261_2_) {
 		result = p_i48261_1_.asItem();
 		count = p_i48261_2_;
 	}
@@ -38,29 +36,29 @@ public class MechanicalCraftingRecipeBuilder {
 	/**
 	 * Creates a new builder for a shaped recipe.
 	 */
-	public static MechanicalCraftingRecipeBuilder shapedRecipe(IItemProvider p_200470_0_) {
+	public static MechanicalCraftingRecipeBuilder shapedRecipe(ItemLike p_200470_0_) {
 		return shapedRecipe(p_200470_0_, 1);
 	}
 
 	/**
 	 * Creates a new builder for a shaped recipe.
 	 */
-	public static MechanicalCraftingRecipeBuilder shapedRecipe(IItemProvider p_200468_0_, int p_200468_1_) {
+	public static MechanicalCraftingRecipeBuilder shapedRecipe(ItemLike p_200468_0_, int p_200468_1_) {
 		return new MechanicalCraftingRecipeBuilder(p_200468_0_, p_200468_1_);
 	}
 
 	/**
 	 * Adds a key to the recipe pattern.
 	 */
-	public MechanicalCraftingRecipeBuilder key(Character p_200469_1_, Tag<Item> p_200469_2_) {
-		return this.key(p_200469_1_, Ingredient.fromTag(p_200469_2_));
+	public MechanicalCraftingRecipeBuilder key(Character p_200469_1_, SetTag<Item> p_200469_2_) {
+		return this.key(p_200469_1_, Ingredient.of(p_200469_2_));
 	}
 
 	/**
 	 * Adds a key to the recipe pattern.
 	 */
-	public MechanicalCraftingRecipeBuilder key(Character p_200462_1_, IItemProvider p_200462_2_) {
-		return this.key(p_200462_1_, Ingredient.fromItems(p_200462_2_));
+	public MechanicalCraftingRecipeBuilder key(Character p_200462_1_, ItemLike p_200462_2_) {
+		return this.key(p_200462_1_, Ingredient.of(p_200462_2_));
 	}
 
 	/**
@@ -91,17 +89,17 @@ public class MechanicalCraftingRecipeBuilder {
 	}
 
 	/**
-	 * Builds this recipe into an {@link IFinishedRecipe}.
+	 * Builds this recipe into an {@link FinishedRecipe}.
 	 */
-	public void build(Consumer<IFinishedRecipe> p_200464_1_) {
+	public void build(Consumer<FinishedRecipe> p_200464_1_) {
 //		this.build(p_200464_1_, ForgeRegistries.ITEMS.getKey(this.result));
 	}
 
 	/**
-	 * Builds this recipe into an {@link IFinishedRecipe}. Use
+	 * Builds this recipe into an {@link FinishedRecipe}. Use
 	 * {@link #build(Consumer)} if save is the same as the ID for the result.
 	 */
-	public void build(Consumer<IFinishedRecipe> p_200466_1_, String p_200466_2_) {
+	public void build(Consumer<FinishedRecipe> p_200466_1_, String p_200466_2_) {
 //		ResourceLocation resourcelocation = ForgeRegistries.ITEMS.getKey(this.result);
 //		if ((new ResourceLocation(p_200466_2_)).equals(resourcelocation)) {
 //			throw new IllegalStateException("Shaped Recipe " + p_200466_2_ + " should remove its 'save' argument");
@@ -111,9 +109,9 @@ public class MechanicalCraftingRecipeBuilder {
 	}
 
 	/**
-	 * Builds this recipe into an {@link IFinishedRecipe}.
+	 * Builds this recipe into an {@link FinishedRecipe}.
 	 */
-	public void build(Consumer<IFinishedRecipe> p_200467_1_, ResourceLocation p_200467_2_) {
+	public void build(Consumer<FinishedRecipe> p_200467_1_, ResourceLocation p_200467_2_) {
 		validate(p_200467_2_);
 		p_200467_1_.accept(new MechanicalCraftingRecipeBuilder.Result(p_200467_2_, result, count, pattern, key));
 	}
@@ -144,7 +142,7 @@ public class MechanicalCraftingRecipeBuilder {
 		}
 	}
 
-	public class Result implements IFinishedRecipe {
+	public class Result implements FinishedRecipe {
 		private final ResourceLocation id;
 		private final Item result;
 		private final int count;
@@ -160,7 +158,7 @@ public class MechanicalCraftingRecipeBuilder {
 			this.key = p_i48271_7_;
 		}
 
-		public void serialize(JsonObject p_218610_1_) {
+		public void serializeRecipeData(JsonObject p_218610_1_) {
 			JsonArray jsonarray = new JsonArray();
 			for (String s : this.pattern)
 				jsonarray.add(s);
@@ -169,7 +167,7 @@ public class MechanicalCraftingRecipeBuilder {
 			JsonObject jsonobject = new JsonObject();
 			for (Entry<Character, Ingredient> entry : this.key.entrySet())
 				jsonobject.add(String.valueOf(entry.getKey()), entry.getValue()
-					.serialize());
+					.toJson());
 
 			p_218610_1_.add("key", jsonobject);
 			JsonObject jsonobject1 = new JsonObject();
@@ -181,21 +179,21 @@ public class MechanicalCraftingRecipeBuilder {
 			p_218610_1_.add("result", jsonobject1);
 		}
 
-		public IRecipeSerializer<?> getSerializer() {
+		public RecipeSerializer<?> getType() {
 			return AllRecipeTypes.MECHANICAL_CRAFTING.serializer;
 		}
 
-		public ResourceLocation getID() {
+		public ResourceLocation getId() {
 			return this.id;
 		}
 
 		@Nullable
-		public JsonObject getAdvancementJson() {
+		public JsonObject serializeAdvancement() {
 			return null;
 		}
 
 		@Nullable
-		public ResourceLocation getAdvancementID() {
+		public ResourceLocation getAdvancementId() {
 			return null;
 		}
 	}

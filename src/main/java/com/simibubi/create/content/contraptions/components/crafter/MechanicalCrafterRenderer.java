@@ -5,8 +5,9 @@ import static com.simibubi.create.content.contraptions.base.KineticTileEntityRen
 
 import com.jozufozu.flywheel.backend.Backend;
 import com.jozufozu.flywheel.core.PartialModel;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.content.contraptions.components.crafter.MechanicalCrafterTileEntity.Phase;
@@ -17,83 +18,81 @@ import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.MatrixStacker;
-
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<MechanicalCrafterTileEntity> {
 
-	public MechanicalCrafterRenderer(TileEntityRendererDispatcher dispatcher) {
+	public MechanicalCrafterRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	protected void renderSafe(MechanicalCrafterTileEntity te, float partialTicks, MatrixStack ms,
-		IRenderTypeBuffer buffer, int light, int overlay) {
-		ms.push();
+	protected void renderSafe(MechanicalCrafterTileEntity te, float partialTicks, PoseStack ms,
+		MultiBufferSource buffer, int light, int overlay) {
+		ms.pushPose();
 		Direction facing = te.getBlockState()
-			.get(HORIZONTAL_FACING);
-		Vector3d vec = Vector3d.of(facing.getDirectionVec()).scale(.58)
+			.getValue(HORIZONTAL_FACING);
+		Vec3 vec = Vec3.atLowerCornerOf(facing.getNormal()).scale(.58)
 			.add(.5, .5, .5);
 
 		if (te.phase == Phase.EXPORTING) {
 			Direction targetDirection = MechanicalCrafterBlock.getTargetDirection(te.getBlockState());
 			float progress =
-				MathHelper.clamp((1000 - te.countDown + te.getCountDownSpeed() * partialTicks) / 1000f, 0, 1);
-			vec = vec.add(Vector3d.of(targetDirection.getDirectionVec()).scale(progress * .75f));
+				Mth.clamp((1000 - te.countDown + te.getCountDownSpeed() * partialTicks) / 1000f, 0, 1);
+			vec = vec.add(Vec3.atLowerCornerOf(targetDirection.getNormal()).scale(progress * .75f));
 		}
 
 		ms.translate(vec.x, vec.y, vec.z);
 		ms.scale(1 / 2f, 1 / 2f, 1 / 2f);
 		float yRot = AngleHelper.horizontalAngle(facing);
-		ms.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(yRot));
+		ms.mulPose(Vector3f.YP.rotationDegrees(yRot));
 		renderItems(te, partialTicks, ms, buffer, light, overlay);
-		ms.pop();
+		ms.popPose();
 
 		renderFast(te, partialTicks, ms, buffer, light);
 	}
 
-	public void renderItems(MechanicalCrafterTileEntity te, float partialTicks, MatrixStack ms,
-		IRenderTypeBuffer buffer, int light, int overlay) {
+	public void renderItems(MechanicalCrafterTileEntity te, float partialTicks, PoseStack ms,
+		MultiBufferSource buffer, int light, int overlay) {
 		if (te.phase == Phase.IDLE) {
 			ItemStack stack = te.getInventory().getStackInSlot(0);
 			if (!stack.isEmpty()) {
-				ms.push();
+				ms.pushPose();
 				ms.translate(0, 0, -1 / 256f);
 				Minecraft.getInstance()
 					.getItemRenderer()
-					.renderItem(stack, TransformType.FIXED, light, overlay, ms, buffer);
-				ms.pop();
+					.renderStatic(stack, TransformType.FIXED, light, overlay, ms, buffer);
+				ms.popPose();
 			}
 		} else {
 			// render grouped items
 			GroupedItems items = te.groupedItems;
 			float distance = .5f;
 
-			ms.push();
+			ms.pushPose();
 
 			if (te.phase == Phase.CRAFTING) {
 				items = te.groupedItemsBeforeCraft;
 				items.calcStats();
 				float progress =
-					MathHelper.clamp((2000 - te.countDown + te.getCountDownSpeed() * partialTicks) / 1000f, 0, 1);
-				float earlyProgress = MathHelper.clamp(progress * 2, 0, 1);
-				float lateProgress = MathHelper.clamp(progress * 2 - 1, 0, 1);
+					Mth.clamp((2000 - te.countDown + te.getCountDownSpeed() * partialTicks) / 1000f, 0, 1);
+				float earlyProgress = Mth.clamp(progress * 2, 0, 1);
+				float lateProgress = Mth.clamp(progress * 2 - 1, 0, 1);
 
 				ms.scale(1 - lateProgress, 1 - lateProgress, 1 - lateProgress);
-				Vector3d centering =
-					new Vector3d(-items.minX + (-items.width + 1) / 2f, -items.minY + (-items.height + 1) / 2f, 0)
+				Vec3 centering =
+					new Vec3(-items.minX + (-items.width + 1) / 2f, -items.minY + (-items.height + 1) / 2f, 0)
 						.scale(earlyProgress);
 				ms.translate(centering.x * .5f, centering.y * .5f, 0);
 				distance += (-4 * (progress - .5f) * (progress - .5f) + 1) * .25f;
@@ -108,29 +107,29 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 						.intValue() != 0))
 					return;
 
-				ms.push();
+				ms.pushPose();
 				Integer x = pair.getKey();
 				Integer y = pair.getValue();
 				ms.translate(x * spacing, y * spacing, 0);
 				MatrixStacker.of(ms)
-					.nudge(x * 13 + y + te.getPos()
+					.nudge(x * 13 + y + te.getBlockPos()
 						.hashCode());
 				Minecraft.getInstance()
 					.getItemRenderer()
-					.renderItem(stack, TransformType.FIXED, light, overlay, ms, buffer);
-				ms.pop();
+					.renderStatic(stack, TransformType.FIXED, light, overlay, ms, buffer);
+				ms.popPose();
 			});
 
-			ms.pop();
+			ms.popPose();
 
 			if (te.phase == Phase.CRAFTING) {
 				items = te.groupedItems;
 				float progress =
-					MathHelper.clamp((1000 - te.countDown + te.getCountDownSpeed() * partialTicks) / 1000f, 0, 1);
-				float earlyProgress = MathHelper.clamp(progress * 2, 0, 1);
-				float lateProgress = MathHelper.clamp(progress * 2 - 1, 0, 1);
+					Mth.clamp((1000 - te.countDown + te.getCountDownSpeed() * partialTicks) / 1000f, 0, 1);
+				float earlyProgress = Mth.clamp(progress * 2, 0, 1);
+				float lateProgress = Mth.clamp(progress * 2 - 1, 0, 1);
 
-				ms.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(earlyProgress * 2 * 360));
+				ms.mulPose(Vector3f.ZP.rotationDegrees(earlyProgress * 2 * 360));
 				float upScaling = earlyProgress * 1.125f;
 				float downScaling = 1 + (1 - lateProgress) * .125f;
 				ms.scale(upScaling, upScaling, upScaling);
@@ -144,28 +143,28 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 						return;
 					Minecraft.getInstance()
 						.getItemRenderer()
-						.renderItem(stack, TransformType.FIXED, light, overlay, ms, buffer);
+						.renderStatic(stack, TransformType.FIXED, light, overlay, ms, buffer);
 				});
 			}
 
 		}
 	}
 
-	public void renderFast(MechanicalCrafterTileEntity te, float partialTicks, MatrixStack ms, IRenderTypeBuffer buffer,
+	public void renderFast(MechanicalCrafterTileEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 		int light) {
 		BlockState blockState = te.getBlockState();
-		IVertexBuilder vb = buffer.getBuffer(RenderType.getSolid());
+		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
 
-		if (!Backend.getInstance().canUseInstancing(te.getWorld())) {
+		if (!Backend.getInstance().canUseInstancing(te.getLevel())) {
 			SuperByteBuffer superBuffer = PartialBufferer.get(AllBlockPartials.SHAFTLESS_COGWHEEL, blockState);
 			standardKineticRotationTransform(superBuffer, te, light);
-			superBuffer.rotateCentered(Direction.UP, (float) (blockState.get(HORIZONTAL_FACING).getAxis() != Direction.Axis.X ? 0 : Math.PI / 2));
+			superBuffer.rotateCentered(Direction.UP, (float) (blockState.getValue(HORIZONTAL_FACING).getAxis() != Direction.Axis.X ? 0 : Math.PI / 2));
 			superBuffer.rotateCentered(Direction.EAST, (float) (Math.PI / 2));
 			superBuffer.renderInto(ms, vb);
 		}
 
 		Direction targetDirection = MechanicalCrafterBlock.getTargetDirection(blockState);
-		BlockPos pos = te.getPos();
+		BlockPos pos = te.getBlockPos();
 
 		if ((te.covered || te.phase != Phase.IDLE) && te.phase != Phase.CRAFTING && te.phase != Phase.INSERTING) {
 			SuperByteBuffer lidBuffer =
@@ -173,7 +172,7 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 			lidBuffer.renderInto(ms, vb);
 		}
 
-		if (MechanicalCrafterBlock.isValidTarget(te.getWorld(), pos.offset(targetDirection), blockState)) {
+		if (MechanicalCrafterBlock.isValidTarget(te.getLevel(), pos.relative(targetDirection), blockState)) {
 			SuperByteBuffer beltBuffer =
 				renderAndTransform(te, AllBlockPartials.MECHANICAL_CRAFTER_BELT, blockState, pos);
 			SuperByteBuffer beltFrameBuffer =
@@ -198,12 +197,12 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 	private SuperByteBuffer renderAndTransform(MechanicalCrafterTileEntity te, PartialModel renderBlock,
 		BlockState crafterState, BlockPos pos) {
 		SuperByteBuffer buffer = PartialBufferer.get(renderBlock, crafterState);
-		float xRot = crafterState.get(MechanicalCrafterBlock.POINTING)
+		float xRot = crafterState.getValue(MechanicalCrafterBlock.POINTING)
 				.getXRotation();
-		float yRot = AngleHelper.horizontalAngle(crafterState.get(HORIZONTAL_FACING));
+		float yRot = AngleHelper.horizontalAngle(crafterState.getValue(HORIZONTAL_FACING));
 		buffer.rotateCentered(Direction.UP, (float) ((yRot + 90) / 180 * Math.PI));
 		buffer.rotateCentered(Direction.EAST, (float) ((xRot) / 180 * Math.PI));
-		buffer.light(WorldRenderer.getLightmapCoordinates(te.getWorld(), crafterState, pos));
+		buffer.light(LevelRenderer.getLightColor(te.getLevel(), crafterState, pos));
 		return buffer;
 	}
 

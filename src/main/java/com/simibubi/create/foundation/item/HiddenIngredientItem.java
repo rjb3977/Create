@@ -1,9 +1,9 @@
 package com.simibubi.create.foundation.item;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class HiddenIngredientItem extends Item {
 
@@ -12,10 +12,10 @@ public class HiddenIngredientItem extends Item {
 	}
 
 	@Override
-	public void fillItemGroup(ItemGroup p_150895_1_, NonNullList<ItemStack> p_150895_2_) {
-		if (p_150895_1_ != ItemGroup.SEARCH)
+	public void fillItemCategory(CreativeModeTab p_150895_1_, NonNullList<ItemStack> p_150895_2_) {
+		if (p_150895_1_ != CreativeModeTab.TAB_SEARCH)
 			return;
-		super.fillItemGroup(p_150895_1_, p_150895_2_);
+		super.fillItemCategory(p_150895_1_, p_150895_2_);
 	}
 
 }

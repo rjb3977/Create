@@ -1,8 +1,8 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
-import static net.minecraft.state.properties.BlockStateProperties.HORIZONTAL_FACING;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementContext;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionMatrices;
@@ -14,37 +14,36 @@ import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class HarvesterRenderer extends SafeTileEntityRenderer<HarvesterTileEntity> {
 
-	public HarvesterRenderer(TileEntityRendererDispatcher dispatcher) {
+	public HarvesterRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	protected void renderSafe(HarvesterTileEntity te, float partialTicks, MatrixStack ms, IRenderTypeBuffer buffer,
+	protected void renderSafe(HarvesterTileEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 		int light, int overlay) {
 		BlockState blockState = te.getBlockState();
 		SuperByteBuffer superBuffer = PartialBufferer.get(AllBlockPartials.HARVESTER_BLADE, blockState);
-		transform(te.getWorld(), blockState.get(HarvesterBlock.HORIZONTAL_FACING), superBuffer,
+		transform(te.getLevel(), blockState.getValue(HarvesterBlock.FACING), superBuffer,
 				te.getAnimatedSpeed());
 		superBuffer.light(light)
-				.renderInto(ms, buffer.getBuffer(RenderType.getCutoutMipped()));
+				.renderInto(ms, buffer.getBuffer(RenderType.cutoutMipped()));
 	}
 
 	public static void renderInContraption(MovementContext context, PlacementSimulationWorld renderWorld,
-		ContraptionMatrices matrices, IRenderTypeBuffer buffers) {
+		ContraptionMatrices matrices, MultiBufferSource buffers) {
 		BlockState blockState = context.state;
-		Direction facing = blockState.get(HORIZONTAL_FACING);
+		Direction facing = blockState.getValue(HORIZONTAL_FACING);
 		SuperByteBuffer superBuffer = PartialBufferer.get(AllBlockPartials.HARVESTER_BLADE, blockState);
 		float speed = (float) (!VecHelper.isVecPointingTowards(context.relativeMotion, facing.getOpposite())
 				? context.getAnimationSpeed()
@@ -58,12 +57,12 @@ public class HarvesterRenderer extends SafeTileEntityRenderer<HarvesterTileEntit
 		superBuffer
 			.light(matrices.entityMatrix,
 					ContraptionRenderDispatcher.getContraptionWorldLight(context, renderWorld))
-			.renderInto(matrices.entityStack, buffers.getBuffer(RenderType.getCutoutMipped()));
+			.renderInto(matrices.entityStack, buffers.getBuffer(RenderType.cutoutMipped()));
 	}
 
-	public static void transform(World world, Direction facing, SuperByteBuffer superBuffer, float speed) {
+	public static void transform(Level world, Direction facing, SuperByteBuffer superBuffer, float speed) {
 		float originOffset = 1 / 16f;
-		Vector3d rotOffset = new Vector3d(0, -2 * originOffset, originOffset).add(VecHelper.getCenterOf(BlockPos.ZERO));
+		Vec3 rotOffset = new Vec3(0, -2 * originOffset, originOffset).add(VecHelper.getCenterOf(BlockPos.ZERO));
 		float time = AnimationTickHolder.getRenderTime(world) / 20;
 		float angle = (time * speed) % 360;
 

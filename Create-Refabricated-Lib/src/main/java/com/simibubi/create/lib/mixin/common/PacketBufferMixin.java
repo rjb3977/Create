@@ -7,9 +7,9 @@ import com.simibubi.create.lib.extensions.PacketBufferExtensions;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
-@Mixin(PacketBuffer.class)
+@Mixin(FriendlyByteBuf.class)
 public abstract class PacketBufferMixin implements PacketBufferExtensions {
 	@Shadow
 	public abstract ByteBuf writeBoolean(boolean bl);

@@ -4,16 +4,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.simibubi.create.foundation.ponder.PonderRegistry;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
-
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
 public class PonderTagRegistry {
 
@@ -93,7 +91,7 @@ public class PonderTagRegistry {
 			return this;
 		}
 
-		public TagBuilder add(IItemProvider item) {
+		public TagBuilder add(ItemLike item) {
 			return add(Registry.ITEM.getKey(item.asItem()));
 		}
 

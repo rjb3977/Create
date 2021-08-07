@@ -1,11 +1,11 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.chassis;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 public class RadialChassisBlock extends AbstractChassisBlock {
 
@@ -16,19 +16,19 @@ public class RadialChassisBlock extends AbstractChassisBlock {
 
 	public RadialChassisBlock(Properties properties) {
 		super(properties);
-		setDefaultState(getDefaultState().with(STICKY_EAST, false).with(STICKY_SOUTH, false).with(STICKY_NORTH, false)
-				.with(STICKY_WEST, false));
+		registerDefaultState(defaultBlockState().setValue(STICKY_EAST, false).setValue(STICKY_SOUTH, false).setValue(STICKY_NORTH, false)
+				.setValue(STICKY_WEST, false));
 	}
 
 	@Override
-	protected void fillStateContainer(Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
 		builder.add(STICKY_NORTH, STICKY_EAST, STICKY_SOUTH, STICKY_WEST);
-		super.fillStateContainer(builder);
+		super.createBlockStateDefinition(builder);
 	}
 
 	@Override
 	public BooleanProperty getGlueableSide(BlockState state, Direction face) {
-		Axis axis = state.get(AXIS);
+		Axis axis = state.getValue(AXIS);
 
 		if (axis == Axis.X) {
 			if (face == Direction.NORTH)

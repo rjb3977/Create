@@ -8,18 +8,17 @@ import com.google.common.collect.Streams;
 import com.simibubi.create.foundation.config.AllConfigs;
 
 import com.simibubi.create.lib.item.CustomDurabilityBarItem;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -32,17 +31,17 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 	private BlockItem blockItem;
 
 	public CopperBacktankItem(Properties p_i48534_3_, BlockItem blockItem) {
-		super(EquipmentSlotType.CHEST, p_i48534_3_);
+		super(EquipmentSlot.CHEST, p_i48534_3_);
 		this.blockItem = blockItem;
 	}
 
 	@Override
-	public ActionResultType onItemUse(ItemUseContext p_195939_1_) {
-		return blockItem.onItemUse(p_195939_1_);
+	public InteractionResult useOn(UseOnContext p_195939_1_) {
+		return blockItem.useOn(p_195939_1_);
 	}
 
 	@Override
-	public boolean isDamageable() {
+	public boolean canBeDepleted() {
 		return false;
 	}
 
@@ -52,12 +51,12 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 	}
 
 	@Override
-	public void fillItemGroup(ItemGroup p_150895_1_, NonNullList<ItemStack> p_150895_2_) {
-		if (!isInGroup(p_150895_1_))
+	public void fillItemCategory(CreativeModeTab p_150895_1_, NonNullList<ItemStack> p_150895_2_) {
+		if (!allowdedIn(p_150895_1_))
 			return;
 
 		ItemStack stack = new ItemStack(this);
-		CompoundNBT nbt = new CompoundNBT();
+		CompoundTag nbt = new CompoundTag();
 		nbt.putInt("Air", AllConfigs.SERVER.curiosities.maxAirInBacktank.get());
 		stack.setTag(nbt);
 		p_150895_2_.add(stack);
@@ -65,7 +64,7 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack) {
-		return 1 - MathHelper
+		return 1 - Mth
 			.clamp(getRemainingAir(stack) / ((float) AllConfigs.SERVER.curiosities.maxAirInBacktank.get()), 0, 1);
 	}
 
@@ -75,13 +74,13 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 	}
 
 	public static int getRemainingAir(ItemStack stack) {
-		CompoundNBT orCreateTag = stack.getOrCreateTag();
+		CompoundTag orCreateTag = stack.getOrCreateTag();
 		return orCreateTag.getInt("Air");
 	}
 
 	@SubscribeEvent
 	public static void rechargePneumaticTools(TickEvent.PlayerTickEvent event) {
-		PlayerEntity player = event.player;
+		Player player = event.player;
 		if (event.phase != TickEvent.Phase.START)
 			return;
 		if (event.side != LogicalSide.SERVER)
@@ -92,10 +91,10 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 		if (tankStack.isEmpty())
 			return;
 
-		PlayerInventory inv = player.inventory;
+		Inventory inv = player.inventory;
 
-		List<ItemStack> toCharge = Streams.concat(Stream.of(player.getHeldItemMainhand()), inv.offHandInventory.stream(),
-			inv.armorInventory.stream(), inv.mainInventory.stream())
+		List<ItemStack> toCharge = Streams.concat(Stream.of(player.getMainHandItem()), inv.offhand.stream(),
+			inv.armor.stream(), inv.items.stream())
 			.filter(s -> s.getItem() instanceof IBackTankRechargeable && s.isDamaged())
 			.collect(Collectors.toList());
 
@@ -103,7 +102,7 @@ public class CopperBacktankItem extends CopperArmorItem implements CustomDurabil
 		for (ItemStack stack : toCharge) {
 			while (stack.isDamaged()) {
 				if (BackTankUtil.canAbsorbDamage(event.player, ((IBackTankRechargeable) stack.getItem()).maxUses())) {
-					stack.setDamage(stack.getDamage() - 1);
+					stack.setDamageValue(stack.getDamageValue() - 1);
 					charges--;
 					if (charges <= 0)
 						return;

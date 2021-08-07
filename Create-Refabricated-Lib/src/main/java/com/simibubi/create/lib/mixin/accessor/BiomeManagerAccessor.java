@@ -1,9 +1,8 @@
 package com.simibubi.create.lib.mixin.accessor;
 
+import net.minecraft.world.level.biome.BiomeManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
-import net.minecraft.world.biome.BiomeManager;
 
 @Mixin(BiomeManager.class)
 public interface BiomeManagerAccessor {
