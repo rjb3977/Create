@@ -271,8 +271,8 @@ public class DeployerHandler {
 
 		// Item has custom active use
 //		if (useItem != null) {
-//			ActionResultType actionresult = stack.onItemUseFirst(itemusecontext);
-//			if (actionresult != ActionResultType.PASS)
+//			InteractionResult actionresult = stack.onItemUseFirst(itemusecontext);
+//			if (actionresult != InteractionResult.PASS)
 //				return;
 //		}
 

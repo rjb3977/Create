@@ -2,10 +2,12 @@ package com.simibubi.create.content.contraptions.components.deployer;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -128,7 +130,7 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements ITE<De
 	}
 
 	@Override
-	protected Direction getFacingForPlacement(BlockItemUseContext context) {
+	protected Direction getFacingForPlacement(BlockPlaceContext context) {
 		if (context instanceof AssemblyOperatorUseContext) return Direction.DOWN;
 		else return super.getFacingForPlacement(context);
 	}

@@ -35,7 +35,7 @@ public abstract class RedstoneWireBlockMixin {
 	}
 
 	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/RedstoneWireBlock;canConnectUpwardsTo(Lnet/minecraft/block/BlockState;)Z"),
-			method = "method_27841(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/Direction;Z)Lnet/minecraft/state/properties/RedstoneSide;")
+			method = "method_27841(Lnet/minecraft/world/BlockGetter;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/Direction;Z)Lnet/minecraft/state/properties/RedstoneSide;")
 	private boolean create$canConnectUpwardsTo(BlockState state, BlockGetter world, BlockPos pos, Direction side, boolean bl) {
 		return canConnectTo(state, side);
 	}

@@ -29,7 +29,7 @@ public abstract class PlayerControllerMixin {
 	private ClientPacketListener connection;
 
 	@Inject(at = @At("HEAD"),
-			method = "func_217292_a(Lnet/minecraft/client/entity/player/ClientPlayerEntity;Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/util/Hand;Lnet/minecraft/util/math/BlockRayTraceResult;)Lnet/minecraft/util/ActionResultType;",
+			method = "func_217292_a(Lnet/minecraft/client/entity/player/ClientPlayerEntity;Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/util/Hand;Lnet/minecraft/util/math/BlockRayTraceResult;)Lnet/minecraft/util/InteractionResult;",
 			cancellable = true)
 	public void create$func_217292_a(LocalPlayer clientPlayerEntity, ClientLevel clientWorld, InteractionHand hand, BlockHitResult blockRayTraceResult, CallbackInfoReturnable<InteractionResult> cir) {
 		if (clientPlayerEntity.getItemInHand(hand).getItem() instanceof UseFirstBehaviorItem) {

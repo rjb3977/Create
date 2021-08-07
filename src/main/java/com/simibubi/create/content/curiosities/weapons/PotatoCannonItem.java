@@ -76,7 +76,7 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements IBackTankR
 	}
 
 	@Override
-	public ActionResultType useOn(ItemUseContext context) {
+	public InteractionResult useOn(ItemUseContext context) {
 		return use(context.getLevel(), context.getPlayer(), context.getHand()).getResult();
 	}
 

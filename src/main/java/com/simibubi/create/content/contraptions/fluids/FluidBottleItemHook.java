@@ -29,7 +29,7 @@ public class FluidBottleItemHook extends Item {
 //			.getRegistryName()
 //			.getNamespace()
 //			.equals(Create.ID)) {
-//			event.setCancellationResult(ActionResultType.PASS);
+//			event.setCancellationResult(InteractionResult.PASS);
 //			event.setCanceled(true);
 //			return;
 //		}

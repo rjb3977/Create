@@ -256,27 +256,27 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 //	}
 
 //	@Environment(EnvType.CLIENT)
-//	public static ActionResultType notifyServerOfLongRangeAttacks(PlayerEntity player, World world, Hand hand, Entity target, @Nullable EntityRayTraceResult traceResult) {
+//	public static InteractionResult notifyServerOfLongRangeAttacks(PlayerEntity player, World world, Hand hand, Entity target, @Nullable EntityRayTraceResult traceResult) {
 //		if (!isUncaughtClientInteraction(player, target))
-//			return ActionResultType.PASS;
+//			return InteractionResult.PASS;
 //		if (isHoldingExtendoGrip(player)) {
 //			AllPackets.channel.sendToServer(new ExtendoGripInteractionPacket(target));
-//			return ActionResultType.SUCCESS;
+//			return InteractionResult.SUCCESS;
 //		}
 //
-//		return ActionResultType.PASS;
+//		return InteractionResult.PASS;
 //	}
 
 //	@Environment(EnvType.CLIENT)
-//	public static ActionResultType notifyServerOfLongRangeInteractions(PlayerEntity player, World world, Hand hand, Entity target, @Nullable EntityRayTraceResult traceResult) {
+//	public static InteractionResult notifyServerOfLongRangeInteractions(PlayerEntity player, World world, Hand hand, Entity target, @Nullable EntityRayTraceResult traceResult) {
 //		if (!isUncaughtClientInteraction(player, target))
-//			return ActionResultType.PASS;
+//			return InteractionResult.PASS;
 //		if (isHoldingExtendoGrip(player)) {
 //			AllPackets.channel.sendToServer(new ExtendoGripInteractionPacket(target, hand));
-//			return ActionResultType.SUCCESS;
+//			return InteractionResult.SUCCESS;
 //		}
 //
-//		return ActionResultType.PASS;
+//		return InteractionResult.PASS;
 //	}
 
 //	@Environment(EnvType.CLIENT)

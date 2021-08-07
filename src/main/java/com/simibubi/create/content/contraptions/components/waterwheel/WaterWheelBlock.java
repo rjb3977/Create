@@ -152,7 +152,7 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<Wate
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		Direction face = context.getClickedFace();
 		Direction horizontalFacing = context.getHorizontalDirection();
 		BlockPos pos = context.getClickedPos();

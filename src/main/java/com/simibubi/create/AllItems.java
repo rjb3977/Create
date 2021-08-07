@@ -93,12 +93,12 @@ public class AllItems {
 
 	public static final ItemEntry<SequencedAssemblyItem> INCOMPLETE_COGWHEEL =
 			REGISTRATE.item("incomplete_cogwheel", SequencedAssemblyItem::new)
-					.model(AssetLookup.existingItemModel())
+//					.model(AssetLookup.existingItemModel())
 					.register();
 
 	public static final ItemEntry<SequencedAssemblyItem> INCOMPLETE_LARGE_COGWHEEL =
 			REGISTRATE.item("incomplete_large_cogwheel", SequencedAssemblyItem::new)
-					.model(AssetLookup.existingItemModel())
+//					.model(AssetLookup.existingItemModel())
 					.register();
 
 	public static final ItemEntry<HiddenIngredientItem> BLAZE_CAKE_BASE =
@@ -113,7 +113,7 @@ public class AllItems {
 
 	public static final ItemEntry<CombustibleItem> CREATIVE_BLAZE_CAKE = REGISTRATE.item("creative_blaze_cake", CombustibleItem::new)
 		.properties(p -> p.rarity(Rarity.EPIC))
-		.tag(AllItemTags.UPRIGHT_ON_BELT.tag)
+		.tag(AllTags.AllItemTags.UPRIGHT_ON_BELT.tag)
 		.onRegister(i -> i.setBurnTime(Integer.MAX_VALUE))
 		.register();
 
@@ -281,7 +281,7 @@ public class AllItems {
 
 	public static final ItemEntry<ExtendoGripItem> EXTENDO_GRIP = REGISTRATE.item("extendo_grip", ExtendoGripItem::new)
 		.transform(CreateRegistrate.customRenderedItem(() -> ExtendoGripModel::new))
-		.model(AssetLookup.itemModelWithPartials())
+//		.model(AssetLookup.itemModelWithPartials())
 		.register();
 
 	public static final ItemEntry<SymmetryWandItem> WAND_OF_SYMMETRY =

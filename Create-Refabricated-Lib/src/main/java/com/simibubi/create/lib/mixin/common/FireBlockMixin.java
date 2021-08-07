@@ -77,7 +77,7 @@ public abstract class FireBlockMixin extends BaseFireBlock implements FireBlockE
 
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/block/FireBlock;canBurn(Lnet/minecraft/block/BlockState;)Z"),
 			locals = LocalCapture.CAPTURE_FAILEXCEPTION,
-			method = "areNeighborsFlammable(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;)Z", cancellable = true)
+			method = "areNeighborsFlammable(Lnet/minecraft/world/BlockGetter;Lnet/minecraft/util/math/BlockPos;)Z", cancellable = true)
 	private void create$areNeighborsFlammable(BlockGetter iBlockReader, BlockPos blockPos, CallbackInfoReturnable<Boolean> cir,
 											  Direction[] var3, int var4, int var5, Direction direction) {
 		if (this.canCatchFire(iBlockReader, blockPos.relative(direction), direction.getOpposite())) {

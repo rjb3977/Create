@@ -51,23 +51,23 @@ public class LitBlazeBurnerBlock extends Block implements BlockPickInteractionAw
 		if (heldItem.getToolTypes().contains(ToolType.SHOVEL)) {
 			world.playSound(player, pos, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5f, 2);
 			if (world.isClientSide)
-				return ActionResultType.SUCCESS;
+				return InteractionResult.SUCCESS;
 			heldItem.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
 			world.setBlockAndUpdate(pos, AllBlocks.BLAZE_BURNER.getDefaultState());
-			return ActionResultType.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 
 		if (state.getValue(FLAME_TYPE) == FlameType.REGULAR) {
 			if (heldItem.getItem().is(ItemTags.SOUL_FIRE_BASE_BLOCKS)) {
 				world.playSound(player, pos, SoundEvents.SOUL_SAND_PLACE, SoundCategory.BLOCKS, 1.0f, world.random.nextFloat() * 0.4F + 0.8F);
 				if (world.isClientSide)
-					return ActionResultType.SUCCESS;
+					return InteractionResult.SUCCESS;
 				world.setBlockAndUpdate(pos, defaultBlockState().setValue(FLAME_TYPE, FlameType.SOUL));
-				return ActionResultType.SUCCESS;
+				return InteractionResult.SUCCESS;
 			}
 		}
 
-		return ActionResultType.PASS;
+		return InteractionResult.PASS;
 	}
 
 	@Override

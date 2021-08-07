@@ -1,12 +1,17 @@
 package com.simibubi.create.content.logistics.block.redstone;
 
 import java.util.Random;
+
+import com.simibubi.create.AllBlocks;
+
+import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -21,6 +26,7 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -36,7 +42,9 @@ import com.simibubi.create.foundation.utility.Iterate;
 
 import com.simibubi.create.lib.block.CanConnectRedstoneBlock;
 
-public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenchable, ISpecialBlockItemRequirement, ITE<NixieTubeTileEntity>, CanConnectRedstoneBlock, EntityBlock {
+import org.jetbrains.annotations.Nullable;
+
+public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenchable, ISpecialBlockItemRequirement, ITE<NixieTubeTileEntity>, CanConnectRedstoneBlock, EntityBlock, BlockPickInteractionAware {
 
 	public static final BooleanProperty CEILING = BooleanProperty.create("ceiling");
 	private DyeColor color;
@@ -74,7 +82,7 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenc
 				dye = color;
 
 		if (!display && dye == null)
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 
 		Direction left = state.getValue(FACING)
 			.getClockWise();
@@ -108,7 +116,7 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenc
 			index++;
 		}
 
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
@@ -117,19 +125,19 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenc
 	}
 
 	@Override
-	public void onRemove(BlockState p_196243_1_, World p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
+	public void onRemove(BlockState p_196243_1_, Level p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
 		boolean p_196243_5_) {
 		if (!(p_196243_4_.getBlock() instanceof NixieTubeBlock))
 			p_196243_2_.removeBlockEntity(p_196243_3_);
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(IBlockReader p_185473_1_, BlockPos p_185473_2_, BlockState p_185473_3_) {
+	public ItemStack getCloneItemStack(BlockGetter p_185473_1_, BlockPos p_185473_2_, BlockState p_185473_3_) {
 		return AllBlocks.ORANGE_NIXIE_TUBE.asStack();
 	}
 
 	@Override
-	public ItemRequirement getRequiredItems(BlockState state, TileEntity te) {
+	public ItemRequirement getRequiredItems(BlockState state, BlockEntity te) {
 		return new ItemRequirement(ItemUseType.CONSUME, AllBlocks.ORANGE_NIXIE_TUBE.get()
 			.asItem());
 	}
@@ -143,12 +151,10 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenc
 	}
 
 	@Override
-	public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos,
-		PlayerEntity player) {
+	public ItemStack getPickedStack(BlockState state, BlockGetter view, BlockPos pos, @Nullable Player player, @Nullable HitResult result) {
 		if (color != DyeColor.ORANGE)
-			return AllBlocks.ORANGE_NIXIE_TUBE.get()
-				.getPickBlock(state, target, world, pos, player);
-		return super.getPickBlock(state, target, world, pos, player);
+			return new ItemStack(AllBlocks.ORANGE_NIXIE_TUBE.get());
+		return new ItemStack(AllBlocks.NIXIE_TUBES.get(color).get());
 	}
 
 	@Override
@@ -254,5 +260,4 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenc
 		return blockState.getBlock() instanceof NixieTubeBlock ? ((NixieTubeBlock) blockState.getBlock()).color
 			: DyeColor.ORANGE;
 	}
-
 }

@@ -72,7 +72,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 				}
 
 				if (AllBlocks.LECTERN_CONTROLLER.has(hitState))
-					return ActionResultType.PASS;
+					return InteractionResult.PASS;
 			}
 		}
 

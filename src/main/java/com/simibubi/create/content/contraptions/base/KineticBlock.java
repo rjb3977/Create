@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.level.BlockGetter;
@@ -28,19 +29,20 @@ public abstract class KineticBlock extends Block implements IRotate, Harvestable
 		super(properties);
 	}
 
-	@Override
-	public ToolType getHarvestTool(BlockState state) {
-		return null;
-	}
+//	@Override
+//	public ToolType getHarvestTool(BlockState state) {
+//		return null;
+//	}
 
 	@Override
-	public boolean canHarvestBlock(BlockState state, IBlockReader world, BlockPos pos, PlayerEntity player) {
-		for (ToolType toolType : player.getMainHandItem()
-			.getToolTypes()) {
-			if (isToolEffective(state, toolType))
+	public boolean canHarvestBlock(BlockState state, BlockGetter world, BlockPos pos, Player player) {
+		Item heldItem = player.getItemInHand(player.getUsedItemHand()).getItem();
+		if (player.getItemInHand(player.getUsedItemHand()).getItem() instanceof DiggerItem) {
+			if (isToolEffective(state, (DiggerItem) heldItem))
 				return true;
 		}
-		return super.canHarvestBlock(state, world, pos, player);
+
+		return false;
 	}
 
 	@Override

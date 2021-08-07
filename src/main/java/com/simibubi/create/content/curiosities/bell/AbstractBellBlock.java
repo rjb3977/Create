@@ -32,7 +32,7 @@ public abstract class AbstractBellBlock<TE extends AbstractBellTileEntity> exten
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext selection) {
+	public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos pos, ISelectionContext selection) {
 		Direction facing = state.getValue(FACING);
 		switch (state.getValue(ATTACHMENT)) {
 		case CEILING:

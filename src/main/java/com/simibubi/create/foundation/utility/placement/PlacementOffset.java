@@ -127,7 +127,7 @@ public class PlacementOffset {
 
 //		if (MinecraftForge.EVENT_BUS.post(event)) {
 //			snapshot.restore(true, false);
-//			return ActionResultType.FAIL;
+//			return InteractionResult.FAIL;
 //		}
 
 		BlockState newState = world.getBlockState(newPos);

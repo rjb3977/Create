@@ -72,7 +72,7 @@ public class GaugeBlock extends DirectionalAxisKineticBlock {
 	 * @SuppressWarnings("deprecation")
 	 *
 	 * @Override
-	 * public MaterialColor getMaterialColor(BlockState state, IBlockReader worldIn, BlockPos pos) {
+	 * public MaterialColor getMaterialColor(BlockState state, BlockGetter worldIn, BlockPos pos) {
 	 * return Blocks.SPRUCE_PLANKS.getMaterialColor(state, worldIn, pos);
 	 * }
 	 */

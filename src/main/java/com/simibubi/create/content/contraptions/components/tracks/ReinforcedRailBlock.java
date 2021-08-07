@@ -112,7 +112,7 @@ public class ReinforcedRailBlock extends BaseRailBlock implements SlopeCreationC
 
     /* FIXME: Same thing as before, does this still matter? If so, what is the new way of doing it?
     @Override
-    public boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
+    public boolean isNormalCube(BlockState state, BlockGetter worldIn, BlockPos pos) {
         return false;
     }*/
 

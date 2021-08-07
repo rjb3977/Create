@@ -137,8 +137,6 @@ import com.simibubi.create.content.schematics.block.SchematicannonBlock;
 import com.simibubi.create.foundation.block.DyedBlockList;
 import com.simibubi.create.foundation.block.ItemUseOverrides;
 import com.simibubi.create.foundation.block.BlockStressDefaults;
-import com.simibubi.create.foundation.data.AssetLookup;
-import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.BuilderTransformers;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.ModelGen;
@@ -246,7 +244,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<GearboxBlock> GEARBOX = REGISTRATE.block("gearbox", GearboxBlock::new)
 		.initialProperties(SharedProperties::stone)
-		.properties(FabricBlockSettings::noOcclusion)
+		.properties(s -> (FabricBlockSettings) s.noOcclusion())
 		.transform(BlockStressDefaults.setNoImpact())
 		.onRegister(CreateRegistrate.connectedTextures(new EncasedCTBehaviour(AllSpriteShifts.ANDESITE_CASING)))
 		.onRegister(CreateRegistrate.casingConnectivity((block, cc) -> cc.make(block, AllSpriteShifts.ANDESITE_CASING,
@@ -258,7 +256,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<ClutchBlock> CLUTCH = REGISTRATE.block("clutch", ClutchBlock::new)
 		.initialProperties(SharedProperties::stone)
-		.properties(FabricBlockSettings::noOcclusion)
+		.properties(s -> (FabricBlockSettings) s.noOcclusion())
 		.transform(BlockStressDefaults.setNoImpact())
 //		.blockstate((c, p) -> BlockStateGen.axisBlock(c, p, AssetLookup.forPowered(c, p)))
 		.item()
@@ -267,7 +265,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<GearshiftBlock> GEARSHIFT = REGISTRATE.block("gearshift", GearshiftBlock::new)
 		.initialProperties(SharedProperties::stone)
-		.properties(FabricBlockSettings::noOcclusion)
+		.properties(s -> (FabricBlockSettings) s.noOcclusion())
 		.transform(BlockStressDefaults.setNoImpact())
 //		.blockstate((c, p) -> BlockStateGen.axisBlock(c, p, AssetLookup.forPowered(c, p)))
 		.item()
@@ -277,7 +275,7 @@ public class AllBlocks {
 	public static final BlockEntry<EncasedBeltBlock> ENCASED_CHAIN_DRIVE =
 		REGISTRATE.block("encased_chain_drive", EncasedBeltBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 			.transform(BlockStressDefaults.setNoImpact())
 //			.blockstate((c, p) -> new EncasedBeltGenerator((state, suffix) -> p.models()
 //				.getExistingFile(p.modLoc("block/" + c.getName() + "/" + suffix))).generate(c, p))
@@ -288,7 +286,7 @@ public class AllBlocks {
 	public static final BlockEntry<AdjustablePulleyBlock> ADJUSTABLE_CHAIN_GEARSHIFT =
 		REGISTRATE.block("adjustable_chain_gearshift", AdjustablePulleyBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 			.transform(BlockStressDefaults.setNoImpact())
 //			.blockstate((c, p) -> new EncasedBeltGenerator((state, suffix) -> {
 //				String powered = state.getValue(AdjustablePulleyBlock.POWERED) ? "_powered" : "";
@@ -325,7 +323,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<WaterWheelBlock> WATER_WHEEL = REGISTRATE.block("water_wheel", WaterWheelBlock::new)
 		.initialProperties(SharedProperties::wooden)
-		.properties(FabricBlockSettings::noOcclusion)
+		.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //		.blockstate(BlockStateGen.horizontalWheelProvider(false))
 		.addLayer(() -> RenderType::cutoutMipped)
 		.transform(BlockStressDefaults.setCapacity(16.0))
@@ -391,7 +389,7 @@ public class AllBlocks {
 	public static final BlockEntry<CrushingWheelBlock> CRUSHING_WHEEL =
 		REGISTRATE.block("crushing_wheel", CrushingWheelBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.axisBlockProvider(false))
 			.addLayer(() -> RenderType::cutoutMipped)
 			.transform(BlockStressDefaults.setImpact(8.0))
@@ -411,7 +409,7 @@ public class AllBlocks {
 	public static final BlockEntry<MechanicalPressBlock> MECHANICAL_PRESS =
 		REGISTRATE.block("mechanical_press", MechanicalPressBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.horizontalBlockProvider(true))
 			.transform(BlockStressDefaults.setImpact(8.0))
 			.item(AssemblyOperatorBlockItem::new)
@@ -421,7 +419,7 @@ public class AllBlocks {
 	public static final BlockEntry<MechanicalMixerBlock> MECHANICAL_MIXER =
 		REGISTRATE.block("mechanical_mixer", MechanicalMixerBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate((c, p) -> p.simpleBlock(c.getEntry(), AssetLookup.partialBaseModel(c, p)))
 			.addLayer(() -> RenderType::cutoutMipped)
 			.transform(BlockStressDefaults.setImpact(4.0))
@@ -476,7 +474,7 @@ public class AllBlocks {
 	public static final BlockEntry<EjectorBlock> WEIGHTED_EJECTOR =
 		REGISTRATE.block("weighted_ejector", EjectorBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate((c, p) -> p.horizontalBlock(c.getEntry(), AssetLookup.partialBaseModel(c, p), 180))
 			.transform(BlockStressDefaults.setImpact(2.0))
 			.item(EjectorItem::new)
@@ -543,7 +541,7 @@ public class AllBlocks {
 	public static final BlockEntry<EncasedPipeBlock> ENCASED_FLUID_PIPE =
 		REGISTRATE.block("encased_fluid_pipe", EncasedPipeBlock::new)
 			.initialProperties(SharedProperties::softMetal)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.encasedPipe())
 			.onRegister(CreateRegistrate.connectedTextures(new EncasedCTBehaviour(AllSpriteShifts.COPPER_CASING)))
 			.onRegister(CreateRegistrate.casingConnectivity((block, cc) -> cc.make(block, AllSpriteShifts.COPPER_CASING,
@@ -611,12 +609,12 @@ public class AllBlocks {
 
 	public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRATE.block("fluid_tank", FluidTankBlock::regular)
 			.initialProperties(SharedProperties::softMetal)
-			.properties(FabricBlockSettings::noOcclusion)
-			.blockstate(new FluidTankGenerator()::generate)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
+//			.blockstate(new FluidTankGenerator()::generate)
 			.onRegister(CreateRegistrate.blockModel(() -> FluidTankModel::standard))
 			.addLayer(() -> RenderType::cutoutMipped)
 			.item(FluidTankItem::new)
-			.model(AssetLookup.<FluidTankItem>customBlockItemModel("_", "block_single_window"))
+//			.model(AssetLookup.<FluidTankItem>customBlockItemModel("_", "block_single_window"))
 			.build()
 		.register();
 
@@ -624,7 +622,7 @@ public class AllBlocks {
 		REGISTRATE.block("creative_fluid_tank", FluidTankBlock::creative)
 			.initialProperties(SharedProperties::softMetal)
 //			.tag(AllBlockTags.SAFE_NBT.tag)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(new FluidTankGenerator("creative_")::generate)
 			.onRegister(CreateRegistrate.blockModel(() -> FluidTankModel::creative))
 			.addLayer(() -> RenderType::cutoutMipped)
@@ -702,7 +700,7 @@ public class AllBlocks {
 	public static final BlockEntry<GantryCarriageBlock> GANTRY_CARRIAGE =
 		REGISTRATE.block("gantry_carriage", GantryCarriageBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.directionalAxisBlockProvider())
 			.item()
 			.transform(customItemModel())
@@ -781,7 +779,7 @@ public class AllBlocks {
 	public static final BlockEntry<CartAssemblerBlock> CART_ASSEMBLER =
 		REGISTRATE.block("cart_assembler", CartAssemblerBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.cartAssembler())
 			.addLayer(() -> RenderType::cutoutMipped)
 //			.tag(BlockTags.RAILS, AllBlockTags.SAFE_NBT.tag)
@@ -792,7 +790,7 @@ public class AllBlocks {
 	public static final BlockEntry<ReinforcedRailBlock> REINFORCED_RAIL =
 		REGISTRATE.block("reinforced_rail", ReinforcedRailBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.reinforcedRail())
 			.addLayer(() -> RenderType::cutoutMipped)
 //			.tag(BlockTags.RAILS)
@@ -855,7 +853,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<StickerBlock> STICKER = REGISTRATE.block("sticker", StickerBlock::new)
 		.initialProperties(SharedProperties::stone)
-		.properties(FabricBlockSettings::noOcclusion)
+		.properties(s -> (FabricBlockSettings) s.noOcclusion())
 		.addLayer(() -> RenderType::cutoutMipped)
 //		.blockstate((c, p) -> p.directionalBlock(c.get(), AssetLookup.forPowered(c, p)))
 		.item()
@@ -964,7 +962,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<SailBlock> SAIL_FRAME = REGISTRATE.block("sail_frame", p -> SailBlock.frame(p))
 			.initialProperties(SharedProperties::wooden)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.directionalBlockProvider(false))
 //			.tag(AllBlockTags.WINDMILL_SAILS.tag)
 //			.tag(AllBlockTags.FAN_TRANSPARENT.tag)
@@ -973,7 +971,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<SailBlock> SAIL = REGISTRATE.block("white_sail", p -> SailBlock.withCanvas(p))
 			.initialProperties(SharedProperties::wooden)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.directionalBlockProvider(false))
 //			.tag(AllBlockTags.WINDMILL_SAILS.tag)
 			.simpleItem()
@@ -985,7 +983,7 @@ public class AllBlocks {
 		}
 		String colourName = colour.getSerializedName();
 		return REGISTRATE.block(colourName + "_sail", p -> SailBlock.withCanvas(p))
-				.properties(FabricBlockSettings::noOcclusion)
+				.properties(s -> (FabricBlockSettings) s.noOcclusion())
 				.initialProperties(SharedProperties::wooden)
 //				.blockstate((c, p) -> p.directionalBlock(c.get(), p.models()
 //						.withExistingParent(colourName + "_sail", p.modLoc("block/white_sail"))
@@ -1024,7 +1022,7 @@ public class AllBlocks {
 	public static final BlockEntry<MechanicalCrafterBlock> MECHANICAL_CRAFTER =
 		REGISTRATE.block("mechanical_crafter", MechanicalCrafterBlock::new)
 			.initialProperties(SharedProperties::softMetal)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(BlockStateGen.horizontalBlockProvider(true))
 			.transform(BlockStressDefaults.setImpact(2.0))
 			.onRegister(CreateRegistrate.connectedTextures(new CrafterCTBehaviour()))
@@ -1037,7 +1035,7 @@ public class AllBlocks {
 		REGISTRATE.block("sequenced_gearshift", SequencedGearshiftBlock::new)
 			.initialProperties(SharedProperties::stone)
 //			.tag(AllBlockTags.SAFE_NBT.tag)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 			.transform(BlockStressDefaults.setNoImpact())
 //			.blockstate(new SequencedGearshiftGenerator()::generate)
 			.item()
@@ -1046,7 +1044,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<FlywheelBlock> FLYWHEEL = REGISTRATE.block("flywheel", FlywheelBlock::new)
 		.initialProperties(SharedProperties::softMetal)
-		.properties(FabricBlockSettings::noOcclusion)
+		.properties(s -> (FabricBlockSettings) s.noOcclusion())
 		.transform(BlockStressDefaults.setNoImpact())
 //		.blockstate(new FlywheelGenerator()::generate)
 		.item()
@@ -1184,8 +1182,8 @@ public class AllBlocks {
 		return REGISTRATE.block(colourName + "_nixie_tube", p -> new NixieTubeBlock(p, colour))
 			.initialProperties(SharedProperties::softMetal)
 			.properties(p -> p.lightLevel($ -> 5))
-			.blockstate(new NixieTubeGenerator()::generate)
-			.loot((p, b) -> p.dropOther(b, ORANGE_NIXIE_TUBE.get()))
+//			.blockstate(new NixieTubeGenerator()::generate)
+//			.loot((p, b) -> p.dropOther(b, ORANGE_NIXIE_TUBE.get()))
 			.addLayer(() -> RenderType::translucent)
 			.register();
 	});
@@ -1260,9 +1258,9 @@ public class AllBlocks {
 	public static final BlockEntry<LecternControllerBlock> LECTERN_CONTROLLER =
 		REGISTRATE.block("lectern_controller", LecternControllerBlock::new)
 			.initialProperties(() -> Blocks.LECTERN)
-			.blockstate((c,p) -> p.horizontalBlock(c.get(), p.models()
-				.getExistingFile(p.mcLoc("block/lectern"))))
-			.loot((lt, block) -> lt.dropOther(block, Blocks.LECTERN))
+//			.blockstate((c,p) -> p.horizontalBlock(c.get(), p.models()
+//				.getExistingFile(p.mcLoc("block/lectern"))))
+//			.loot((lt, block) -> lt.dropOther(block, Blocks.LECTERN))
 			.register();
 
 

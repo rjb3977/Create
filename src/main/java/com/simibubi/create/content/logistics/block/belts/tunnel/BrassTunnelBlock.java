@@ -12,7 +12,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.util.InteractionResult;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
@@ -30,22 +30,22 @@ public class BrassTunnelBlock extends BeltTunnelBlock {
 	}
 
 	@Override
-	public ActionResultType use(BlockState p_225533_1_, World world, BlockPos pos, PlayerEntity player,
+	public InteractionResult use(BlockState p_225533_1_, World world, BlockPos pos, PlayerEntity player,
 		Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
 		return onTileEntityUse(world, pos, te -> {
 			if (!(te instanceof BrassTunnelTileEntity))
-				return ActionResultType.PASS;
+				return InteractionResult.PASS;
 			BrassTunnelTileEntity bte = (BrassTunnelTileEntity) te;
 			List<ItemStack> stacksOfGroup = bte.grabAllStacksOfGroup(world.isClientSide);
 			if (stacksOfGroup.isEmpty())
-				return ActionResultType.PASS;
+				return InteractionResult.PASS;
 			if (world.isClientSide)
-				return ActionResultType.SUCCESS;
+				return InteractionResult.SUCCESS;
 			for (ItemStack itemStack : stacksOfGroup)
 				player.inventory.placeItemBackInInventory(world, itemStack.copy());
 			world.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundCategory.PLAYERS, .2f,
 				1f + Create.RANDOM.nextFloat());
-			return ActionResultType.SUCCESS;
+			return InteractionResult.SUCCESS;
 		});
 	}
 
