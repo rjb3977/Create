@@ -2,6 +2,9 @@ package com.simibubi.create.events;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.jozufozu.flywheel.event.BeginFrameEvent;
+import com.jozufozu.flywheel.fabric.event.FlywheelEvents;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -374,6 +377,13 @@ public class ClientEvents {
 		PlayerTickEndCallback.EVENT.register(ContraptionHandlerClient::preventRemotePlayersWalkingAnimations);
 		UseBlockCallback.EVENT.register(ContraptionHandlerClient::rightClickingOnContraptionsGetsHandledLocally);
 		OverlayRenderCallback.EVENT.register(PlacementHelpers::onRender);
+
+		// Flywheel Events
+
+		FlywheelEvents.BEGIN_FRAME.register(ContraptionRenderDispatcher::beginFrame);
+		FlywheelEvents.RENDER_LAYER.register(ContraptionRenderDispatcher::renderLayer);
+		FlywheelEvents.RELOAD_RENDERERS.register(ContraptionRenderDispatcher::onRendererReload);
+		FlywheelEvents.GATHER_CONTEXT.register(ContraptionRenderDispatcher::gatherContext);
 	}
 
 //	public static void loadCompleted(FMLLoadCompleteEvent event) {

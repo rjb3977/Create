@@ -74,7 +74,7 @@ public class ToolSelectionScreen extends Screen {
 
 		Minecraft.getInstance()
 			.getTextureManager()
-			.bind(gray.location);
+			.bindForSetup(gray.location);
 		blit(matrixStack, x - 15, y, gray.startX, gray.startY, w, h, gray.width, gray.height);
 
 		float toolTipAlpha = yOffset / 10;

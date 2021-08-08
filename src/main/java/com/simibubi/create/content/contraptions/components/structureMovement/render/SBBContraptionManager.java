@@ -3,6 +3,8 @@ package com.simibubi.create.content.contraptions.components.structureMovement.re
 import static com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher.CONTRAPTION;
 import static com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher.buildStructureBuffer;
 
+import net.minecraft.world.level.LevelAccessor;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.jozufozu.flywheel.event.RenderLayerEvent;
@@ -12,10 +14,9 @@ import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.IWorld;
 
 public class SBBContraptionManager extends ContraptionRenderManager<ContraptionRenderInfo> {
-	public SBBContraptionManager(IWorld world) {
+	public SBBContraptionManager(LevelAccessor world) {
 		super(world);
 	}
 

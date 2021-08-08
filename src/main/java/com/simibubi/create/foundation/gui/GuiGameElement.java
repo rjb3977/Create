@@ -3,7 +3,6 @@ package com.simibubi.create.foundation.gui;
 import javax.annotation.Nullable;
 
 import com.jozufozu.flywheel.core.PartialModel;
-import com.jozufozu.flywheel.util.VirtualEmptyModelData;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
@@ -19,6 +18,8 @@ import com.simibubi.create.lib.helper.ItemRendererHelper;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
 import com.simibubi.create.lib.render.VirtualRenderingStateManager;
+
+import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -183,7 +184,7 @@ public class GuiGameElement {
 			transformMatrix(matrixStack);
 
 			mc.getTextureManager()
-				.bind(InventoryMenu.BLOCK_ATLAS);
+				.bindForSetup(InventoryMenu.BLOCK_ATLAS);
 			renderModel(blockRenderer, buffer, renderType, vb, matrixStack);
 
 			cleanUpMatrix(matrixStack);

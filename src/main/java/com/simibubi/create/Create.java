@@ -105,6 +105,7 @@ public class Create implements ModInitializer {
 		REGISTRATE.get().register();
 
 		BiomeLoadingCallback.EVENT.register(Create::onBiomeLoad);
+		// jank
 		MinecartController.InitController.initController = new com.simibubi.create.content.contraptions.components.structureMovement.train.capability.MinecartController(null);
 	}
 

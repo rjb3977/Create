@@ -86,7 +86,7 @@ public class AttributeFilterContainer extends AbstractFilterContainer {
 	}
 
 	@Override
-	public ItemStack clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
+	public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
 		if (slotId == 37)
 			return ItemStack.EMPTY;
 		return super.clicked(slotId, dragType, clickTypeIn, player);

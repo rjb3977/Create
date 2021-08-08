@@ -81,7 +81,7 @@ public abstract class GhostItemContainer<T> extends AbstractContainerMenu implem
 	}
 
 	@Override
-	public ItemStack clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
+	public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
 		ItemStack held = playerInventory.getCarried();
 		if (slotId < 36)
 			return super.clicked(slotId, dragType, clickTypeIn, player);

@@ -57,8 +57,8 @@ public interface TemplateExtensions {
 				compoundnbt.remove("UUID");
 				TemplateAccessor.loadEntity(world, compoundnbt).ifPresent((entity) -> {
 					float f = entity.mirror(settings.getMirror());
-					f = f + (entity.yRot - entity.rotate(settings.getRotation()));
-					entity.moveTo(vector3d1.x, vector3d1.y, vector3d1.z, f, entity.xRot);
+					f = f + (entity.getYRot() - entity.rotate(settings.getRotation()));
+					entity.moveTo(vector3d1.x, vector3d1.y, vector3d1.z, f, entity.getXRot());
 					if (settings.shouldFinalizeEntities() && entity instanceof Mob) {
 						((Mob) entity).finalizeSpawn(world, world.getCurrentDifficultyAt(new BlockPos(vector3d1)), MobSpawnType.STRUCTURE, (SpawnGroupData)null, compoundnbt);
 					}

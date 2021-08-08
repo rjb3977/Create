@@ -30,17 +30,8 @@ public class CasingBlock extends Block implements IWrenchable, HarvestableBlock 
 	}
 
 	@Override
-	public boolean canHarvestBlock(BlockState state, BlockGetter world, BlockPos pos, PlayerEntity player) {
-		for (ToolType toolType : player.getMainHandItem().getToolTypes()) {
-			if (isToolEffective(state, toolType))
-				return true;
-		}
-		return super.canHarvestBlock(state, world, pos, player);
-	}
-
-	@Override
-	public boolean isToolEffective(BlockState state, ToolType tool) {
-		return tool == ToolType.AXE || tool == ToolType.PICKAXE;
+	public boolean isToolEffective(BlockState state, DiggerItem tool) {
+		return tool.isCorrectToolForDrops(state);
 	}
 
 }
