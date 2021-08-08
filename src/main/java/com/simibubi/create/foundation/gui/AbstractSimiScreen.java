@@ -177,5 +177,9 @@ public abstract class AbstractSimiScreen extends Screen {
 	protected void debugWindowArea(PoseStack matrixStack) {
 		fill(matrixStack, guiLeft + windowWidth, guiTop + windowHeight, guiLeft, guiTop, 0xD3D3D3D3);
 	}
+	
+	public List<Widget> getWidgets() {
+		return widgets;
+	}
 
 }

@@ -21,6 +21,7 @@ import com.simibubi.create.foundation.gui.UIRenderHelper;
 import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.ponder.NavigatableSimiScreen;
 import com.simibubi.create.foundation.ponder.PonderLocalization;
+import com.simibubi.create.foundation.ponder.PonderRegistry;
 import com.simibubi.create.foundation.ponder.PonderUI;
 import com.simibubi.create.foundation.ponder.ui.LayoutHelper;
 import com.simibubi.create.foundation.ponder.ui.PonderButton;
@@ -51,7 +52,7 @@ public class PonderTagIndexScreen extends NavigatableSimiScreen {
 		widgets.clear();
 		super.init();
 
-		List<PonderTag> tags = PonderTag.LISTED_TAGS;
+		List<PonderTag> tags = PonderRegistry.TAGS.getListedTags();
 		int rowCount = Mth.clamp((int) Math.ceil(tags.size() / 11d), 1, 3);
 		LayoutHelper layout = LayoutHelper.centeredHorizontal(tags.size(), rowCount, 28, 28, 8);
 		itemArea = layout.getArea();
@@ -162,7 +163,7 @@ public class PonderTagIndexScreen extends NavigatableSimiScreen {
 	}
 
 	protected void renderItems(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
-		List<PonderTag> tags = PonderTag.LISTED_TAGS;
+		List<PonderTag> tags = PonderRegistry.TAGS.getListedTags();
 		if (tags.isEmpty())
 			return;
 

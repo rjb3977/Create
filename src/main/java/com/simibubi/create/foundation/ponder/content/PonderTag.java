@@ -1,7 +1,6 @@
 package com.simibubi.create.foundation.ponder.content;
 
-import java.util.ArrayList;
-import java.util.List;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -20,8 +19,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 public class PonderTag implements IScreenRenderable {
-
-	public static final List<PonderTag> LISTED_TAGS = new ArrayList<>();
 
 	public static final PonderTag
 
@@ -88,6 +85,18 @@ public class PonderTag implements IScreenRenderable {
 	private ItemStack itemIcon = ItemStack.EMPTY;
 	private ItemStack mainItem = ItemStack.EMPTY;
 
+	public PonderTag(ResourceLocation id) {
+		this.id = id;
+	}
+
+	public ResourceLocation getId() {
+		return id;
+	}
+
+	public ItemStack getMainItem() {
+		return mainItem;
+	}
+
 	public String getTitle() {
 		return PonderLocalization.getTag(id);
 	}
@@ -98,34 +107,13 @@ public class PonderTag implements IScreenRenderable {
 
 	// Builder
 
-	public PonderTag(ResourceLocation id) {
-		this.id = id;
-	}
-
-	public ResourceLocation getId() {
-		return id;
-	}
-
 	public PonderTag defaultLang(String title, String description) {
 		PonderLocalization.registerTag(id, title, description);
 		return this;
 	}
 
-	public ItemStack getMainItem() {
-		return mainItem;
-	}
-
-	public PonderTag idAsIcon() {
-		return icon(id);
-	}
-
 	public PonderTag addToIndex() {
-		LISTED_TAGS.add(this);
-		return this;
-	}
-
-	public PonderTag icon(String location) {
-		this.icon = new ResourceLocation(id.getNamespace(), "textures/ponder/tag/" + location + ".png");
+		PonderRegistry.TAGS.listTag(this);
 		return this;
 	}
 
@@ -134,8 +122,13 @@ public class PonderTag implements IScreenRenderable {
 		return this;
 	}
 
-	public PonderTag item(ItemLike item) {
-		return this.item(item, true, true);
+	public PonderTag icon(String location) {
+		this.icon = new ResourceLocation(id.getNamespace(), "textures/ponder/tag/" + location + ".png");
+		return this;
+	}
+
+	public PonderTag idAsIcon() {
+		return icon(id);
 	}
 
 	public PonderTag item(ItemLike item, boolean useAsIcon, boolean useAsMainItem) {
@@ -144,6 +137,10 @@ public class PonderTag implements IScreenRenderable {
 		if (useAsMainItem)
 			this.mainItem = new ItemStack(item);
 		return this;
+	}
+
+	public PonderTag item(IItemProvider item) {
+		return this.item(item, true, true);
 	}
 
 	@Override

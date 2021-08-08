@@ -76,9 +76,9 @@ public class AirParticle extends SimpleAnimatedParticle {
 		float y = (float) (Mth.lerp(progress, originY, targetY) + twirl.y);
 		float z = (float) (Mth.lerp(progress, originZ, targetZ) + twirl.z);
 
-		xd = x - x;
-		yd = y - y;
-		zd = z - z;
+		xd = x - this.x;
+		yd = y - this.y;
+		zd = z - this.z;
 
 		setSpriteFromAge(sprites);
 		this.move(this.xd, this.yd, this.zd);
