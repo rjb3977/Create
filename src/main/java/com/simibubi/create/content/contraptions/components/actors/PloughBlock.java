@@ -1,12 +1,12 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import java.util.UUID;
+
+import com.simibubi.create.lib.entity.FakePlayer;
+
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import com.mojang.authlib.GameProfile;
-
-import com.simibubi.create.lib.helper.FakePlayerHelper;
 
 public class PloughBlock extends AttachedActorBlock {
 
@@ -17,7 +17,7 @@ public class PloughBlock extends AttachedActorBlock {
 	/**
 	 * The OnHoeUse event takes a player, so we better not pass null
 	 */
-	static class PloughFakePlayer extends ServerPlayer {
+	static class PloughFakePlayer extends FakePlayer {
 
 
 		public static final GameProfile PLOUGH_PROFILE =
@@ -25,7 +25,6 @@ public class PloughBlock extends AttachedActorBlock {
 
 		public PloughFakePlayer(ServerLevel world) {
 			super(world.getServer(), world, PLOUGH_PROFILE, new ServerPlayerGameMode(world)); // this should work?
-			FakePlayerHelper.setFake(this, true);
 		}
 	}
 }

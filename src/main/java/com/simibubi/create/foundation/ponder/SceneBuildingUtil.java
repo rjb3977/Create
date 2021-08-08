@@ -1,6 +1,8 @@
 package com.simibubi.create.foundation.ponder;
 
 import com.simibubi.create.foundation.utility.VecHelper;
+import com.simibubi.create.lib.utility.BoundingBoxUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -110,9 +112,8 @@ public class SceneBuildingUtil {
 		}
 
 		public Selection cuboid(BlockPos origin, Vec3i size) {
-			return Selection.of(new BoundingBox(origin, origin.offset(size)));
+			return Selection.of(BoundingBoxUtil.from2BlockPos(origin, origin.offset(size)));
 		}
 
 	}
-
 }

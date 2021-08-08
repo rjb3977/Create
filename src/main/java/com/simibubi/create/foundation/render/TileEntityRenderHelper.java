@@ -3,6 +3,10 @@ package com.simibubi.create.foundation.render;
 import java.util.Iterator;
 
 import javax.annotation.Nullable;
+
+import com.jozufozu.flywheel.backend.Backend;
+import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector4f;

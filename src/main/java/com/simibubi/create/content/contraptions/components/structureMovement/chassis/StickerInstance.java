@@ -2,7 +2,7 @@ package com.simibubi.create.content.contraptions.components.structureMovement.ch
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
 import com.jozufozu.flywheel.core.materials.ModelData;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
-public class StickerInstance extends TileEntityInstance<StickerTileEntity> implements IDynamicInstance {
+public class StickerInstance extends BlockEntityInstance<StickerTileEntity> implements IDynamicInstance {
 
     float lastOffset = Float.NaN;
     final Direction facing;

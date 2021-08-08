@@ -2,6 +2,9 @@ package com.simibubi.create.foundation.gui;
 
 import javax.annotation.Nonnull;
 
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.Window;
@@ -15,8 +18,6 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Couple;
-import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.utility.FrameBufferUtil;
 import com.simibubi.create.lib.utility.GuiUtils;
 import net.minecraft.client.Minecraft;
 
@@ -42,8 +43,7 @@ public class UIRenderHelper {
 	}
 
 	private static RenderTarget createFramebuffer(Window mainWindow) {
-		RenderTarget framebuffer = new RenderTarget(mainWindow.getWidth(), mainWindow.getHeight(), true,
-				Minecraft.ON_OSX);
+		RenderTarget framebuffer = new TextureTarget(mainWindow.getWidth(), mainWindow.getHeight(), true, Minecraft.ON_OSX);
 		framebuffer.setClearColor(0, 0, 0, 0);
 		framebuffer.enableStencil();
 		return framebuffer;
@@ -65,7 +65,7 @@ public class UIRenderHelper {
 
 		Tesselator tessellator = Tesselator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuilder();
-		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+		bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
 
 		bufferbuilder.vertex(0, vy, 0).color(1, 1, 1, alpha).uv(0, 0).endVertex();
 		bufferbuilder.vertex(vx, vy, 0).color(1, 1, 1, alpha).uv(tx, 0).endVertex();
@@ -102,7 +102,7 @@ public class UIRenderHelper {
 		ms.popPose();
 	}
 
-	public static void streak(MatrixStack ms, float angle, int x, int y, int breadth, int length, Color c) {
+	public static void streak(PoseStack ms, float angle, int x, int y, int breadth, int length, Color c) {
 		Color color = c.copy().setImmutable();
 		int c1 = color.scaleAlpha(0.625f).getRGB();
 		int c2 = color.scaleAlpha(0.5f).getRGB();
@@ -272,7 +272,7 @@ public class UIRenderHelper {
 	private static void drawTexturedQuad(Matrix4f m, Color c, int left, int right, int top, int bot, int z, float u1, float u2, float v1, float v2) {
 		RenderSystem.enableBlend();
 		BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+		bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
 		bufferbuilder.vertex(m, (float) left , (float) bot, (float) z).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).uv(u1, v2).endVertex();
 		bufferbuilder.vertex(m, (float) right, (float) bot, (float) z).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).uv(u2, v2).endVertex();
 		bufferbuilder.vertex(m, (float) right, (float) top, (float) z).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).uv(u2, v1).endVertex();

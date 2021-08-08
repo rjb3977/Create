@@ -433,7 +433,7 @@ public class FunnelScenes {
 
 			scene.world.modifyEntities(ItemEntity.class, e -> {
 				if (e.getY() < 1)
-					e.remove();
+					e.remove(Entity.RemovalReason.DISCARDED);
 			});
 
 			if (i == 2) {

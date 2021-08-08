@@ -10,14 +10,14 @@ import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.logistics.block.FlapData;
 import com.simibubi.create.foundation.gui.widgets.InterpolatedValue;
 import com.simibubi.create.foundation.render.AllMaterialSpecs;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
-public class BeltTunnelInstance extends TileEntityInstance<BeltTunnelTileEntity> implements IDynamicInstance {
+public class BeltTunnelInstance extends BlockEntityInstance<BeltTunnelTileEntity> implements IDynamicInstance {
 
     private final Map<Direction, ArrayList<FlapData>> tunnelFlaps;
 

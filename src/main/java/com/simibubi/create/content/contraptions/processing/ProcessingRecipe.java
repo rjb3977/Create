@@ -16,7 +16,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.apache.logging.log4j.Logger;
-import IRecipeSerializer;
 import com.google.gson.JsonObject;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
@@ -198,7 +197,7 @@ public abstract class ProcessingRecipe<T extends Container> implements Recipe<T>
 	}
 
 	@Override
-	public IRecipeSerializer<?> getSerializer() {
+	public RecipeSerializer<?> getSerializer() {
 		return serializer;
 	}
 

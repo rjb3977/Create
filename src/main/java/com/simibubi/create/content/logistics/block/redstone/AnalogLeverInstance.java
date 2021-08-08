@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.block.redstone;
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
-import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
 import com.jozufozu.flywheel.backend.material.InstanceMaterial;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.materials.ModelData;
@@ -14,7 +14,7 @@ import com.simibubi.create.foundation.utility.Color;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 
-public class AnalogLeverInstance extends TileEntityInstance<AnalogLeverTileEntity> implements IDynamicInstance {
+public class AnalogLeverInstance extends BlockEntityInstance<AnalogLeverTileEntity> implements IDynamicInstance {
 
     protected final ModelData handle;
     protected final ModelData indicator;

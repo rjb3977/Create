@@ -9,18 +9,26 @@ import java.util.function.Predicate;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Vector3d;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.utility.WorldAttached;
 
+import com.simibubi.create.lib.entity.FakePlayer;
+
+import com.simibubi.create.lib.utility.LoadedCheckUtil;
+import com.simibubi.create.lib.utility.PlantUtil;
+
+import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.entity.monster.ZombieVillagerEntity;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -28,9 +36,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
-import net.minecraft.util.Hand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,26 +47,21 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.living.EntityTeleportEvent;
-import net.minecraftforge.registries.IRegistryDelegate;
+import net.minecraft.world.phys.Vec3;
 
 public class PotatoCannonProjectileTypes {
 
 	private static final GameProfile ZOMBIE_CONVERTER_NAME =
 		new GameProfile(UUID.fromString("be12d3dc-27d3-4992-8c97-66be53fd49c5"), "Converter");
 	private static final WorldAttached<FakePlayer> ZOMBIE_CONVERTERS =
-		new WorldAttached<>(w -> new FakePlayer((ServerWorld) w, ZOMBIE_CONVERTER_NAME));
+		new WorldAttached<>(w -> new FakePlayer(w.getServer(), ((ServerLevel) w), ZOMBIE_CONVERTER_NAME));
 
 	public static final Map<ResourceLocation, PotatoCannonProjectileTypes> ALL = new HashMap<>();
-	public static final Map<IRegistryDelegate<Item>, PotatoCannonProjectileTypes> ITEM_MAP = new HashMap<>();
+	public static final Map<Item, PotatoCannonProjectileTypes> ITEM_MAP = new HashMap<>();
 	public static final PotatoCannonProjectileTypes
 
 	FALLBACK = create("fallback").damage(0)
@@ -69,7 +72,7 @@ public class PotatoCannonProjectileTypes {
 			.velocity(1.25f)
 			.knockback(1.5f)
 			.renderTumbling()
-			.onBlockHit(plantCrop(Blocks.POTATOES.delegate))
+			.onBlockHit(plantCrop(Blocks.POTATOES))
 			.registerAndAssign(Items.POTATO),
 
 		BAKED_POTATO = create("baked_potato").damage(5)
@@ -77,7 +80,7 @@ public class PotatoCannonProjectileTypes {
 			.velocity(1.25f)
 			.knockback(0.5f)
 			.renderTumbling()
-			.onEntityHit(ray -> ray.getEntity().setSecondsOnFire(3))
+			.preEntityHit(setFire(3))
 			.registerAndAssign(Items.BAKED_POTATO),
 
 		CARROT = create("carrot").damage(4)
@@ -86,7 +89,7 @@ public class PotatoCannonProjectileTypes {
 			.knockback(0.3f)
 			.renderTowardMotion(140, 1)
 			.soundPitch(1.5f)
-			.onBlockHit(plantCrop(Blocks.CARROTS.delegate))
+			.onBlockHit(plantCrop(Blocks.CARROTS))
 			.registerAndAssign(Items.CARROT),
 
 		GOLDEN_CARROT = create("golden_carrot").damage(12)
@@ -145,7 +148,7 @@ public class PotatoCannonProjectileTypes {
 			.knockback(0.1f)
 			.renderTumbling()
 			.soundPitch(1.1f)
-			.onEntityHit(potion(MobEffects.MOVEMENT_SLOWDOWN, 2,160))
+			.onEntityHit(potion(MobEffects.MOVEMENT_SLOWDOWN, 2,160, true))
 			.registerAndAssign(AllItems.HONEYED_APPLE.get()),
 
 		GOLDEN_APPLE = create("golden_apple").damage(1)
@@ -156,17 +159,17 @@ public class PotatoCannonProjectileTypes {
 			.soundPitch(1.1f)
 			.onEntityHit(ray -> {
 				Entity entity = ray.getEntity();
-				World world = entity.level;
+				Level world = entity.level;
 
-				if (!(entity instanceof ZombieVillagerEntity)
-					|| !((ZombieVillagerEntity) entity).hasEffect(Effects.WEAKNESS))
+				if (!(entity instanceof ZombieVillager)
+					|| !((ZombieVillager) entity).hasEffect(MobEffects.WEAKNESS))
 					return foodEffects(Foods.GOLDEN_APPLE, false).test(ray);
 				if (world.isClientSide)
 					return false;
 
 				FakePlayer dummy = ZOMBIE_CONVERTERS.get(world);
-				dummy.setItemInHand(Hand.MAIN_HAND, new ItemStack(Items.GOLDEN_APPLE, 1));
-				((ZombieVillagerEntity) entity).mobInteract(dummy, Hand.MAIN_HAND);
+				dummy.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.GOLDEN_APPLE, 1));
+				((ZombieVillager) entity).mobInteract(dummy, InteractionHand.MAIN_HAND);
 				return true;
 			})
 			.registerAndAssign(Items.GOLDEN_APPLE),
@@ -211,7 +214,7 @@ public class PotatoCannonProjectileTypes {
 			.velocity(0.95f)
 			.renderTumbling()
 			.soundPitch(0.9f)
-			.onBlockHit(placeBlockOnGround(Blocks.MELON.delegate))
+			.onBlockHit(placeBlockOnGround(Blocks.MELON))
 			.registerAndAssign(Blocks.MELON),
 
 		PUMPKIN_BLOCK = create("pumpkin_block").damage(6)
@@ -220,7 +223,7 @@ public class PotatoCannonProjectileTypes {
 			.velocity(0.95f)
 			.renderTumbling()
 			.soundPitch(0.9f)
-			.onBlockHit(placeBlockOnGround(Blocks.PUMPKIN.delegate))
+			.onBlockHit(placeBlockOnGround(Blocks.PUMPKIN))
 			.registerAndAssign(Blocks.PUMPKIN),
 
 		PUMPKIN_PIE = create("pumpkin_pie").damage(7)
@@ -258,7 +261,7 @@ public class PotatoCannonProjectileTypes {
 		}
 	}
 
-	public static void assignType(IRegistryDelegate<Item> item, PotatoCannonProjectileTypes type) {
+	public static void assignType(Item item, PotatoCannonProjectileTypes type) {
 		synchronized (ITEM_MAP) {
 			ITEM_MAP.put(item, type);
 		}
@@ -267,7 +270,7 @@ public class PotatoCannonProjectileTypes {
 	public static Optional<PotatoCannonProjectileTypes> getProjectileTypeOf(ItemStack item) {
 		if (item.isEmpty())
 			return Optional.empty();
-		return Optional.ofNullable(ITEM_MAP.get(item.getItem().delegate));
+		return Optional.ofNullable(ITEM_MAP.get(item.getItem()));
 	}
 
 	public static void register() {}
@@ -287,7 +290,7 @@ public class PotatoCannonProjectileTypes {
 	private boolean sticky = false;
 	private PotatoProjectileRenderMode renderMode = new PotatoProjectileRenderMode.Billboard();
 	private Predicate<EntityHitResult> preEntityHit = e -> false; // True if hit should be canceled
-	private Predicate<EntityRayTraceResult> onEntityHit = e -> false; // True if shouldn't recover projectile
+	private Predicate<EntityHitResult> onEntityHit = e -> false; // True if shouldn't recover projectile
 	private BiPredicate<LevelAccessor, BlockHitResult> onBlockHit = (w, ray) -> false;
 
 	public float getGravityMultiplier() {
@@ -332,15 +335,11 @@ public class PotatoCannonProjectileTypes {
 		return preEntityHit.test(ray);
 	}
 
-	public void onBlockHit(LevelAccessor world, BlockHitResult ray) {
-		onBlockHit.accept(world, ray);
-	}
-
-	public boolean onBlockHit(IWorld world, BlockRayTraceResult ray) {
+	public boolean onBlockHit(LevelAccessor world, BlockHitResult ray) {
 		return onBlockHit.test(world, ray);
 	}
 
-	private static Predicate<EntityRayTraceResult> setFire(int seconds) {
+	private static Predicate<EntityHitResult> setFire(int seconds) {
 		return ray -> {
 			ray.getEntity().setSecondsOnFire(seconds);
 			return false;
@@ -353,7 +352,7 @@ public class PotatoCannonProjectileTypes {
 			if (entity.level.isClientSide)
 				return true;
 			if (entity instanceof LivingEntity)
-				applyEffect((LivingEntity) entity, new EffectInstance(effect, ticks, level - 1));
+				applyEffect((LivingEntity) entity, new MobEffectInstance(effect, ticks, level - 1));
 			return !recoverable;
 		};
 	}
@@ -367,27 +366,27 @@ public class PotatoCannonProjectileTypes {
 			if (entity instanceof LivingEntity) {
 				for (Pair<MobEffectInstance, Float> effect : food.getEffects()) {
 					if (Create.RANDOM.nextFloat() < effect.getSecond())
-						applyEffect((LivingEntity) entity, new EffectInstance(effect.getFirst()));
+						applyEffect((LivingEntity) entity, new MobEffectInstance(effect.getFirst()));
 				}
 			}
 			return !recoverable;
 		};
 	}
 
-	public static void applyEffect(LivingEntity entity, EffectInstance effect) {
+	public static void applyEffect(LivingEntity entity, MobEffectInstance effect) {
 		if (effect.getEffect().isInstantenous())
 			effect.getEffect().applyInstantenousEffect(null, null, entity, effect.getDuration(), 1.0);
 		else
 			entity.addEffect(effect);
 	}
 
-	private static BiPredicate<LevelAccessor, BlockHitResult> plantCrop(IRegistryDelegate<? extends Block> cropBlock) {
+	private static BiPredicate<LevelAccessor, BlockHitResult> plantCrop(Block cropBlock) {
 		return (world, ray) -> {
 			if (world.isClientSide())
 				return true;
 
 			BlockPos hitPos = ray.getBlockPos();
-			if (!world.hasChunksAt(hitPos, 1))
+			if (!LoadedCheckUtil.isAreaLoaded(world, hitPos, 1))
 				return true;
 			Direction face = ray.getDirection();
 			BlockPos placePos = hitPos.relative(face);
@@ -395,23 +394,24 @@ public class PotatoCannonProjectileTypes {
 				.getMaterial()
 				.isReplaceable())
 				return false;
-			if (!(cropBlock.get() instanceof IPlantable))
+			if (!(PlantUtil.isPlant(cropBlock)))
 				return false;
 			BlockState blockState = world.getBlockState(hitPos);
-			if (!blockState.canSustainPlant(world, hitPos, face, (IPlantable) cropBlock.get()))
+			if (!(blockState.getBlock() instanceof FarmBlock))
 				return false;
-			world.setBlock(placePos, cropBlock.get().defaultBlockState(), 3);
+
+			world.setBlock(placePos, cropBlock.defaultBlockState(), 3);
 			return true;
 		};
 	}
 
-	private static BiPredicate<LevelAccessor, BlockHitResult> placeBlockOnGround(IRegistryDelegate<? extends Block> block) {
+	private static BiPredicate<LevelAccessor, BlockHitResult> placeBlockOnGround(Block block) {
 		return (world, ray) -> {
 			if (world.isClientSide())
 				return true;
 
 			BlockPos hitPos = ray.getBlockPos();
-			if (!world.hasChunksAt(hitPos, 1))
+			if (!LoadedCheckUtil.isAreaLoaded(world, hitPos, 1))
 				return true;
 			Direction face = ray.getDirection();
 			BlockPos placePos = hitPos.relative(face);
@@ -421,7 +421,7 @@ public class PotatoCannonProjectileTypes {
 				return false;
 
 			if (face == Direction.UP) {
-				world.setBlock(placePos, block.get().defaultBlockState(), 3);
+				world.setBlock(placePos, block.defaultBlockState(), 3);
 			} else if (world instanceof Level) {
 				double y = ray.getLocation().y - 0.5;
 				if (!world.isEmptyBlock(placePos.above()))
@@ -430,7 +430,7 @@ public class PotatoCannonProjectileTypes {
 					y = Math.max(y, placePos.getY());
 
 				FallingBlockEntity falling = new FallingBlockEntity((Level) world, placePos.getX() + 0.5, y,
-					placePos.getZ() + 0.5, block.get().defaultBlockState());
+					placePos.getZ() + 0.5, block.defaultBlockState());
 				falling.time = 1;
 				world.addFreshEntity(falling);
 			}
@@ -458,17 +458,17 @@ public class PotatoCannonProjectileTypes {
 				double teleportY = Mth.clamp(entityY + (livingEntity.getRandom().nextInt((int) teleportDiameter) - (int) (teleportDiameter / 2)), 0.0D, world.getHeight() - 1);
 				double teleportZ = entityZ + (livingEntity.getRandom().nextDouble() - 0.5D) * teleportDiameter;
 
-				EntityTeleportEvent.ChorusFruit event = ForgeEventFactory.onChorusFruitTeleport(livingEntity, teleportX, teleportY, teleportZ);
-				if (event.isCanceled())
-					return false;
-				if (livingEntity.randomTeleport(event.getTargetX(), event.getTargetY(), event.getTargetZ(), true)) {
+//				EntityTeleportEvent.ChorusFruit event = ForgeEventFactory.onChorusFruitTeleport(livingEntity, teleportX, teleportY, teleportZ);
+//				if (event.isCanceled())
+//					return false;
+				if (livingEntity.randomTeleport(teleportX, teleportY, teleportZ, true)) {
 					if (livingEntity.isPassenger())
 						livingEntity.stopRiding();
 
 					SoundEvent soundevent = livingEntity instanceof Fox ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
 					world.playSound(null, entityX, entityY, entityZ, soundevent, SoundSource.PLAYERS, 1.0F, 1.0F);
 					livingEntity.playSound(soundevent, 1.0F, 1.0F);
-					livingEntity.setDeltaMovement(Vector3d.ZERO);
+					livingEntity.setDeltaMovement(Vec3.ZERO);
 					return true;
 				}
 			}
@@ -547,7 +547,7 @@ public class PotatoCannonProjectileTypes {
 			return this;
 		}
 
-		public Builder preEntityHit(Predicate<EntityRayTraceResult> callback) {
+		public Builder preEntityHit(Predicate<EntityHitResult> callback) {
 			result.preEntityHit = callback;
 			return this;
 		}
@@ -570,7 +570,7 @@ public class PotatoCannonProjectileTypes {
 		public PotatoCannonProjectileTypes registerAndAssign(ItemLike... items) {
 			registerType(loc, result);
 			for (ItemLike provider : items)
-				assignType(provider.asItem().delegate, result);
+				assignType(provider.asItem(), result);
 			return result;
 		}
 

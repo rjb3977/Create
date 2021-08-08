@@ -2,7 +2,7 @@ package com.simibubi.create.content.contraptions.base;
 
 import com.jozufozu.flywheel.backend.material.InstanceMaterial;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.relays.elementary.ICogWheel;
 import com.simibubi.create.content.contraptions.relays.elementary.ShaftBlock;
@@ -10,7 +10,7 @@ import com.simibubi.create.foundation.render.AllMaterialSpecs;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class KineticTileInstance<T extends KineticTileEntity> extends TileEntityInstance<T> {
+public abstract class KineticTileInstance<T extends KineticTileEntity> extends BlockEntityInstance<T> {
 
     protected final Direction.Axis axis;
 

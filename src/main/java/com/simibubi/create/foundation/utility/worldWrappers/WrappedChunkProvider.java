@@ -2,6 +2,7 @@ package com.simibubi.create.foundation.utility.worldWrappers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -51,7 +52,7 @@ public class WrappedChunkProvider extends ChunkSource {
         return getChunk(x, z);
     }
 
-    public ChunkAccess getChunk(int x, int z) {
+	public ChunkAccess getChunk(int x, int z) {
         long pos = ChunkPos.asLong(x, z);
 
         if (chunks == null)
@@ -65,7 +66,7 @@ public class WrappedChunkProvider extends ChunkSource {
         return "WrappedChunkProvider";
     }
 
-    @Override
+	@Override
     public LevelLightEngine getLightEngine() {
         return world.getLightEngine();
     }

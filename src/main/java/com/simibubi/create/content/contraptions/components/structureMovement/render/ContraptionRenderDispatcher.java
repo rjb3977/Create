@@ -46,8 +46,8 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-@OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
+@Mod.EventBusSubscriber(EnvType.CLIENT)
 public class ContraptionRenderDispatcher {
 	private static final Lazy<ModelBlockRenderer> MODEL_RENDERER = Lazy.of(() -> new BlockModelRenderer(Minecraft.getInstance().getBlockColors()));
 	private static final Lazy<BlockModelShaper> BLOCK_MODELS = Lazy.of(() -> Minecraft.getInstance().getModelManager().getBlockModelShapes());

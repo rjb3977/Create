@@ -23,7 +23,7 @@ public class PonderChapter implements IScreenRenderable {
 	@Override
 	public void draw(PoseStack ms, GuiComponent screen, int x, int y) {
 		ms.pushPose();
-		Minecraft.getInstance().getTextureManager().bind(icon);
+		Minecraft.getInstance().getTextureManager().bindForSetup(icon);
 		ms.scale(0.25f, 0.25f, 1);
 		//x and y offset, blit z offset, tex x and y, tex width and height, entire tex sheet width and height
 		GuiComponent.blit(ms, x, y, 0, 0, 0, 64, 64, 64, 64);

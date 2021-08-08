@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.jozufozu.flywheel.core.PartialModel;
+import com.jozufozu.flywheel.fabric.event.FlywheelEvents;
 import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
 import com.simibubi.create.content.contraptions.relays.encased.CasingConnectivity;
@@ -48,6 +50,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -63,6 +66,8 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -93,9 +98,12 @@ public class CreateClient implements ClientModInitializer {
 //		modEventBus.addListener(CreateClient::onModelBake);
 //		modEventBus.addListener(AllParticleTypes::registerFactories);
 //		modEventBus.addListener(ClientEvents::loadCompleted);
-		modEventBus.addListener(CreateContexts::flwInit);
-		modEventBus.addListener(AllMaterialSpecs::flwInit);
-		modEventBus.addListener(ContraptionRenderDispatcher::gatherContext);
+//		modEventBus.addListener(CreateContexts::flwInit);
+		FlywheelEvents.GATHER_CONTEXT.register(CreateContexts::flwInit);
+//		modEventBus.addListener(AllMaterialSpecs::flwInit);
+		FlywheelEvents.GATHER_CONTEXT.register(AllMaterialSpecs::flwInit);
+//		modEventBus.addListener(ContraptionRenderDispatcher::gatherContext);
+		FlywheelEvents.GATHER_CONTEXT.register(ContraptionRenderDispatcher::gatherContext);
 
 		ZAPPER_RENDER_HANDLER.register();
 		POTATO_CANNON_RENDER_HANDLER.register();
@@ -139,35 +147,29 @@ public class CreateClient implements ClientModInitializer {
 		ArmorRenderingRegistry.registerSimpleTexture(new ResourceLocation(Create.ID, "copper"),
 				AllItems.COPPER_BACKTANK.get(), AllItems.DIVING_HELMET.get(), AllItems.DIVING_BOOTS.get());
 
-		LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
-			((entityType, entityRenderer, registrationHelper) -> {
-				if (entityRenderer == null)
-					return;
-				new CopperBacktankArmorLayer<>((LivingEntityRenderer<?, ?>) entityRenderer);
-			})
-		);
+		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
+			if (entityRenderer == null)
+				return;
+			new CopperBacktankArmorLayer<>((LivingEntityRenderer<?, ?>) entityRenderer);
+		});
 	}
 
 	public static void onTextureStitch(TextureStitchUtil util) {
 		if (!util.map
-			.getId()
-			.equals(InventoryMenu.BLOCK_ATLAS))
+				.location()
+				.equals(InventoryMenu.BLOCK_ATLAS))
 			return;
 		SpriteShifter.getAllTargetSprites()
 			.forEach(util::addSprite);
 	}
 
 	public static void onModelRegistry() {
-		PartialModel.onModelRegistry();
-
-		getCustomRenderedItems().foreach((item, modelFunc) -> modelFunc.apply(null)
+				getCustomRenderedItems().foreach((item, modelFunc) -> modelFunc.apply(null)
 				.getModelLocations()
 				.forEach(SpecialModelUtil::addSpecialModel));
 	}
 
 	public static void onModelBake(ModelManager modelManager, Map<ResourceLocation, BakedModel> modelRegistry, ModelBakery modelBakery) {
-		PartialModel.onModelBake(modelRegistry);
-
 		getCustomBlockModels()
 			.foreach((block, modelFunc) -> swapModels(modelRegistry, getAllBlockStateModelLocations(block), modelFunc));
 		getCustomItemModels()

@@ -2,16 +2,21 @@ package com.simibubi.create.foundation.ponder;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+
+import com.mojang.math.Vector3f;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -311,7 +316,7 @@ public class SceneBuilder {
 		public void createRedstoneParticles(BlockPos pos, int color, int amount) {
 			Vec3 rgb = Color.vectorFromRGB(color);
 			addInstruction(new EmitParticlesInstruction(VecHelper.getCenterOf(pos), Emitter.withinBlockSpace(
-				new DustParticleOptions((float) rgb.x, (float) rgb.y, (float) rgb.z, 1), Vec3.ZERO), amount, 2));
+				new DustParticleOptions(new Vector3f((float) rgb.x, (float) rgb.y, (float) rgb.z), 1), Vec3.ZERO), amount, 2));
 		}
 
 	}
@@ -605,6 +610,14 @@ public class SceneBuilder {
 			addInstruction(scene -> scene.forEachWorldEntity(entityClass, entityCallBack));
 		}
 
+		public <T extends Entity> void modifyEntities(Class<T> entityClass, BiConsumer<T, Entity.RemovalReason> entityCallBack) {
+			addInstruction(scene -> scene.forEachWorldEntity(entityClass, this::removeViaDiscard));
+		}
+
+		private void removeViaDiscard(Entity e) {
+			e.remove(Entity.RemovalReason.DISCARDED);
+		}
+
 		public <T extends Entity> void modifyEntitiesInside(Class<T> entityClass, Selection area,
 			Consumer<T> entityCallBack) {
 			addInstruction(scene -> scene.forEachWorldEntity(entityClass, e -> {
@@ -618,6 +631,14 @@ public class SceneBuilder {
 				EntityElement resolve = scene.resolve(link);
 				if (resolve != null)
 					resolve.ifPresent(entityCallBack::accept);
+			});
+		}
+
+		public <T extends Entity> void modifyEntity(ElementLink<EntityElement> link, BiConsumer<T, Entity.RemovalReason> entityCallBack) {
+			addInstruction(scene -> {
+				EntityElement resolve = scene.resolve(link);
+				if (resolve != null)
+					resolve.ifPresent(this::removeViaDiscard);
 			});
 		}
 

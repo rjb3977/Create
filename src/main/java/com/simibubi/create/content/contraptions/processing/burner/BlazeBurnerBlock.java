@@ -15,15 +15,14 @@ import com.simibubi.create.content.contraptions.processing.BasinTileEntity;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
+import com.simibubi.create.lib.entity.FakePlayer;
 import com.simibubi.create.lib.extensions.BlockExtensions;
-import com.simibubi.create.lib.helper.FakePlayerHelper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -31,7 +30,6 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownEgg;
@@ -41,24 +39,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.ConstantIntValue;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -120,7 +110,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 		BlockHitResult blockRayTraceResult) {
 		ItemStack heldItem = player.getItemInHand(hand);
 		boolean dontConsume = player.isCreative();
-		boolean forceOverflow = !(FakePlayerHelper.isFakePlayer((ServerPlayer) player));
+		boolean forceOverflow = !(player instanceof FakePlayer);
 
 		if (!state.getBlock().isEntityBlock()) {
 			if (heldItem.getItem() instanceof FlintAndSteelItem) {

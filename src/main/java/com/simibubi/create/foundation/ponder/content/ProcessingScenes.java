@@ -562,7 +562,8 @@ public class ProcessingScenes {
 			Blaze blazeEntity = EntityType.BLAZE.create(w);
 			Vec3 v = util.vector.topOf(center);
 			blazeEntity.setPosRaw(v.x, v.y, v.z);
-			blazeEntity.yRotO = blazeEntity.yRot = 180;
+			blazeEntity.yRotO = 180;
+			blazeEntity.setYRot(180);
 			return blazeEntity;
 		});
 

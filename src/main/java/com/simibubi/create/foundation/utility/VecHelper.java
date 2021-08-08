@@ -3,8 +3,8 @@ package com.simibubi.create.foundation.utility;
 import java.util.Random;
 
 import javax.annotation.Nullable;
-import Vector3d;
 import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3d;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.lib.helper.GameRendererHelper;
 import com.simibubi.create.lib.helper.Vector3fHelper;
@@ -17,9 +17,9 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Mirror;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.phys.Vec3;
 
 public class VecHelper {
@@ -62,15 +62,15 @@ public class VecHelper {
 		return vec;
 	}
 
-	public static Vector3d mirrorCentered(Vector3d vec, Mirror mirror) {
-		Vector3d shift = getCenterOf(BlockPos.ZERO);
+	public static Vec3 mirrorCentered(Vec3 vec, Mirror mirror) {
+		Vec3 shift = getCenterOf(BlockPos.ZERO);
 		return VecHelper.mirror(vec.subtract(shift), mirror).add(shift);
 	}
 
-	public static Vector3d mirror(Vector3d vec, Mirror mirror) {
+	public static Vec3 mirror(Vec3 vec, Mirror mirror) {
 		if (mirror == null || mirror == Mirror.NONE)
 			return vec;
-		if (vec == Vector3d.ZERO)
+		if (vec == Vec3.ZERO)
 			return vec;
 
 		double x = vec.x;
@@ -78,9 +78,9 @@ public class VecHelper {
 		double z = vec.z;
 
 		if (mirror == Mirror.LEFT_RIGHT)
-			return new Vector3d(x, y, -z);
+			return new Vec3(x, y, -z);
 		if (mirror == Mirror.FRONT_BACK)
-			return new Vector3d(-x, y, z);
+			return new Vec3(-x, y, z);
 		return vec;
 	}
 
@@ -194,7 +194,7 @@ public class VecHelper {
 		double delta = lineDotDiff * lineDotDiff - (diff.lengthSqr() - radius * radius);
 		if (delta < 0)
 			return null;
-		double t = -lineDotDiff + Mth.sqrt(delta);
+		double t = -lineDotDiff + Mth.sqrt((float) delta);
 		return origin.add(lineDirection.scale(t));
 	}
 

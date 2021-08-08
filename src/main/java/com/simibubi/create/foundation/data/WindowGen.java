@@ -36,7 +36,7 @@ public class WindowGen {
 	private static final CreateRegistrate REGISTRATE = Create.registrate();
 
 	private static FabricBlockSettings glassProperties(FabricBlockSettings p) {
-		return p.isValidSpawn(WindowGen::never)
+		return (FabricBlockSettings) p.isValidSpawn(WindowGen::never)
 			.isRedstoneConductor(WindowGen::never)
 			.isSuffocating(WindowGen::never)
 			.isViewBlocking(WindowGen::never);

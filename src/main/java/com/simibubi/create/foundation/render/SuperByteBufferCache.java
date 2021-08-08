@@ -6,7 +6,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.simibubi.create.lib.render.VirtualRenderingStateManager;
+
+import net.minecraft.core.BlockPos;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
@@ -14,11 +17,9 @@ import org.lwjgl.opengl.GL11;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.jozufozu.flywheel.core.PartialModel;
-import com.jozufozu.flywheel.util.VirtualEmptyModelData;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.foundation.render.backend.core.PartialModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
@@ -124,9 +125,9 @@ public class SuperByteBufferCache {
 		ModelBlockRenderer blockRenderer = dispatcher.getModelRenderer();
 		BufferBuilder builder = new BufferBuilder(512);
 
-		builder.begin(GL11.GL_QUADS, DefaultVertexFormat.BLOCK);
-		VirtualRenderingStateManager.runVirtually(() -> blockRenderer.render(mc.world, model, referenceState, BlockPos.ZERO.up(255), ms, builder, true,
-				mc.world.rand, 42, OverlayTexture.DEFAULT_UV));
+		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
+		VirtualRenderingStateManager.runVirtually(() -> blockRenderer.tesselateBlock(mc.level, model, referenceState, BlockPos.ZERO.above(255), ms, builder, true,
+				mc.level.random, 42, OverlayTexture.NO_OVERLAY));
 		builder.end();
 		return builder;
 	}

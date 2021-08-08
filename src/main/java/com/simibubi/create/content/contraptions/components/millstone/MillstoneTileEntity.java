@@ -47,7 +47,7 @@ public class MillstoneTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public void tickAudio() {
 		super.tickAudio();
 

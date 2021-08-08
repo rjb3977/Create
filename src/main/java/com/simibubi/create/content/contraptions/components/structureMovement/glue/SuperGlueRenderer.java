@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,7 +36,7 @@ public class SuperGlueRenderer extends EntityRenderer<SuperGlueEntity> {
 	private float[] insideQuad;
 	private float[] outsideQuad;
 
-	public SuperGlueRenderer(EntityRenderDispatcher renderManager) {
+	public SuperGlueRenderer(EntityRendererProvider.Context renderManager) {
 		super(renderManager);
 		initQuads();
 	}

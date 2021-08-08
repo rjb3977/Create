@@ -22,6 +22,9 @@ import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityType.EntityFactory;
@@ -30,46 +33,46 @@ import net.minecraft.world.entity.MobCategory;
 public class AllEntityTypes {
 
 	public static final EntityEntry<OrientedContraptionEntity> ORIENTED_CONTRAPTION = contraption("contraption",
-		OrientedContraptionEntity::new, () -> (manager, context) -> new OrientedContraptionEntityRenderer(manager), 5, 3, true);
+		OrientedContraptionEntity::new, () -> OrientedContraptionEntityRenderer::new, 5, 3, true);
 	public static final EntityEntry<ControlledContraptionEntity> CONTROLLED_CONTRAPTION =
-		contraption("stationary_contraption", ControlledContraptionEntity::new, () -> (manager, context) -> new ContraptionEntityRenderer<>(manager),
+		contraption("stationary_contraption", ControlledContraptionEntity::new, () -> ContraptionEntityRenderer::new,
 			20, 40, false);
 	public static final EntityEntry<GantryContraptionEntity> GANTRY_CONTRAPTION = contraption("gantry_contraption",
-		GantryContraptionEntity::new, () -> (manager, context) -> new ContraptionEntityRenderer<>(manager), 10, 40, false);
+		GantryContraptionEntity::new, () -> ContraptionEntityRenderer::new, 10, 40, false);
 
 	public static final EntityEntry<SuperGlueEntity> SUPER_GLUE =
-		register("super_glue", SuperGlueEntity::new, () -> (manager, context) -> new SuperGlueRenderer(manager), MobCategory.MISC, 10,
+		register("super_glue", SuperGlueEntity::new, () -> SuperGlueRenderer::new, MobCategory.MISC, 10,
 			Integer.MAX_VALUE, false, true, SuperGlueEntity::build).instance(() -> GlueInstance::new)
 				.register();
 
 	public static final EntityEntry<BlueprintEntity> CRAFTING_BLUEPRINT =
-		register("crafting_blueprint", BlueprintEntity::new, () -> (manager, context) -> new BlueprintRenderer(manager), MobCategory.MISC,
+		register("crafting_blueprint", BlueprintEntity::new, () -> BlueprintRenderer::new, MobCategory.MISC,
 			10, Integer.MAX_VALUE, false, true, BlueprintEntity::build).register();
 
 	public static final EntityEntry<PotatoProjectileEntity> POTATO_PROJECTILE =
-		register("potato_projectile", PotatoProjectileEntity::new, () -> (manager, context) -> new PotatoProjectileRenderer(manager),
+		register("potato_projectile", PotatoProjectileEntity::new, () -> PotatoProjectileRenderer::new,
 			MobCategory.MISC, 4, 20, true, false, PotatoProjectileEntity::build).register();
 
-	public static final EntityEntry<SeatEntity> SEAT = register("seat", SeatEntity::new, () -> (manager, context) -> new SeatEntity.Render(manager),
+	public static final EntityEntry<SeatEntity> SEAT = register("seat", SeatEntity::new, () -> SeatEntity.Render::new,
 		MobCategory.MISC, 0, Integer.MAX_VALUE, false, true, SeatEntity::build).register();
 
 	//
 
 	private static <T extends Entity> EntityEntry<T> contraption(String name, EntityFactory<T> factory,
-		NonNullSupplier<EntityRendererRegistry.Factory> renderer, int range, int updateFrequency, boolean sendVelocity) {
+		NonNullSupplier<EntityRendererProvider<T>> renderer, int range, int updateFrequency, boolean sendVelocity) {
 		return register(name, factory, renderer, MobCategory.MISC, range, updateFrequency, sendVelocity, true,
 			AbstractContraptionEntity::build).register();
 	}
 
-	private static <T extends Entity> CreateEntityBuilder<T, ?> register(String name, EntityFactory<T> factory,
-																		 NonNullSupplier<EntityRendererRegistry.Factory> renderer, MobCategory group, int range, int updateFrequency,
-																		 boolean sendVelocity, boolean immuneToFire, NonNullConsumer<EntityType.Builder<T>> propertyBuilder) {
+	private static <T extends Entity> CreateEntityBuilder<T, FabricEntityTypeBuilder<T>, ?> register(String name, EntityFactory<T> factory,
+																		 NonNullSupplier<EntityRendererProvider<T>> renderer, MobCategory group, int range, int updateFrequency,
+																		 boolean sendVelocity, boolean immuneToFire, NonNullConsumer<FabricEntityTypeBuilder<T>> propertyBuilder) {
 		String id = Lang.asId(name);
-		return (CreateEntityBuilder<T, ?>) Create.registrate()
+		return (CreateEntityBuilder<T, FabricEntityTypeBuilder<T>, ?>) Create.registrate()
 			.entity(id, factory, group)
-			.properties(b -> b.setTrackingRange(range)
-				.setUpdateInterval(updateFrequency)
-				.setShouldReceiveVelocityUpdates(sendVelocity))
+			.properties(b -> b.trackedUpdateRate(range)
+				.trackedUpdateRate(updateFrequency)
+				.forceTrackedVelocityUpdates(sendVelocity))
 			.properties(propertyBuilder)
 			.properties(b -> {
 				if (immuneToFire)

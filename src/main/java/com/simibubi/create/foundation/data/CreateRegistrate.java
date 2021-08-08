@@ -39,6 +39,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -123,12 +124,12 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	}
 
 	@Override
-	public <T extends Entity> CreateEntityBuilder<T, CreateRegistrate> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
+	public <T extends Entity> CreateEntityBuilder<T, FabricEntityTypeBuilder<T>,  CreateRegistrate> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
 		return this.entity(self(), name, factory, classification);
 	}
 
-	public <T extends Entity, P> CreateEntityBuilder<T, P> entity(P parent, String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
-		return (CreateEntityBuilder<T, P>) this.entry(name, (callback) -> {
+	public <T extends Entity, P> CreateEntityBuilder<T, FabricEntityTypeBuilder<T>, P> entity(P parent, String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
+		return (CreateEntityBuilder<T, FabricEntityTypeBuilder<T>, P>) this.entry(name, (callback) -> {
 			return CreateEntityBuilder.create(this, parent, name, callback, factory, classification);
 		});
 	}

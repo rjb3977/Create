@@ -1,8 +1,8 @@
 package com.simibubi.create.foundation.config;
 
+import com.simibubi.create.foundation.config.ui.ConfigAnnotations;
 import com.simibubi.create.lib.config.Config;
 import com.simibubi.create.lib.config.ConfigGroup;
-import com.simibubi.create.lib.config.Configs;
 
 public class CClient extends ConfigBase {
 

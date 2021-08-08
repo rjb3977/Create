@@ -154,7 +154,7 @@ public class PonderTag implements IScreenRenderable {
 		if (icon != null) {
 			Minecraft.getInstance()
 				.getTextureManager()
-				.bind(icon);
+				.bindForSetup(icon);
 			ms.scale(0.25f, 0.25f, 1);
 			// x and y offset, blit z offset, tex x and y, tex width and height, entire tex
 			// sheet width and height

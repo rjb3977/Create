@@ -114,8 +114,8 @@ public abstract class EntityContraptionInteractionMixin {
 				&& blockstate.getRenderShape() != RenderShape.INVISIBLE) {
 				Vec3 vec3d = self.getDeltaMovement();
 				self.level.addParticle(((BlockParticleDataExtensions) new BlockParticleOption(ParticleTypes.BLOCK, blockstate)).create$setPos(pos),
-					self.getX() + ((double) rand.nextFloat() - 0.5D) * (double) self.getBbWidth(), self.getY() + 0.1D,
-					self.getZ() + ((double) rand.nextFloat() - 0.5D) * (double) self.getBbWidth(), vec3d.x * -4.0D, 1.5D,
+					self.getX() + ((double) random.nextFloat() - 0.5D) * (double) self.getBbWidth(), self.getY() + 0.1D,
+					self.getZ() + ((double) random.nextFloat() - 0.5D) * (double) self.getBbWidth(), vec3d.x * -4.0D, 1.5D,
 					vec3d.z * -4.0D);
 			}
 		});

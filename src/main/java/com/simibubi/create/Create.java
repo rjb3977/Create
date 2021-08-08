@@ -76,7 +76,7 @@ public class Create implements ModInitializer {
 		AllMovementBehaviours.register();
 		AllWorldFeatures.register();
 		AllEnchantments.register();
-		AllConfigs.register(ModLoadingContext.get());
+		AllConfigs.register();
 
 //		IEventBus modEventBus = FMLJavaModLoadingContext.get()
 //			.getModEventBus();

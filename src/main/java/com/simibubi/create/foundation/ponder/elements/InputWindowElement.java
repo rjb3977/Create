@@ -12,8 +12,8 @@ import com.simibubi.create.foundation.ponder.PonderUI;
 import com.simibubi.create.foundation.ponder.content.PonderPalette;
 import com.simibubi.create.foundation.utility.Pointing;
 import net.minecraft.client.gui.Font;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 

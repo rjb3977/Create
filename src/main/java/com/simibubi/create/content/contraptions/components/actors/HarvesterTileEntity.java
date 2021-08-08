@@ -3,8 +3,8 @@ package com.simibubi.create.content.contraptions.components.actors;
 import com.simibubi.create.foundation.tileEntity.SyncedTileEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 public class HarvesterTileEntity extends SyncedTileEntity {
 
@@ -18,7 +18,7 @@ public class HarvesterTileEntity extends SyncedTileEntity {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public AABB getRenderBoundingBox() {
 		return RENDER_BOX.move(worldPosition);
 	}

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
+import com.simibubi.create.Create;
+
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.ClipboardManager;
 import com.mojang.blaze3d.platform.Window;
@@ -781,10 +783,10 @@ public class PonderUI extends NavigatableSimiScreen {
 	@Override
 	public boolean keyPressed(int code, int p_keyPressed_2_, int p_keyPressed_3_) {
 		Options settings = Minecraft.getInstance().options;
-		int sCode = KeyBindingHelper.getKeyCode(settings.keyDown).getKeyCode();
-		int aCode = KeyBindingHelper.getKeyCode(settings.keyLeft).getKeyCode();
-		int dCode = KeyBindingHelper.getKeyCode(settings.keyRight).getKeyCode();
-		int qCode = KeyBindingHelper.getKeyCode(settings.keyDrop).getKeyCode();
+		int sCode = KeyBindingHelper.getKeyCode(settings.keyDown).getValue();
+		int aCode = KeyBindingHelper.getKeyCode(settings.keyLeft).getValue();
+		int dCode = KeyBindingHelper.getKeyCode(settings.keyRight).getValue();
+		int qCode = KeyBindingHelper.getKeyCode(settings.keyDrop).getValue();
 
 		if (code == sCode) {
 			replay();

@@ -1,6 +1,8 @@
 package com.simibubi.create.foundation.mixin;
 
 import java.util.EnumSet;
+
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.apache.logging.log4j.LogManager;

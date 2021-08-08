@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "create.refmap.json",
   "mixins": [
+    "ChunkStatusMixin",
+    "MinecraftMixin"
   ],
   "client": [
     "BreakProgressMixin",

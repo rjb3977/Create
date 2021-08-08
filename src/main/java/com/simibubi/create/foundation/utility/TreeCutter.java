@@ -14,6 +14,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.simibubi.create.AllTags;
+import com.simibubi.create.compat.Mods;
+import com.simibubi.create.compat.dynamictrees.DynamicTree;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;

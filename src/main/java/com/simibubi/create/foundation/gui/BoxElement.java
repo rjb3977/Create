@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.gui;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -98,7 +100,7 @@ public class BoxElement extends RenderElement {
 		Tesselator tessellator = Tesselator.getInstance();
 		BufferBuilder b = tessellator.getBuilder();
 		Matrix4f model = ms.last().pose();
-		b.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
+		b.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		//outer top
 		b.vertex(model, x - f - 1        , y - f - 2         , z).color(c1.getRed(), c1.getGreen(), c1.getBlue(), c1.getAlpha()).endVertex();
 		b.vertex(model, x - f - 1        , y - f - 1         , z).color(c1.getRed(), c1.getGreen(), c1.getBlue(), c1.getAlpha()).endVertex();
@@ -125,7 +127,7 @@ public class BoxElement extends RenderElement {
 		b.vertex(model, x + f + 1 + width, y + f + 1 + height, z).color(c1.getRed(), c1.getGreen(), c1.getBlue(), c1.getAlpha()).endVertex();
 		b.vertex(model, x + f + 1 + width, y - f - 1         , z).color(c1.getRed(), c1.getGreen(), c1.getBlue(), c1.getAlpha()).endVertex();
 		tessellator.end();
-		b.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
+		b.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		//inner top - includes corners
 		b.vertex(model, x - f - 1        , y - f - 1         , z).color(c2.getRed(), c2.getGreen(), c2.getBlue(), c2.getAlpha()).endVertex();
 		b.vertex(model, x - f - 1        , y - f             , z).color(c2.getRed(), c2.getGreen(), c2.getBlue(), c2.getAlpha()).endVertex();

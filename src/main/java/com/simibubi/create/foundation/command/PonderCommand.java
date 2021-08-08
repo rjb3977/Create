@@ -1,6 +1,9 @@
 package com.simibubi.create.foundation.command;
 
 import java.util.Collection;
+
+import com.simibubi.create.lib.entity.FakePlayer;
+
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -15,8 +18,6 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.ponder.PonderRegistry;
-
-import com.simibubi.create.lib.helper.FakePlayerHelper;
 
 public class PonderCommand {
 	public static final SuggestionProvider<CommandSourceStack> ITEM_PONDERS = SuggestionProviders.register(new ResourceLocation("all_ponders"), (iSuggestionProviderCommandContext, builder) -> SharedSuggestionProvider.suggestResource(PonderRegistry.all.keySet().stream(), builder));
@@ -42,7 +43,7 @@ public class PonderCommand {
 
 	private static int openScene(String sceneId, Collection<? extends ServerPlayer> players) {
 		for (ServerPlayer player : players) {
-			if (FakePlayerHelper.isFakePlayer(player))
+			if (player instanceof FakePlayer)
 				continue;
 			AllPackets.channel.sendToClient(new SConfigureConfigPacket(SConfigureConfigPacket.Actions.openPonder.name(), sceneId), player);
 //			AllPackets.channel.send(

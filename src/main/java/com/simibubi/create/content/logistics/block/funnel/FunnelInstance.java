@@ -7,14 +7,14 @@ import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.logistics.block.FlapData;
 import com.simibubi.create.foundation.render.AllMaterialSpecs;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
-public class FunnelInstance extends TileEntityInstance<FunnelTileEntity> implements IDynamicInstance {
+public class FunnelInstance extends BlockEntityInstance<FunnelTileEntity> implements IDynamicInstance {
 
     private final ArrayList<FlapData> flaps;
 

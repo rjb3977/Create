@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -94,7 +95,7 @@ public class SeatEntity extends Entity implements ExtraSpawnDataEntity {
 
 	public static class Render extends EntityRenderer<SeatEntity> {
 
-		public Render(EntityRenderDispatcher p_i46179_1_) {
+		public Render(EntityRendererProvider.Context p_i46179_1_) {
 			super(p_i46179_1_);
 		}
 

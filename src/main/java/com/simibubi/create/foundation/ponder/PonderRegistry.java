@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
-import Template;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.ponder.PonderStoryBoardEntry.PonderStoryBoard;
 import com.simibubi.create.foundation.ponder.content.PonderChapter;
@@ -27,10 +26,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
@@ -143,30 +142,30 @@ public class PonderRegistry {
 		return scene;
 	}
 
-	public static Template loadSchematic(ResourceLocation location) {
+	public static StructureTemplate loadSchematic(ResourceLocation location) {
 		return loadSchematic(Minecraft.getInstance().getResourceManager(), location);
 	}
 
-	public static Template loadSchematic(IResourceManager resourceManager, ResourceLocation location) {
+	public static StructureTemplate loadSchematic(ResourceManager resourceManager, ResourceLocation location) {
 		String namespace = location.getNamespace();
 		String path = "ponder/" + location.getPath() + ".nbt";
 		ResourceLocation location1 = new ResourceLocation(namespace, path);
 
-		try (IResource resource = resourceManager.getResource(location1)) {
+		try (Resource resource = resourceManager.getResource(location1)) {
 			return loadSchematic(resource.getInputStream());
 		} catch (FileNotFoundException e) {
 			Create.LOGGER.error("Ponder schematic missing: " + location1, e);
 		} catch (IOException e) {
 			Create.LOGGER.error("Failed to read ponder schematic: " + location1, e);
 		}
-		return new Template();
+		return new StructureTemplate();
 	}
 
-	public static Template loadSchematic(InputStream resourceStream) throws IOException {
-		Template t = new Template();
+	public static StructureTemplate loadSchematic(InputStream resourceStream) throws IOException {
+		StructureTemplate t = new StructureTemplate();
 		DataInputStream stream =
 			new DataInputStream(new BufferedInputStream(new GZIPInputStream(resourceStream)));
-		CompoundNBT nbt = CompressedStreamTools.read(stream, new NBTSizeTracker(0x20000000L));
+		CompoundTag nbt = NbtIo.read(stream, new NbtAccounter(0x20000000L));
 		t.load(nbt);
 		return t;
 	}

@@ -186,7 +186,7 @@ public class DeployerScenes {
 			entity.zo = p.z;
 			entity.animationPosition = 0;
 			entity.yRotO = 210;
-			entity.yRot = 210;
+			entity.setYRot(210);
 			entity.yHeadRotO = 210;
 			entity.yHeadRot = 210;
 			return entity;
@@ -339,7 +339,7 @@ public class DeployerScenes {
 		scene.overlay.showControls(new InputWindowElement(util.vector.blockSurface(pressPos.below(), Direction.EAST)
 			.add(0, 0.15, 0), Pointing.RIGHT).withItem(tool), 30);
 		scene.idle(7);
-		scene.world.modifyTileNBT(pressS, DeployerTileEntity.class, nbt -> nbt.put("HeldItem", tool.serializeNBT()));
+		scene.world.modifyTileNBT(pressS, DeployerTileEntity.class, nbt -> nbt.put("HeldItem", NBTSerializer.serializeNBT(tool)));
 		scene.idle(25);
 
 		Vec3 pressSide = util.vector.blockSurface(pressPos, Direction.WEST);

@@ -16,7 +16,7 @@ import net.minecraft.core.BlockPos;
 public class BreakProgressMixin {
 	@Shadow
 	@Final
-	private LevelRenderer worldRenderer;
+	private LevelRenderer levelRenderer;
 	private final ClientLevel self = (ClientLevel) (Object) this;
 
 	@Inject(at = @At("HEAD"), method = "destroyBlockProgress")

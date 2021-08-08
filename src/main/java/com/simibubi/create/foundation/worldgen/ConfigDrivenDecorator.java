@@ -5,9 +5,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.placement.SimpleFeatureDecorator;
+import net.minecraft.world.level.levelgen.placement.DecorationContext;
+import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
 
-public class ConfigDrivenDecorator extends SimpleFeatureDecorator<ConfigDrivenOreFeatureConfig> {
+public class ConfigDrivenDecorator extends FeatureDecorator<ConfigDrivenOreFeatureConfig> {
 
 	public static final ConfigDrivenDecorator INSTANCE = new ConfigDrivenDecorator();
 
@@ -37,5 +38,4 @@ public class ConfigDrivenDecorator extends SimpleFeatureDecorator<ConfigDrivenOr
 				return new BlockPos(i, k, j);
 			});
 	}
-
 }

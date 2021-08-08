@@ -197,7 +197,7 @@ public class DeployerHandler {
 			}
 
 			((EntityExtensions) entity).create$captureDrops(null);
-			capturedDrops.forEach(e -> player.inventory.placeItemBackInInventory(world, e.getItem()));
+			capturedDrops.forEach(e -> player.getInventory().placeItemBackInInventory(e.getItem()));
 			if (success)
 				return;
 		}
@@ -388,7 +388,7 @@ public class DeployerHandler {
 			return true;
 
 		net.minecraft.world.level.block.Block.getDrops(blockstate, world, pos, tileentity, player, prevHeldItem)
-			.forEach(item -> player.inventory.placeItemBackInInventory(world, item));
+			.forEach(item -> player.getInventory().placeItemBackInInventory(item));
 		blockstate.spawnAfterBreak(world, pos, prevHeldItem);
 		return true;
 	}
@@ -415,7 +415,7 @@ public class DeployerHandler {
 			world.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BEEHIVE_SHEAR,
 				SoundSource.NEUTRAL, 1.0F, 1.0F);
 			// <> BeehiveBlock#dropHoneycomb
-			player.inventory.placeItemBackInInventory(world, new ItemStack(Items.HONEYCOMB, 3));
+			player.getInventory().placeItemBackInInventory(new ItemStack(Items.HONEYCOMB, 3));
 			prevHeldItem.hurtAndBreak(1, player, s -> s.broadcastBreakEvent(hand));
 			success = true;
 		}
@@ -428,7 +428,7 @@ public class DeployerHandler {
 			if (prevHeldItem.isEmpty())
 				player.setItemInHand(hand, honeyBottle);
 			else
-				player.inventory.placeItemBackInInventory(world, honeyBottle);
+				player.getInventory().placeItemBackInInventory(honeyBottle);
 			success = true;
 		}
 

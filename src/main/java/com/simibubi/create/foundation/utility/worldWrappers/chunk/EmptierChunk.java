@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,7 +20,7 @@ import net.minecraft.world.phys.AABB;
 public class EmptierChunk extends LevelChunk {
 
 	public EmptierChunk() {
-		super(null, null, null);
+		super((Level) null, null, null);
 	}
 
 	public BlockState getBlockState(BlockPos p_180495_1_) {

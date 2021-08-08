@@ -6,6 +6,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
+
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Vector3d;
+
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -42,7 +47,6 @@ import net.minecraft.world.level.ClipContext.Fluid;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -219,8 +223,9 @@ public class WorldSectionElement extends AnimatedSceneElement {
 	}
 
 	public void transformMS(PoseStack ms, float pt) {
+		Vec3 vec = VecHelper.lerp(pt, prevAnimatedOffset, animatedOffset);
 		MatrixTransformStack.of(ms)
-			.translate(VecHelper.lerp(pt, prevAnimatedOffset, animatedOffset));
+			.translate(vec.x(), vec.y(), vec.z());
 		if (!animatedRotation.equals(Vec3.ZERO) || !prevAnimatedRotation.equals(Vec3.ZERO)) {
 			if (centerOfRotation == null)
 				centerOfRotation = section.getCenter();
@@ -228,18 +233,18 @@ public class WorldSectionElement extends AnimatedSceneElement {
 			double rotZ = Mth.lerp(pt, prevAnimatedRotation.z, animatedRotation.z);
 			double rotY = Mth.lerp(pt, prevAnimatedRotation.y, animatedRotation.y);
 			MatrixTransformStack.of(ms)
-				.translate(centerOfRotation)
+				.translate(centerOfRotation.x(), centerOfRotation.y(), centerOfRotation.z())
 				.rotateX(rotX)
 				.rotateZ(rotZ)
 				.rotateY(rotY)
-				.translateBack(centerOfRotation);
+				.translateBack(new Vector3d(centerOfRotation.x(), centerOfRotation.y(), centerOfRotation.z()));
 			if (stabilizationAnchor != null) {
 				MatrixTransformStack.of(ms)
-					.translate(stabilizationAnchor)
+					.translate(stabilizationAnchor.x(), stabilizationAnchor.y(), stabilizationAnchor.z())
 					.rotateX(-rotX)
 					.rotateZ(-rotZ)
 					.rotateY(-rotY)
-					.translateBack(stabilizationAnchor);
+					.translateBack(new Vector3d(stabilizationAnchor.x(), stabilizationAnchor.y(), stabilizationAnchor.z()));
 			}
 		}
 	}
@@ -383,7 +388,7 @@ public class WorldSectionElement extends AnimatedSceneElement {
 		ModelBlockRenderer blockRenderer = dispatcher.getModelRenderer();
 		Random random = new Random();
 		BufferBuilder builder = new BufferBuilder(DefaultVertexFormat.BLOCK.getIntegerSize());
-		builder.begin(GL11.GL_QUADS, DefaultVertexFormat.BLOCK);
+		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
 		world.setMask(this.section);
 
 		section.forEach(pos -> {

@@ -1,11 +1,14 @@
 package com.simibubi.create.content.curiosities.armor;
 
 import java.util.Optional;
+
+import com.simibubi.create.AllEnchantments;
+
+import com.simibubi.create.lib.entity.FakePlayer;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -16,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -37,7 +41,6 @@ import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.content.contraptions.base.HorizontalKineticBlock;
 import com.simibubi.create.foundation.block.ITE;
-import com.simibubi.create.lib.helper.FakePlayerHelper;
 
 public class CopperBacktankBlock extends HorizontalKineticBlock
 	implements ITE<CopperBacktankTileEntity>, SimpleWaterloggedBlock {
@@ -121,7 +124,7 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 		BlockHitResult p_225533_6_) {
 		if (player == null)
 			return InteractionResult.PASS;
-		if (FakePlayerHelper.isFakePlayer((ServerPlayer) player))
+		if (player instanceof FakePlayer)
 			return InteractionResult.PASS;
 		if (player.isShiftKeyDown())
 			return InteractionResult.PASS;

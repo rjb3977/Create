@@ -9,12 +9,13 @@ import javax.annotation.Nullable;
 
 import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 
+import com.simibubi.create.lib.entity.FakePlayer;
+
 import org.apache.commons.lang3.Validate;
 
 import com.simibubi.create.AllEntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
-import com.simibubi.create.content.curiosities.tools.BlueprintEntity.BlueprintCraftingInventory;
 import com.simibubi.create.content.logistics.item.filter.FilterItem;
 import com.simibubi.create.content.schematics.ISpecialEntityItemRequirement;
 import com.simibubi.create.content.schematics.ItemRequirement;
@@ -24,7 +25,6 @@ import com.simibubi.create.foundation.networking.ISyncPersistentData;
 import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.entity.ExtraSpawnDataEntity;
-import com.simibubi.create.lib.extensions.ServerPlayerEntityExtensions;
 import com.simibubi.create.lib.helper.EntityHelper;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.InvWrapper;
@@ -130,17 +130,15 @@ public class BlueprintEntity extends HangingEntity
 		this.verticalOrientation = verticalOrientation;
 		if (facing.getAxis()
 			.isHorizontal()) {
-			this.xRot = 0.0F;
-			this.yRot = (float) (this.direction.get2DDataValue() * 90);
+			setXRot(0);
+			setYRot(this.direction.get2DDataValue() * 90);
 		} else {
-			this.xRot = (float) (-90 * facing.getAxisDirection()
-				.getStep());
-			this.yRot = verticalOrientation.getAxis()
-				.isHorizontal() ? 180 + verticalOrientation.toYRot() : 0;
+			setXRot(-90 * facing.getAxisDirection().getStep());
+			setYRot(verticalOrientation.getAxis().isHorizontal() ? 180 + verticalOrientation.toYRot() : 0);
 		}
 
-		this.xRotO = this.xRot;
-		this.yRotO = this.yRot;
+		this.xRotO = this.getXRot();
+		this.yRotO = this.getYRot();
 		this.recalculateBoundingBox();
 	}
 
@@ -156,7 +154,7 @@ public class BlueprintEntity extends HangingEntity
 		if (this.verticalOrientation == null)
 			return;
 
-		Vec3 pos = Vec3.atLowerCornerOf(pos)
+		Vec3 pos = Vec3.atLowerCornerOf(getPos())
 			.add(.5, .5, .5)
 			.subtract(Vec3.atLowerCornerOf(direction.getNormal())
 				.scale(0.46875));
@@ -215,7 +213,7 @@ public class BlueprintEntity extends HangingEntity
 		Direction upDirection = direction.getAxis()
 			.isHorizontal() ? Direction.UP
 				: direction == Direction.UP ? verticalOrientation : verticalOrientation.getOpposite();
-		Direction direction = direction.getAxis()
+		Direction newDirection = direction.getAxis()
 			.isVertical() ? verticalOrientation.getClockWise() : direction.getCounterClockWise();
 		BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos();
 
@@ -289,7 +287,7 @@ public class BlueprintEntity extends HangingEntity
 		playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F);
 		if (p_110128_1_ instanceof Player) {
 			Player playerentity = (Player) p_110128_1_;
-			if (playerentity.abilities.instabuild) {
+			if (playerentity.getAbilities().instabuild) {
 				return;
 			}
 		}
@@ -348,7 +346,7 @@ public class BlueprintEntity extends HangingEntity
 
 	@Override
 	public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
-		if (((ServerPlayerEntityExtensions) player).create$isFakePlayer())
+		if (player instanceof FakePlayer)
 			return InteractionResult.PASS;
 
 		boolean holdingWrench = AllItems.WRENCH.isIn(player.getItemInHand(hand));
@@ -358,7 +356,7 @@ public class BlueprintEntity extends HangingEntity
 		if (!holdingWrench && !level.isClientSide && !items.getStackInSlot(9)
 			.isEmpty()) {
 
-			IItemHandlerModifiable playerInv = new InvWrapper(player.inventory);
+			IItemHandlerModifiable playerInv = new InvWrapper(player.getInventory());
 			boolean firstPass = true;
 			int amountCrafted = 0;
 //			ForgeHooks.setCraftingPlayer(player);
@@ -417,9 +415,9 @@ public class BlueprintEntity extends HangingEntity
 						if (firstPass)
 							level.playSound(null, player.blockPosition(), SoundEvents.ITEM_PICKUP,
 								SoundSource.PLAYERS, .2f, 1f + Create.RANDOM.nextFloat());
-						player.inventory.placeItemBackInInventory(level, result);
+						player.getInventory().placeItemBackInInventory(result);
 						for (ItemStack itemStack : nonnulllist)
-							player.inventory.placeItemBackInInventory(level, itemStack);
+							player.getInventory().placeItemBackInInventory(itemStack);
 						firstPass = false;
 					}
 				}
@@ -449,8 +447,8 @@ public class BlueprintEntity extends HangingEntity
 	public BlueprintSection getSectionAt(Vec3 vec) {
 		int index = 0;
 		if (size > 1) {
-			vec = VecHelper.rotate(vec, yRot, Axis.Y);
-			vec = VecHelper.rotate(vec, -xRot, Axis.X);
+			vec = VecHelper.rotate(vec, getYRot(), Axis.Y);
+			vec = VecHelper.rotate(vec, -getXRot(), Axis.X);
 			vec = vec.add(0.5, 0.5, 0);
 			if (size == 3)
 				vec = vec.add(1, 1, 0);

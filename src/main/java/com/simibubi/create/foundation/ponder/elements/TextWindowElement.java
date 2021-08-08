@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -17,7 +18,6 @@ import com.simibubi.create.foundation.ponder.PonderUI;
 import com.simibubi.create.foundation.ponder.content.PonderPalette;
 import com.simibubi.create.foundation.utility.Color;
 
-import net.minecraft.util.ResourceLocation;
 import com.simibubi.create.lib.utility.GuiUtils;
 
 public class TextWindowElement extends AnimatedOverlayElement {

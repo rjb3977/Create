@@ -1,10 +1,12 @@
 package com.simibubi.create.content.curiosities.tools;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.simibubi.create.lib.entity.FakePlayer;
+
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -23,7 +25,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-import com.simibubi.create.lib.helper.FakePlayerHelper;
 import com.simibubi.create.lib.item.CustomItemEnchantabilityItem;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
@@ -135,7 +136,7 @@ public class SandPaperItem extends Item implements CustomItemEnchantabilityItem 
 			}
 
 			if (!polished.isEmpty()) {
-				if (FakePlayerHelper.isFakePlayer((ServerPlayer) player)) {
+				if (player instanceof FakePlayer) {
 					player.drop(polished, false, false);
 				} else {
 					player.inventory.placeItemBackInInventory(worldIn, polished);

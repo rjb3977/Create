@@ -259,7 +259,7 @@ public abstract class KineticTileEntity extends SmartTileEntity
 			effects.triggerOverStressedEffect();
 
 		if (clientPacket)
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
+			DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
 	}
 
 	public float getGeneratedSpeed() {
@@ -562,7 +562,7 @@ public abstract class KineticTileEntity extends SmartTileEntity
 //	public void requestModelDataUpdate() {
 //		super.requestModelDataUpdate();
 //		if (!this.remove)
-//			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
+//			DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
 //	}
 
 	protected AABB cachedBoundingBox;

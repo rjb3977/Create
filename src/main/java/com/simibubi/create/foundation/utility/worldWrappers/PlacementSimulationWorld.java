@@ -46,7 +46,7 @@ public class PlacementSimulationWorld extends WrappedWorld implements IFlywheelW
 		for (Map.Entry<BlockPos, BlockState> entry : blocksAdded.entrySet()) {
 			BlockPos pos = entry.getKey();
 			BlockState state = entry.getValue();
-			int light = state.getLightEmission(this, pos);
+			int light = state.getLightEmission();
 			if (light > 0) {
 				lighter.onBlockEmissionIncrease(pos, light);
 			}

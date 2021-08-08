@@ -10,11 +10,11 @@ package com.simibubi.create.foundation.mixin;
 //import net.minecraft.client.Minecraft;
 //import net.minecraft.tileentity.TileEntity;
 //import net.minecraft.world.World;
-//import net.minecraftforge.api.distmarker.Dist;
-//import net.minecraftforge.api.distmarker.OnlyIn;
+//import net.fabricmc.api.EnvType;
+//import net.fabricmc.api.Environment;
 //import net.minecraftforge.client.model.ModelDataManager;
 //
-//@OnlyIn(Dist.CLIENT)
+//@Environment(EnvType.CLIENT)
 //@Mixin(ModelDataManager.class)
 //public class ModelDataRefreshMixin {
 //

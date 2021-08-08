@@ -41,6 +41,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.level.block.Block;
@@ -92,10 +93,10 @@ public class ItemDescription {
 		List<Component> list = new ArrayList<>();
 
 		CKinetics config = AllConfigs.SERVER.kinetics;
-		ITextComponent rpmUnit = Lang.translate("generic.unit.rpm");
+		TranslatableComponent rpmUnit = Lang.translate("generic.unit.rpm");
 
 		boolean hasGoggles =
-			AllItems.GOGGLES.isIn(Minecraft.getInstance().player.getItemBySlot(EquipmentSlotType.HEAD));
+			AllItems.GOGGLES.isIn(Minecraft.getInstance().player.getItemBySlot(EquipmentSlot.HEAD));
 
 		SpeedLevel minimumRequiredSpeedLevel;
 		boolean showStressImpact;

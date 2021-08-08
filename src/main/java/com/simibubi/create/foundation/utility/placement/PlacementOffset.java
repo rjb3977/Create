@@ -131,7 +131,7 @@ public class PlacementOffset {
 //		}
 
 		BlockState newState = world.getBlockState(newPos);
-		SoundType soundtype = newState.getSoundType(world, newPos, player);
+		SoundType soundtype = newState.getSoundType();
 		world.playSound(null, newPos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 
 		player.awardStat(Stats.ITEM_USED.get(blockItem));

@@ -2,16 +2,16 @@ package com.simibubi.create.foundation.config.ui;
 
 import java.awt.*;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.lwjgl.glfw.GLFW;
-import Set;
-import com.electronwill.nightconfig.core.AbstractConfig;
-import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.config.AllConfigs;
@@ -242,6 +242,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 //			} else if (obj instanceof ForgeConfigSpec.ConfigValue<?>) {
 //				ForgeConfigSpec.ConfigValue<?> configValue = (ForgeConfigSpec.ConfigValue<?>) obj;
 //				ForgeConfigSpec.ValueSpec valueSpec = spec.getRaw(configValue.getPath());
+			{
 				Object value = configValue.get();
 				ConfigScreenList.Entry entry = null;
 

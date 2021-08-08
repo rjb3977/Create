@@ -434,9 +434,9 @@ public class SuperByteBuffer {
 		return LightTexture.pack(Math.max(blockLight1, blockLight2), Math.max(skyLight1, skyLight2));
 	}
 
-	private static int getLight(World world, Vector4f lightPos) {
+	private static int getLight(Level world, Vector4f lightPos) {
 		BlockPos pos = new BlockPos(lightPos.x(), lightPos.y(), lightPos.z());
-		return WORLD_LIGHT_CACHE.computeIfAbsent(pos.asLong(), $ -> WorldRenderer.getLightColor(world, pos));
+		return WORLD_LIGHT_CACHE.computeIfAbsent(pos.asLong(), $ -> LevelRenderer.getLightColor(world, pos));
 	}
 
 	@FunctionalInterface

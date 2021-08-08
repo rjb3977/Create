@@ -1,9 +1,9 @@
 package com.simibubi.create.content.schematics.block;
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
 import com.jozufozu.flywheel.backend.material.InstanceMaterial;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.jozufozu.flywheel.core.materials.ModelData;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,7 +12,7 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
 import net.minecraft.core.Direction;
 
-public class SchematicannonInstance extends TileEntityInstance<SchematicannonTileEntity> implements IDynamicInstance {
+public class SchematicannonInstance extends BlockEntityInstance<SchematicannonTileEntity> implements IDynamicInstance {
 
     private final ModelData connector;
     private final ModelData pipe;

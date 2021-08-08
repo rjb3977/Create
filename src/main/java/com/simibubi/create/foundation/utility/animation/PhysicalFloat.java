@@ -59,7 +59,7 @@ public class PhysicalFloat {
         forces.removeIf(Force::finished);
 
         if (Float.isFinite(limit)) {
-        	speed = MathHelper.clamp(speed, -limit, limit);
+        	speed = Mth.clamp(speed, -limit, limit);
         }
 
         value += speed;

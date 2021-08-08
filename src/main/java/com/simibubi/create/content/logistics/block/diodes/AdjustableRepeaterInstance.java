@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.block.diodes;
 
 import com.jozufozu.flywheel.backend.instancing.ITickableInstance;
-import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.Materials;
 import com.jozufozu.flywheel.core.materials.ModelData;
@@ -10,7 +10,7 @@ import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.utility.Color;
 
-public class AdjustableRepeaterInstance extends TileEntityInstance<AdjustableRepeaterTileEntity> implements ITickableInstance {
+public class AdjustableRepeaterInstance extends BlockEntityInstance<AdjustableRepeaterTileEntity> implements ITickableInstance {
 
     protected final ModelData indicator;
 

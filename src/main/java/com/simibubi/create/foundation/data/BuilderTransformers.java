@@ -5,6 +5,7 @@ import static com.simibubi.create.foundation.data.CreateRegistrate.connectedText
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.AllTags;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.base.CasingBlock;
 import com.simibubi.create.content.contraptions.components.crank.ValveHandleBlock;
@@ -18,7 +19,6 @@ import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 
-import net.minecraft.block.AbstractBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +26,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.PistonType;
 
 public class BuilderTransformers {
@@ -43,7 +44,7 @@ public class BuilderTransformers {
 	public static <B extends EncasedShaftBlock, P> NonNullUnaryOperator<BlockBuilder<B, P>> encasedShaft(String casing,
 		CTSpriteShiftEntry casingShift) {
 		return builder -> builder.initialProperties(SharedProperties::stone)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 			.onRegister(CreateRegistrate.connectedTextures(new EncasedCTBehaviour(casingShift)))
 			.onRegister(CreateRegistrate.casingConnectivity(
 				(block, cc) -> cc.make(block, casingShift, (s, f) -> f.getAxis() != s.getValue(EncasedShaftBlock.AXIS))))
@@ -85,7 +86,7 @@ public class BuilderTransformers {
 		String type, ResourceLocation particleTexture) {
 		return b -> b.initialProperties(SharedProperties::stone)
 			.addLayer(() -> RenderType::cutoutMipped)
-			.properties(FabricBlockSettings::noOcclusion)
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate((c, p) -> p.getVariantBuilder(c.get())
 //				.forAllStates(state -> {
 //					String id = "block/" + type + "_tunnel";
@@ -116,7 +117,7 @@ public class BuilderTransformers {
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> mechanicalPiston(PistonType type) {
 		return b -> b.initialProperties(SharedProperties::stone)
-			.properties(p -> p.noOcclusion())
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate(new MechanicalPistonGenerator(type)::generate)
 			.addLayer(() -> RenderType::cutoutMipped)
 			.transform(BlockStressDefaults.setImpact(4.0))
@@ -134,7 +135,7 @@ public class BuilderTransformers {
 		ResourceLocation sideTextureLocation = Create.asResource("block/" + prefix + "_bearing_side");
 		ResourceLocation backTextureLocation = Create.asResource("block/" + backTexture);
 		return b -> b.initialProperties(SharedProperties::stone)
-			.properties(p -> p.noOcclusion())
+			.properties(s -> (FabricBlockSettings) s.noOcclusion())
 //			.blockstate((c, p) -> p.directionalBlock(c.get(), p.models()
 //				.withExistingParent(c.getName(), baseBlockModelLocation)
 //				.texture("side", sideTextureLocation)
@@ -207,18 +208,18 @@ public class BuilderTransformers {
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> bell() {
 		return b -> b.initialProperties(SharedProperties::softMetal)
-			.properties(p -> p.noOcclusion()
+			.properties(p -> (FabricBlockSettings) p.noOcclusion()
 				.sound(SoundType.ANVIL))
 			.addLayer(() -> RenderType::cutoutMipped)
-			.tag(AllBlockTags.BRITTLE.tag)
-			.blockstate((c, p) -> p.horizontalBlock(c.getEntry(), state -> {
-				String variant = state.getValue(BlockStateProperties.BELL_ATTACHMENT)
-					.getSerializedName();
-				return p.models()
-					.withExistingParent(c.getName() + "_" + variant, p.modLoc("block/bell_base/block_" + variant));
-			}))
+			.tag(AllTags.AllBlockTags.BRITTLE.tag)
+//			.blockstate((c, p) -> p.horizontalBlock(c.getEntry(), state -> {
+//				String variant = state.getValue(BlockStateProperties.BELL_ATTACHMENT)
+//					.getSerializedName();
+//				return p.models()
+//					.withExistingParent(c.getName() + "_" + variant, p.modLoc("block/bell_base/block_" + variant));
+//			}))
 			.item()
-			.model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/" + c.getName())))
+//			.model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/" + c.getName())))
 			.build();
 	}
 

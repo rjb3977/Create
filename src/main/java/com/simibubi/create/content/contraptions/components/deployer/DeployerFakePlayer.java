@@ -4,13 +4,14 @@ import java.util.Collection;
 import java.util.OptionalInt;
 import java.util.UUID;
 
+import com.simibubi.create.lib.entity.FakePlayer;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.mojang.authlib.GameProfile;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.CKinetics;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.lib.helper.FakePlayerHelper;
 
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -40,7 +41,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class DeployerFakePlayer extends ServerPlayer {
+public class DeployerFakePlayer extends FakePlayer {
 
 	private static final Connection NETWORK_MANAGER = new Connection(PacketFlow.CLIENTBOUND);
 	public static final GameProfile DEPLOYER_PROFILE =
@@ -51,7 +52,6 @@ public class DeployerFakePlayer extends ServerPlayer {
 	public DeployerFakePlayer(ServerLevel world) {
 		super(world.getServer(), world, DEPLOYER_PROFILE, new ServerPlayerGameMode(world));
 		connection = new FakePlayNetHandler(world.getServer(), this);
-		FakePlayerHelper.setFake(this, true);
 	}
 
 	@Override

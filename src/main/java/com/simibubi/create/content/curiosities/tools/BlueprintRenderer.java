@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.block.Blocks;
 
 public class BlueprintRenderer extends EntityRenderer<BlueprintEntity> {
 
-	public BlueprintRenderer(EntityRenderDispatcher manager) {
+	public BlueprintRenderer(EntityRendererProvider.Context manager) {
 		super(manager);
 	}
 

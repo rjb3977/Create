@@ -8,6 +8,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+
+import com.simibubi.create.foundation.config.ui.ConfigAnnotations;
+import com.simibubi.create.foundation.config.ui.ConfigHelper;
+
+import com.simibubi.create.foundation.utility.Pair;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
@@ -77,12 +83,12 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 				.collect(Collectors.toList()));
 
 		if (annotations.containsKey(ConfigAnnotations.RequiresRelog.TRUE.getName()))
-			labelTooltip.addAll(TooltipHelper.cutTextComponent(new StringTextComponent("Changing this value will require a _relog_ to take full effect"), TextFormatting.GRAY, TextFormatting.GOLD));
+			labelTooltip.addAll(TooltipHelper.cutTextComponent(new TextComponent("Changing this value will require a _relog_ to take full effect"), ChatFormatting.GRAY, TextFormatting.GOLD));
 
 		if (annotations.containsKey(ConfigAnnotations.RequiresRestart.CLIENT.getName()))
-			labelTooltip.addAll(TooltipHelper.cutTextComponent(new StringTextComponent("Changing this value will require a _restart_ to take full effect"), TextFormatting.GRAY, TextFormatting.RED));
+			labelTooltip.addAll(TooltipHelper.cutTextComponent(new TextComponent("Changing this value will require a _restart_ to take full effect"), ChatFormatting.GRAY, TextFormatting.RED));
 
-		labelTooltip.add(new StringTextComponent(ConfigScreen.modID + ":" + path.get(path.size() - 1)).withStyle(TextFormatting.DARK_GRAY));
+		labelTooltip.add(new TextComponent(ConfigScreen.modID + ":" + path.get(path.size() - 1)).withStyle(ChatFormatting.DARK_GRAY));
 	}
 
 	@Override
@@ -99,7 +105,7 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 	}
 
 	@Override
-	public void render(MatrixStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
+	public void render(PoseStack ms, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean p_230432_9_, float partialTicks) {
 		super.render(ms, index, y, x, width, height, mouseX, mouseY, p_230432_9_, partialTicks);
 
 		resetButton.x = x + width - resetWidth + 6;

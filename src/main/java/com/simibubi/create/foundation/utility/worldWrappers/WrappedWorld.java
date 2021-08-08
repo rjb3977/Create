@@ -22,6 +22,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkSource;
+import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -105,6 +107,11 @@ public class WrappedWorld extends Level {
 	public void levelEvent(@Nullable Player player, int type, BlockPos pos, int data) {}
 
 	@Override
+	public void gameEvent(@org.jetbrains.annotations.Nullable Entity entity, GameEvent gameEvent, BlockPos blockPos) {
+
+	}
+
+	@Override
 	public List<? extends Player> players() {
 		return Collections.emptyList();
 	}
@@ -118,6 +125,11 @@ public class WrappedWorld extends Level {
 		SoundSource p_217384_4_, float p_217384_5_, float p_217384_6_) {}
 
 	@Override
+	public String gatherChunkSourceStats() {
+		return null;
+	}
+
+	@Override
 	public Entity getEntity(int id) {
 		return null;
 	}
@@ -128,15 +140,17 @@ public class WrappedWorld extends Level {
 	}
 
 	@Override
-	public boolean addFreshEntity(@Nullable Entity entityIn) {
-		if (entityIn == null)
-			return false;
-		entityIn.setLevel(world);
-		return world.addFreshEntity(entityIn);
+	public void setMapData(String string, MapItemSavedData mapItemSavedData) {
+
 	}
 
 	@Override
-	public void setMapData(MapItemSavedData mapDataIn) {}
+	public boolean addFreshEntity(@Nullable Entity entityIn) {
+		if (entityIn == null)
+			return false;
+		entityIn.level = world;
+		return world.addFreshEntity(entityIn);
+	}
 
 	@Override
 	public int getFreeMapId() {
@@ -162,6 +176,11 @@ public class WrappedWorld extends Level {
 	}
 
 	@Override
+	protected LevelEntityGetter<Entity> getEntities() {
+		return null;
+	}
+
+	@Override
 	public Biome getUncachedNoiseBiome(int p_225604_1_, int p_225604_2_, int p_225604_3_) {
 		return world.getUncachedNoiseBiome(p_225604_1_, p_225604_2_, p_225604_3_);
 	}
@@ -174,10 +193,6 @@ public class WrappedWorld extends Level {
 	@Override
 	public float getShade(Direction p_230487_1_, boolean p_230487_2_) {
 		return world.getShade(p_230487_1_, p_230487_2_);
-	}
-
-	@Override
-	public void blockEntityChanged(BlockPos p_175646_1_, BlockEntity p_175646_2_) {
 	}
 
 	@Override

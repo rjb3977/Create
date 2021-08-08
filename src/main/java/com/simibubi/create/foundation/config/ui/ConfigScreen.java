@@ -48,7 +48,7 @@ public abstract class ConfigScreen extends AbstractSimiScreen {
 	 *
 	 * */
 
-	public static final Map<String, TriConsumer<Screen, MatrixStack, Float>> backgrounds = new HashMap<>();
+	public static final Map<String, TriConsumer<Screen, PoseStack, Float>> backgrounds = new HashMap<>();
 	public static final PhysicalFloat cogSpin = PhysicalFloat.create().withLimit(10f).withDrag(0.3).addForce(new Force.Static(.2f));
 	public static final BlockState cogwheelState = AllBlocks.LARGE_COGWHEEL.getDefaultState().setValue(CogWheelBlock.AXIS, Direction.Axis.Y);
 	public static String modID = null;
@@ -153,8 +153,8 @@ public abstract class ConfigScreen extends AbstractSimiScreen {
 	 * If your addon wants to render something else, please add to the
 	 * backgrounds Map in this Class with your modID as the key.
 	 */
-	protected void renderMenuBackground(MatrixStack ms, float partialTicks) {
-		TriConsumer<Screen, MatrixStack, Float> customBackground = backgrounds.get(modID);
+	protected void renderMenuBackground(PoseStack ms, float partialTicks) {
+		TriConsumer<Screen, PoseStack, Float> customBackground = backgrounds.get(modID);
 		if (customBackground != null) {
 			customBackground.accept(this, ms, partialTicks);
 			return;
@@ -163,7 +163,7 @@ public abstract class ConfigScreen extends AbstractSimiScreen {
 		float elapsedPartials = minecraft.getDeltaFrameTime();
 		CreateMainMenuScreen.panorama.render(elapsedPartials, 1);
 
-		minecraft.getTextureManager().bind(CreateMainMenuScreen.PANORAMA_OVERLAY_TEXTURES);
+		minecraft.getTextureManager().bindForSetup(CreateMainMenuScreen.PANORAMA_OVERLAY_TEXTURES);
 		RenderSystem.enableBlend();
 		RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 		blit(ms, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);

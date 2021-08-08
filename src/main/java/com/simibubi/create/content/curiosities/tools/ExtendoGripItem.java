@@ -118,7 +118,7 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 //	}
 
 //	@SubscribeEvent
-//	@OnlyIn(Dist.CLIENT)
+//	@Environment(EnvType.CLIENT)
 //	public static void dontMissEntitiesWhenYouHaveHighReachDistance(ClickInputEvent event) {
 //		Minecraft mc = Minecraft.getInstance();
 //		ClientPlayerEntity player = mc.player;

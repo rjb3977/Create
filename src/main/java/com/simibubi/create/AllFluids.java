@@ -40,8 +40,8 @@ public class AllFluids {
 //							.density(1400))
 					.properties(p -> p.levelDecreasePerBlock(2)
 							.tickRate(25)
-							.slopeFindDistance(3)
-							.explosionResistance(100f))
+							.levelDecreasePerBlock(3)
+							.blastResistance(100f))
 //					.tag(AllFluidTags.HONEY.tag)
 					.register();
 

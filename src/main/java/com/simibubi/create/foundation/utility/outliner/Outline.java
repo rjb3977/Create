@@ -40,7 +40,7 @@ public abstract class Outline {
 		float vAngle = AngleHelper.deg(Mth.atan2(hDistance, diff.y)) - 90;
 		ms.pushPose();
 		MatrixTransformStack.of(ms)
-			.translate(start)
+			.translate(start.x(), start.y(), start.z())
 			.rotateY(hAngle).rotateX(vAngle);
 		renderAACuboidLine(ms, buffer, Vec3.ZERO, new Vec3(0, 0, diff.length()));
 		ms.popPose();
@@ -128,7 +128,7 @@ public abstract class Outline {
 		int j = i >> 16 & '\uffff';
 		int k = i & '\uffff';
 		Pose peek = ms.last();
-		Vec3 rgb = params.rgb;
+		Color rgb = params.rgb;
 		if (transformNormals == null)
 			transformNormals = peek.normal();
 

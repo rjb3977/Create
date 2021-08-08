@@ -107,12 +107,8 @@ public class WrappedServerWorld extends ServerLevel {
 
 	@Override
 	public boolean addFreshEntity(Entity entityIn) {
-		entityIn.setLevel(world);
+		entityIn.level = world;
 		return world.addFreshEntity(entityIn);
-	}
-
-	@Override
-	public void setMapData(MapItemSavedData mapDataIn) {
 	}
 
 	@Override

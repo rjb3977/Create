@@ -12,6 +12,7 @@ import com.simibubi.create.lib.utility.GuiUtils;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 
 public class PonderProgressBar extends AbstractSimiWidget {

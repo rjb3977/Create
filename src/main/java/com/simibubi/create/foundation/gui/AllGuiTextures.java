@@ -1,6 +1,5 @@
 package com.simibubi.create.foundation.gui;
 
-import java.awt.Color;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.utility.Color;
@@ -132,7 +131,7 @@ public enum AllGuiTextures implements IScreenRenderable {
 	public void bind() {
 		Minecraft.getInstance()
 			.getTextureManager()
-			.bind(location);
+			.bindForSetup(location);
 	}
 
 	@Override
@@ -142,7 +141,7 @@ public enum AllGuiTextures implements IScreenRenderable {
 		screen.blit(ms, x, y, startX, startY, width, height);
 	}
 
-	public void draw(PoseStack ms, int x, int y, java.awt.Color c) {
+	public void draw(PoseStack ms, int x, int y, Color c) {
 		bind();
 		UIRenderHelper.drawColoredTexture(ms, c, x, y, startX, startY, width, height);
 	}

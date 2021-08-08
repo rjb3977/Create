@@ -8,16 +8,18 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.tterrag.registrate.util.nullness.NonNullFunction;
+
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.common.util.NonNullFunction;
 
 public class WorldAttached<T> {
 
 	static List<Map<LevelAccessor, ?>> allMaps = new ArrayList<>();
 	Map<LevelAccessor, T> attached;
-	private final NonNullFunction<IWorld, T> factory;
+	private final NonNullFunction<LevelAccessor, T> factory;
 
-	public WorldAttached(NonNullFunction<IWorld, T> factory) {
+	public WorldAttached(NonNullFunction<LevelAccessor, T> factory) {
 		this.factory = factory;
 		attached = new HashMap<>();
 		allMaps.add(attached);

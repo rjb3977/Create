@@ -37,7 +37,7 @@ public class TileEntityDataInstruction extends WorldModifyInstruction {
 			BlockState state = world.getBlockState(pos);
 			if (tileEntity instanceof SyncedTileEntity)
 				((SyncedTileEntity) tileEntity).readClientUpdate(state, apply);
-			tileEntity.load(state, apply);
+			tileEntity.load(apply);
 		});
 	}
 

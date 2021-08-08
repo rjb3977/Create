@@ -83,8 +83,7 @@ public class WrappedChunk implements ChunkAccess {
     }
 
     @Override
-    public void setBlockEntity(BlockPos p_177426_1_, BlockEntity p_177426_2_) {
-
+    public void setBlockEntity(BlockEntity p_177426_2_) {
     }
 
     @Override
@@ -117,14 +116,14 @@ public class WrappedChunk implements ChunkAccess {
         return 0;
     }
 
-    @Override
+	@Override
+	public BlockPos getHeighestPosition(Heightmap.Types types) {
+		return null;
+	}
+
+	@Override
     public ChunkPos getPos() {
         return pos;
-    }
-
-    @Override
-    public void setLastSaveTime(long p_177432_1_) {
-
     }
 
     @Nullable
@@ -135,7 +134,6 @@ public class WrappedChunk implements ChunkAccess {
 
     @Override
     public void setUnsaved(boolean p_177427_1_) {
-
     }
 
     @Override
@@ -145,7 +143,6 @@ public class WrappedChunk implements ChunkAccess {
 
     @Override
     public void removeBlockEntity(BlockPos p_177425_1_) {
-
     }
 
     @Override
@@ -182,7 +179,6 @@ public class WrappedChunk implements ChunkAccess {
 
     @Override
     public void setInhabitedTime(long p_177415_1_) {
-
     }
 
     @Override
@@ -218,7 +214,6 @@ public class WrappedChunk implements ChunkAccess {
 
 	@Override
 	public void addReferenceForFeature(StructureFeature<?> arg0, long arg1) {
-
 	}
 
 	@Override
@@ -238,17 +233,14 @@ public class WrappedChunk implements ChunkAccess {
 
 	@Override
 	public void setAllReferences(Map<StructureFeature<?>, LongSet> arg0) {
-
 	}
 
 	@Override
 	public void setStartForFeature(StructureFeature<?> arg0, StructureStart<?> arg1) {
-
 	}
 
 	@Override
 	public void setAllStarts(Map<StructureFeature<?>, StructureStart<?>> p_201612_1_) {
-
 	}
 
 	@Override
@@ -256,4 +248,13 @@ public class WrappedChunk implements ChunkAccess {
 		return null;
 	}
 
+	@Override
+	public int getHeight() {
+		return 0;
+	}
+
+	@Override
+	public int getMinBuildHeight() {
+		return 0;
+	}
 }

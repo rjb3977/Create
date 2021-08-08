@@ -58,9 +58,11 @@ public abstract class AnimatedSceneElement extends PonderSceneElement {
 
 	protected float applyFade(PoseStack ms, float pt) {
 		float currentFade = fade.getValue(pt);
-		if (fadeVec != null)
+		if (fadeVec != null) {
+			Vec3 vec = fadeVec.scale(-1 + currentFade);
 			MatrixTransformStack.of(ms)
-				.translate(fadeVec.scale(-1 + currentFade));
+					.translate(vec.x(), vec.y(), vec.z());
+		}
 		return currentFade;
 	}
 

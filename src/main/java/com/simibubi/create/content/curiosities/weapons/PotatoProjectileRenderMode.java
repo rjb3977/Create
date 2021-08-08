@@ -2,7 +2,6 @@ package com.simibubi.create.content.curiosities.weapons;
 
 import static com.simibubi.create.content.curiosities.weapons.PotatoProjectileRenderMode.entityRandom;
 
-import Vector3d;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.utility.AngleHelper;
@@ -11,18 +10,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 public interface PotatoProjectileRenderMode {
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	void transform(PoseStack ms, PotatoProjectileEntity entity, float pt);
 
 	public static class Billboard implements PotatoProjectileRenderMode {
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
+		@Environment(EnvType.CLIENT)
 		public void transform(PoseStack ms, PotatoProjectileEntity entity, float pt) {
 			Minecraft mc = Minecraft.getInstance();
 			Vec3 p1 = mc.getCameraEntity()
@@ -34,14 +33,14 @@ public interface PotatoProjectileRenderMode {
 			MatrixTransformStack.of(ms)
 				.rotateY(AngleHelper.deg(Mth.atan2(diff.x, diff.z)))
 				.rotateX(180
-					+ AngleHelper.deg(Mth.atan2(diff.y, -Mth.sqrt(diff.x * diff.x + diff.z * diff.z))));
+					+ AngleHelper.deg(Mth.atan2(diff.y, -Mth.sqrt((float) (diff.x * diff.x + diff.z * diff.z)))));
 		}
 	}
 
 	public static class Tumble extends Billboard {
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
+		@Environment(EnvType.CLIENT)
 		public void transform(PoseStack ms, PotatoProjectileEntity entity, float pt) {
 			super.transform(ms, entity, pt);
 			MatrixTransformStack.of(ms)
@@ -61,13 +60,13 @@ public interface PotatoProjectileRenderMode {
 		}
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
+		@Environment(EnvType.CLIENT)
 		public void transform(PoseStack ms, PotatoProjectileEntity entity, float pt) {
 			Vec3 diff = entity.getDeltaMovement();
 			MatrixTransformStack.of(ms)
 				.rotateY(AngleHelper.deg(Mth.atan2(diff.x, diff.z)))
 				.rotateX(270
-					+ AngleHelper.deg(Mth.atan2(diff.y, -Mth.sqrt(diff.x * diff.x + diff.z * diff.z))));
+					+ AngleHelper.deg(Mth.atan2(diff.y, -Mth.sqrt((float) (diff.x * diff.x + diff.z * diff.z)))));
 			MatrixTransformStack.of(ms)
 				.rotateY((entity.tickCount + pt) * 20 * spin + entityRandom(entity, 360))
 				.rotateZ(-spriteAngleOffset);
@@ -77,16 +76,16 @@ public interface PotatoProjectileRenderMode {
 
 	public static class StuckToEntity implements PotatoProjectileRenderMode {
 
-		private Vector3d offset;
+		private Vec3 offset;
 
-		public StuckToEntity(Vector3d offset) {
+		public StuckToEntity(Vec3 offset) {
 			this.offset = offset;
 		}
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
-		public void transform(MatrixStack ms, PotatoProjectileEntity entity, float pt) {
-			MatrixTransformStack.of(ms).rotateY(AngleHelper.deg(MathHelper.atan2(offset.x, offset.z)));
+		@Environment(EnvType.CLIENT)
+		public void transform(PoseStack ms, PotatoProjectileEntity entity, float pt) {
+			MatrixTransformStack.of(ms).rotateY(AngleHelper.deg(Mth.atan2(offset.x, offset.z)));
 		}
 
 	}

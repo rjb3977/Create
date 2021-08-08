@@ -37,7 +37,7 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 
 	@FunctionalInterface
 	public interface GeneratedRecipe {
-		void register(Consumer<IFinishedRecipe> consumer);
+		void register(Consumer<FinishedRecipe> consumer);
 	}
 
 	protected static class Marker {
@@ -53,7 +53,7 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 			return ItemTags.PLANKS;
 		}
 
-		static ITag.INamedTag<Item> woodSlab() {
+		static Tag.Named<Item> woodSlab() {
 			return ItemTags.WOODEN_SLABS;
 		}
 

@@ -1,16 +1,24 @@
 package com.simibubi.create.foundation.config.ui;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import EnumMap;
-import LoadingCache;
-import Map;
-import Pair;
-import Pattern;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.google.common.cache.CacheBuilder;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.config.AllConfigs;
+import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.lib.config.Config;
 import com.simibubi.create.lib.config.ConfigValue;
+
+import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nonnull;
 
 public class ConfigHelper {
 

@@ -1,19 +1,23 @@
 package com.simibubi.create.content.curiosities.weapons;
 
 import javax.annotation.Nullable;
-import Vector3d;
+
+import com.mojang.math.Vector3d;
 import com.simibubi.create.AllEnchantments;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.particle.AirParticleData;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.utility.VecHelper;
+import com.simibubi.create.lib.entity.ExtraSpawnDataEntity;
+import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
+
+import com.simibubi.create.lib.utility.NBTSerializer;
+
 import net.minecraft.core.BlockPos;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
@@ -24,25 +28,24 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraftforge.items.ItemHandlerHelper;
 
-public class PotatoProjectileEntity extends AbstractHurtingProjectile implements IEntityAdditionalSpawnData {
+public class PotatoProjectileEntity extends AbstractHurtingProjectile implements ExtraSpawnDataEntity {
 
 	PotatoCannonProjectileTypes type;
 	ItemStack stack = ItemStack.EMPTY;
 
 	Entity stuckEntity;
-	Vector3d stuckOffset;
+	Vec3 stuckOffset;
 	PotatoProjectileRenderMode stuckRenderer;
 	double stuckFallSpeed;
 
@@ -96,7 +99,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 	@Override
 	public void addAdditionalSaveData(CompoundTag nbt) {
-		nbt.put("Item", stack.serializeNBT());
+		nbt.put("Item", NBTSerializer.serializeNBT(stack));
 		nbt.putFloat("AdditionalDamage", additionalDamageMult);
 		nbt.putFloat("AdditionalKnockback", additionalKnockback);
 		nbt.putFloat("Recovery", recoveryChance);
@@ -116,7 +119,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		this.stuckOffset = position().subtract(stuckEntity.position());
 		this.stuckRenderer = new PotatoProjectileRenderMode.StuckToEntity(stuckOffset);
 		this.stuckFallSpeed = 0.0;
-		setDeltaMovement(Vector3d.ZERO);
+		setDeltaMovement(Vec3.ZERO);
 	}
 
 	public PotatoProjectileRenderMode getRenderMode() {
@@ -133,11 +136,11 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (stuckEntity != null) {
 			if (getY() < stuckEntity.getY() - 0.1) {
 				pop(position());
-				remove();
+				remove(RemovalReason.DISCARDED);
 			} else {
 				stuckFallSpeed += 0.007 * projectileType.getGravityMultiplier();
 				stuckOffset = stuckOffset.add(0, -stuckFallSpeed, 0);
-				Vector3d pos = stuckEntity.position()
+				Vec3 pos = stuckEntity.position()
 					.add(stuckOffset);
 				setPos(pos.x, pos.y, pos.z);
 			}
@@ -187,7 +190,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 		pop(hit);
 
-		if (target instanceof WitherEntity && ((WitherEntity) target).isPowered())
+		if (target instanceof WitherBoss && ((WitherBoss) target).isPowered())
 			return;
 		if (projectileType.preEntityHit(ray))
 			return;
@@ -200,7 +203,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		boolean onServer = !level.isClientSide;
 		if (onServer && !target.hurt(causePotatoDamage(), damage)) {
 			target.setRemainingFireTicks(k);
-			remove();
+			remove(RemovalReason.DISCARDED);
 			return;
 		}
 
@@ -213,7 +216,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 		if (!(target instanceof LivingEntity)) {
 			playHitSound(level, position());
-			remove();
+			remove(RemovalReason.DISCARDED);
 			return;
 		}
 
@@ -231,7 +234,6 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 				livingentity.push(appliedMotion.x, 0.1D, appliedMotion.z);
 		}
 
-		boolean onServer = !level.isClientSide;
 		if (onServer && owner instanceof LivingEntity) {
 			EnchantmentHelper.doPostHurtEffects(livingentity, owner);
 			EnchantmentHelper.doPostDamageEffects((LivingEntity) owner, livingentity);
@@ -254,7 +256,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (type.isSticky() && target.isAlive()) {
 			setStuckEntity(target);
 		} else {
-			remove();
+			remove(RemovalReason.DISCARDED);
 		}
 
 	}
@@ -280,7 +282,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 			if (random.nextDouble() <= recoveryChance)
 				recoverItem();
 		super.onHitBlock(ray);
-		remove();
+		remove(RemovalReason.DISCARDED);
 	}
 
 	@Override
@@ -290,7 +292,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (this.isInvulnerableTo(source))
 			return false;
 		pop(position());
-		remove();
+		remove(RemovalReason.DISCARDED);
 		return true;
 	}
 

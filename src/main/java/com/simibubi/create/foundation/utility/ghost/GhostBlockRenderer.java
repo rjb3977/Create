@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 
 import org.lwjgl.system.MemoryStack;
 
-import com.jozufozu.flywheel.util.VirtualEmptyModelData;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

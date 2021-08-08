@@ -31,7 +31,6 @@
     "common.PlayerEntityMixin",
     "common.RailStateMixin",
     "common.RedstoneWireBlockMixin",
-    "common.ServerPlayerEntityMixin",
     "common.ShapedRecipeMixin",
     "common.ShapelessRecipe$SerializerMixin",
     "common.SSpawnObjectPacketMixin",
