@@ -48,8 +48,8 @@ public class MechanicalMixerTileEntity extends BasinOperatingTileEntity {
 	public int processingTicks;
 	public boolean running;
 
-	public MechanicalMixerTileEntity(BlockEntityType<? extends MechanicalMixerTileEntity> type) {
-		super(type);
+	public MechanicalMixerTileEntity(BlockEntityType<? extends MechanicalMixerTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	public float getRenderedHeadOffset(float partialTicks) {

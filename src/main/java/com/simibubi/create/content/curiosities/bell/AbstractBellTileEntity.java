@@ -9,6 +9,8 @@ import com.jozufozu.flywheel.core.PartialModel;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 
+import net.minecraft.world.level.block.state.BlockState;
+
 public abstract class AbstractBellTileEntity extends SmartTileEntity {
 
 	public static final int RING_DURATION = 74;
@@ -17,8 +19,8 @@ public abstract class AbstractBellTileEntity extends SmartTileEntity {
 	public int ringingTicks;
 	public Direction ringDirection;
 
-	public AbstractBellTileEntity(BlockEntityType<?> type) {
-		super(type);
+	public AbstractBellTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

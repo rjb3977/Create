@@ -5,11 +5,18 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.block.CreateBlockEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface ITE<T extends BlockEntity> extends EntityBlock {
@@ -41,5 +48,11 @@ public interface ITE<T extends BlockEntity> extends EntityBlock {
 			return null;
 
 		return (T) tileEntity;
+	}
+
+	@Nullable
+	@Override
+	default <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
+		return (BlockEntityTicker<T>) CreateBlockEntity.CREATE_TICKER;
 	}
 }

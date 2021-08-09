@@ -14,6 +14,8 @@ import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 
 import com.simibubi.create.lib.helper.DamageSourceHelper;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
@@ -21,6 +23,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -39,8 +44,8 @@ public class CuckooClockTileEntity extends KineticTileEntity {
 		PIG, CREEPER, SURPRISE, NONE;
 	}
 
-	public CuckooClockTileEntity(BlockEntityType<? extends CuckooClockTileEntity> type) {
-		super(type);
+	public CuckooClockTileEntity(BlockEntityType<? extends CuckooClockTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		animationType = Animation.NONE;
 	}
 

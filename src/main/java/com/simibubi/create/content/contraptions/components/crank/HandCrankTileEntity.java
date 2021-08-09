@@ -18,8 +18,8 @@ public class HandCrankTileEntity extends GeneratingKineticTileEntity {
 	public float independentAngle;
 	public float chasingVelocity;
 
-	public HandCrankTileEntity(BlockEntityType<? extends HandCrankTileEntity> type) {
-		super(type);
+	public HandCrankTileEntity(BlockEntityType<? extends HandCrankTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	public void turn(boolean back) {

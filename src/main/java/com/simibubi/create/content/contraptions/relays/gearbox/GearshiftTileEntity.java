@@ -7,8 +7,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class GearshiftTileEntity extends SplitShaftTileEntity {
 
-	public GearshiftTileEntity(BlockEntityType<? extends GearshiftTileEntity> type) {
-		super(type);
+	public GearshiftTileEntity(BlockEntityType<? extends GearshiftTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override
@@ -19,5 +19,5 @@ public class GearshiftTileEntity extends SplitShaftTileEntity {
 		}
 		return 1;
 	}
-	
+
 }

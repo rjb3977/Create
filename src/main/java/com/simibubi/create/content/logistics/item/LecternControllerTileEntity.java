@@ -32,8 +32,8 @@ public class LecternControllerTileEntity extends SmartTileEntity {
 	private UUID prevUser;	// used only on client
 	private boolean deactivatedThisTick;	// used only on server
 
-	public LecternControllerTileEntity(BlockEntityType<?> type) {
-		super(type);
+	public LecternControllerTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

@@ -27,8 +27,8 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 	protected int initialOffset;
 	private float prevAnimatedOffset;
 
-	public PulleyTileEntity(BlockEntityType<? extends PulleyTileEntity> type) {
-		super(type);
+	public PulleyTileEntity(BlockEntityType<? extends PulleyTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 //	@Override

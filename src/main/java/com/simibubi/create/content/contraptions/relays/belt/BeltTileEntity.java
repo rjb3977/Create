@@ -76,8 +76,8 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 		NONE, ANDESITE, BRASS;
 	}
 
-	public BeltTileEntity(BlockEntityType<? extends BeltTileEntity> type) {
-		super(type);
+	public BeltTileEntity(BlockEntityType<? extends BeltTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		controller = BlockPos.ZERO;
 		itemHandler = null;
 		casing = CasingType.NONE;

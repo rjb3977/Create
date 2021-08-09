@@ -28,8 +28,8 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 	protected boolean updateAirFlow;
 	protected boolean updateGenerator;
 
-	public EncasedFanTileEntity(BlockEntityType<? extends EncasedFanTileEntity> type) {
-		super(type);
+	public EncasedFanTileEntity(BlockEntityType<? extends EncasedFanTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		isGenerator = false;
 		airCurrent = new AirCurrent(this);
 		updateAirFlow = true;

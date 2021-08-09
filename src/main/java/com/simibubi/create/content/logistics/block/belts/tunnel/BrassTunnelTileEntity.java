@@ -10,12 +10,17 @@ import java.util.Random;
 import java.util.Set;
 
 import javax.annotation.Nullable;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -42,8 +47,6 @@ import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.NBTHelper;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
@@ -72,8 +75,8 @@ public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHave
 	private LazyOptional<IItemHandler> beltCapability;
 	private LazyOptional<IItemHandler> tunnelCapability;
 
-	public BrassTunnelTileEntity(BlockEntityType<? extends BeltTunnelTileEntity> type) {
-		super(type);
+	public BrassTunnelTileEntity(BlockEntityType<? extends BeltTunnelTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		distributionTargets = Couple.create(ArrayList::new);
 		syncSet = new HashSet<>();
 		stackToDistribute = ItemStack.EMPTY;
@@ -739,23 +742,23 @@ public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHave
 	}
 
 	@Override
-	public boolean addToGoggleTooltip(List<ITextComponent> tooltip, boolean isPlayerSneaking) {
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		List<ItemStack> allStacks = grabAllStacksOfGroup(true);
 		if (allStacks.isEmpty())
 			return false;
 
 		tooltip.add(componentSpacing.plainCopy()
 			.append(Lang.translate("tooltip.brass_tunnel.contains"))
-			.withStyle(TextFormatting.WHITE));
+			.withStyle(ChatFormatting.WHITE));
 		for (ItemStack item : allStacks) {
 			tooltip.add(componentSpacing.plainCopy()
-				.append(Lang.translate("tooltip.brass_tunnel.contains_entry", new TranslationTextComponent(item.getItem()
+				.append(Lang.translate("tooltip.brass_tunnel.contains_entry", new TranslatableComponent(item.getItem()
 					.getDescriptionId(item)).getString(), item.getCount()))
-				.withStyle(TextFormatting.GRAY));
+				.withStyle(ChatFormatting.GRAY));
 		}
 		tooltip.add(componentSpacing.plainCopy()
 			.append(Lang.translate("tooltip.brass_tunnel.retrieve"))
-			.withStyle(TextFormatting.DARK_GRAY));
+			.withStyle(ChatFormatting.DARK_GRAY));
 
 		return true;
 	}

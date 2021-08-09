@@ -5,13 +5,13 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class GearboxTileEntity extends DirectionalShaftHalvesTileEntity {
 
-	public GearboxTileEntity(BlockEntityType<? extends GearboxTileEntity> type) {
-		super(type);
+	public GearboxTileEntity(BlockEntityType<? extends GearboxTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
-	
+
 	@Override
 	protected boolean isNoisy() {
 		return false;
 	}
-	
+
 }

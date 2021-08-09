@@ -27,6 +27,7 @@ import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.Lang;
 
+import com.simibubi.create.lib.block.CreateBlockEntity;
 import com.tterrag.registrate.fabric.EnvExecutor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -49,7 +50,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public abstract class KineticTileEntity extends SmartTileEntity
-	implements IHaveGoggleInformation, IHaveHoveringInformation, IInstanceRendered {
+	implements IHaveGoggleInformation, IHaveHoveringInformation, IInstanceRendered, CreateBlockEntity {
 
 	public @Nullable Long network;
 	public @Nullable BlockPos source;
@@ -70,8 +71,8 @@ public abstract class KineticTileEntity extends SmartTileEntity
 	protected float lastStressApplied;
 	protected float lastCapacityProvided;
 
-	public KineticTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public KineticTileEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
+		super(typeIn, pos, state);
 		effects = new KineticEffectHandler(this);
 		updateSpeed = true;
 	}

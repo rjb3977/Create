@@ -4,6 +4,8 @@ import static com.simibubi.create.content.logistics.block.diodes.AdjustableRepea
 import static net.minecraft.world.level.block.DiodeBlock.POWERED;
 
 import java.util.List;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -22,8 +24,8 @@ public class AdjustableRepeaterTileEntity extends SmartTileEntity implements IIn
 	public boolean charging;
 	ScrollValueBehaviour maxState;
 
-	public AdjustableRepeaterTileEntity(BlockEntityType<?> type) {
-		super(type);
+	public AdjustableRepeaterTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

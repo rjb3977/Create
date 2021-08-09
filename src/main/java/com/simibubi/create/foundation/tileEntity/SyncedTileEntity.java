@@ -2,6 +2,8 @@ package com.simibubi.create.foundation.tileEntity;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.simibubi.create.lib.block.CreateBlockEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +20,7 @@ import com.simibubi.create.lib.utility.NBTSerializable;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class SyncedTileEntity extends BlockEntity implements TileEntityExtensions, CustomDataPacketHandlingTileEntity, NBTSerializable {
+public abstract class SyncedTileEntity extends BlockEntity implements TileEntityExtensions, CustomDataPacketHandlingTileEntity, NBTSerializable, CreateBlockEntity {
 
 	public SyncedTileEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
 		super(tileEntityTypeIn, pos, state);
@@ -26,7 +28,7 @@ public abstract class SyncedTileEntity extends BlockEntity implements TileEntity
 
 	@Override
 	public CompoundTag create$getExtraCustomData() {
-		return ((TileEntityExtensions) ((BlockEntity) this)).create$getExtraCustomData();
+		return ((TileEntityExtensions) this).create$getExtraCustomData();
 	}
 
 	@Override

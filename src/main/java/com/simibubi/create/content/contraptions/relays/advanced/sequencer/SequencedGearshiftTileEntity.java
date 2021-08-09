@@ -17,8 +17,8 @@ public class SequencedGearshiftTileEntity extends SplitShaftTileEntity {
 	int timer;
 	boolean poweredPreviously;
 
-	public SequencedGearshiftTileEntity(BlockEntityType<? extends SequencedGearshiftTileEntity> type) {
-		super(type);
+	public SequencedGearshiftTileEntity(BlockEntityType<? extends SequencedGearshiftTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		instructions = Instruction.createDefault();
 		currentInstruction = -1;
 		currentInstructionDuration = -1;

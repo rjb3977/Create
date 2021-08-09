@@ -9,8 +9,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class FurnaceEngineTileEntity extends EngineTileEntity {
 
-	public FurnaceEngineTileEntity(BlockEntityType<? extends FurnaceEngineTileEntity> type) {
-		super(type);
+	public FurnaceEngineTileEntity(BlockEntityType<? extends FurnaceEngineTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

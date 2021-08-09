@@ -16,8 +16,8 @@ public class FlywheelTileEntity extends GeneratingKineticTileEntity {
 	InterpolatedChasingValue visualSpeed = new InterpolatedChasingValue();
 	float angle;
 
-	public FlywheelTileEntity(BlockEntityType<? extends FlywheelTileEntity> type) {
-		super(type);
+	public FlywheelTileEntity(BlockEntityType<? extends FlywheelTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	public void setRotation(float speed, float capacity) {

@@ -2,27 +2,30 @@ package com.simibubi.create.content.contraptions.base;
 
 import com.simibubi.create.foundation.item.ItemDescription.Palette;
 
+import com.simibubi.create.lib.block.CreateBlockEntity;
 import com.simibubi.create.lib.block.HarvestableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class KineticBlock extends Block implements IRotate, HarvestableBlock, EntityBlock {
+import org.jetbrains.annotations.Nullable;
 
+public abstract class KineticBlock extends BaseEntityBlock implements IRotate, HarvestableBlock, EntityBlock {
 	protected static final Palette color = Palette.Red;
 
 	public KineticBlock(Properties properties) {
@@ -47,7 +50,7 @@ public abstract class KineticBlock extends Block implements IRotate, Harvestable
 
 	@Override
 	public boolean isToolEffective(BlockState state, DiggerItem tool) {
-		return (tool instanceof PickaxeItem || tool instanceof AxeItem);
+		return tool.isCorrectToolForDrops(state);
 	}
 
 	@Override
@@ -130,4 +133,7 @@ public abstract class KineticBlock extends Block implements IRotate, Harvestable
 		return .75f;
 	}
 
+	public RenderShape getRenderShape(BlockState blockState) {
+		return RenderShape.MODEL;
+	}
 }

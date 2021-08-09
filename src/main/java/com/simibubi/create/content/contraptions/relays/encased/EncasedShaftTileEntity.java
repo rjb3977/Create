@@ -5,8 +5,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class EncasedShaftTileEntity extends KineticTileEntity {
 
-	public EncasedShaftTileEntity(BlockEntityType<? extends EncasedShaftTileEntity> type) {
-		super(type);
+	public EncasedShaftTileEntity(BlockEntityType<? extends EncasedShaftTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
-	
+
 }

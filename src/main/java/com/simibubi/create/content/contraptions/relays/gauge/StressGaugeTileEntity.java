@@ -14,8 +14,8 @@ import com.simibubi.create.foundation.utility.Lang;
 
 public class StressGaugeTileEntity extends GaugeTileEntity {
 
-	public StressGaugeTileEntity(BlockEntityType<? extends StressGaugeTileEntity> type) {
-		super(type);
+	public StressGaugeTileEntity(BlockEntityType<? extends StressGaugeTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

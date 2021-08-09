@@ -44,8 +44,8 @@ public class ClockworkBearingTileEntity extends KineticTileEntity
 
 	private float prevForcedAngle;
 
-	public ClockworkBearingTileEntity(BlockEntityType<? extends ClockworkBearingTileEntity> type) {
-		super(type);
+	public ClockworkBearingTileEntity(BlockEntityType<? extends ClockworkBearingTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		setLazyTickRate(3);
 	}
 

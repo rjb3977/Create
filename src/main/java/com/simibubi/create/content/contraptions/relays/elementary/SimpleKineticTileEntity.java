@@ -11,8 +11,8 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 
 public class SimpleKineticTileEntity extends KineticTileEntity {
 
-	public SimpleKineticTileEntity(BlockEntityType<? extends SimpleKineticTileEntity> type) {
-		super(type);
+	public SimpleKineticTileEntity(BlockEntityType<? extends SimpleKineticTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

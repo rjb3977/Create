@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import com.mojang.math.Vector3d;
 import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.content.contraptions.components.mixer.MechanicalMixerTileEntity;
@@ -91,8 +92,8 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	List<IntAttached<ItemStack>> visualizedOutputItems;
 	List<IntAttached<FluidStack>> visualizedOutputFluids;
 
-	public BasinTileEntity(BlockEntityType<? extends BasinTileEntity> type) {
-		super(type);
+	public BasinTileEntity(BlockEntityType<? extends BasinTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		inputInventory = new BasinInventory(9, this);
 		inputInventory.whenContentsChanged($ -> contentsChanged = true);
 		outputInventory = new BasinInventory(9, this).forbidInsertion()

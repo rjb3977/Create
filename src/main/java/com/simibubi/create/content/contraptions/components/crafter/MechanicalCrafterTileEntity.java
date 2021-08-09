@@ -93,8 +93,8 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 
 	private ItemStack scriptedResult = ItemStack.EMPTY;
 
-	public MechanicalCrafterTileEntity(BlockEntityType<? extends MechanicalCrafterTileEntity> type) {
-		super(type);
+	public MechanicalCrafterTileEntity(BlockEntityType<? extends MechanicalCrafterTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		setLazyTickRate(20);
 		phase = Phase.IDLE;
 		groupedItemsBeforeCraft = new GroupedItems();

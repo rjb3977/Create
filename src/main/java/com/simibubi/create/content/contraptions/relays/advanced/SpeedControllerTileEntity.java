@@ -24,8 +24,8 @@ public class SpeedControllerTileEntity extends KineticTileEntity {
 
 	boolean hasBracket;
 
-	public SpeedControllerTileEntity(BlockEntityType<? extends SpeedControllerTileEntity> type) {
-		super(type);
+	public SpeedControllerTileEntity(BlockEntityType<? extends SpeedControllerTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		hasBracket = false;
 	}
 

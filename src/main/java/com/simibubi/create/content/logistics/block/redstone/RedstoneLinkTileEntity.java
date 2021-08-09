@@ -24,8 +24,8 @@ public class RedstoneLinkTileEntity extends SmartTileEntity {
 	private LinkBehaviour link;
 	private boolean transmitter;
 
-	public RedstoneLinkTileEntity(BlockEntityType<? extends RedstoneLinkTileEntity> type) {
-		super(type);
+	public RedstoneLinkTileEntity(BlockEntityType<? extends RedstoneLinkTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class RedstoneLinkTileEntity extends SmartTileEntity {
 	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
 		transmitter = compound.getBoolean("Transmitter");
 		super.fromTag(state, compound, clientPacket);
-		
+
 		receivedSignal = compound.getInt("Receive");
 		receivedSignalChanged = compound.getBoolean("ReceivedChanged");
 		if (level == null || level.isClientSide || !link.newPosition)
@@ -98,7 +98,7 @@ public class RedstoneLinkTileEntity extends SmartTileEntity {
 			return;
 		if (level.isClientSide)
 			return;
-		
+
 		BlockState blockState = getBlockState();
 		if (!AllBlocks.REDSTONE_LINK.has(blockState))
 			return;
@@ -107,7 +107,7 @@ public class RedstoneLinkTileEntity extends SmartTileEntity {
 			receivedSignalChanged = true;
 			level.setBlockAndUpdate(worldPosition, blockState.cycle(POWERED));
 		}
-		
+
 		if (receivedSignalChanged) {
 			Direction attachedFace = blockState.getValue(RedstoneLinkBlock.FACING).getOpposite();
 			BlockPos attachedPos = worldPosition.relative(attachedFace);

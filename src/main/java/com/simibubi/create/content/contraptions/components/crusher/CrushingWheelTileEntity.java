@@ -14,8 +14,8 @@ public class CrushingWheelTileEntity extends KineticTileEntity {
 
 	public static DamageSource damageSource = DamageSourceHelper.create$createArmorBypassingDamageSource("create.crush").setScalesWithDifficulty();
 
-	public CrushingWheelTileEntity(BlockEntityType<? extends CrushingWheelTileEntity> type) {
-		super(type);
+	public CrushingWheelTileEntity(BlockEntityType<? extends CrushingWheelTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		setLazyTickRate(20);
 	}
 

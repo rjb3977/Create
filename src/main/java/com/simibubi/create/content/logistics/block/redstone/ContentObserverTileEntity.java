@@ -22,8 +22,8 @@ public class ContentObserverTileEntity extends SmartTileEntity {
 	private InvManipulationBehaviour observedInventory;
 	public int turnOffTicks = 0;
 
-	public ContentObserverTileEntity(BlockEntityType<? extends ContentObserverTileEntity> type) {
-		super(type);
+	public ContentObserverTileEntity(BlockEntityType<? extends ContentObserverTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		setLazyTickRate(20);
 	}
 
@@ -65,7 +65,7 @@ public class ContentObserverTileEntity extends SmartTileEntity {
 			});
 			return;
 		}
-		
+
 		if (!observedInventory.simulate()
 			.extract()
 			.isEmpty()) {
@@ -77,7 +77,7 @@ public class ContentObserverTileEntity extends SmartTileEntity {
 	public void activate() {
 		activate(DEFAULT_DELAY);
 	}
-	
+
 	public void activate(int ticks) {
 		BlockState state = getBlockState();
 		turnOffTicks = ticks;

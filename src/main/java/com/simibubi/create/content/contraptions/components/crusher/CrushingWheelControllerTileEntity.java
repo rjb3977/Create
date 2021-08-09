@@ -56,8 +56,8 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 	private RecipeWrapper wrapper;
 	public float crushingspeed;
 
-	public CrushingWheelControllerTileEntity(BlockEntityType<? extends CrushingWheelControllerTileEntity> type) {
-		super(type);
+	public CrushingWheelControllerTileEntity(BlockEntityType<? extends CrushingWheelControllerTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		inventory = new ProcessingInventory(this::itemInserted) {
 
 			@Override

@@ -84,8 +84,8 @@ public class SawTileEntity extends BlockBreakingKineticTileEntity {
 
 	private ItemStack playEvent;
 
-	public SawTileEntity(BlockEntityType<? extends SawTileEntity> type) {
-		super(type);
+	public SawTileEntity(BlockEntityType<? extends SawTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		inventory = new ProcessingInventory(this::start).withSlotLimit(!AllConfigs.SERVER.recipes.bulkCutting.get());
 		inventory.remainingTime = -1;
 		recipeIndex = 0;

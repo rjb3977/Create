@@ -17,8 +17,8 @@ public class WindmillBearingTileEntity extends MechanicalBearingTileEntity {
 	protected ScrollOptionBehaviour<RotationDirection> movementDirection;
 	protected float lastGeneratedSpeed;
 
-	public WindmillBearingTileEntity(BlockEntityType<? extends MechanicalBearingTileEntity> type) {
-		super(type);
+	public WindmillBearingTileEntity(BlockEntityType<? extends MechanicalBearingTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

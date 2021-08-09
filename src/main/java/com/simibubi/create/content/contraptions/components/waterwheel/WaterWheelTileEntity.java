@@ -15,8 +15,8 @@ public class WaterWheelTileEntity extends GeneratingKineticTileEntity {
 
 	private Map<Direction, Float> flows;
 
-	public WaterWheelTileEntity(BlockEntityType<? extends WaterWheelTileEntity> type) {
-		super(type);
+	public WaterWheelTileEntity(BlockEntityType<? extends WaterWheelTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		flows = new HashMap<>();
 		for (Direction d : Iterate.directions)
 			setFlow(d, 0);

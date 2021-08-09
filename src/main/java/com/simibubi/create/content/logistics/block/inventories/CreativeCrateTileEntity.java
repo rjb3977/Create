@@ -17,8 +17,8 @@ import com.simibubi.create.lib.utility.LazyOptional;
 
 public class CreativeCrateTileEntity extends CrateTileEntity {
 
-	public CreativeCrateTileEntity(BlockEntityType<? extends CreativeCrateTileEntity> type) {
-		super(type);
+	public CreativeCrateTileEntity(BlockEntityType<? extends CreativeCrateTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		inv = new BottomlessItemHandler(filtering::getFilter);
 		itemHandler = LazyOptional.of(() -> inv);
 	}

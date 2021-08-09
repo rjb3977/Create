@@ -33,8 +33,8 @@ public class MillstoneTileEntity extends KineticTileEntity {
 	public int timer;
 	private MillingRecipe lastRecipe;
 
-	public MillstoneTileEntity(BlockEntityType<? extends MillstoneTileEntity> type) {
-		super(type);
+	public MillstoneTileEntity(BlockEntityType<? extends MillstoneTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		inputInv = new ItemStackHandler(1);
 		outputInv = new ItemStackHandler(9);
 		capability = LazyOptional.of(MillstoneInventoryHandler::new);

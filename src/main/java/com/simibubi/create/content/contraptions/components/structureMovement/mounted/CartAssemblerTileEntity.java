@@ -47,8 +47,8 @@ public class CartAssemblerTileEntity extends SmartTileEntity implements IDisplay
 	protected AssemblyException lastException;
 	protected AbstractMinecart cartToAssemble;
 
-	public CartAssemblerTileEntity(BlockEntityType<? extends CartAssemblerTileEntity> type) {
-		super(type);
+	public CartAssemblerTileEntity(BlockEntityType<? extends CartAssemblerTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		ticksSinceMinecartUpdate = assemblyCooldown;
 	}
 

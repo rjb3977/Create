@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -73,8 +75,8 @@ public class ArmTileEntity extends KineticTileEntity implements ITransformableTE
 		SEARCH_INPUTS, MOVE_TO_INPUT, SEARCH_OUTPUTS, MOVE_TO_OUTPUT, DANCING
 	}
 
-	public ArmTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public ArmTileEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
+		super(typeIn, pos, state);
 		inputs = new ArrayList<>();
 		outputs = new ArrayList<>();
 		interactionPointTag = new ListTag();
@@ -388,8 +390,8 @@ public class ArmTileEntity extends KineticTileEntity implements ITransformableTE
 		if (interactionPointTag == null)
 			return;
 
-		for (INBT inbt : interactionPointTag) {
-			ArmInteractionPoint.transformPos(transform, (CompoundNBT) inbt);
+		for (Tag inbt : interactionPointTag) {
+			ArmInteractionPoint.transformPos(transform, (CompoundTag) inbt);
 		}
 
 		sendData();

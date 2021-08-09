@@ -31,8 +31,8 @@ public class NozzleTileEntity extends SmartTileEntity {
 	private boolean pushing;
 	private BlockPos fanPos;
 
-	public NozzleTileEntity(BlockEntityType<? extends NozzleTileEntity> type) {
-		super(type);
+	public NozzleTileEntity(BlockEntityType<? extends NozzleTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		setLazyTickRate(5);
 	}
 

@@ -1,6 +1,8 @@
 package com.simibubi.create.content.logistics.block.redstone;
 
 import java.util.List;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -19,8 +21,8 @@ public class AnalogLeverTileEntity extends SmartTileEntity implements IHaveGoggl
 	int lastChange;
 	InterpolatedChasingValue clientState = new InterpolatedChasingValue().withSpeed(.2f);
 
-	public AnalogLeverTileEntity(BlockEntityType<? extends AnalogLeverTileEntity> type) {
-		super(type);
+	public AnalogLeverTileEntity(BlockEntityType<? extends AnalogLeverTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

@@ -5,10 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.gui.IInteractionChecker;
@@ -28,8 +31,8 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 	// Used for simulating this TE in a client-only setting
 	private boolean virtualMode;
 
-	public SmartTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public SmartTileEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
+		super(tileEntityTypeIn, pos, state);
 		behaviours = new HashMap<>();
 		initialized = false;
 		firstNbtRead = true;
@@ -51,7 +54,6 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 	 */
 	public void addBehavioursDeferred(List<TileEntityBehaviour> behaviours) {}
 
-	@Override
 	public void tick() {
 		if (!initialized && hasLevel()) {
 			initialize();

@@ -6,8 +6,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class PeculiarBellTileEntity extends AbstractBellTileEntity {
 
-	public PeculiarBellTileEntity(BlockEntityType<?> type) {
-		super(type);
+	public PeculiarBellTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

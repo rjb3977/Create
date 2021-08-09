@@ -79,8 +79,8 @@ public class DeployerTileEntity extends KineticTileEntity {
 		PUNCH, USE
 	}
 
-	public DeployerTileEntity(BlockEntityType<? extends DeployerTileEntity> type) {
-		super(type);
+	public DeployerTileEntity(BlockEntityType<? extends DeployerTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		state = State.WAITING;
 		mode = Mode.USE;
 		heldItem = ItemStack.EMPTY;

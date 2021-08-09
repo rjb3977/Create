@@ -13,15 +13,15 @@ public class HarvesterTileEntity extends SyncedTileEntity {
 	// For simulations such as Ponder
 	private float manuallyAnimatedSpeed;
 
-	public HarvesterTileEntity(BlockEntityType<? extends HarvesterTileEntity> type) {
-		super(type);
+	public HarvesterTileEntity(BlockEntityType<? extends HarvesterTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public AABB getRenderBoundingBox() {
-		return RENDER_BOX.move(worldPosition);
-	}
+//	@Override
+//	@Environment(EnvType.CLIENT)
+//	public AABB getRenderBoundingBox() {
+//		return RENDER_BOX.move(worldPosition);
+//	}
 
 	public float getAnimatedSpeed() {
 		return manuallyAnimatedSpeed;

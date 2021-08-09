@@ -62,8 +62,8 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 	public Mode mode;
 	public boolean finished;
 
-	public MechanicalPressTileEntity(BlockEntityType<? extends MechanicalPressTileEntity> type) {
-		super(type);
+	public MechanicalPressTileEntity(BlockEntityType<? extends MechanicalPressTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		mode = Mode.WORLD;
 		entityScanCooldown = ENTITY_SCAN;
 	}

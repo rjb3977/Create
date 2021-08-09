@@ -6,8 +6,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class ClutchTileEntity extends SplitShaftTileEntity {
 
-	public ClutchTileEntity(BlockEntityType<? extends ClutchTileEntity> type) {
-		super(type);
+	public ClutchTileEntity(BlockEntityType<? extends ClutchTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

@@ -14,8 +14,8 @@ import com.simibubi.create.foundation.utility.Lang;
 
 public class SpeedGaugeTileEntity extends GaugeTileEntity {
 
-	public SpeedGaugeTileEntity(BlockEntityType<? extends SpeedGaugeTileEntity> type) {
-		super(type);
+	public SpeedGaugeTileEntity(BlockEntityType<? extends SpeedGaugeTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

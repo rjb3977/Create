@@ -16,8 +16,8 @@ public class CreativeMotorTileEntity extends GeneratingKineticTileEntity {
 	public static final int DEFAULT_SPEED = 16;
 	protected ScrollValueBehaviour generatedSpeed;
 
-	public CreativeMotorTileEntity(BlockEntityType<? extends CreativeMotorTileEntity> type) {
-		super(type);
+	public CreativeMotorTileEntity(BlockEntityType<? extends CreativeMotorTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

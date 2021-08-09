@@ -5,8 +5,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class TurntableTileEntity extends KineticTileEntity {
 
-	public TurntableTileEntity(BlockEntityType<? extends TurntableTileEntity> type) {
-		super(type);
+	public TurntableTileEntity(BlockEntityType<? extends TurntableTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 }

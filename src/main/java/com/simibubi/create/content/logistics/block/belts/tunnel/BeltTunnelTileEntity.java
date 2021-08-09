@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.core.BlockPos;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.jozufozu.flywheel.backend.instancing.IInstanceRendered;
@@ -46,8 +48,8 @@ public class BeltTunnelTileEntity extends SmartTileEntity implements IInstanceRe
 	protected LazyOptional<IItemHandler> cap = LazyOptional.empty();
 	protected List<Pair<Direction, Boolean>> flapsToSend;
 
-	public BeltTunnelTileEntity(BlockEntityType<? extends BeltTunnelTileEntity> type) {
-		super(type);
+	public BeltTunnelTileEntity(BlockEntityType<? extends BeltTunnelTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		flaps = new EnumMap<>(Direction.class);
 		sides = new HashSet<>();
 		flapsToSend = new LinkedList<>();

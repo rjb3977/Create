@@ -38,8 +38,8 @@ public class MechanicalBearingTileEntity extends GeneratingKineticTileEntity
 
 	private float prevAngle;
 
-	public MechanicalBearingTileEntity(BlockEntityType<? extends MechanicalBearingTileEntity> type) {
-		super(type);
+	public MechanicalBearingTileEntity(BlockEntityType<? extends MechanicalBearingTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		setLazyTickRate(3);
 	}
 
