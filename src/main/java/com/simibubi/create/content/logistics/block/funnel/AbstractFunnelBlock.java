@@ -144,8 +144,8 @@ public abstract class AbstractFunnelBlock extends Block implements ITE<FunnelTil
 	@Override
 	public void onRemove(BlockState p_196243_1_, Level p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
 		boolean p_196243_5_) {
-		if (p_196243_1_.getBlock().isEntityBlock() && (p_196243_1_.getBlock() != p_196243_4_.getBlock() && !isFunnel(p_196243_4_)
-			|| !p_196243_4_.getBlock().isEntityBlock())) {
+		if (p_196243_1_.hasBlockEntity() && (p_196243_1_.getBlock() != p_196243_4_.getBlock() && !isFunnel(p_196243_4_)
+			|| !p_196243_4_.hasBlockEntity())) {
 			TileEntityBehaviour.destroy(p_196243_2_, p_196243_3_, FilteringBehaviour.TYPE);
 			p_196243_2_.removeBlockEntity(p_196243_3_);
 		}

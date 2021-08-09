@@ -7,16 +7,15 @@ import java.util.Map;
 import java.util.function.Consumer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import World;
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.gui.IInteractionChecker;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.utility.IPartialSafeNBT;
 
-public abstract class SmartTileEntity extends SyncedTileEntity implements TickableBlockEntity, IPartialSafeNBT, IInteractionChecker {
+public abstract class SmartTileEntity extends SyncedTileEntity implements IPartialSafeNBT, IInteractionChecker {
 
 	private final Map<BehaviourType<?>, TileEntityBehaviour> behaviours;
 	// Internally maintained to be identical to behaviorMap.values() in order to improve iteration performance.
@@ -86,18 +85,18 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements Tickab
 
 	@Override
 	public final void readClientUpdate(BlockState state, CompoundTag tag) {
-		fromTag(state, tag, true);
+		fromTag(tag, true);
 	}
 
 	@Override
-	public final void load(BlockState state, CompoundTag tag) {
-		fromTag(state, tag, false);
+	public final void load(CompoundTag tag) {
+		fromTag(tag, false);
 	}
 
 	/**
 	 * Hook only these in future subclasses of STE
 	 */
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		if (firstNbtRead) {
 			firstNbtRead = false;
 			ArrayList<TileEntityBehaviour> list = new ArrayList<>();
@@ -106,7 +105,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements Tickab
 
 			updateBehaviorList();
 		}
-		super.load(state, compound);
+		super.load(compound);
 		behaviourList.forEach(tb -> tb.read(compound, clientPacket));
 	}
 
@@ -207,7 +206,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements Tickab
 		return player.distanceToSqr(worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D) <= 64.0D;
 	}
 
-	public World getWorld() {
+	public Level getWorld() {
 		return getLevel();
 	}
 }

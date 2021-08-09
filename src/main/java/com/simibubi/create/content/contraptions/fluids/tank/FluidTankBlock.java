@@ -230,7 +230,7 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 
 	@Override
 	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock().isEntityBlock() && (state.getBlock() != newState.getBlock() || !newState.getBlock().isEntityBlock())) {
+		if (state.hasBlockEntity() && (state.getBlock() != newState.getBlock() || !newState.hasBlockEntity())) {
 			BlockEntity te = world.getBlockEntity(pos);
 			if (!(te instanceof FluidTankTileEntity))
 				return;

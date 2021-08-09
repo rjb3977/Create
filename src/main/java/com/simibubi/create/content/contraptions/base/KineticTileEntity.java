@@ -49,7 +49,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public abstract class KineticTileEntity extends SmartTileEntity
-	implements TickableBlockEntity, IHaveGoggleInformation, IHaveHoveringInformation, IInstanceRendered {
+	implements IHaveGoggleInformation, IHaveHoveringInformation, IInstanceRendered {
 
 	public @Nullable Long network;
 	public @Nullable BlockPos source;
@@ -226,13 +226,13 @@ public abstract class KineticTileEntity extends SmartTileEntity
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		boolean overStressedBefore = overStressed;
 		clearKineticInformation();
 
 		// DO NOT READ kinetic information when placed after movement
 		if (wasMoved) {
-			super.fromTag(state, compound, clientPacket);
+			super.fromTag(compound, clientPacket);
 			return;
 		}
 
@@ -252,13 +252,13 @@ public abstract class KineticTileEntity extends SmartTileEntity
 			overStressed = capacity < stress && StressImpact.isEnabled();
 		}
 
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 
 		if (clientPacket && overStressedBefore != overStressed && speed != 0)
 			effects.triggerOverStressedEffect();
 
 		if (clientPacket)
-			DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
+			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
 	}
 
 	public float getGeneratedSpeed() {

@@ -52,8 +52,8 @@ public class PulleyBlock extends HorizontalAxisKineticBlock implements ITE<Pulle
 	}
 
     @Override
-    public BlockEntity newBlockEntity(BlockGetter world) {
-        return AllTileEntities.ROPE_PULLEY.create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return AllTileEntities.ROPE_PULLEY.create(pos, state);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class PulleyBlock extends HorizontalAxisKineticBlock implements ITE<Pulle
                 if (below.getBlock() instanceof RopeBlockBase)
                     worldIn.destroyBlock(pos.below(), true);
             }
-            if (state.getBlock().isEntityBlock())
+            if (state.hasBlockEntity())
                 worldIn.removeBlockEntity(pos);
         }
     }
@@ -128,7 +128,7 @@ public class PulleyBlock extends HorizontalAxisKineticBlock implements ITE<Pulle
                         worldIn.destroyBlock(pos.below(), true);
                 }
             }
-            if (state.getBlock().isEntityBlock() && state.getBlock() != newState.getBlock()) {
+            if (state.hasBlockEntity() && state.getBlock() != newState.getBlock()) {
                 worldIn.removeBlockEntity(pos);
             }
         }

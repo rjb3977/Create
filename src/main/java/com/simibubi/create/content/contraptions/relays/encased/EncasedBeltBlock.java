@@ -201,8 +201,8 @@ public class EncasedBeltBlock extends RotatedPillarKineticBlock implements WeakP
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.ENCASED_SHAFT.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.ENCASED_SHAFT.create(pos, state);
 	}
 
 	public enum Part implements StringRepresentable {

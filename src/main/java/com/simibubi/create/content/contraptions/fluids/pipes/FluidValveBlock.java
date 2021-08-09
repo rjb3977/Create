@@ -57,8 +57,8 @@ public class FluidValveBlock extends DirectionalAxisKineticBlock implements IAxi
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.FLUID_VALVE.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.FLUID_VALVE.create(pos ,state);
 	}
 
 	@Nonnull
@@ -89,7 +89,7 @@ public class FluidValveBlock extends DirectionalAxisKineticBlock implements IAxi
 		boolean blockTypeChanged = state.getBlock() != newState.getBlock();
 		if (blockTypeChanged && !world.isClientSide)
 			FluidPropagator.propagateChangedPipe(world, pos, state);
-		if (state.getBlock().isEntityBlock() && (blockTypeChanged || !newState.getBlock().isEntityBlock()))
+		if (state.hasBlockEntity() && (blockTypeChanged || !newState.hasBlockEntity()))
 			world.removeBlockEntity(pos);
 	}
 

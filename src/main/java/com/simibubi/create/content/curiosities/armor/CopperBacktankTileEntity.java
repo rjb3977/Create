@@ -1,7 +1,5 @@
 package com.simibubi.create.content.curiosities.armor;
 
-import ITextComponent;
-import ListNBT;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
@@ -9,15 +7,21 @@ import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.particle.AirParticleData;
 import com.simibubi.create.foundation.tileEntity.ComparatorUtil;
 import com.simibubi.create.foundation.utility.VecHelper;
+import com.simibubi.create.lib.utility.Constants;
+
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 
 public class CopperBacktankTileEntity extends KineticTileEntity implements Nameable {
@@ -27,11 +31,11 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 	private Component customName;
 
 	private int capacityEnchantLevel;
-	private ListNBT enchantmentTag;
+	private ListTag enchantmentTag;
 
 	public CopperBacktankTileEntity(BlockEntityType<?> typeIn) {
 		super(typeIn);
-		enchantmentTag = new ListNBT();
+		enchantmentTag = new ListTag();
 	}
 
 	@Override
@@ -91,13 +95,13 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		int prev = airLevel;
 		capacityEnchantLevel = compound.getInt("CapacityEnchantment");
 		airLevel = compound.getInt("Air");
 		airLevelTimer = compound.getInt("Timer");
-		enchantmentTag = compound.getList("Enchantments", NBT.TAG_COMPOUND);
+		enchantmentTag = compound.getList("Enchantments", Constants.NBT.TAG_COMPOUND);
 		if (compound.contains("CustomName", 8))
 			this.customName = Component.Serializer.fromJson(compound.getString("CustomName"));
 		if (prev != 0 && prev != airLevel && airLevel == BackTankUtil.maxAir(capacityEnchantLevel) && clientPacket)
@@ -138,19 +142,19 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 		sendData();
 	}
 
-	public void setCustomName(ITextComponent customName) {
+	public void setCustomName(TextComponent customName) {
 		this.customName = customName;
 	}
 
-	public ITextComponent getCustomName() {
-		return customName;
+	public TextComponent getCustomName() {
+		return (TextComponent) customName;
 	}
 
-	public ListNBT getEnchantmentTag() {
+	public ListTag getEnchantmentTag() {
 		return enchantmentTag;
 	}
 
-	public void setEnchantmentTag(ListNBT enchantmentTag) {
+	public void setEnchantmentTag(ListTag enchantmentTag) {
 		this.enchantmentTag = enchantmentTag;
 	}
 

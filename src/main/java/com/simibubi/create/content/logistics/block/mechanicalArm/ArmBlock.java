@@ -83,8 +83,8 @@ public class ArmBlock extends KineticBlock implements ITE<ArmTileEntity>, ICogWh
 	@Override
 	public void onRemove(BlockState p_196243_1_, Level world, BlockPos pos, BlockState p_196243_4_,
 		boolean p_196243_5_) {
-		if (p_196243_1_.getBlock().isEntityBlock()
-			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.getBlock().isEntityBlock())) {
+		if (p_196243_1_.hasBlockEntity()
+			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.hasBlockEntity())) {
 			withTileEntityDo(world, pos, te -> {
 				if (!te.heldItem.isEmpty())
 					Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), te.heldItem);

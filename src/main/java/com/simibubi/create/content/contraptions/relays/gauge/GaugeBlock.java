@@ -1,6 +1,10 @@
 package com.simibubi.create.content.contraptions.relays.gauge;
 
 import java.util.Random;
+
+import com.mojang.math.Vector3f;
+
+import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -55,12 +59,12 @@ public class GaugeBlock extends DirectionalAxisKineticBlock {
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		switch (type) {
 		case SPEED:
-			return AllTileEntities.SPEEDOMETER.create();
+			return AllTileEntities.SPEEDOMETER.create(pos ,state);
 		case STRESS:
-			return AllTileEntities.STRESSOMETER.create();
+			return AllTileEntities.STRESSOMETER.create(pos, state);
 		default:
 			return null;
 		}
@@ -131,7 +135,7 @@ public class GaugeBlock extends DirectionalAxisKineticBlock {
 			return false;
 		if (getRotationAxis(state) == Axis.Y && face != state.getValue(FACING))
 			return false;
-		if (!Block.shouldRenderFace(state, world, pos, face) && !(world instanceof WrappedWorld))
+		if (!Block.shouldRenderFace(state, world, pos, face, pos.relative(face)) && !(world instanceof WrappedWorld))
 			return false;
 		return true;
 	}
@@ -167,7 +171,7 @@ public class GaugeBlock extends DirectionalAxisKineticBlock {
 				Vec3 offset = VecHelper.getCenterOf(pos)
 					.add(faceVec.scale(.55))
 					.add(mul);
-				worldIn.addParticle(new DustParticleOptions((float) rgb.x, (float) rgb.y, (float) rgb.z, 1), offset.x,
+				worldIn.addParticle(new DustParticleOptions(new Vector3f((float) rgb.x, (float) rgb.y, (float) rgb.z), 1), offset.x,
 					offset.y, offset.z, mul.x, mul.y, mul.z);
 			}
 

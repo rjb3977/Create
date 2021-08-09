@@ -31,8 +31,8 @@ public class CrushingWheelBlock extends RotatedPillarKineticBlock implements ITE
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.CRUSHING_WHEEL.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.CRUSHING_WHEEL.create(pos, state);
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class CrushingWheelBlock extends RotatedPillarKineticBlock implements ITE
 				worldIn.setBlockAndUpdate(pos.relative(d), Blocks.AIR.defaultBlockState());
 		}
 
-		if (state.getBlock().isEntityBlock() && state.getBlock() != newState.getBlock()) {
+		if (state.hasBlockEntity() && state.getBlock() != newState.getBlock()) {
 			worldIn.removeBlockEntity(pos);
 		}
 	}

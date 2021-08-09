@@ -138,7 +138,7 @@ public abstract class BlockBreakingKineticTileEntity extends KineticTileEntity {
 	public void onBlockBroken(BlockState stateToBreak) {
 		FluidState FluidState = level.getFluidState(breakingPos);
 		level.levelEvent(2001, breakingPos, Block.getId(stateToBreak));
-		BlockEntity tileentity = stateToBreak.getBlock().isEntityBlock() ? level.getBlockEntity(breakingPos) : null;
+		BlockEntity tileentity = stateToBreak.hasBlockEntity() ? level.getBlockEntity(breakingPos) : null;
 		Vec3 vec = VecHelper.offsetRandomly(VecHelper.getCenterOf(breakingPos), level.random, .125f);
 
 		Block.getDrops(stateToBreak, (ServerLevel) level, breakingPos, tileentity).forEach((stack) -> {

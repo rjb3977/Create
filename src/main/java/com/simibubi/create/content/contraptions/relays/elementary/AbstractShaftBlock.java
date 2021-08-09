@@ -47,8 +47,8 @@ public abstract class AbstractShaftBlock extends RotatedPillarKineticBlock
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.SIMPLE_KINETIC.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.SIMPLE_KINETIC.create(pos, state);
 	}
 
 	@Override

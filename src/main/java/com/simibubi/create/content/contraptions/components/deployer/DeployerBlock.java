@@ -39,8 +39,8 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements ITE<De
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.DEPLOYER.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.DEPLOYER.create(pos, state);
 	}
 
 	@Override
@@ -65,10 +65,10 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements ITE<De
 
 	@Override
 	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock().isEntityBlock() && state.getBlock() != newState.getBlock()) {
+		if (state.hasBlockEntity() && state.getBlock() != newState.getBlock()) {
 			withTileEntityDo(worldIn, pos, te -> {
 				if (te.player != null && !isMoving) {
-					te.player.inventory.dropAll();
+					te.player.getInventory().dropAll();
 					te.overflowItems.forEach(itemstack -> te.player.drop(itemstack, true, false));
 					te.player.remove();
 					te.player = null;

@@ -26,17 +26,18 @@ import com.simibubi.create.lib.extensions.FireBlockExtensions;
 public abstract class FireBlockMixin extends BaseFireBlock implements FireBlockExtensions {
 	@Shadow
 	@Final
-	private static Map<Direction, BooleanProperty> FACING_TO_PROPERTY_MAP;
+	private static Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION;
+
 
 	@Shadow
-	protected abstract int func_220274_q(BlockState blockState);
+	protected abstract int getBurnOdd(BlockState blockState);
 
 	private FireBlockMixin(Properties properties, float f) {
 		super(properties, f);
 	}
 
 	public int doFunc_220274_q(BlockState state) {
-		return func_220274_q(state);
+		return getBurnOdd(state);
 	}
 
 	/**
@@ -54,7 +55,7 @@ public abstract class FireBlockMixin extends BaseFireBlock implements FireBlockE
 
 			for (int var8 = 0; var8 < var7; ++var8) {
 				Direction direction = var6[var8];
-				BooleanProperty booleanProperty = FACING_TO_PROPERTY_MAP.get(direction);
+				BooleanProperty booleanProperty = PROPERTY_BY_DIRECTION.get(direction);
 				if (booleanProperty != null) {
 					blockState2 = blockState2.setValue(booleanProperty, this.canBurn(blockState2) || canCatchFire(iBlockReader, blockPos, direction));
 				}
@@ -67,7 +68,7 @@ public abstract class FireBlockMixin extends BaseFireBlock implements FireBlockE
 	}
 
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.BEFORE, ordinal = 1, target = "Ljava/util/Random;nextInt(I)I"),
-			method = "scheduledTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/server/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V", cancellable = true)
+			method = "tick", cancellable = true)
 	public void create$scheduledTick(BlockState blockState, ServerLevel serverWorld, BlockPos blockPos, Random random, CallbackInfo ci) {
 		if (blockState.getValue(FireBlock.AGE) == 15 && random.nextInt(4) == 0 && !canCatchFire(serverWorld, blockPos.below(), Direction.UP)) {
 			serverWorld.removeBlock(blockPos, false);
@@ -77,7 +78,7 @@ public abstract class FireBlockMixin extends BaseFireBlock implements FireBlockE
 
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/block/FireBlock;canBurn(Lnet/minecraft/block/BlockState;)Z"),
 			locals = LocalCapture.CAPTURE_FAILEXCEPTION,
-			method = "areNeighborsFlammable(Lnet/minecraft/world/BlockGetter;Lnet/minecraft/util/math/BlockPos;)Z", cancellable = true)
+			method = "isValidFireLocation", cancellable = true)
 	private void create$areNeighborsFlammable(BlockGetter iBlockReader, BlockPos blockPos, CallbackInfoReturnable<Boolean> cir,
 											  Direction[] var3, int var4, int var5, Direction direction) {
 		if (this.canCatchFire(iBlockReader, blockPos.relative(direction), direction.getOpposite())) {

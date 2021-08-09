@@ -7,12 +7,16 @@ import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.schematics.ISpecialBlockItemRequirement;
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.tterrag.registrate.util.entry.BlockEntry;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import org.jetbrains.annotations.Nullable;
 
 public class EncasedShaftBlock extends AbstractEncasedShaftBlock implements ISpecialBlockItemRequirement {
 
@@ -29,11 +33,6 @@ public class EncasedShaftBlock extends AbstractEncasedShaftBlock implements ISpe
 	protected EncasedShaftBlock(Properties properties, BlockEntry<CasingBlock> casing) {
 		super(properties);
 		this.casing = casing;
-	}
-
-	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.ENCASED_SHAFT.create();
 	}
 
 	public BlockEntry<CasingBlock> getCasing() {
@@ -54,4 +53,9 @@ public class EncasedShaftBlock extends AbstractEncasedShaftBlock implements ISpe
 		return ItemRequirement.of(AllBlocks.SHAFT.getDefaultState(), te);
 	}
 
+	@Nullable
+	@Override
+	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return AllTileEntities.ENCASED_SHAFT.create(blockPos, blockState);
+	}
 }

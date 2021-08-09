@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -58,13 +59,13 @@ public class EjectorBlock extends HorizontalKineticBlock implements ITE<EjectorT
 	}
 
 	@Override
-	public void fallOn(Level p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
-		Optional<EjectorTileEntity> tileEntityOptional = getTileEntityOptional(p_180658_1_, p_180658_2_);
-		if (tileEntityOptional.isPresent() && !p_180658_3_.isSuppressingBounce()) {
-			p_180658_3_.causeFallDamage(p_180658_4_, 0.0F);
+	public void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, float f) {
+		Optional<EjectorTileEntity> tileEntityOptional = getTileEntityOptional(level, blockPos);
+		if (tileEntityOptional.isPresent() && !entity.isSuppressingBounce()) {
+			entity.causeFallDamage(f, 0.0F, DamageSource.FALL);
 			return;
 		}
-		super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_);
+		super.fallOn(level, blockState, blockPos, entity, f);
 	}
 
 	@Override
@@ -142,8 +143,8 @@ public class EjectorBlock extends HorizontalKineticBlock implements ITE<EjectorT
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.WEIGHTED_EJECTOR.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.WEIGHTED_EJECTOR.create(pos, state);
 	}
 
 	@Override

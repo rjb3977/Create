@@ -31,8 +31,8 @@ public class GearboxBlock extends RotatedPillarKineticBlock implements BlockPick
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.GEARBOX.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.GEARBOX.create(pos ,state);
 	}
 
 	@Override

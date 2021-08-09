@@ -31,8 +31,8 @@ public class TurntableBlock extends KineticBlock implements ITE<TurntableTileEnt
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.TURNTABLE.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.TURNTABLE.create(pos, state);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class TurntableBlock extends KineticBlock implements ITE<TurntableTileEnt
 				e.hurtMarked = true;
 			}
 
-			e.yRot -= speed;
+			e.setYRot(e.getYRot() - speed);
 		});
 	}
 

@@ -584,7 +584,7 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 		if (pos.closerThan(getBlockPos(), 2f))
 			return false;
 		if (!replaceTileEntities
-				&& (toReplace.getBlock().isEntityBlock() || (toReplaceOther != null && toReplaceOther.getBlock().isEntityBlock())))
+				&& (toReplace.hasBlockEntity() || (toReplaceOther != null && toReplaceOther.hasBlockEntity())))
 			return false;
 
 		if (shouldIgnoreBlockState(state, te))

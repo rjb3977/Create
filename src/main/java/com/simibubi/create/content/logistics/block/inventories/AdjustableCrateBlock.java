@@ -37,7 +37,7 @@ public class AdjustableCrateBlock extends CrateBlock implements EntityBlock {
 
 	@Override
 	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
-		if (oldState.getBlock() != state.getBlock() && state.getBlock().isEntityBlock() && state.getValue(DOUBLE)
+		if (oldState.getBlock() != state.getBlock() && state.hasBlockEntity() && state.getValue(DOUBLE)
 				&& state.getValue(FACING).getAxisDirection() == AxisDirection.POSITIVE) {
 			BlockEntity tileEntity = worldIn.getBlockEntity(pos);
 			if (!(tileEntity instanceof AdjustableCrateTileEntity))
@@ -94,7 +94,7 @@ public class AdjustableCrateBlock extends CrateBlock implements EntityBlock {
 		if (!(worldIn.getBlockEntity(pos) instanceof AdjustableCrateTileEntity))
 			return;
 
-		if (state.getBlock().isEntityBlock() && state.getBlock() != newState.getBlock()) {
+		if (state.hasBlockEntity() && state.getBlock() != newState.getBlock()) {
 			AdjustableCrateTileEntity te = (AdjustableCrateTileEntity) worldIn.getBlockEntity(pos);
 			if (!isMoving)
 				te.onDestroyed();

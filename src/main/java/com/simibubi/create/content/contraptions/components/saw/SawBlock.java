@@ -34,7 +34,7 @@ import com.simibubi.create.lib.helper.DamageSourceHelper;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class SawBlock extends DirectionalAxisKineticBlock implements ITE<SawTileEntity> {
-	public static DamageSource damageSourceSaw = DamageSourceHelper.create$createDamageSourceWhichBypassesArmor("create.mechanical_saw");
+	public static DamageSource damageSourceSaw = DamageSourceHelper.create$createArmorBypassingDamageSource("create.mechanical_saw");
 
 	public SawBlock(Properties properties) {
 		super(properties);
@@ -50,8 +50,8 @@ public class SawBlock extends DirectionalAxisKineticBlock implements ITE<SawTile
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.SAW.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.SAW.create(pos, state);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class SawBlock extends DirectionalAxisKineticBlock implements ITE<SawTile
 
 	@Override
 	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!state.getBlock().isEntityBlock() || state.getBlock() == newState.getBlock())
+		if (!state.hasBlockEntity() || state.getBlock() == newState.getBlock())
 			return;
 
 		withTileEntityDo(worldIn, pos, te -> ItemHelper.dropContents(worldIn, pos, te.inventory));

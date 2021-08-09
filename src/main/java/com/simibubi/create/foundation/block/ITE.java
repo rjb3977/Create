@@ -8,9 +8,11 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
-public interface ITE<T extends BlockEntity> {
+public interface ITE<T extends BlockEntity> extends EntityBlock {
 
 	Class<T> getTileEntityClass();
 
@@ -40,5 +42,4 @@ public interface ITE<T extends BlockEntity> {
 
 		return (T) tileEntity;
 	}
-
 }

@@ -93,7 +93,7 @@ public class SchematicWorld extends WrappedWorld implements ServerLevelAccessor 
 			return null;
 
 		BlockState blockState = getBlockState(pos);
-		if (blockState.getBlock().isEntityBlock()) {
+		if (blockState.hasBlockEntity()) {
 			try {
 				BlockEntity tileEntity = ((EntityBlock) blockState.getBlock()).newBlockEntity(this);
 				if (tileEntity != null) {

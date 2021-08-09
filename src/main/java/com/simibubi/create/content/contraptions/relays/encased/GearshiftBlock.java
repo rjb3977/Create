@@ -19,6 +19,8 @@ import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.relays.gearbox.GearshiftTileEntity;
 import com.simibubi.create.foundation.block.ITE;
 
+import org.jetbrains.annotations.Nullable;
+
 public class GearshiftBlock extends AbstractEncasedShaftBlock implements ITE<GearshiftTileEntity> {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -26,11 +28,6 @@ public class GearshiftBlock extends AbstractEncasedShaftBlock implements ITE<Gea
 	public GearshiftBlock(Properties properties) {
 		super(properties);
 		registerDefaultState(defaultBlockState().setValue(POWERED, false));
-	}
-
-	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.GEARSHIFT.create();
 	}
 
 	@Override
@@ -81,5 +78,11 @@ public class GearshiftBlock extends AbstractEncasedShaftBlock implements ITE<Gea
 			return;
 		KineticTileEntity kte = (KineticTileEntity) te;
 		RotationPropagator.handleAdded(worldIn, pos, kte);
+	}
+
+	@Nullable
+	@Override
+	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return AllTileEntities.GEARSHIFT.create(blockPos, blockState);
 	}
 }

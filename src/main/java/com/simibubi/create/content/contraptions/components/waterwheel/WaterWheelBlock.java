@@ -1,10 +1,14 @@
 package com.simibubi.create.content.contraptions.components.waterwheel;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.mojang.math.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -39,8 +43,8 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<Wate
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.WATER_WHEEL.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.WATER_WHEEL.create(pos, state);
 	}
 
 	@Override
@@ -55,10 +59,10 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<Wate
 			BlockState neighbourState = worldIn.getBlockState(neighbourPos);
 			if (!AllBlocks.WATER_WHEEL.has(neighbourState))
 				continue;
-			if (neighbourState.getValue(HORIZONTAL_FACING)
-				.getAxis() != state.getValue(HORIZONTAL_FACING)
+			if (neighbourState.getValue(FACING)
+				.getAxis() != state.getValue(FACING)
 					.getAxis()
-				|| state.getValue(HORIZONTAL_FACING)
+				|| state.getValue(FACING)
 					.getAxis() != direction.getAxis())
 				return false;
 		}
@@ -88,12 +92,12 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<Wate
 	}
 
 	private void updateFlowAt(BlockState state, LevelAccessor world, BlockPos pos, Direction side) {
-		if (side.getAxis() == state.getValue(HORIZONTAL_FACING)
+		if (side.getAxis() == state.getValue(FACING)
 			.getAxis())
 			return;
 
 		FluidState fluid = world.getFluidState(pos.relative(side));
-		Direction wf = state.getValue(HORIZONTAL_FACING);
+		Direction wf = state.getValue(FACING);
 		boolean clockwise = wf.getAxisDirection() == AxisDirection.POSITIVE;
 		int clockwiseMultiplier = 2;
 
@@ -156,8 +160,8 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<Wate
 		Direction face = context.getClickedFace();
 		Direction horizontalFacing = context.getHorizontalDirection();
 		BlockPos pos = context.getClickedPos();
-		World world = context.getLevel();
-		PlayerEntity player = context.getPlayer();
+		Level world = context.getLevel();
+		Player player = context.getPlayer();
 
 		BlockState placedOn = world.getBlockState(pos.relative(face.getOpposite()));
 		if (AllBlocks.WATER_WHEEL.has(placedOn))
@@ -167,15 +171,15 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<Wate
 		boolean sneaking = player != null && player.isShiftKeyDown();
 		if (player != null) {
 
-			Vector3d lookVec = player.getLookAngle();
+			Vec3 lookVec = player.getLookAngle();
 			double tolerance = 0.985;
 
 			if (!canSurvive(defaultBlockState().setValue(FACING, Direction.UP), world, pos))
 				facing = horizontalFacing;
-			else if (Vector3d.atLowerCornerOf(Direction.DOWN.getNormal())
+			else if (Vec3.atLowerCornerOf(Direction.DOWN.getNormal())
 					.dot(lookVec.normalize()) > tolerance)
 				facing = Direction.DOWN;
-			else if (Vector3d.atLowerCornerOf(Direction.UP.getNormal())
+			else if (Vec3.atLowerCornerOf(Direction.UP.getNormal())
 					.dot(lookVec.normalize()) > tolerance)
 				facing = Direction.UP;
 			else
@@ -188,13 +192,13 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<Wate
 
 	@Override
 	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
-		return state.getValue(HORIZONTAL_FACING)
+		return state.getValue(FACING)
 			.getAxis() == face.getAxis();
 	}
 
 	@Override
 	public Axis getRotationAxis(BlockState state) {
-		return state.getValue(HORIZONTAL_FACING)
+		return state.getValue(FACING)
 			.getAxis();
 	}
 

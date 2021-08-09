@@ -32,7 +32,7 @@ import com.simibubi.create.lib.helper.DamageSourceHelper;
 @MethodsReturnNonnullByDefault
 public class DrillBlock extends DirectionalKineticBlock implements ITE<DrillTileEntity> {
 	// this is probably going to crash and burn
-	public static DamageSource damageSourceDrill = DamageSourceHelper.create$createDamageSourceWhichBypassesArmor("create.mechanical_drill");
+	public static DamageSource damageSourceDrill = DamageSourceHelper.create$createArmorBypassingDamageSource("create.mechanical_drill");
 	public DrillBlock(Properties properties) {
 		super(properties);
 	}
@@ -56,8 +56,8 @@ public class DrillBlock extends DirectionalKineticBlock implements ITE<DrillTile
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.DRILL.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.DRILL.create(pos, state);
 	}
 
 	@Override

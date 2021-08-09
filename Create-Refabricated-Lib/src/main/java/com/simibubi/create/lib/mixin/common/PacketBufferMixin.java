@@ -3,7 +3,6 @@ package com.simibubi.create.lib.mixin.common;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.simibubi.create.lib.extensions.PacketBufferExtensions;
 import com.simibubi.create.lib.lba.fluid.FluidStack;
 
 import io.netty.buffer.ByteBuf;

@@ -37,8 +37,8 @@ public class CuckooClockBlock extends HorizontalKineticBlock {
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.CUCKOO_CLOCK.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.CUCKOO_CLOCK.create(pos, state);
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import com.simibubi.create.lib.helper.DamageSourceHelper;
 
 public class CrushingWheelTileEntity extends KineticTileEntity {
 
-	public static DamageSource damageSource = DamageSourceHelper.create$createDamageSourceWhichBypassesArmor("create.crush").setDifficultyScaled();
+	public static DamageSource damageSource = DamageSourceHelper.create$createArmorBypassingDamageSource("create.crush").setScalesWithDifficulty();
 
 	public CrushingWheelTileEntity(BlockEntityType<? extends CrushingWheelTileEntity> type) {
 		super(type);

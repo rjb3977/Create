@@ -52,8 +52,8 @@ public class SequencedGearshiftBlock extends HorizontalAxisKineticBlock implemen
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.SEQUENCED_GEARSHIFT.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.SEQUENCED_GEARSHIFT.create(pos, state);
 	}
 
 	@Override

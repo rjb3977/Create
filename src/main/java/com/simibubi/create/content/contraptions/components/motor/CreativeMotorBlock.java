@@ -28,8 +28,8 @@ public class CreativeMotorBlock extends DirectionalKineticBlock implements Entit
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.MOTOR.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.MOTOR.create(pos, state);
 	}
 
 	@Override

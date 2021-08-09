@@ -57,7 +57,7 @@ public class ZapperInteractionHandler {
 		if (BlockHelper.getRequiredItem(newState)
 			.isEmpty())
 			return false;
-		if (newState.getBlock().isEntityBlock() && !AllBlockTags.SAFE_NBT.matches(newState))
+		if (newState.hasBlockEntity() && !AllBlockTags.SAFE_NBT.matches(newState))
 			return false;
 		if (newState.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF))
 			return false;

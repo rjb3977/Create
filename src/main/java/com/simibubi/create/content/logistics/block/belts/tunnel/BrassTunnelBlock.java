@@ -8,20 +8,20 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.util.InteractionResult;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class BrassTunnelBlock extends BeltTunnelBlock {
 
@@ -30,8 +30,8 @@ public class BrassTunnelBlock extends BeltTunnelBlock {
 	}
 
 	@Override
-	public InteractionResult use(BlockState p_225533_1_, World world, BlockPos pos, PlayerEntity player,
-		Hand p_225533_5_, BlockRayTraceResult p_225533_6_) {
+	public InteractionResult use(BlockState p_225533_1_, Level world, BlockPos pos, Player player,
+								 InteractionHand p_225533_5_, BlockHitResult p_225533_6_) {
 		return onTileEntityUse(world, pos, te -> {
 			if (!(te instanceof BrassTunnelTileEntity))
 				return InteractionResult.PASS;
@@ -42,8 +42,8 @@ public class BrassTunnelBlock extends BeltTunnelBlock {
 			if (world.isClientSide)
 				return InteractionResult.SUCCESS;
 			for (ItemStack itemStack : stacksOfGroup)
-				player.inventory.placeItemBackInInventory(world, itemStack.copy());
-			world.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundCategory.PLAYERS, .2f,
+				player.getInventory().placeItemBackInInventory(itemStack.copy());
+			world.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f,
 				1f + Create.RANDOM.nextFloat());
 			return InteractionResult.SUCCESS;
 		});
@@ -63,8 +63,8 @@ public class BrassTunnelBlock extends BeltTunnelBlock {
 	@Override
 	public void onRemove(BlockState p_196243_1_, Level p_196243_2_, BlockPos p_196243_3_, BlockState p_196243_4_,
 		boolean p_196243_5_) {
-		if (p_196243_1_.getBlock().isEntityBlock()
-			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.getBlock().isEntityBlock())) {
+		if (p_196243_1_.hasBlockEntity()
+			&& (p_196243_1_.getBlock() != p_196243_4_.getBlock() || !p_196243_4_.hasBlockEntity())) {
 			TileEntityBehaviour.destroy(p_196243_2_, p_196243_3_, FilteringBehaviour.TYPE);
 			withTileEntityDo(p_196243_2_, p_196243_3_, te -> {
 				if (te instanceof BrassTunnelTileEntity)

@@ -2,11 +2,12 @@ package com.simibubi.create.content.contraptions.relays.encased;
 
 import com.simibubi.create.AllTileEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import org.jetbrains.annotations.Nullable;
 
 public class ClutchBlock extends GearshiftBlock {
 
@@ -14,9 +15,10 @@ public class ClutchBlock extends GearshiftBlock {
 		super(properties);
 	}
 
+	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.CLUTCH.create();
+	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return AllTileEntities.CLUTCH.create(blockPos, blockState);
 	}
 
 	@Override

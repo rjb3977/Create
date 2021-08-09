@@ -112,7 +112,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 		boolean dontConsume = player.isCreative();
 		boolean forceOverflow = !(player instanceof FakePlayer);
 
-		if (!state.getBlock().isEntityBlock()) {
+		if (!state.hasBlockEntity()) {
 			if (heldItem.getItem() instanceof FlintAndSteelItem) {
 				world.playSound(player, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F,
 					world.random.nextFloat() * 0.4F + 0.8F);
@@ -143,7 +143,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 
 	public static InteractionResultHolder<ItemStack> tryInsert(BlockState state, Level world, BlockPos pos, ItemStack stack, boolean doNotConsume,
 		boolean forceOverflow, boolean simulate) {
-		if (!state.getBlock().isEntityBlock())
+		if (!state.hasBlockEntity())
 			return InteractionResultHolder.fail(ItemStack.EMPTY);
 
 		BlockEntity te = world.getBlockEntity(pos);

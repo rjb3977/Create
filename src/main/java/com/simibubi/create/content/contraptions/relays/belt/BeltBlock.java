@@ -28,10 +28,8 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.lib.block.CustomPathNodeTypeBlock;
 import com.simibubi.create.lib.extensions.BlockExtensions;
 import com.simibubi.create.lib.helper.EntitySelectionContextHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.TagUtil;
 
-import alexiil.mc.lib.attributes.item.ItemAttributes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
@@ -184,7 +182,7 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 			Player player = (Player) entityIn;
 			if (player.isShiftKeyDown())
 				return;
-			if (player.abilities.flying)
+			if (player.getAbilities().flying)
 				return;
 		}
 
@@ -270,7 +268,7 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 			MutableBoolean success = new MutableBoolean(false);
 			controllerBelt.getInventory()
 				.applyToEachWithin(belt.index + .5f, .55f, (transportedItemStack) -> {
-					player.inventory.placeItemBackInInventory(world, transportedItemStack.stack);
+					player.getInventory().placeItemBackInInventory(transportedItemStack.stack);
 					success.setTrue();
 					return TransportedResult.removeItem();
 				});
@@ -327,7 +325,7 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 				return InteractionResult.SUCCESS;
 			KineticTileEntity.switchToBlockState(world, pos, state.setValue(PART, BeltPart.MIDDLE));
 			if (player != null && !player.isCreative())
-				player.inventory.placeItemBackInInventory(world, AllBlocks.SHAFT.asStack());
+				player.getInventory().placeItemBackInInventory(AllBlocks.SHAFT.asStack());
 			return InteractionResult.SUCCESS;
 		}
 
@@ -384,8 +382,8 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.BELT.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.BELT.create(pos, state);
 	}
 
 	@Override

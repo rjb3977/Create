@@ -171,7 +171,7 @@ public class GantryShaftBlock extends DirectionalKineticBlock {
 	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
 		super.onPlace(state, worldIn, pos, oldState, isMoving);
 
-		if (!worldIn.isClientSide() && oldState.getBlock().is(AllBlocks.GANTRY_SHAFT.get())) {
+		if (!worldIn.isClientSide() && oldState.is(AllBlocks.GANTRY_SHAFT.get())) {
 			Part oldPart = oldState.getValue(PART), part = state.getValue(PART);
 			if ((oldPart != Part.MIDDLE && part == Part.MIDDLE) || (oldPart == Part.SINGLE && part != Part.SINGLE)) {
 				BlockEntity te = worldIn.getBlockEntity(pos);
@@ -263,8 +263,8 @@ public class GantryShaftBlock extends DirectionalKineticBlock {
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.GANTRY_SHAFT.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.GANTRY_SHAFT.create(pos ,state);
 	}
 
 	@Override

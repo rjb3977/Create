@@ -10,7 +10,7 @@ public final class DamageSourceHelper {
 	}
 
 	// this is probably going to crash and burn.
-	public static DamageSource create$createDamageSourceWhichBypassesArmor(String string) {
+	public static DamageSource create$createArmorBypassingDamageSource(String string) {
 		return MixinHelper.<DamageSourceAccessor>cast(create$createDamageSource(string)).create$setDamageBypassesArmor();
 	}
 

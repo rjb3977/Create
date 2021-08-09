@@ -15,10 +15,6 @@ import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Pointing;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.utility.LazyOptional;
 
 import com.simibubi.create.lib.utility.TransferUtil;
 import net.minecraft.core.BlockPos;
@@ -56,8 +52,8 @@ public class MechanicalCrafterBlock extends HorizontalKineticBlock implements IT
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.MECHANICAL_CRAFTER.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.MECHANICAL_CRAFTER.create(pos ,state);
 	}
 
 	@Override
@@ -99,7 +95,7 @@ public class MechanicalCrafterBlock extends HorizontalKineticBlock implements IT
 			}
 		}
 
-		if (state.getBlock().isEntityBlock() && state.getBlock() != newState.getBlock()) {
+		if (state.hasBlockEntity() && state.getBlock() != newState.getBlock()) {
 			MechanicalCrafterTileEntity crafter = CrafterHelper.getCrafter(worldIn, pos);
 			if (crafter != null) {
 				if (crafter.covered)
@@ -224,7 +220,7 @@ public class MechanicalCrafterBlock extends HorizontalKineticBlock implements IT
 				return InteractionResult.PASS;
 			if (worldIn.isClientSide)
 				return InteractionResult.SUCCESS;
-			player.inventory.placeItemBackInInventory(worldIn, inSlot);
+			player.getInventory().placeItemBackInInventory(inSlot);
 			crafter.getInventory().setStackInSlot(0, ItemStack.EMPTY);
 			return InteractionResult.SUCCESS;
 		}

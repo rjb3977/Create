@@ -19,8 +19,8 @@ public class MechanicalBearingBlock extends BearingBlock implements ITE<Mechanic
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.MECHANICAL_BEARING.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.MECHANICAL_BEARING.create(pos ,state);
 	}
 
 	@Override

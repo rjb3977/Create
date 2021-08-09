@@ -39,8 +39,8 @@ public class MechanicalPressBlock extends HorizontalKineticBlock implements ITE<
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.MECHANICAL_PRESS.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.MECHANICAL_PRESS.create(pos, state);
 	}
 
 	@Override

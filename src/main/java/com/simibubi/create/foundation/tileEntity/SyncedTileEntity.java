@@ -1,6 +1,8 @@
 package com.simibubi.create.foundation.tileEntity;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -18,8 +20,8 @@ import com.simibubi.create.lib.utility.NBTSerializable;
 @ParametersAreNonnullByDefault
 public abstract class SyncedTileEntity extends BlockEntity implements TileEntityExtensions, CustomDataPacketHandlingTileEntity, NBTSerializable {
 
-	public SyncedTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public SyncedTileEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
+		super(tileEntityTypeIn, pos, state);
 	}
 
 	@Override
@@ -34,7 +36,7 @@ public abstract class SyncedTileEntity extends BlockEntity implements TileEntity
 
 //	@Override
 	public void handleUpdateTag(BlockState state, CompoundTag tag) {
-		load(state, tag);
+		load(tag);
 	}
 
 	public void sendData() {
@@ -59,7 +61,7 @@ public abstract class SyncedTileEntity extends BlockEntity implements TileEntity
 
 	// Special handling for client update packets
 	public void readClientUpdate(BlockState state, CompoundTag tag) {
-		load(state, tag);
+		load(tag);
 	}
 
 	// Special handling for client update packets
@@ -94,6 +96,6 @@ public abstract class SyncedTileEntity extends BlockEntity implements TileEntity
 	}
 
 	public void create$deserializeNBT(BlockState state, CompoundTag nbt) {
-		this.load(state, nbt);
+		this.load(nbt);
 	}
 }

@@ -129,7 +129,7 @@ public abstract class AbstractChuteBlock extends Block implements IWrenchable, I
 	@Override
 	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState p_196243_4_, boolean p_196243_5_) {
 		boolean differentBlock = state.getBlock() != p_196243_4_.getBlock();
-		if (state.getBlock().isEntityBlock() && (differentBlock || !(p_196243_4_.getBlock().isEntityBlock()))) {
+		if (state.hasBlockEntity() && (differentBlock || !(p_196243_4_.hasBlockEntity()))) {
 			TileEntityBehaviour.destroy(world, pos, FilteringBehaviour.TYPE);
 			withTileEntityDo(world, pos, c -> c.onRemoved(state));
 			world.removeBlockEntity(pos);

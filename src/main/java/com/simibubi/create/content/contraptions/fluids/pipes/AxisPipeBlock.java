@@ -52,7 +52,7 @@ public class AxisPipeBlock extends RotatedPillarBlock implements IWrenchableWith
 			FluidPropagator.propagateChangedPipe(world, pos, state);
 		if (state != newState && !isMoving)
 			removeBracket(world, pos, true).ifPresent(stack -> Block.popResource(world, pos, stack));
-		if (state.getBlock().isEntityBlock() && (blockTypeChanged || !newState.getBlock().isEntityBlock()))
+		if (state.hasBlockEntity() && (blockTypeChanged || !newState.hasBlockEntity()))
 			world.removeBlockEntity(pos);
 	}
 

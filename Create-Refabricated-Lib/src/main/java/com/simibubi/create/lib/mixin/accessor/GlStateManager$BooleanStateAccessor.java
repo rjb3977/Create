@@ -10,7 +10,7 @@ import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
 @Mixin(GlStateManager.BooleanState.class)
-public interface BooleanStateAccessor {
-	@Accessor("field_179201_b")
+public interface GlStateManager$BooleanStateAccessor {
+	@Accessor("enabled")
 	boolean create$state();
 }

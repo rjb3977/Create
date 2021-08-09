@@ -9,6 +9,9 @@ import com.simibubi.create.lib.entity.FakePlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -68,7 +71,7 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState p_180641_1_, World world, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState p_180641_1_, Level world, BlockPos pos) {
 		return getTileEntityOptional(world, pos).map(CopperBacktankTileEntity::getComparatorOutput)
 			.orElse(0);
 	}
@@ -115,7 +118,7 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 			if (stack.isEnchanted())
 				te.setEnchantmentTag(stack.getEnchantmentTags());
 			if (stack.hasCustomHoverName())
-				te.setCustomName(stack.getHoverName());
+				te.setCustomName((TextComponent) stack.getHoverName());
 		});
 	}
 
@@ -149,18 +152,18 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 
 		int air = tileEntityOptional.map(CopperBacktankTileEntity::getAirLevel)
 			.orElse(0);
-		CompoundNBT tag = item.getOrCreateTag();
+		CompoundTag tag = item.getOrCreateTag();
 		tag.putInt("Air", air);
 
-		ListNBT enchants = tileEntityOptional.map(CopperBacktankTileEntity::getEnchantmentTag)
-			.orElse(new ListNBT());
+		ListTag enchants = tileEntityOptional.map(CopperBacktankTileEntity::getEnchantmentTag)
+			.orElse(new ListTag());
 		if (!enchants.isEmpty()) {
-			ListNBT enchantmentTagList = item.getEnchantmentTags();
+			ListTag enchantmentTagList = item.getEnchantmentTags();
 			enchantmentTagList.addAll(enchants);
 			tag.put("Enchantments", enchantmentTagList);
 		}
 
-		ITextComponent customName = tileEntityOptional.map(CopperBacktankTileEntity::getCustomName)
+		TextComponent customName = tileEntityOptional.map(CopperBacktankTileEntity::getCustomName)
 			.orElse(null);
 		if (customName != null)
 			item.setHoverName(customName);
@@ -174,8 +177,8 @@ public class CopperBacktankBlock extends HorizontalKineticBlock
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.COPPER_BACKTANK.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.COPPER_BACKTANK.create(pos, state);
 	}
 
 	@Override

@@ -64,7 +64,7 @@ public abstract class KineticBlock extends Block implements IRotate, Harvestable
 
 			if (oldState.getBlock() != state.getBlock())
 				return;
-			if (state.getBlock().isEntityBlock() != oldState.getBlock().isEntityBlock())
+			if (state.hasBlockEntity() != oldState.hasBlockEntity())
 				return;
 			if (!areStatesKineticallyEquivalent(oldState, state))
 				return;
@@ -87,8 +87,6 @@ public abstract class KineticBlock extends Block implements IRotate, Harvestable
 			return false;
 		return getRotationAxis(newState) == getRotationAxis(oldState);
 	}
-
-	public abstract BlockEntity newBlockEntity(BlockGetter world);
 
 	@Override
 	public void updateIndirectNeighbourShapes(BlockState stateIn, LevelAccessor worldIn, BlockPos pos, int flags, int count) {

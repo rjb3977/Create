@@ -43,8 +43,8 @@ public class SpeedControllerBlock extends HorizontalAxisKineticBlock implements 
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.ROTATION_SPEED_CONTROLLER.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.ROTATION_SPEED_CONTROLLER.create(pos, state);
 	}
 
 	@Override
