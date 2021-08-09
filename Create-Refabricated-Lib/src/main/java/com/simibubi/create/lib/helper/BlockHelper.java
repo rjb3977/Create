@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.Block;
 
 public class BlockHelper {
 	public static void dropXpOnBlockBreak(Block block, ServerLevel serverWorld, BlockPos blockPos, int i) {
-		 get(block).create$dropXpOnBlockBreak(serverWorld, blockPos, i);
+		 get(block).create$popExperience(serverWorld, blockPos, i);
 	}
 
 	private static BlockAccessor get(Block block) {

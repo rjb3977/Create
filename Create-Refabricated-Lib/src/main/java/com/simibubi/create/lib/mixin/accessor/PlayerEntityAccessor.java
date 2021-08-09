@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Player.class)
 public interface PlayerEntityAccessor {
-	@Invoker("closeScreen")
+	@Invoker("closeContainer")
 	void create$closeScreen();
 }

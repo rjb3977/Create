@@ -7,9 +7,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ServerPlayer.class)
 public interface ServerPlayerEntityAccessor {
-	@Invoker("getNextWindowId")
-	void callGetNextWindowId();
+	@Invoker("nextContainerCounter")
+	void callNextContainerCounter();
 
-	@Accessor("currentWindowId")
-	int getCurrentWindowId();
+	@Accessor("containerCounter")
+	int getContainerCounter();
 }

@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 @Environment(EnvType.CLIENT)
 public final class MinecraftHelper {
 	public static float getRenderPartialTicksPaused(Minecraft minecraft) {
-		return get(minecraft).create$renderPartialTicksPaused();
+		return get(minecraft).create$pausePartialTick();
 	}
 
 	private static MinecraftAccessor get(Minecraft minecraft) {

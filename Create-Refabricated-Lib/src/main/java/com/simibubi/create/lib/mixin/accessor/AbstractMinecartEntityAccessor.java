@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(AbstractMinecart.class)
 public interface AbstractMinecartEntityAccessor {
-	@Invoker("getMaximumSpeed")
-	double create$getMaximumSpeed();
+	@Invoker("getMaxSpeed")
+	double create$getMaxSpeed();
 }

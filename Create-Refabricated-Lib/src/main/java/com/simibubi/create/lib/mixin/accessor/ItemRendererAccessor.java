@@ -22,12 +22,12 @@ public interface ItemRendererAccessor {
 	@Accessor("textureManager")
 	TextureManager create$getTextureManager();
 
-	@Invoker("renderBakedItemModel")
-	void create$renderBakedItemModel(BakedModel model, ItemStack stack, int light, int overlay, PoseStack matrices, VertexConsumer vertices);
+	@Invoker("renderModelLists")
+	void create$renderModelLists(BakedModel model, ItemStack stack, int light, int overlay, PoseStack matrices, VertexConsumer vertices);
 
-	@Invoker("renderBakedItemQuads")
-	void create$renderBakedItemQuads(PoseStack matricies, VertexConsumer verticies, List<BakedQuad> quads, ItemStack stack, int light, int overlay);
+	@Invoker("renderQuadList")
+	void create$renderQuadList(PoseStack matrices, VertexConsumer vertices, List<BakedQuad> quads, ItemStack stack, int light, int overlay);
 
-	@Invoker("draw")
-	void create$draw(BufferBuilder buffer, int x, int y, int width, int height, int red, int green, int blue, int alpha);
+	@Invoker("fillRect")
+	void create$fillRect(BufferBuilder buffer, int x, int y, int width, int height, int red, int green, int blue, int alpha);
 }

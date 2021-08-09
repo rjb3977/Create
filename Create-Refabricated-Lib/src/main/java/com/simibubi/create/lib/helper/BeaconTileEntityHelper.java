@@ -8,7 +8,7 @@ import com.simibubi.create.lib.utility.MixinHelper;
 
 public final class BeaconTileEntityHelper {
 	public static List<BeaconBeamSection> getBeamSegments(BeaconBlockEntity bte) {
-		return get(bte).create$beamSegments();
+		return get(bte).create$beamSections();
 	}
 
 	private static BeaconTileEntityAccessor get(BeaconBlockEntity bte) {

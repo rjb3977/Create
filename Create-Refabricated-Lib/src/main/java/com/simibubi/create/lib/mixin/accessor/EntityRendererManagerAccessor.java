@@ -15,7 +15,7 @@ import net.minecraft.world.entity.EntityType;
 @Environment(EnvType.CLIENT)
 @Mixin(EntityRenderDispatcher.class)
 public interface EntityRendererManagerAccessor {
-	@Accessor("playerRenderer")
+	@Accessor("defaultPlayerRenderer")
 	PlayerRenderer getPlayerRenderer();
 
 	@Accessor("renderers")

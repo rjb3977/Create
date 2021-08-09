@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(BiomeManager.class)
 public interface BiomeManagerAccessor {
-	@Accessor("seed")
-	long create$seed();
+	@Accessor("biomeZoomSeed")
+	long create$biomeZoomSeed();
 }

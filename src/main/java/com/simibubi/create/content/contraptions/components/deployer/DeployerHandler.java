@@ -13,7 +13,6 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.components.deployer.DeployerTileEntity.Mode;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.mounted.CartAssemblerBlockItem;
-import com.simibubi.create.content.contraptions.components.structureMovement.mounted.CartAssemblerBlockItem;
 import com.simibubi.create.content.curiosities.tools.SandPaperItem;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour;
@@ -110,7 +109,7 @@ public class DeployerHandler {
 
 		if (held.getItem() instanceof BucketItem) {
 			BucketItem bucketItem = (BucketItem) held.getItem();
-			Fluid fluid = ((BucketItemAccessor) bucketItem).getContainedBlock();
+			Fluid fluid = ((BucketItemAccessor) bucketItem).getContent();
 			if (fluid != Fluids.EMPTY && world.getFluidState(targetPos)
 				.getType() == fluid)
 				return false;

@@ -11,6 +11,6 @@ import net.minecraft.client.gui.screens.Screen;
 @Environment(EnvType.CLIENT)
 @Mixin(Screen.class)
 public interface ScreenAccessor {
-	@Accessor("client")
+	@Accessor("minecraft")
 	Minecraft create$client();
 }

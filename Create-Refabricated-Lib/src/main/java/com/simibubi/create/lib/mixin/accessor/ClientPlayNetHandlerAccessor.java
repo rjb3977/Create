@@ -11,6 +11,6 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 @Environment(EnvType.CLIENT)
 @Mixin(ClientPacketListener.class)
 public interface ClientPlayNetHandlerAccessor {
-	@Accessor("viewDistance")
+	@Accessor("serverChunkRadius")
 	int create$viewDistance();
 }

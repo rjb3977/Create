@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Entity.class)
 public interface EntityAccessor {
-	@Invoker("canBeRidden")
+	@Invoker("canAddPassenger")
 	boolean create$canBeRidden(Entity entity);
 
-	@Invoker("getEntityString")
+	@Invoker("getEncodeId")
 	String create$getEntityString();
 }

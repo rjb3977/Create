@@ -14,7 +14,6 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.contraptions.goggles.GoggleOverlayRenderer.TooltipScreen;
-import com.simibubi.create.content.logistics.item.LinkedControllerClientHandler.Mode;
 import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
@@ -116,7 +115,7 @@ public class LinkedControllerClientHandler {
 		return InputConstants.isKeyDown(Minecraft.getInstance()
 			.getWindow()
 			.getWindow(),
-				((KeyBindingAccessor) kb).create$keyCode()
+				((KeyBindingAccessor) kb).create$key()
 				.getValue());
 	}
 

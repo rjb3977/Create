@@ -53,8 +53,8 @@ package com.simibubi.create.compat.jei.category;
 //			.getItems()));
 //		itemStacks.init(2, false, 131, 50);
 //		itemStacks.set(2, recipe.getResultItem());
-
-		addStochasticTooltip(itemStacks, recipe.getRollableResults(), 2);
+//
+//		addStochasticTooltip(itemStacks, recipe.getRollableResults(), 2);
 //	}
 //
 //	@Override

@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(BaseSpawner.class)
 public interface AbstractSpawnerAccessor {
-	@Accessor("potentialSpawns")
-	List<SpawnData> create$potentialSpawns();
+	@Accessor("spawnPotentials")
+	List<SpawnData> create$spawnPotentials();
 
-	@Accessor("spawnData")
-	SpawnData create$spawnData();
+	@Accessor("nextSpawnData")
+	SpawnData create$nextSpawnData();
 }

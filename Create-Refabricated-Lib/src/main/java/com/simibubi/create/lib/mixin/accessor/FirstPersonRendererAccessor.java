@@ -11,9 +11,9 @@ import net.minecraft.world.item.ItemStack;
 @Environment(EnvType.CLIENT)
 @Mixin(ItemInHandRenderer.class)
 public interface FirstPersonRendererAccessor {
-	@Accessor("itemStackMainHand")
+	@Accessor("mainHandItem")
 	ItemStack getItemStackMainHand();
 
-	@Accessor("itemStackOffHand")
+	@Accessor("offHandItem")
 	ItemStack getItemStackOffHand();
 }

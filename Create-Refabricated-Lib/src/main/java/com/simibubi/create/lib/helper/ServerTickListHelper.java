@@ -7,6 +7,6 @@ import com.simibubi.create.lib.mixin.accessor.ServerTickListAccessor;
 
 public class ServerTickListHelper {
 	public static <T> Set<TickNextTickData<T>> getPendingTickListEntries(ServerTickList<T> list) {
-		return ((ServerTickListAccessor<T>) list).getPendingTickListEntriesHashSet();
+		return ((ServerTickListAccessor<T>) list).getTickNextTickSet();
 	}
 }

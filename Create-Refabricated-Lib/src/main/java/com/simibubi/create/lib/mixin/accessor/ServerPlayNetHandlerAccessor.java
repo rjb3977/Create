@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public interface ServerPlayNetHandlerAccessor {
-	@Accessor("floatingTickCount")
+	@Accessor("aboveGroundTickCount")
 	int create$floatingTickCount();
 
-	@Accessor("floatingTickCount")
+	@Accessor("aboveGroundTickCount")
 	void create$floatingTickCount(int floatingTicks);
 }

@@ -21,7 +21,7 @@ public final class ChunkManagerHelper {
 	}
 
 	public static void scheduleSave(ChunkMap chunkManager, long l, ChunkHolder chunkHolder) {
-		get(chunkManager).create$scheduleSave(l, chunkHolder);
+		get(chunkManager).create$scheduleUnload(l, chunkHolder);
 	}
 
 	private static ChunkManagerAccessor get(ChunkMap chunkManager) {

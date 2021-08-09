@@ -6,7 +6,7 @@ import net.minecraft.world.level.biome.BiomeManager;
 
 public final class BiomeManagerHelper {
 	public static long getSeed(BiomeManager biomeManager) {
-		return get(biomeManager).create$seed();
+		return get(biomeManager).create$biomeZoomSeed();
 	}
 
 	private static BiomeManagerAccessor get(BiomeManager biomeManager) {

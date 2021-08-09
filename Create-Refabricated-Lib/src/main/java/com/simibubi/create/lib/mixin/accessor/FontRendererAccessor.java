@@ -12,6 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 @Environment(EnvType.CLIENT)
 @Mixin(Font.class)
 public interface FontRendererAccessor {
-	@Invoker("getFontStorage")
-	FontSet create$getFontStorage(ResourceLocation resourceLocation);
+	@Invoker("getFontSet")
+	FontSet create$getFontSet(ResourceLocation resourceLocation);
 }

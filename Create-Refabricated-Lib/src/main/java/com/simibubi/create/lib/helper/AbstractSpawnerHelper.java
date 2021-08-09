@@ -8,11 +8,11 @@ import com.simibubi.create.lib.utility.MixinHelper;
 
 public final class AbstractSpawnerHelper {
 	public static List<SpawnData> getPotentialSpawns(BaseSpawner abstractSpawner) {
-		return get(abstractSpawner).create$potentialSpawns();
+		return get(abstractSpawner).create$spawnPotentials();
 	}
 
 	public static SpawnData getSpawnData(BaseSpawner abstractSpawner) {
-		return get(abstractSpawner).create$spawnData();
+		return get(abstractSpawner).create$nextSpawnData();
 	}
 
 	private static AbstractSpawnerAccessor get(BaseSpawner abstractSpawner) {

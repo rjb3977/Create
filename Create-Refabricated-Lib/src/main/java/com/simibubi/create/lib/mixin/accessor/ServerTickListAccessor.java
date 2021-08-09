@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ServerTickList.class)
 public interface ServerTickListAccessor<T> {
-	@Accessor("pendingTickListEntriesHashSet")
-	Set<TickNextTickData<T>> getPendingTickListEntriesHashSet();
+	@Accessor("tickNextTickSet")
+	Set<TickNextTickData<T>> getTickNextTickSet();
 }

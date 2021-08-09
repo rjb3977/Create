@@ -12,6 +12,6 @@ import net.minecraft.client.particle.ParticleProvider;
 @Environment(EnvType.CLIENT)
 @Mixin(ParticleEngine.class)
 public interface ParticleManagerAccessor {
-	@Accessor("factories")
-	Int2ObjectMap<ParticleProvider<?>> getFactories();
+	@Accessor("providers")
+	Int2ObjectMap<ParticleProvider<?>> getProviders();
 }

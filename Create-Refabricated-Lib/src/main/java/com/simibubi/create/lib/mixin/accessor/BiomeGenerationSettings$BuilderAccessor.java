@@ -33,9 +33,9 @@ public interface BiomeGenerationSettings$BuilderAccessor {
 	@Accessor("features")
 	void setFeatures(List<List<Supplier<ConfiguredFeature<?, ?>>>> features);
 
-	@Accessor("structureFeatures")
+	@Accessor("structureStarts")
 	List<Supplier<ConfiguredStructureFeature<?, ?>>> getStructureFeatures();
 
-	@Accessor("structureFeatures")
+	@Accessor("structureStarts")
 	void setStructureFeatures(List<Supplier<ConfiguredStructureFeature<?, ?>>> structureFeatures);
 }

@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Block.class)
 public interface BlockAccessor {
-	@Invoker("dropXpOnBlockBreak")
-	void create$dropXpOnBlockBreak(ServerLevel serverWorld, BlockPos blockPos, int i);
+	@Invoker("popExperience")
+	void create$popExperience(ServerLevel serverWorld, BlockPos blockPos, int i);
 }
