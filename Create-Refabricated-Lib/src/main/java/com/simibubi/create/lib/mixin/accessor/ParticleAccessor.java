@@ -10,9 +10,9 @@ import net.minecraft.client.particle.Particle;
 @Environment(EnvType.CLIENT)
 @Mixin(Particle.class)
 public interface ParticleAccessor {
-	@Accessor("field_21507")
-	boolean create$field_21507();
+	@Accessor("stoppedByCollision")
+	boolean create$stoppedByCollision();
 
-	@Accessor("field_21507")
-	void create$field_21507(boolean field_21507);
+	@Accessor("stoppedByCollision")
+	void create$stoppedByCollision(boolean stoppedByCollision);
 }

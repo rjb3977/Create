@@ -16,12 +16,12 @@ import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
 public final class ItemRendererHelper {
-	public static void renderBakedItemModel(ItemRenderer renderer, BakedModel model, ItemStack stack, int light, int overlay, PoseStack matrices, VertexConsumer vertices) {
-		get(renderer).create$renderBakedItemModel(model, stack, light, overlay, matrices, vertices);
+	public static void renderModelLists(ItemRenderer renderer, BakedModel model, ItemStack stack, int light, int overlay, PoseStack matrices, VertexConsumer vertices) {
+		get(renderer).create$renderModelLists(model, stack, light, overlay, matrices, vertices);
 	}
 
-	public static void renderBakedItemQuads(ItemRenderer renderer, PoseStack matricies, VertexConsumer verticies, List<BakedQuad> quads, ItemStack stack, int light, int overlay) {
-		get(renderer).create$renderBakedItemQuads(matricies, verticies, quads, stack, light, overlay);
+	public static void renderQuadList(ItemRenderer renderer, PoseStack matrices, VertexConsumer vertices, List<BakedQuad> quads, ItemStack stack, int light, int overlay) {
+		get(renderer).create$renderQuadList(matrices, vertices, quads, stack, light, overlay);
 	}
 
 	public static TextureManager getTextureManager(ItemRenderer renderer) {

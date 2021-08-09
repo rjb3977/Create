@@ -11,9 +11,9 @@ public interface DamageSourceAccessor {
 		throw new AssertionError();
 	}
 
-	@Invoker("setFireDamage")
+	@Invoker("setIsFire")
 	DamageSource create$setFireDamage();
 
-	@Invoker("setDamageBypassesArmor")
+	@Invoker("bypassArmor")
 	DamageSource create$setDamageBypassesArmor();
 }

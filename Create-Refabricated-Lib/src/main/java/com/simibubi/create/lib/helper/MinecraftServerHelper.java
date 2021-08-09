@@ -8,7 +8,7 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 
 public final class MinecraftServerHelper {
 	public static LevelStorageSource.LevelStorageAccess getAnvilConverterForAnvilFile(MinecraftServer minecraftServer) {
-		return get(minecraftServer).create$anvilConverterForAnvilFile();
+		return get(minecraftServer).create$storageSource();
 	}
 
 	private static MinecraftServerAccessor get(MinecraftServer minecraftServer) {

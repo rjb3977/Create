@@ -10,6 +10,6 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 @Mixin(BufferBuilder.class)
 public interface BufferBuilderAccessor {
-	@Accessor("vertexFormat")
+	@Accessor("format")
 	VertexFormat create$vertexFormat();
 }

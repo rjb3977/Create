@@ -2,19 +2,18 @@ accessWidener v1 named
 
 accessible class com/mojang/blaze3d/platform/GlStateManager$BooleanState
 accessible class com/mojang/blaze3d/platform/GlStateManager$FogState
-accessible class net/minecraft/client/particle/ParticleManager$IParticleMetaFactory
+accessible class net/minecraft/client/particle/ParticleEngine$SpriteParticleRegistration
 
-accessible class net/minecraft/world/chunk/ChunkStatus$IGenerationWorker
-accessible class net/minecraft/world/chunk/ChunkStatus$ILoadingWorker
+accessible class net/minecraft/world/level/chunk/ChunkStatus$GenerationTask
+accessible class net/minecraft/world/level/chunk/ChunkStatus$LoadingTask
 
 accessible class net/minecraft/tags/TagRegistry$NamedTag
 accessible method net/minecraft/tags/TagRegistry$NamedTag <init> (Lnet/minecraft/util/ResourceLocation;)V
 
-accessible class net/minecraft/world/biome/Biome$Climate
+accessible class net/minecraft/world/level/biome/Biome$ClimateSettings
 
-extendable class net/minecraft/inventory/container/ContainerType$IFactory
+extendable class net/minecraft/world/inventory/MenuType$MenuSupplier
 
-
-accessible class net/minecraft/item/crafting/Ingredient$IItemList
-accessible class net/minecraft/item/crafting/Ingredient$SingleItemList
-accessible class net/minecraft/item/crafting/Ingredient$TagList
+accessible class net/minecraft/world/item/crafting/Ingredient$Value
+accessible class net/minecraft/world/item/crafting/Ingredient$ItemValue
+accessible class net/minecraft/world/item/crafting/Ingredient$TagValue

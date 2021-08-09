@@ -11,9 +11,9 @@ public interface RailStateAccessor {
 	@Accessor("pos")
 	BlockPos create$pos();
 
-	@Invoker("checkConnected")
-	void create$checkConnected();
+	@Invoker("removeSoftConnections")
+	void create$removeSoftConnections();
 
-	@Invoker("func_196905_c")
-	boolean create$func_196905_c(RailState railState);
+	@Invoker("canConnectTo")
+	boolean create$canConnectTo(RailState railState);
 }

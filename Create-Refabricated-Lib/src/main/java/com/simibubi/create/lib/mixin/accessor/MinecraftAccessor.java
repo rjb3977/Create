@@ -10,6 +10,6 @@ import net.minecraft.client.Minecraft;
 @Environment(EnvType.CLIENT)
 @Mixin(Minecraft.class)
 public interface MinecraftAccessor {
-	@Accessor("renderPartialTicksPaused")
-	float create$renderPartialTicksPaused();
+	@Accessor("pausePartialTick")
+	float create$pausePartialTick();
 }

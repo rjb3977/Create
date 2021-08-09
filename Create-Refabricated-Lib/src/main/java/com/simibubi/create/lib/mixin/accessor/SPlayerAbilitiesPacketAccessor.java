@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ClientboundPlayerAbilitiesPacket.class)
 public interface SPlayerAbilitiesPacketAccessor {
-	@Accessor("flySpeed")
+	@Accessor("flyingSpeed")
 	void create$flySpeed(float speed);
 }

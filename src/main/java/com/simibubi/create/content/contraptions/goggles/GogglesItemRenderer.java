@@ -27,6 +27,6 @@ public class GogglesItemRenderer implements DynamicItemRenderer {
 		}
 		RenderType layer = ItemBlockRenderTypes.getRenderType(stack, true);
 		VertexConsumer consumer = ItemRenderer.getFoilBufferDirect(vertexConsumers, layer, true, stack.hasFoil());
-		ItemRendererHelper.renderBakedItemModel(renderer, model, stack, light, overlay, matrices, consumer);
+		ItemRendererHelper.renderModelLists(renderer, model, stack, light, overlay, matrices, consumer);
 	}
 }

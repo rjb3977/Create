@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(StructureTemplate.class)
 public interface TemplateAccessor {
-	@Invoker("loadEntity")
-	static Optional<Entity> loadEntity(ServerLevelAccessor iServerWorld, CompoundTag compoundNBT) {
+	@Invoker("createEntityIgnoreException")
+	static Optional<Entity> createEntityIgnoreException(ServerLevelAccessor iServerWorld, CompoundTag compoundNBT) {
 		throw new AssertionError();
 	}
 }

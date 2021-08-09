@@ -28,7 +28,7 @@ public abstract class RailStateMixin {
 	public boolean create$canMakeSlopes;
 	@Final
 	@Shadow
-	private Level world;
+	private Level level;
 	@Final
 	@Shadow
 	private BaseRailBlock block;
@@ -37,28 +37,28 @@ public abstract class RailStateMixin {
 	private BlockPos pos;
 	@Final
 	@Shadow
-	private boolean disableCorners;
+	private boolean isStraight;
 	@Shadow
-	private BlockState newState;
+	private BlockState state;
 	@Final
 	@Shadow
-	private List<BlockPos> connectedRails;
+	private List<BlockPos> connections;
 
 	@Shadow
-	protected abstract boolean func_208512_d(BlockPos blockPos);
+	protected abstract boolean hasNeighborRail(BlockPos blockPos);
 
 	@Shadow
-	protected abstract void reset(RailShape railShape);
+	protected abstract void updateConnections(RailShape railShape);
 
 	@Shadow
 	@Nullable
-	protected abstract RailState createForAdjacent(BlockPos blockPos);
+	protected abstract RailState getRail(BlockPos blockPos);
 
 	@Shadow
-	protected abstract boolean isConnectedTo(BlockPos blockPos);
+	protected abstract boolean hasConnection(BlockPos blockPos);
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/RailState;reset(Lnet/minecraft/state/properties/RailShape;)V", shift = At.Shift.BEFORE),
-			method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V")
+			method = "<init>")
 	public void create$RailState(Level world, BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
 		create$canMakeSlopes = true;
 		if (block instanceof SlopeCreationCheckingRail) {
@@ -74,16 +74,16 @@ public abstract class RailStateMixin {
 	 * @author Tropheus Jay
 	 */
 	@Overwrite
-	private void func_208510_c(RailState railState) {
-		this.connectedRails.add(((RailStateAccessor) railState).create$pos());
+	private void connectTo(RailState railState) {
+		this.connections.add(((RailStateAccessor) railState).create$pos());
 		BlockPos blockPos = this.pos.north();
 		BlockPos blockPos2 = this.pos.south();
 		BlockPos blockPos3 = this.pos.west();
 		BlockPos blockPos4 = this.pos.east();
-		boolean bl = this.isConnectedTo(blockPos);
-		boolean bl2 = this.isConnectedTo(blockPos2);
-		boolean bl3 = this.isConnectedTo(blockPos3);
-		boolean bl4 = this.isConnectedTo(blockPos4);
+		boolean bl = this.hasConnection(blockPos);
+		boolean bl2 = this.hasConnection(blockPos2);
+		boolean bl3 = this.hasConnection(blockPos3);
+		boolean bl4 = this.hasConnection(blockPos4);
 		RailShape railShape = null;
 		if (bl || bl2) {
 			railShape = RailShape.NORTH_SOUTH;
@@ -93,7 +93,7 @@ public abstract class RailStateMixin {
 			railShape = RailShape.EAST_WEST;
 		}
 
-		if (!this.disableCorners) {
+		if (!this.isStraight) {
 			if (bl2 && bl4 && !bl && !bl3) {
 				railShape = RailShape.SOUTH_EAST;
 			}
@@ -112,21 +112,21 @@ public abstract class RailStateMixin {
 		}
 
 		if (railShape == RailShape.NORTH_SOUTH && create$canMakeSlopes) {
-			if (BaseRailBlock.isRail(this.world, blockPos.above())) {
+			if (BaseRailBlock.isRail(this.level, blockPos.above())) {
 				railShape = RailShape.ASCENDING_NORTH;
 			}
 
-			if (BaseRailBlock.isRail(this.world, blockPos2.above())) {
+			if (BaseRailBlock.isRail(this.level, blockPos2.above())) {
 				railShape = RailShape.ASCENDING_SOUTH;
 			}
 		}
 
 		if (railShape == RailShape.EAST_WEST && create$canMakeSlopes) {
-			if (BaseRailBlock.isRail(this.world, blockPos4.above())) {
+			if (BaseRailBlock.isRail(this.level, blockPos4.above())) {
 				railShape = RailShape.ASCENDING_EAST;
 			}
 
-			if (BaseRailBlock.isRail(this.world, blockPos3.above())) {
+			if (BaseRailBlock.isRail(this.level, blockPos3.above())) {
 				railShape = RailShape.ASCENDING_WEST;
 			}
 		}
@@ -135,8 +135,8 @@ public abstract class RailStateMixin {
 			railShape = RailShape.NORTH_SOUTH;
 		}
 
-		this.newState = this.newState.setValue(this.block.getShapeProperty(), railShape);
-		this.world.setBlock(this.pos, this.newState, 3);
+		this.state = this.state.setValue(this.block.getShapeProperty(), railShape);
+		this.level.setBlock(this.pos, this.state, 3);
 	}
 
 	/**
@@ -145,15 +145,15 @@ public abstract class RailStateMixin {
 	 * @author Tropheus Jay
 	 */
 	@Overwrite
-	public RailState updateBlockState(boolean bl, boolean bl2, RailShape railShape) {
+	public RailState place(boolean bl, boolean bl2, RailShape railShape) {
 		BlockPos blockPos = this.pos.north();
 		BlockPos blockPos2 = this.pos.south();
 		BlockPos blockPos3 = this.pos.west();
 		BlockPos blockPos4 = this.pos.east();
-		boolean bl3 = this.func_208512_d(blockPos);
-		boolean bl4 = this.func_208512_d(blockPos2);
-		boolean bl5 = this.func_208512_d(blockPos3);
-		boolean bl6 = this.func_208512_d(blockPos4);
+		boolean bl3 = this.hasNeighborRail(blockPos);
+		boolean bl4 = this.hasNeighborRail(blockPos2);
+		boolean bl5 = this.hasNeighborRail(blockPos3);
+		boolean bl6 = this.hasNeighborRail(blockPos4);
 		RailShape railShape2 = null;
 		boolean bl7 = bl3 || bl4;
 		boolean bl8 = bl5 || bl6;
@@ -169,7 +169,7 @@ public abstract class RailStateMixin {
 		boolean bl10 = bl4 && bl5;
 		boolean bl11 = bl3 && bl6;
 		boolean bl12 = bl3 && bl5;
-		if (!this.disableCorners) {
+		if (!this.isStraight) {
 			if (bl9 && !bl3 && !bl5) {
 				railShape2 = RailShape.SOUTH_EAST;
 			}
@@ -196,7 +196,7 @@ public abstract class RailStateMixin {
 				railShape2 = RailShape.EAST_WEST;
 			}
 
-			if (!this.disableCorners) {
+			if (!this.isStraight) {
 				if (bl) {
 					if (bl9) {
 						railShape2 = RailShape.SOUTH_EAST;
@@ -234,21 +234,21 @@ public abstract class RailStateMixin {
 		}
 
 		if (railShape2 == RailShape.NORTH_SOUTH && create$canMakeSlopes) {
-			if (BaseRailBlock.isRail(this.world, blockPos.above())) {
+			if (BaseRailBlock.isRail(this.level, blockPos.above())) {
 				railShape2 = RailShape.ASCENDING_NORTH;
 			}
 
-			if (BaseRailBlock.isRail(this.world, blockPos2.above())) {
+			if (BaseRailBlock.isRail(this.level, blockPos2.above())) {
 				railShape2 = RailShape.ASCENDING_SOUTH;
 			}
 		}
 
 		if (railShape2 == RailShape.EAST_WEST && create$canMakeSlopes) {
-			if (BaseRailBlock.isRail(this.world, blockPos4.above())) {
+			if (BaseRailBlock.isRail(this.level, blockPos4.above())) {
 				railShape2 = RailShape.ASCENDING_EAST;
 			}
 
-			if (BaseRailBlock.isRail(this.world, blockPos3.above())) {
+			if (BaseRailBlock.isRail(this.level, blockPos3.above())) {
 				railShape2 = RailShape.ASCENDING_WEST;
 			}
 		}
@@ -257,17 +257,17 @@ public abstract class RailStateMixin {
 			railShape2 = railShape;
 		}
 
-		this.reset(railShape2);
-		this.newState = this.newState.setValue(this.block.getShapeProperty(), railShape2);
-		if (bl2 || this.world.getBlockState(this.pos) != this.newState) {
-			this.world.setBlock(this.pos, this.newState, 3);
+		this.updateConnections(railShape2);
+		this.state = this.state.setValue(this.block.getShapeProperty(), railShape2);
+		if (bl2 || this.level.getBlockState(this.pos) != this.state) {
+			this.level.setBlock(this.pos, this.state, 3);
 
-			for (int i = 0; i < this.connectedRails.size(); ++i) {
-				RailState railState = this.createForAdjacent(this.connectedRails.get(i));
+			for(int i = 0; i < this.connections.size(); ++i) {
+				RailState railState = this.getRail(this.connections.get(i));
 				if (railState != null) {
-					((RailStateAccessor) railState).create$checkConnected();
-					if (((RailStateAccessor) railState).create$func_196905_c(MixinHelper.cast(this))) {
-						((RailStateAccessor) railState).create$func_196905_c(MixinHelper.cast(this));
+					((RailStateAccessor) railState).create$removeSoftConnections();
+					if (((RailStateAccessor) railState).create$canConnectTo(MixinHelper.cast(this))) {
+						((RailStateAccessor) railState).create$canConnectTo(MixinHelper.cast(this));
 					}
 				}
 			}

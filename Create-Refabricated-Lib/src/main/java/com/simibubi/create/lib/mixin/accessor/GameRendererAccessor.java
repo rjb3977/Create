@@ -11,6 +11,6 @@ import net.minecraft.client.renderer.GameRenderer;
 @Environment(EnvType.CLIENT)
 @Mixin(GameRenderer.class)
 public interface GameRendererAccessor {
-	@Invoker("getFOVModifier")
+	@Invoker("getFov")
 	double create$getFOVModifier(Camera camera, float tickDelta, boolean changingFov);
 }

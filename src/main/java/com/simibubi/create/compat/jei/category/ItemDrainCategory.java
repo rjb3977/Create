@@ -64,8 +64,8 @@ package com.simibubi.create.compat.jei.category;
 //				FluidStack extracted = handler.drain(1000, FluidAction.EXECUTE);
 //				ItemStack result = handler.getContainer();
 //				if (extracted.isEmpty())
-					return;
-				if (result.isEmpty())
+//					return;
+//				if (result.isEmpty())
 //					return;
 //
 //				Ingredient ingredient = Ingredient.of(stack);

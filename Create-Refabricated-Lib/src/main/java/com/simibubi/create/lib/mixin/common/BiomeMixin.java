@@ -24,7 +24,7 @@ public abstract class BiomeMixin {
 	@Final
 	private BiomeGenerationSettings generationSettings;
 
-	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/biome/Biome$Climate;Lnet/minecraft/world/biome/Biome$Category;FFLnet/minecraft/world/biome/BiomeAmbience;Lnet/minecraft/world/biome/BiomeGenerationSettings;Lnet/minecraft/world/biome/MobSpawnInfo;)V")
+	@Inject(at = @At("TAIL"), method = "<init>")
 	public void create$biomeInit(Biome.ClimateSettings climate, Biome.BiomeCategory category, float f, float g, BiomeSpecialEffects biomeAmbience, BiomeGenerationSettings biomeGenerationSettings, MobSpawnSettings mobSpawnInfo, CallbackInfo ci) {
 		ResourceLocation key = BuiltinRegistries.BIOME.getKey((Biome) (Object) this); // dunno
 		this.generationSettings = BiomeLoadingCallback.EVENT.invoker().onBiomeLoad(key, category, BiomeUtil.settingsToBuilder(biomeGenerationSettings)).build();

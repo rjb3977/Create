@@ -55,7 +55,7 @@ public interface TemplateExtensions {
 				listnbt.add(DoubleTag.valueOf(vector3d1.z));
 				compoundnbt.put("Pos", listnbt);
 				compoundnbt.remove("UUID");
-				TemplateAccessor.loadEntity(world, compoundnbt).ifPresent((entity) -> {
+				TemplateAccessor.createEntityIgnoreException(world, compoundnbt).ifPresent((entity) -> {
 					float f = entity.mirror(settings.getMirror());
 					f = f + (entity.getYRot() - entity.rotate(settings.getRotation()));
 					entity.moveTo(vector3d1.x, vector3d1.y, vector3d1.z, f, entity.getXRot());

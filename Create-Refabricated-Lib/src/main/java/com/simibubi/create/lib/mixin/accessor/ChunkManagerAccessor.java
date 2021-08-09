@@ -10,15 +10,15 @@ import net.minecraft.server.level.ChunkMap;
 
 @Mixin(ChunkMap.class)
 public interface ChunkManagerAccessor {
-	@Accessor("loadedChunks")
+	@Accessor("updatingChunkMap")
 	Long2ObjectLinkedOpenHashMap<ChunkHolder> create$loadedChunks();
 
-	@Accessor("chunksToUnload")
+	@Accessor("pendingUnloads")
 	Long2ObjectLinkedOpenHashMap<ChunkHolder> create$chunksToUnload();
 
-	@Accessor("immutableLoadedChunksDirty")
+	@Accessor("modified")
 	void create$immutableLoadedChunksDirty(boolean v);
 
-	@Invoker("scheduleSave")
-	void create$scheduleSave(long l, ChunkHolder chunkHolder);
+	@Invoker("scheduleUnload")
+	void create$scheduleUnload(long l, ChunkHolder chunkHolder);
 }

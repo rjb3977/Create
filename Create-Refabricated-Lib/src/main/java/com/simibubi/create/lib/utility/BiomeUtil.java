@@ -16,20 +16,21 @@ import com.simibubi.create.lib.mixin.accessor.BiomeGenerationSettings$BuilderAcc
 public class BiomeUtil {
 	public static BiomeGenerationSettings.Builder settingsToBuilder(BiomeGenerationSettings settings) {
 		BiomeGenerationSettings.Builder builder = new BiomeGenerationSettings.Builder();
-		((BiomeGenerationSettings$BuilderAccessor) builder).setSurfaceBuilder(Optional.of(settings.getSurfaceBuilder()));
-		Collections.unmodifiableSet(((BiomeGenerationSettings$BuilderAccessor) builder).getCarvers().keySet()).forEach(c -> {
-			Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> newCarvers = ((BiomeGenerationSettings$BuilderAccessor) builder).getCarvers();
+		BiomeGenerationSettings$BuilderAccessor builderAccessor = MixinHelper.cast(builder);
+		builderAccessor.setSurfaceBuilder(Optional.of(settings.getSurfaceBuilder()));
+		Collections.unmodifiableSet(builderAccessor.getCarvers().keySet()).forEach(c -> {
+			Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> newCarvers = builderAccessor.getCarvers();
 			newCarvers.put(c, new ArrayList<>(settings.getCarvers(c)));
-			((BiomeGenerationSettings$BuilderAccessor) builder).setCarvers(newCarvers);
+			builderAccessor.setCarvers(newCarvers);
 		});
-		((BiomeGenerationSettings$BuilderAccessor) builder).getFeatures().forEach(f -> {
-			List<List<Supplier<ConfiguredFeature<?, ?>>>> newFeatures = ((BiomeGenerationSettings$BuilderAccessor) builder).getFeatures();
+		builderAccessor.getFeatures().forEach(f -> {
+			List<List<Supplier<ConfiguredFeature<?, ?>>>> newFeatures = ((BiomeGenerationSettings$BuilderAccessor) builderAccessor).getFeatures();
 			newFeatures.add(new ArrayList<>(f));
-			((BiomeGenerationSettings$BuilderAccessor) builder).setFeatures(newFeatures);
+			builderAccessor.setFeatures(newFeatures);
 		});
-		List<Supplier<ConfiguredStructureFeature<?, ?>>> newStructureFeatures = ((BiomeGenerationSettings$BuilderAccessor) builder).getStructureFeatures();
+		List<Supplier<ConfiguredStructureFeature<?, ?>>> newStructureFeatures = builderAccessor.getStructureFeatures();
 		newStructureFeatures.addAll(settings.structures());
-		((BiomeGenerationSettings$BuilderAccessor) builder).setStructureFeatures(newStructureFeatures);
+		builderAccessor.setStructureFeatures(newStructureFeatures);
 		return builder;
 	}
 }

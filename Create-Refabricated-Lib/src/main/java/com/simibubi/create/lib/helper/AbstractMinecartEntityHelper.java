@@ -17,7 +17,7 @@ public final class AbstractMinecartEntityHelper {
 	}
 
 	public static double getMaximumSpeed(AbstractMinecart entity) {
-		return ((AbstractMinecartEntityAccessor) MixinHelper.cast(entity)).create$getMaximumSpeed();
+		return ((AbstractMinecartEntityAccessor) MixinHelper.cast(entity)).create$getMaxSpeed();
 	}
 
 	public static float getMaximumSpeedF(AbstractMinecart entity) {
