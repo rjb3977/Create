@@ -37,8 +37,8 @@ public class SchematicTableTileEntity extends SyncedTileEntity implements Tickab
 		}
 	}
 
-	public SchematicTableTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public SchematicTableTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		inventory = new SchematicTableInventory();
 		uploadingSchematic = null;
 		uploadingProgress = 0;

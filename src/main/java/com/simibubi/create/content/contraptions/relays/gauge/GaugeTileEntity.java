@@ -16,8 +16,8 @@ public class GaugeTileEntity extends KineticTileEntity implements IHaveGoggleInf
 	public float prevDialState;
 	public int color;
 
-	public GaugeTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public GaugeTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

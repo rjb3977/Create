@@ -11,7 +11,7 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.Potions;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.content.contraptions.fluids.VirtualFluid;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+
 
 public class PotionFluid extends VirtualFluid {
 

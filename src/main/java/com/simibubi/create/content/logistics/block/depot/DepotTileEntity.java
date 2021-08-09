@@ -9,8 +9,8 @@ public class DepotTileEntity extends SmartTileEntity {
 
 	DepotBehaviour depotBehaviour;
 
-	public DepotTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public DepotTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

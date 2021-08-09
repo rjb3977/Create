@@ -37,8 +37,8 @@ public class NixieTubeTileEntity extends SmartTileEntity {
 	private Component parsedCustomText;
 	private Couple<String> displayedStrings;
 
-	public NixieTubeTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public NixieTubeTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		hasCustomText = false;
 		redstoneStrength = 0;
 	}

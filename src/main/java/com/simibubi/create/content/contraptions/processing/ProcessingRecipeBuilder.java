@@ -21,7 +21,7 @@ import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.lib.condition.ModLoadedCondition;
 import com.simibubi.create.lib.condition.NotCondition;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+
 
 public class ProcessingRecipeBuilder<T extends ProcessingRecipe<?>> {
 

@@ -6,7 +6,8 @@ import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.content.contraptions.fluids.particle.FluidParticleData;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+
+import com.simibubi.create.lib.transfer.FluidStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;

@@ -55,8 +55,8 @@ public class FluidTankTileEntity extends SmartTileEntity implements IHaveGoggleI
 	private InterpolatedChasingValue fluidLevel;
 	private AABB renderBoundingBox;
 
-	public FluidTankTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public FluidTankTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		tankInventory = createInventory();
 //		fluidCapability = LazyOptional.of(() -> tankInventory);
 		forceFluidLevelUpdate = true;

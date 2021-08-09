@@ -9,8 +9,8 @@ public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTi
 
 	protected LazyOptional<IFluidHandler> capability;
 
-	public PortableFluidInterfaceTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public PortableFluidInterfaceTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		capability = createEmptyHandler();
 	}
 

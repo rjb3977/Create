@@ -16,8 +16,8 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 
 public class FluidPipeTileEntity extends SmartTileEntity {
 
-	public FluidPipeTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public FluidPipeTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class FluidPipeTileEntity extends SmartTileEntity {
 		return !(state.getBlock() instanceof EncasedPipeBlock);
 	}
 
-	class StandardPipeFluidTransportBehaviour extends FluidTransportBehaviour {
+	static class StandardPipeFluidTransportBehaviour extends FluidTransportBehaviour {
 
 		public StandardPipeFluidTransportBehaviour(SmartTileEntity te) {
 			super(te);

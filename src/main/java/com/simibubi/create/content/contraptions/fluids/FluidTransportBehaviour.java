@@ -7,6 +7,11 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -15,13 +20,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.AllBlocks;
-import com.simibubi.create.content.contraptions.fluids.FluidTransportBehaviour.UpdatePhase;
 import com.simibubi.create.content.contraptions.fluids.pipes.EncasedPipeBlock;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 import com.simibubi.create.foundation.utility.WorldAttached;
 
 public abstract class FluidTransportBehaviour extends TileEntityBehaviour {

@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.fluids.actors;
 
 import com.simibubi.create.content.contraptions.fluids.FluidFX;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+
 
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;

@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+
 import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.FluidUtil;
 
@@ -14,8 +14,8 @@ import alexiil.mc.lib.attributes.fluid.FixedFluidInvView;
 
 public class CreativeFluidTankTileEntity extends FluidTankTileEntity implements IFluidHandler {
 
-	public CreativeFluidTankTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public CreativeFluidTankTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

@@ -125,8 +125,8 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 		return super.getViewDistance() * 16;
 	}
 
-	public SchematicannonTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public SchematicannonTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		setLazyTickRate(30);
 		attachedInventories = new LinkedHashSet<>();
 		flyingBlocks = new LinkedList<>();

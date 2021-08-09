@@ -15,7 +15,7 @@ import com.simibubi.create.foundation.fluid.FluidRenderer;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.helper.ItemRendererHelper;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+
 
 import com.simibubi.create.lib.render.VirtualRenderingStateManager;
 

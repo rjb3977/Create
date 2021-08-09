@@ -15,8 +15,8 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 
 public class StraightPipeTileEntity extends SmartTileEntity {
 
-	public StraightPipeTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public StraightPipeTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

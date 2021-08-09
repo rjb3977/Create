@@ -9,7 +9,7 @@ import com.simibubi.create.foundation.ponder.elements.InputWindowElement;
 import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.utility.Pointing;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -108,8 +108,8 @@ public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock,
 //	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
-		return AllTileEntities.FLUID_PIPE.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.FLUID_PIPE.create(pos, state);
 	}
 
 	@Override

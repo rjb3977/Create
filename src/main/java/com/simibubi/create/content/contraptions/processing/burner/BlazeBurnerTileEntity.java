@@ -45,8 +45,8 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	protected LerpedFloat headAngle;
 	protected boolean isCreative;
 
-	public BlazeBurnerTileEntity(BlockEntityType<? extends BlazeBurnerTileEntity> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public BlazeBurnerTileEntity(BlockEntityType<? extends BlazeBurnerTileEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		activeFuel = FuelType.NONE;
 		remainingBurnTime = 0;
 		headAngle = LerpedFloat.angular();

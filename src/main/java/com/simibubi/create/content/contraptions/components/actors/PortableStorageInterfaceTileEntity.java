@@ -21,8 +21,8 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 	protected boolean powered;
 	protected Entity connectedEntity;
 
-	public PortableStorageInterfaceTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public PortableStorageInterfaceTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		transferTimer = 0;
 		connectionAnimation = LerpedFloat.linear()
 			.startWithValue(0);

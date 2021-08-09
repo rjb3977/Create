@@ -13,8 +13,8 @@ public class PortableItemInterfaceTileEntity extends PortableStorageInterfaceTil
 
 	protected LazyOptional<IItemHandlerModifiable> capability;
 
-	public PortableItemInterfaceTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public PortableItemInterfaceTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		capability = LazyOptional.empty();
 	}
 

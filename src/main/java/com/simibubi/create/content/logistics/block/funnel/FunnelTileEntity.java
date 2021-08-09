@@ -52,8 +52,8 @@ public class FunnelTileEntity extends SmartTileEntity implements IHaveHoveringIn
 		INVALID, PAUSED, COLLECT, PUSHING_TO_BELT, TAKING_FROM_BELT, EXTRACT
 	}
 
-	public FunnelTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public FunnelTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		extractionCooldown = 0;
 		flap = new InterpolatedChasingValue().start(.25f)
 			.target(0)

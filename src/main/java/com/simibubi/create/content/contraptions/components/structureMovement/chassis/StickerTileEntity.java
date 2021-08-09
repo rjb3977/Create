@@ -27,8 +27,8 @@ public class StickerTileEntity extends SmartTileEntity implements IInstanceRende
 	LerpedFloat piston;
 	boolean update;
 
-	public StickerTileEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public StickerTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		piston = LerpedFloat.linear();
 		update = false;
 	}

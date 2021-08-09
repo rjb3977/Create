@@ -2,7 +2,7 @@ package com.simibubi.create.foundation.fluid;
 
 import java.util.function.Consumer;
 
-import com.simibubi.create.lib.lba.fluid.FluidStack;
+
 import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
 import com.simibubi.create.lib.utility.FluidUtil;
 

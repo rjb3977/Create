@@ -8,11 +8,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.content.contraptions.particle.ICustomParticleData;
-import com.simibubi.create.lib.lba.fluid.FluidStack;
 
-import alexiil.mc.lib.attributes.fluid.volume.FluidKey;
+import com.simibubi.create.lib.transfer.FluidStack;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
@@ -55,17 +56,14 @@ public class FluidParticleData implements ParticleOptions, ICustomParticleData<F
 	public String writeToString() {
 		return Registry.PARTICLE_TYPE.getKey(type) + " " + Registry.FLUID.getKey(fluid.getFluid());
 	}
-
 	public static final Codec<FluidStack> FLUID_CODEC = RecordCodecBuilder.create(i -> i.group(
-		Registry.FLUID.fieldOf("FluidName")
-			.forGetter(FluidStack::getFluid),
-		Codec.INT.fieldOf("Amount")
-			.forGetter(FluidStack::getAmount),
-		CompoundTag.CODEC.optionalFieldOf("tag")
-			.forGetter((fs) -> {
-				return Optional.ofNullable(/*fs.getTag()*/null);
-			}))
-		.apply(i, (f, a, t) -> new FluidStack(f, a/*, t.orElse(null)*/)));
+					Registry.FLUID.fieldOf("FluidName")
+							.forGetter(FluidStack::getFluid),
+					Codec.LONG.fieldOf("Amount")
+							.forGetter(FluidStack::getAmount),
+					CompoundTag.CODEC.optionalFieldOf("tag")
+							.forGetter((fs) -> Optional.ofNullable(fs.getType().copyNbt())))
+			.apply(i, (f, a, t) -> new FluidStack(FluidVariant.of(f, t.orElse(null)), a)));
 
 	public static final Codec<FluidParticleData> CODEC = RecordCodecBuilder.create(i -> i
 		.group(FLUID_CODEC.fieldOf("fluid")
@@ -83,18 +81,18 @@ public class FluidParticleData implements ParticleOptions, ICustomParticleData<F
 		.apply(i, fs -> new FluidParticleData(AllParticleTypes.FLUID_DRIP.get(), fs)));
 
 	public static final ParticleOptions.Deserializer<FluidParticleData> DESERIALIZER =
-		new ParticleOptions.Deserializer<FluidParticleData>() {
+			new ParticleOptions.Deserializer<>() {
 
-			// TODO Fluid particles on command
-			public FluidParticleData fromCommand(ParticleType<FluidParticleData> particleTypeIn, StringReader reader)
-				throws CommandSyntaxException {
-				return new FluidParticleData(particleTypeIn, new FluidStack(Fluids.WATER, 1));
-			}
+				// TODO Fluid particles on command
+				public FluidParticleData fromCommand(ParticleType<FluidParticleData> particleTypeIn, StringReader reader)
+						throws CommandSyntaxException {
+					return new FluidParticleData(particleTypeIn, new FluidStack(Fluids.WATER, 1));
+				}
 
-			public FluidParticleData fromNetwork(ParticleType<FluidParticleData> particleTypeIn, FriendlyByteBuf buffer) {
-				return new FluidParticleData(particleTypeIn, /*buffer.readFluidStack()*/new FluidStack((FluidKey) null, 0));
-			}
-		};
+				public FluidParticleData fromNetwork(ParticleType<FluidParticleData> particleTypeIn, FriendlyByteBuf buffer) {
+					return new FluidParticleData(particleTypeIn, FluidStack.fromBuffer(buffer));
+				}
+			};
 
 	@Override
 	public Deserializer<FluidParticleData> getDeserializer() {
