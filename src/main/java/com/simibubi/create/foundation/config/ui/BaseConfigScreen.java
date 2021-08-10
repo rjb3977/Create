@@ -37,6 +37,7 @@ public class BaseConfigScreen extends ConfigScreen {
 		);
 	}
 
+	// fixme replace links
 	/**
 	 * If you are a Create Addon dev and want to change the config labels,
 	 * add a default action here.
@@ -88,6 +89,7 @@ public class BaseConfigScreen extends ConfigScreen {
 		this(parent, Create.ID);
 	}
 
+	// fixme replace links -Platy
 	/**
 	 * If you have static references to your Configs or ConfigSpecs (like Create does in {@link AllConfigs}),
 	 * please use {@link #withSpecs(ForgeConfigSpec, ForgeConfigSpec, ForgeConfigSpec)} instead
@@ -222,7 +224,7 @@ public class BaseConfigScreen extends ConfigScreen {
 				.add(new TextComponent("Go Back"));
 		widgets.add(goBack);
 
-		TextStencilElement othersText = new TextStencilElement(minecraft.font, new StringTextComponent("Access Configs of other Mods")).centered(true, true);
+		TextStencilElement othersText = new TextStencilElement(minecraft.font, new TextComponent("Access Configs of other Mods")).centered(true, true);
 		others = new BoxWidget(width / 2 - 100, height / 2 - 15 + 90, 200, 16).showingElement(othersText);
 		othersText.withElementRenderer(BoxWidget.gradientFactory.apply(others));
 		others.withCallback(() -> linkTo(new ConfigModListScreen(this)));

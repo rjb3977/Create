@@ -50,7 +50,7 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return AllTileEntities.CONTENT_OBSERVER.create();
 	}
 

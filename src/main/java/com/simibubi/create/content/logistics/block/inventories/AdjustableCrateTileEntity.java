@@ -21,11 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 
 public class AdjustableCrateTileEntity extends CrateTileEntity implements MenuProvider {
 
@@ -178,6 +173,7 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements MenuPr
 		invHandler.invalidate();
 	}
 
+	// fixme does this need an equivalent in the port? My pea brain says it probably does -Platy (this also serves as a marker so we know to come back)
 //	@Override
 //	public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction facing) {
 //		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {

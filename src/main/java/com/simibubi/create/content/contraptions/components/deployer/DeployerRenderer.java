@@ -88,7 +88,7 @@ public class DeployerRenderer extends SafeTileEntityRenderer<DeployerTileEntity>
 
 		TransformType transform = TransformType.NONE;
 		boolean isBlockItem = (te.heldItem.getItem() instanceof BlockItem)
-			&& itemRenderer.getModel(te.heldItem, Minecraft.getInstance().level, null)
+			&& itemRenderer.getModel(te.heldItem, Minecraft.getInstance().level, null, overlay)
 				.isGui3d();
 
 		if (displayMode) {
@@ -104,7 +104,7 @@ public class DeployerRenderer extends SafeTileEntityRenderer<DeployerTileEntity>
 			transform = punching ? TransformType.THIRD_PERSON_RIGHT_HAND : TransformType.FIXED;
 		}
 
-		itemRenderer.renderStatic(te.heldItem, transform, light, overlay, ms, buffer);
+		itemRenderer.renderStatic(te.heldItem, transform, light, overlay, ms, buffer, overlay);
 		ms.popPose();
 	}
 

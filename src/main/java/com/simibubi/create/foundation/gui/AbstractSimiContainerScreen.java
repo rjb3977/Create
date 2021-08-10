@@ -7,6 +7,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Lighting;
@@ -194,7 +196,7 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 
 	public void renderPlayerInventory(PoseStack ms, int x, int y) {
 		AllGuiTextures.PLAYER_INVENTORY.draw(ms, this, x, y);
-		font.draw(ms, inventory.getDisplayName(), x + 8, y + 6, 0x404040);
+		font.draw(ms, playerInventoryTitle, x + 8, y + 6, 0x404040);
 	}
 
 	/**
@@ -263,7 +265,7 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 	@Deprecated
 	private void draw(BufferBuilder renderer, int x, int y, int width, int height, int red, int green, int blue,
 		int alpha) {
-		renderer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
+		renderer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		renderer.vertex((double) (x + 0), (double) (y + 0), 0.0D)
 			.color(red, green, blue, alpha)
 			.endVertex();

@@ -193,7 +193,7 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenc
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new NixieTubeTileEntity(AllTileEntities.NIXIE_TUBE.get());
 	}
 

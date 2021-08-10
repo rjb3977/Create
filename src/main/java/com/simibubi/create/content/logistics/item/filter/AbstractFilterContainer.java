@@ -24,8 +24,8 @@ public abstract class AbstractFilterContainer extends GhostItemContainer<ItemSta
 	@Override
 	public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
 		if (slotId == playerInventory.selected && clickTypeIn != ClickType.THROW)
-			return ItemStack.EMPTY;
-		return super.clicked(slotId, dragType, clickTypeIn, player);
+			return;
+		super.clicked(slotId, dragType, clickTypeIn, player);
 	}
 
 	@Override

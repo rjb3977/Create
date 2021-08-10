@@ -84,7 +84,7 @@ public class MinecartCouplingItem extends Item {
 		CouplingHandler.status(player, "removed");
 		controller.decouple();
 		if (!player.isCreative())
-			player.inventory.placeItemBackInInventory(world,
+			player.getInventory().placeItemBackInInventory(
 				new ItemStack(AllItems.MINECART_COUPLING.get(), couplings));
 		return true;
 	}

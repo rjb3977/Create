@@ -52,8 +52,8 @@ public class SeatBlock extends Block implements CustomPathNodeTypeBlock {
 	}
 
 	@Override
-	public void fallOn(Level p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
-		super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_ * 0.5F);
+	public void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, float f) {
+		super.fallOn(level, blockState, blockPos, entity, f);
 	}
 
 	@Override
@@ -95,8 +95,7 @@ public class SeatBlock extends Block implements CustomPathNodeTypeBlock {
 
 		ItemStack heldItem = player.getItemInHand(hand);
 		for (DyeColor color : DyeColor.values()) {
-			if (!heldItem.getItem()
-					.is(DyeHelper.getTagOfDye(color)))
+			if (!heldItem.is(DyeHelper.getTagOfDye(color)))
 				continue;
 			if (world.isClientSide)
 				return InteractionResult.SUCCESS;

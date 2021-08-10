@@ -241,7 +241,7 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return creative ? AllTileEntities.CREATIVE_FLUID_TANK.create() : AllTileEntities.FLUID_TANK.create();
 	}
 

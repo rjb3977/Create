@@ -31,6 +31,11 @@ public class GearshiftBlock extends AbstractEncasedShaftBlock implements ITE<Gea
 	}
 
 	@Override
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.GEARSHIFT.create(pos, state);
+	}
+
+	@Override
 	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
 		builder.add(POWERED);
 		super.createBlockStateDefinition(builder);
@@ -78,11 +83,5 @@ public class GearshiftBlock extends AbstractEncasedShaftBlock implements ITE<Gea
 			return;
 		KineticTileEntity kte = (KineticTileEntity) te;
 		RotationPropagator.handleAdded(worldIn, pos, kte);
-	}
-
-	@Nullable
-	@Override
-	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return AllTileEntities.GEARSHIFT.create(blockPos, blockState);
 	}
 }

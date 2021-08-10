@@ -378,7 +378,7 @@ public class BeltInventory {
 	public void read(CompoundTag nbt) {
 		items.clear();
 		nbt.getList("Items", NBT.TAG_COMPOUND)
-			.forEach(inbt -> items.add(TransportedItemStack.read((CompoundNBT) inbt)));
+			.forEach(inbt -> items.add(TransportedItemStack.read((CompoundTag) inbt)));
 		beltMovementPositive = nbt.getBoolean("PositiveOrder");
 	}
 

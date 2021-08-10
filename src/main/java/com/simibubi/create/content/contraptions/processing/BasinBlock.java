@@ -48,8 +48,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import alexiil.mc.lib.attributes.Simulation;
 
+// fixme LBA -Platy
 public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchable, EntityBlock {
 
 	public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
@@ -78,7 +78,7 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return AllTileEntities.BASIN.create();
 	}
 
@@ -122,7 +122,7 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 				ItemStack stackInSlot = inv.getStackInSlot(slot);
 				if (stackInSlot.isEmpty())
 					continue;
-				player.inventory.placeItemBackInInventory(worldIn, stackInSlot);
+				player.getInventory().placeItemBackInInventory(stackInSlot);
 				inv.setStackInSlot(slot, ItemStack.EMPTY);
 				success = true;
 			}
@@ -153,7 +153,7 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 			te.inputInventory.withMaxStackSize(16);
 
 			if (insertItem.isEmpty()) {
-				itemEntity.remove();
+				itemEntity.discard();
 				if (!itemEntity.level.isClientSide)
 					AllTriggers.triggerForNearbyPlayers(AllTriggers.BASIN_THROW, itemEntity.level,
 						itemEntity.blockPosition(), 3);

@@ -44,7 +44,7 @@ public abstract class EngineBlock extends HorizontalDirectionalBlock implements 
 	}
 
 	@Override
-	public abstract BlockEntity newBlockEntity(BlockGetter world);
+	public abstract BlockEntity newBlockEntity(BlockPos pos, BlockState state);
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {

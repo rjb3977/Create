@@ -8,6 +8,7 @@ import com.simibubi.create.foundation.gui.widgets.AbstractSimiWidget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -177,8 +178,8 @@ public abstract class AbstractSimiScreen extends Screen {
 	protected void debugWindowArea(PoseStack matrixStack) {
 		fill(matrixStack, guiLeft + windowWidth, guiTop + windowHeight, guiLeft, guiTop, 0xD3D3D3D3);
 	}
-	
-	public List<Widget> getWidgets() {
+
+	public List<? extends Widget> getWidgets() {
 		return widgets;
 	}
 

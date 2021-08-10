@@ -44,7 +44,7 @@ public class PortableStorageInterfaceBlock extends ProperDirectionalBlock
 //	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return (fluids ? AllTileEntities.PORTABLE_FLUID_INTERFACE : AllTileEntities.PORTABLE_STORAGE_INTERFACE)
 			.create();
 	}

@@ -103,8 +103,7 @@ public class ArmRenderer extends KineticTileEntityRenderer {
 
 			ms.last().pose().multiply(msLocal.last().pose());
 
-			itemRenderer
-				.renderStatic(item, TransformType.FIXED, light, overlay, ms, buffer);
+			itemRenderer.renderStatic(item, TransformType.FIXED, light, overlay, ms, buffer, overlay);
 			ms.popPose();
 		}
 

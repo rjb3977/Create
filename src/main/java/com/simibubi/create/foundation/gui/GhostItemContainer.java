@@ -82,11 +82,11 @@ public abstract class GhostItemContainer<T> extends AbstractContainerMenu implem
 
 	@Override
 	public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
-		ItemStack held = playerInventory.getCarried();
+		ItemStack held = playerInventory.getSelected();
 		if (slotId < 36)
-			return super.clicked(slotId, dragType, clickTypeIn, player);
-		if (clickTypeIn == ClickType.THROW)
-			return ItemStack.EMPTY;
+			super.clicked(slotId, dragType, clickTypeIn, player);
+		else if (clickTypeIn == ClickType.THROW)
+			return;
 
 		int slot = slotId - 36;
 		if (clickTypeIn == ClickType.CLONE) {
@@ -94,23 +94,22 @@ public abstract class GhostItemContainer<T> extends AbstractContainerMenu implem
 				ItemStack stackInSlot = ghostInventory.getStackInSlot(slot)
 						.copy();
 				stackInSlot.setCount(stackInSlot.getMaxStackSize());
-				playerInventory.setCarried(stackInSlot);
-				return ItemStack.EMPTY;
+				playerInventory.setPickedItem(stackInSlot);
+				return;
 			}
-			return ItemStack.EMPTY;
+			return;
 		}
 
 		if (held.isEmpty()) {
 			ghostInventory.setStackInSlot(slot, ItemStack.EMPTY);
 			getSlot(slotId).setChanged();
-			return ItemStack.EMPTY;
+			return;
 		}
 
 		ItemStack insert = held.copy();
 		insert.setCount(1);
 		ghostInventory.setStackInSlot(slot, insert);
 		getSlot(slotId).setChanged();
-		return held;
 	}
 
 	@Override

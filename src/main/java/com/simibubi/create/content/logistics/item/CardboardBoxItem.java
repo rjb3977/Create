@@ -40,7 +40,7 @@ public class CardboardBoxItem extends Item {
 
 		ItemStack box = playerIn.getItemInHand(handIn);
 		for (ItemStack stack : getContents(box))
-			playerIn.inventory.placeItemBackInInventory(worldIn, stack);
+			playerIn.getInventory().placeItemBackInInventory(stack);
 
 		if (!playerIn.isCreative()) {
 			box.shrink(1);

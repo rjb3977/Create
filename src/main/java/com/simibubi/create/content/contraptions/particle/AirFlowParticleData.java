@@ -1,31 +1,31 @@
 package com.simibubi.create.content.contraptions.particle;
 
 import java.util.Locale;
-import IDeserializer;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllParticleTypes;
 
-import net.minecraft.client.particle.ParticleManager.IParticleMetaFactory;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.FriendlyByteBuf;
 
-public class AirFlowParticleData implements IParticleData, ICustomParticleDataWithSprite<AirFlowParticleData> {
-	
-	public static final Codec<AirFlowParticleData> CODEC = RecordCodecBuilder.create(i -> 
+public class AirFlowParticleData implements ParticleOptions, ICustomParticleDataWithSprite<AirFlowParticleData> {
+
+	public static final Codec<AirFlowParticleData> CODEC = RecordCodecBuilder.create(i ->
 		i.group(
 			Codec.INT.fieldOf("x").forGetter(p -> p.posX),
 			Codec.INT.fieldOf("y").forGetter(p -> p.posY),
 			Codec.INT.fieldOf("z").forGetter(p -> p.posZ))
 		.apply(i, AirFlowParticleData::new));
 
-	public static final IParticleData.IDeserializer<AirFlowParticleData> DESERIALIZER = new IParticleData.IDeserializer<AirFlowParticleData>() {
+	public static final ParticleOptions.Deserializer<AirFlowParticleData> DESERIALIZER = new ParticleOptions.Deserializer<AirFlowParticleData>() {
 		public AirFlowParticleData fromCommand(ParticleType<AirFlowParticleData> particleTypeIn, StringReader reader)
 				throws CommandSyntaxException {
 			reader.expect(' ');
@@ -37,7 +37,7 @@ public class AirFlowParticleData implements IParticleData, ICustomParticleDataWi
 			return new AirFlowParticleData(x, y, z);
 		}
 
-		public AirFlowParticleData fromNetwork(ParticleType<AirFlowParticleData> particleTypeIn, PacketBuffer buffer) {
+		public AirFlowParticleData fromNetwork(ParticleType<AirFlowParticleData> particleTypeIn, FriendlyByteBuf buffer) {
 			return new AirFlowParticleData(buffer.readInt(), buffer.readInt(), buffer.readInt());
 		}
 	};
@@ -46,7 +46,11 @@ public class AirFlowParticleData implements IParticleData, ICustomParticleDataWi
 	final int posY;
 	final int posZ;
 
-	public AirFlowParticleData(Vector3i pos) {
+	public AirFlowParticleData(Vec3i pos) {
+		this(pos.getX(), pos.getY(), pos.getZ());
+	}
+
+	public AirFlowParticleData(BlockPos pos) {
 		this(pos.getX(), pos.getY(), pos.getZ());
 	}
 
@@ -66,7 +70,7 @@ public class AirFlowParticleData implements IParticleData, ICustomParticleDataWi
 	}
 
 	@Override
-	public void writeToNetwork(PacketBuffer buffer) {
+	public void writeToNetwork(FriendlyByteBuf buffer) {
 		buffer.writeInt(posX);
 		buffer.writeInt(posY);
 		buffer.writeInt(posZ);
@@ -78,10 +82,10 @@ public class AirFlowParticleData implements IParticleData, ICustomParticleDataWi
 	}
 
 	@Override
-	public IDeserializer<AirFlowParticleData> getDeserializer() {
+	public ParticleOptions.Deserializer<AirFlowParticleData> getDeserializer() {
 		return DESERIALIZER;
 	}
-	
+
 	@Override
 	public Codec<AirFlowParticleData> getCodec(ParticleType<AirFlowParticleData> type) {
 		return CODEC;
@@ -89,7 +93,7 @@ public class AirFlowParticleData implements IParticleData, ICustomParticleDataWi
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public IParticleMetaFactory<AirFlowParticleData> getMetaFactory() {
+	public ParticleEngine.SpriteParticleRegistration<AirFlowParticleData> getMetaFactory() {
 		return AirFlowParticle.Factory::new;
 	}
 

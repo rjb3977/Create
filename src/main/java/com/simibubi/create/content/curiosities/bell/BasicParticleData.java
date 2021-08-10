@@ -6,7 +6,8 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.serialization.Codec;
 import com.simibubi.create.content.contraptions.particle.ICustomParticleDataWithSprite;
 
-import mcp.MethodsReturnNonnullByDefault;
+import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
+
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;

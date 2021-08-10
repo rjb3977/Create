@@ -56,9 +56,6 @@ import com.simibubi.create.lib.lba.item.InvWrapper;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-import alexiil.mc.lib.attributes.SearchOptions;
-import alexiil.mc.lib.attributes.item.ItemAttributes;
-import alexiil.mc.lib.attributes.item.ItemInsertable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
@@ -82,6 +79,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
+// fixme all sorts of LBA -Platy
 public abstract class ArmInteractionPoint {
 	public enum Mode {
 		DEPOSIT, TAKE
@@ -236,7 +234,7 @@ public abstract class ArmInteractionPoint {
 		return interactionPoint;
 	}
 
-	protected static void transformPos(StructureTransform transform, CompoundNBT nbt) {
+	protected static void transformPos(StructureTransform transform, CompoundTag nbt) {
 		BlockPos pos = NBTUtil.readBlockPos(nbt.getCompound("Pos"));
 		pos = transform.applyWithoutOffset(pos);
 		nbt.put("Pos", NBTUtil.writeBlockPos(pos));

@@ -180,7 +180,7 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements IBackTankR
 			if (!player.isCreative()) {
 				itemStack.shrink(1);
 				if (itemStack.isEmpty())
-					player.inventory.removeItem(itemStack);
+					player.getInventory().removeItem(itemStack);
 			}
 
 			if (!BackTankUtil.canAbsorbDamage(player, maxUses()))

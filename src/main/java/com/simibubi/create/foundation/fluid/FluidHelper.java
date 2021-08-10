@@ -139,7 +139,7 @@ public class FluidHelper {
 				player.setItemInHand(handIn, emptyingResult.getSecond());
 			else {
 				player.setItemInHand(handIn, copyOfHeld);
-				player.inventory.placeItemBackInInventory(worldIn, emptyingResult.getSecond());
+				player.getInventory().placeItemBackInInventory(emptyingResult.getSecond());
 			}
 		}
 		return true;
@@ -177,7 +177,7 @@ public class FluidHelper {
 			tank.drain(copy, Simulation.ACTION);
 
 			if (!player.isCreative())
-				player.inventory.placeItemBackInInventory(world, out);
+				player.getInventory().placeItemBackInInventory(out);
 			te.notifyUpdate();
 			return true;
 		}

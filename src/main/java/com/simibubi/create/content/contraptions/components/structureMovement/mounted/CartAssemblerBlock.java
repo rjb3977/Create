@@ -116,7 +116,7 @@ public class CartAssemblerBlock extends BaseRailBlock
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return AllTileEntities.CART_ASSEMBLER.create();
 	}
 
@@ -194,7 +194,7 @@ public class CartAssemblerBlock extends BaseRailBlock
 
 			if (!player.isCreative()) {
 				itemStack.shrink(1);
-				player.inventory.placeItemBackInInventory(world, new ItemStack(previousItem));
+				player.getInventory().placeItemBackInInventory(new ItemStack(previousItem));
 			}
 			return InteractionResult.SUCCESS;
 		}
@@ -295,7 +295,7 @@ public class CartAssemblerBlock extends BaseRailBlock
 			return InteractionResult.SUCCESS;
 		if (player != null && !player.isCreative())
 			getDropsNoRail(state, (ServerLevel) world, pos, world.getBlockEntity(pos), player, context.getItemInHand())
-				.forEach(itemStack -> player.inventory.placeItemBackInInventory(world, itemStack));
+				.forEach(itemStack -> player.getInventory().placeItemBackInInventory(itemStack));
 		if (world instanceof ServerLevel)
 			state.spawnAfterBreak((ServerLevel) world, pos, ItemStack.EMPTY);
 		world.setBlockAndUpdate(pos, getRailBlock(state));

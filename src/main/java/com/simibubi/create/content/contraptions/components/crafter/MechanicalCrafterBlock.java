@@ -211,7 +211,7 @@ public class MechanicalCrafterBlock extends HorizontalKineticBlock implements IT
 					crafter.setChanged();
 					crafter.sendData();
 					if (!player.isCreative())
-						player.inventory.placeItemBackInInventory(worldIn, AllItems.CRAFTER_SLOT_COVER.asStack());
+						player.getInventory().placeItemBackInInventory(AllItems.CRAFTER_SLOT_COVER.asStack());
 					return InteractionResult.SUCCESS;
 				}
 				return InteractionResult.PASS;

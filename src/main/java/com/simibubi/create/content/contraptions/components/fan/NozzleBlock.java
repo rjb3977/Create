@@ -41,7 +41,7 @@ public class NozzleBlock extends ProperDirectionalBlock implements EntityBlock {
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return AllTileEntities.NOZZLE.create();
 	}
 

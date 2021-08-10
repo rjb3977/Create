@@ -36,7 +36,7 @@ public class AdjustableRepeaterBlock extends AbstractDiodeBlock implements CanCo
 //	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return AllBlocks.ADJUSTABLE_REPEATER.is(this) ? AllTileEntities.ADJUSTABLE_REPEATER.create()
 			: AllTileEntities.ADJUSTABLE_PULSE_REPEATER.create();
 	}

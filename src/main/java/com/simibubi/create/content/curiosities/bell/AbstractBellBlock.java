@@ -26,6 +26,12 @@ public abstract class AbstractBellBlock<TE extends AbstractBellTileEntity> exten
 	}
 
 	@Override
+	@Nullable
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return null;
+	}
+
+	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext selection) {
 		Direction facing = state.getValue(FACING);
 		switch (state.getValue(ATTACHMENT)) {

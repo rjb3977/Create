@@ -48,8 +48,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class AirCurrent {
 
-	private static final DamageSource damageSourceFire = DamageSourceHelper.create$createFireDamageSource("create.fan_fire").setDifficultyScaled();
-	private static final DamageSource damageSourceLava = DamageSourceHelper.create$createFireDamageSource("create.fan_lava").setDifficultyScaled();
+	private static final DamageSource damageSourceFire = DamageSourceHelper.create$createFireDamageSource("create.fan_fire").setScalesWithDifficulty();
+	private static final DamageSource damageSourceLava = DamageSourceHelper.create$createFireDamageSource("create.fan_lava").setScalesWithDifficulty();
 
 	public final IAirCurrentSource source;
 	public AABB bounds = new AABB(0, 0, 0, 0, 0, 0);
@@ -389,9 +389,8 @@ public class AirCurrent {
 	}
 
 	public static boolean isPlayerCreativeFlying(Entity entity) {
-		if (entity instanceof Player) {
-			Player player = (Player) entity;
-			return player.isCreative() && player.abilities.flying;
+		if (entity instanceof Player player) {
+			return player.isCreative() && player.getAbilities().flying;
 		}
 		return false;
 	}

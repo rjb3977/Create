@@ -6,7 +6,6 @@ import com.simibubi.create.foundation.config.AllConfigs;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class BackTankUtil {
 
@@ -80,8 +80,7 @@ public class BackTankUtil {
 		if (backtank.isEmpty() || !hasAirRemaining(backtank))
 			return Mth.hsvToRgb(
 				Math.max(0.0F, (float) (1.0F - getDurabilityForDisplay(stack, usesPerTank))) / 3.0F, 1.0F, 1.0F);
-		return backtank.getItem()
-			.getRGBDurabilityForDisplay(backtank);
+		return backtank.getItem().getBarColor(backtank);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -94,8 +93,7 @@ public class BackTankUtil {
 		ItemStack backtank = get(player);
 		if (backtank.isEmpty() || !hasAirRemaining(backtank))
 			return (double) stack.getDamageValue() / (double) stack.getMaxDamage();
-		return backtank.getItem()
-			.getDurabilityForDisplay(backtank);
+		return backtank.getItem().getBarWidth(backtank);
 	}
 
 	@Environment(EnvType.CLIENT)

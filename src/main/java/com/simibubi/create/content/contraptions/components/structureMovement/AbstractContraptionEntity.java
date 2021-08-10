@@ -122,7 +122,11 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 	}
 
 	@Override
-	public void positionRider(Entity passenger, MoveFunction callback) {
+	public void positionRider(Entity entity) {
+		this.positionRider(entity, Entity::setPos);
+	}
+
+	private void positionRider(Entity passenger, MoveFunction callback) {
 		if (!hasPassenger(passenger))
 			return;
 		Vec3 transformedVector = getPassengerPosition(passenger, 1);
@@ -218,16 +222,13 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 	@Override
 	public final void tick() {
 		if (contraption == null) {
-			remove();
+			discard();
 			return;
 		}
 
-		for (Iterator<Entry<Entity, MutableInt>> iterator = collidingEntities.entrySet()
-			.iterator(); iterator.hasNext();)
-			if (iterator.next()
+		collidingEntities.entrySet().removeIf(entityMutableIntEntry -> entityMutableIntEntry
 				.getValue()
-				.incrementAndGet() > 3)
-				iterator.remove();
+				.incrementAndGet() > 3);
 
 		xo = getX();
 		yo = getY();
@@ -447,7 +448,7 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 		if (contraption == null)
 			return;
 
-		remove();
+		discard();
 
 		StructureTransform transform = makeStructureTransform();
 		AllPackets.channel.sendToClientsTracking(
@@ -485,7 +486,7 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 	}
 
 	@Override
-	public void remove(/*boolean keepData*/) {
+	public void remove(RemovalReason reason /*boolean keepData*/) {
 		if (!level.isClientSide && !removed && contraption != null) {
 			if (!ticking)
 				contraption.stop(level);
@@ -493,7 +494,7 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 		if (contraption != null)
 			contraption.onEntityRemoved(this);
 		onRemovedFromWorld(); // onRemovedFromWorld is called right after remove, so I think this should be fine?
-		super.remove(/*keepData*/); // keepData is for capabilities
+		super.remove(reason /*keepData*/); // keepData is for capabilities
 	}
 
 	protected abstract StructureTransform makeStructureTransform();
@@ -515,7 +516,7 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 //		super.onRemovedFromWorld();
 		if (level != null && level.isClientSide)
 			return;
-		getPassengers().forEach(Entity::remove);
+		getPassengers().forEach(Entity::discard);
 	}
 
 	@Override
@@ -558,6 +559,7 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 		List<Entity> passengers = getPassengers();
 
 		for (Entity entity : passengers) {
+			// fixme I do not know how this converts -Platy
 			// setPos has world accessing side-effects when removed == false
 			entity.removed = true;
 
@@ -640,7 +642,7 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 	}
 
 	@Override
-	public boolean hasOnePlayerPassenger() {
+	public boolean hasExactlyOnePlayerPassenger() {
 		return false;
 	}
 

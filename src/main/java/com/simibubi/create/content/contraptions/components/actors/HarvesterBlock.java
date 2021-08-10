@@ -1,9 +1,13 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import com.simibubi.create.AllTileEntities;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.Nullable;
 
 public class HarvesterBlock extends AttachedActorBlock implements EntityBlock {
@@ -18,7 +22,7 @@ public class HarvesterBlock extends AttachedActorBlock implements EntityBlock {
 //	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new HarvesterTileEntity(AllTileEntities.HARVESTER.get());
 	}
 

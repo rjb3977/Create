@@ -182,7 +182,7 @@ public class DeployerMovementBehaviour extends MovementBehaviour {
 		if (player == null)
 			return;
 
-		context.tileData.put("Inventory", player.inventory.save(new ListTag()));
+		context.tileData.put("Inventory", player.getInventory().save(new ListTag()));
 		player.remove();
 	}
 
@@ -205,7 +205,7 @@ public class DeployerMovementBehaviour extends MovementBehaviour {
 		DeployerFakePlayer player = getPlayer(context);
 		if (player == null)
 			return;
-		Inventory inv = player.inventory;
+		Inventory inv = player.getInventory();
 		ItemStack filter = getFilter(context);
 
 		for (List<ItemStack> list : Arrays.asList(inv.armor, inv.offhand, inv.items)) {

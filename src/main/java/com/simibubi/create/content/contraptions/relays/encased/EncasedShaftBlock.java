@@ -35,6 +35,11 @@ public class EncasedShaftBlock extends AbstractEncasedShaftBlock implements ISpe
 		this.casing = casing;
 	}
 
+	@Override
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.ENCASED_SHAFT.create(pos, state);
+	}
+
 	public BlockEntry<CasingBlock> getCasing() {
 		return casing;
 	}
@@ -53,9 +58,4 @@ public class EncasedShaftBlock extends AbstractEncasedShaftBlock implements ISpe
 		return ItemRequirement.of(AllBlocks.SHAFT.getDefaultState(), te);
 	}
 
-	@Nullable
-	@Override
-	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return AllTileEntities.ENCASED_SHAFT.create(blockPos, blockState);
-	}
 }

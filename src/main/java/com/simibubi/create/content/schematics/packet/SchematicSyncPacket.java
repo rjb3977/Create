@@ -62,7 +62,7 @@ public class SchematicSyncPacket implements C2SPacket {
 			if (slot == -1) {
 				stack = player.getMainHandItem();
 			} else {
-				stack = player.inventory.getItem(slot);
+				stack = player.getInventory().getItem(slot);
 			}
 			if (!AllItems.SCHEMATIC.isIn(stack)) {
 				return;

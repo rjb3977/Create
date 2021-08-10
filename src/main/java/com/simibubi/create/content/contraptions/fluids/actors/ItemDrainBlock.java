@@ -13,6 +13,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -52,7 +53,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainT
 
 			ItemStack heldItemStack = te.getHeldItemStack();
 			if (!worldIn.isClientSide && !heldItemStack.isEmpty()) {
-				player.inventory.placeItemBackInInventory(worldIn, heldItemStack);
+				player.getInventory().placeItemBackInInventory(heldItemStack);
 				te.heldItem = null;
 				te.notifyUpdate();
 			}
@@ -93,7 +94,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainT
 //	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return AllTileEntities.ITEM_DRAIN.create();
 	}
 

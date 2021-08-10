@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -24,6 +27,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -87,7 +91,9 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 		super.tick();
 		if (searchForEntity) {
 			searchForEntity = false;
-			List<Entity> search = level.getEntities(null, new AABB(getBlockPos()),
+			// TODO no guarantees this works -Platy
+			// Had to do EntityTypeTest.forClass(null) because null was ambiguous for overloaded method
+			List<Entity> search = level.getEntities(EntityTypeTest.forClass(null), new AABB(getBlockPos()),
 					e -> entityUUID.equals(e.getUUID()));
 			if (search.isEmpty())
 				clear();
@@ -255,7 +261,7 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 
 	@Environment(EnvType.CLIENT)
 	public void tickAudio() {
-		float pitch = MathHelper.clamp((crushingspeed / 256f) + .45f, .85f, 1f);
+		float pitch = Mth.clamp((crushingspeed / 256f) + .45f, .85f, 1f);
 		if (entityUUID == null && inventory.getStackInSlot(0)
 			.isEmpty())
 			return;
@@ -267,7 +273,7 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 		inventory.setStackInSlot(0, itemEntity.getItem()
 			.copy());
 		itemInserted(inventory.getStackInSlot(0));
-		itemEntity.remove();
+		itemEntity.discard();
 		level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2 | 16);
 	}
 
@@ -329,8 +335,8 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		if (compound.contains("Entity") && !isOccupied()) {
 			entityUUID = NbtUtils.loadUUID(NBTHelper.getINBT(compound, "Entity"));
 			this.searchForEntity = true;

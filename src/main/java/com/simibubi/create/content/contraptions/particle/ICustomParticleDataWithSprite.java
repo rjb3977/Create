@@ -37,7 +37,7 @@ public interface ICustomParticleDataWithSprite<T extends ParticleOptions> extend
 	@Override
 	@Environment(EnvType.CLIENT)
 	public default void register(ParticleType<T> type, ParticleEngine particles) {
-		ParticleManagerHelper.register(particles, type, getMetaFactory());
+		ParticleManagerHelper.registerFactory(particles, type, getMetaFactory());
 	}
 
 }

@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -85,7 +86,7 @@ public class StickerBlock extends ProperDirectionalBlock implements ITE<StickerT
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return AllTileEntities.STICKER.create();
 	}
 
@@ -102,11 +103,11 @@ public class StickerBlock extends ProperDirectionalBlock implements ITE<StickerT
 	}
 
 	@Override
-	public void fallOn(Level p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
-		if (!isUprightSticker(p_180658_1_, p_180658_2_) || p_180658_3_.isSuppressingBounce()) {
-			super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_);
+	public void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, float f) {
+		if (!isUprightSticker(level, blockPos) || entity.isSuppressingBounce()) {
+			super.fallOn(level, blockState, blockPos, entity, f);
 		} else {
-			p_180658_3_.causeFallDamage(p_180658_4_, 0.0F);
+			entity.causeFallDamage(f, 0.0F, DamageSource.FALL);
 		}
 	}
 
@@ -129,14 +130,14 @@ public class StickerBlock extends ProperDirectionalBlock implements ITE<StickerT
 	}
 
 	@Override
-	public void stepOn(Level p_176199_1_, BlockPos p_176199_2_, Entity p_176199_3_) {
-		double d0 = Math.abs(p_176199_3_.getDeltaMovement().y);
-		if (d0 < 0.1D && !p_176199_3_.isSteppingCarefully() && isUprightSticker(p_176199_1_, p_176199_2_)) {
+	public void stepOn(Level level, BlockPos blockPos, BlockState blockState, Entity entity) {
+		double d0 = Math.abs(entity.getDeltaMovement().y);
+		if (d0 < 0.1D && !entity.isSteppingCarefully() && isUprightSticker(level, blockPos)) {
 			double d1 = 0.4D + d0 * 0.2D;
-			p_176199_3_.setDeltaMovement(p_176199_3_.getDeltaMovement()
-				.multiply(d1, 1.0D, d1));
+			entity.setDeltaMovement(entity.getDeltaMovement()
+					.multiply(d1, 1.0D, d1));
 		}
-		super.stepOn(p_176199_1_, p_176199_2_, p_176199_3_);
+		super.stepOn(level, blockPos, blockState, entity);
 	}
 
 	@Override

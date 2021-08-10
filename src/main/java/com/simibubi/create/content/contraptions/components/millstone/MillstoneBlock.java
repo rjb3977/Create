@@ -67,14 +67,14 @@ public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEnt
 				ItemStack stackInSlot = inv.getStackInSlot(slot);
 				if (!stackInSlot.isEmpty())
 					emptyOutput = false;
-				player.inventory.placeItemBackInInventory(worldIn, stackInSlot);
+				player.getInventory().placeItemBackInInventory(stackInSlot);
 				inv.setStackInSlot(slot, ItemStack.EMPTY);
 			}
 
 			if (emptyOutput) {
 				inv = millstone.inputInv;
 				for (int slot = 0; slot < inv.getSlots(); slot++) {
-					player.inventory.placeItemBackInInventory(worldIn, inv.getStackInSlot(slot));
+					player.getInventory().placeItemBackInInventory(inv.getStackInSlot(slot));
 					inv.setStackInSlot(slot, ItemStack.EMPTY);
 				}
 			}
@@ -112,7 +112,7 @@ public class MillstoneBlock extends KineticBlock implements ITE<MillstoneTileEnt
 
 		ItemStack remainder = capability.orElse(new ItemStackHandler()).insertItem(0, itemEntity.getItem(), false);
 		if (remainder.isEmpty())
-			itemEntity.remove();
+			itemEntity.discard();
 		if (remainder.getCount() < itemEntity.getItem().getCount())
 			itemEntity.setItem(remainder);
 	}

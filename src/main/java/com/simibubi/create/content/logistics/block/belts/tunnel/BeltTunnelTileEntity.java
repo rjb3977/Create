@@ -77,7 +77,7 @@ public class BeltTunnelTileEntity extends SmartTileEntity implements IInstanceRe
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		Set<Direction> newFlaps = new HashSet<>(6);
 		ListTag flapsNBT = compound.getList("Flaps", NBT.TAG_INT);
 		for (Tag inbt : flapsNBT)
@@ -101,7 +101,7 @@ public class BeltTunnelTileEntity extends SmartTileEntity implements IInstanceRe
 		// Backwards compat
 		if (!compound.contains("Sides") && compound.contains("Flaps"))
 			sides.addAll(flaps.keySet());
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 		if (clientPacket)
 			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
 	}

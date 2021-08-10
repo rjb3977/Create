@@ -46,12 +46,12 @@ import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.NBTSerializer;
 import com.simibubi.create.lib.utility.TransferUtil;
 
-import alexiil.mc.lib.attributes.Simulation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -64,6 +64,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+// fixme LBA -Platy
 public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInformation {
 
 	private boolean areFluidsMoving;
@@ -178,14 +179,14 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		compound.put("DisabledSpoutput", disabledList);
 		compound.put("Overflow", NBTHelper.writeItemList(spoutputBuffer));
 		compound.put("FluidOverflow",
-			NBTHelper.writeCompoundList(spoutputFluidBuffer, fs -> fs.writeToNBT(new CompoundNBT())));
+			NBTHelper.writeCompoundList(spoutputFluidBuffer, fs -> fs.writeToNBT(new CompoundTag())));
 
 		if (!clientPacket)
 			return;
 
 		compound.put("VisualizedItems", NBTHelper.writeCompoundList(visualizedOutputItems, ia -> NBTSerializer.serializeNBT(ia.getValue())));
 		compound.put("VisualizedFluids", NBTHelper.writeCompoundList(visualizedOutputFluids, ia -> ia.getValue()
-			.writeToNBT(new CompoundNBT())));
+			.writeToNBT(new CompoundTag())));
 		visualizedOutputItems.clear();
 		visualizedOutputFluids.clear();
 	}
@@ -621,8 +622,8 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		for (int i = 0; i < 3; i++) {
 			visualizedOutputFluids.forEach(ia -> {
 				FluidStack fluidStack = ia.getValue();
-				IParticleData fluidParticle = FluidFX.getFluidParticle(fluidStack);
-				Vector3d m = VecHelper.offsetRandomly(outMotion, r, 1 / 16f);
+				ParticleOptions fluidParticle = FluidFX.getFluidParticle(fluidStack);
+				Vec3 m = VecHelper.offsetRandomly(outMotion, r, 1 / 16f);
 				level.addAlwaysVisibleParticle(fluidParticle, outVec.x, outVec.y, outVec.z, m.x, m.y, m.z);
 			});
 		}

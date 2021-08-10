@@ -100,7 +100,8 @@ public class AirParticle extends SimpleAnimatedParticle {
 			this.spriteSet = animatedSprite;
 		}
 
-		public Particle makeParticle(AirParticleData data, ClientLevel worldIn, double x, double y, double z, double xSpeed,
+		@Override
+		public Particle createParticle(AirParticleData data, ClientLevel worldIn, double x, double y, double z, double xSpeed,
 			double ySpeed, double zSpeed) {
 			return new AirParticle(worldIn, data, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
 		}

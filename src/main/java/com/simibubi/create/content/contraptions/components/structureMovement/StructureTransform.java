@@ -5,7 +5,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
-import Vector3d;
+import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.base.DirectionalAxisKineticBlock;
 import com.simibubi.create.content.contraptions.components.structureMovement.chassis.AbstractChassisBlock;
@@ -22,19 +22,18 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.BellBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.level.block.state.properties.BellAttachType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.util.Mirror;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
-import net.minecraft.world.phys.Vec3;
 
 public class StructureTransform {
 
@@ -87,7 +86,7 @@ public class StructureTransform {
 		mirror = Mirror.NONE;
 	}
 
-	public Vec3 applyWithoutOffset(Vector3d localVec) {
+	public Vec3 applyWithoutOffset(Vec3 localVec) {
 		Vec3 vec = localVec;
 		if (mirror != null)
 			vec = VecHelper.mirrorCentered(vec, mirror);
@@ -96,8 +95,8 @@ public class StructureTransform {
 		return vec;
 	}
 
-	public Vector3d apply(Vector3d localVec) {
-		return applyWithoutOffset(localVec).add(Vector3d.atLowerCornerOf(offset));
+	public Vec3 apply(Vec3 localVec) {
+		return applyWithoutOffset(localVec).add(Vec3.atLowerCornerOf(offset));
 	}
 
 	public BlockPos applyWithoutOffset(BlockPos localPos) {

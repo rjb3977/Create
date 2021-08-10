@@ -106,7 +106,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 		if (!level.isClientSide) {
 			player = new DeployerFakePlayer((ServerLevel) level);
 			if (deferredInventoryList != null) {
-				player.inventory.load(deferredInventoryList);
+				player.getInventory().load(deferredInventoryList);
 				deferredInventoryList = null;
 				heldItem = player.getMainHandItem();
 				sendData();
@@ -154,15 +154,15 @@ public class DeployerTileEntity extends KineticTileEntity {
 			}
 
 			boolean changed = false;
-			for (int i = 0; i < player.inventory.getContainerSize(); i++) {
+			for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
 				if (overflowItems.size() > 10)
 					break;
-				ItemStack item = player.inventory.getItem(i);
+				ItemStack item = player.getInventory().getItem(i);
 				if (item.isEmpty())
 					continue;
 				if (item != stack || !filtering.test(item)) {
 					overflowItems.add(item);
-					player.inventory.setItem(i, ItemStack.EMPTY);
+					player.getInventory().setItem(i, ItemStack.EMPTY);
 					changed = true;
 				}
 			}
@@ -329,7 +329,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 
 		if (player != null) {
 			ListTag invNBT = new ListTag();
-			player.inventory.save(invNBT);
+			player.getInventory().save(invNBT);
 			compound.put("Inventory", invNBT);
 			compound.put("HeldItem", player.getMainHandItem().serializeNBT());
 			compound.put("Overflow", NBTHelper.writeItemList(overflowItems));

@@ -175,10 +175,11 @@ public class SailBlock extends ProperDirectionalBlock implements BlockPickIntera
 		return pickBlock;
 	}
 
-	public void fallOn(Level p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
+	@Override
+	public void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, float f) {
 		if (frame)
-			super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_);
-		super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, 0);
+			super.fallOn(level, blockState, blockPos, entity, f);
+		super.fallOn(level, blockState, blockPos, entity, 0);
 	}
 
 	public void updateEntityAfterFallOn(BlockGetter p_176216_1_, Entity p_176216_2_) {

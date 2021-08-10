@@ -78,9 +78,9 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterContainer> ex
 	}
 
 	@Override
-	public void tick() {
+	protected void containerTick() {
 		handleTooltips();
-		super.tick();
+		super.containerTick();
 		handleIndicators();
 
 		if (!ItemStackUtil.equals(menu.player.getMainHandItem(), menu.contentHolder, false))

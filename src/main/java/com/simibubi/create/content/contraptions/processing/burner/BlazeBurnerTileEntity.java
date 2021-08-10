@@ -12,9 +12,14 @@ import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
+import com.simibubi.create.lib.utility.BurnUtil;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -98,7 +103,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 
 	private void tickRotation() {
 		float target = 0;
-		ClientPlayerEntity player = Minecraft.getInstance().player;
+		LocalPlayer player = Minecraft.getInstance().player;
 		if (player != null) {
 			double x;
 			double z;
@@ -133,11 +138,11 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		activeFuel = FuelType.values()[compound.getInt("fuelLevel")];
 		remainingBurnTime = compound.getInt("burnTimeRemaining");
 		isCreative = compound.getBoolean("isCreative");
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 	public BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock() {
@@ -171,7 +176,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 			newBurnTime = 1000;
 			newFuel = FuelType.SPECIAL;
 		} else {
-			newBurnTime = ForgeHooks.getBurnTime(itemStack);
+			newBurnTime = BurnUtil.getBurnTime(itemStack);
 			if (newBurnTime > 0)
 				newFuel = FuelType.NORMAL;
 		}
@@ -231,7 +236,7 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 	}
 
 	protected void playSound() {
-		level.playSound(null, worldPosition, SoundEvents.BLAZE_SHOOT, SoundCategory.BLOCKS,
+		level.playSound(null, worldPosition, SoundEvents.BLAZE_SHOOT, SoundSource.BLOCKS,
 			.125f + level.random.nextFloat() * .125f, .75f - level.random.nextFloat() * .25f);
 	}
 
@@ -285,11 +290,10 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 		}
 	}
 
-	protected void spawnParticle(HeatLevel heatLevel, float scale, int avgAge, boolean hot, double speed, double spread) {
+	protected void spawnParticle(Color color, float scale, int avgAge, boolean hot, double speed, double spread) {
 		Random random = level.getRandom();
-		Vec3 color = randomColor(heatLevel);
 		level.addAlwaysVisibleParticle(
-			new CubeParticleData((float) color.x, (float) color.y, (float) color.z, scale, avgAge, hot),
+			new CubeParticleData(color.getRedAsFloat(), color.getGreenAsFloat(), color.getBlueAsFloat(), scale, avgAge, hot),
 			(double) worldPosition.getX() + 0.5D + (random.nextDouble() * 2.0 - 1D) * spread,
 			(double) worldPosition.getY() + 0.6D + (random.nextDouble() / 4.0),
 			(double) worldPosition.getZ() + 0.5D + (random.nextDouble() * 2.0 - 1D) * spread, 0.0D, speed, 0.0D);

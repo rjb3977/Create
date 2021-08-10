@@ -89,7 +89,7 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterC
 		attributeSelectorLabel = new Label(x + 43, y + 26, TextComponent.EMPTY).colored(0xF3EBDE)
 			.withShadow();
 		attributeSelector = new SelectionScrollInput(x + 39, y + 21, 137, 18);
-		attributeSelector.forOptions(Arrays.asList(TextComponent.EMPTY));
+		attributeSelector.forOptions(List.of(TextComponent.EMPTY));
 		attributeSelector.removeCallback();
 		referenceItemChanged(menu.ghostInventory.getStackInSlot(0));
 
@@ -99,10 +99,10 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterC
 		selectedAttributes.clear();
 		selectedAttributes.add((menu.selectedAttributes.isEmpty() ? noSelectedT : selectedT).plainCopy()
 			.withStyle(ChatFormatting.YELLOW));
-		menu.selectedAttributes.forEach(at -> selectedAttributes.add(new StringTextComponent("- ")
+		menu.selectedAttributes.forEach(at -> selectedAttributes.add(new TextComponent("- ")
 			.append(at.getFirst()
 				.format(at.getSecond()))
-			.withStyle(TextFormatting.GRAY)));
+			.withStyle(ChatFormatting.GRAY)));
 	}
 
 	private void referenceItemChanged(ItemStack stack) {
@@ -174,8 +174,8 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterC
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
+	public void containerTick() {
+		super.containerTick();
 		ItemStack stackInSlot = menu.ghostInventory.getStackInSlot(0);
 		if (!ItemStack.matches(stackInSlot, lastItemScanned))
 			referenceItemChanged(stackInSlot);
@@ -183,7 +183,7 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterC
 
 	@Override
 	protected void renderTooltip(PoseStack matrixStack, int mouseX, int mouseY) {
-		if (this.minecraft.player.inventory.getCarried()
+		if (this.minecraft.player.getInventory().getSelected()
 			.isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
 			if (this.hoveredSlot.index == 37) {
 				renderComponentTooltip(matrixStack, selectedAttributes, mouseX, mouseY);

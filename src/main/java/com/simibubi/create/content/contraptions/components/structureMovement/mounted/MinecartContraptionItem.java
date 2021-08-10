@@ -224,7 +224,7 @@ public class MinecartContraptionItem extends Item {
 					.anyMatch(i -> i.state.getBlock() instanceof SpawnerBlock)) {
 				player.displayClientMessage(Lang.translate("contraption.minecart_contraption_illegal_pickup")
 						.withStyle(ChatFormatting.RED), true);
-				return;
+				return InteractionResult.PASS;
 			}
 		}
 
@@ -250,9 +250,9 @@ public class MinecartContraptionItem extends Item {
 			return InteractionResult.PASS;
 		}
 
-		player.inventory.placeItemBackInInventory(player.level, generatedStack);
-		contraption.remove();
-		entity.remove();
+		player.getInventory().placeItemBackInInventory(generatedStack);
+		contraption.discard();
+		entity.discard();
 		return InteractionResult.SUCCESS;
 	}
 

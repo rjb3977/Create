@@ -46,9 +46,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.storage.loot.ConstantIntValue;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -96,7 +96,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return AllTileEntities.HEATER.create();
 	}
 
@@ -109,8 +109,6 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
 		BlockHitResult blockRayTraceResult) {
 		ItemStack heldItem = player.getItemInHand(hand);
-		boolean dontConsume = player.isCreative();
-		boolean forceOverflow = !(player instanceof FakePlayer);
 
 		if (!state.hasBlockEntity()) {
 			if (heldItem.getItem() instanceof FlintAndSteelItem) {
@@ -133,7 +131,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 		if (!world.isClientSide && !doNotConsume && !leftover.isEmpty()) {
 			if (heldItem.isEmpty()) {
 				player.setItemInHand(hand, leftover);
-			} else if (!player.inventory.add(leftover)) {
+			} else if (!player.getInventory().add(leftover)) {
 				player.drop(leftover, false);
 			}
 		}
@@ -154,7 +152,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 		if (burnerTE.isCreativeFuel(stack)) {
 			if (!simulate)
 				burnerTE.applyCreativeFuel();
-			return ActionResult.success(ItemStack.EMPTY);
+			return InteractionResultHolder.success(ItemStack.EMPTY);
 		}
 		if (!burnerTE.tryUpdateFuel(stack, forceOverflow, simulate))
 			return InteractionResultHolder.fail(ItemStack.EMPTY);
@@ -229,7 +227,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 	}
 
 	public static int getLight(BlockState state) {
-		return MathHelper.clamp(state.getValue(HEAT_LEVEL)
+		return Mth.clamp(state.getValue(HEAT_LEVEL)
 			.ordinal() * 4 - 1, 0, 15);
 	}
 
@@ -248,7 +246,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 					.setProperties(StatePropertiesPredicate.Builder.properties()
 						.hasProperty(HEAT_LEVEL, level))));
 		}
-		builder.withPool(poolBuilder.setRolls(ConstantRange.exactly(1)));
+		builder.withPool(poolBuilder.setRolls(ConstantValue.exactly(1)));
 		return builder;
 	}
 
@@ -290,13 +288,13 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 		}
 
 		projectileEntity.setDeltaMovement(Vec3.ZERO);
-		projectileEntity.remove();
+		projectileEntity.discard();
 
 		BlazeBurnerTileEntity heater = (BlazeBurnerTileEntity) tile;
 		if (heater.activeFuel != BlazeBurnerTileEntity.FuelType.SPECIAL) {
 			heater.activeFuel = BlazeBurnerTileEntity.FuelType.NORMAL;
 			heater.remainingBurnTime =
-					Mth.clamp(heater.remainingBurnTime + 80, 0, BlazeBurnerTileEntity.maxHeatCapacity);
+					Mth.clamp(heater.remainingBurnTime + 80, 0, BlazeBurnerTileEntity.MAX_HEAT_CAPACITY);
 			heater.updateBlockState();
 			heater.notifyUpdate();
 		}

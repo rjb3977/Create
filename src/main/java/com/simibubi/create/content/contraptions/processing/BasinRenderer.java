@@ -134,7 +134,7 @@ public class BasinRenderer extends SmartTileEntityRenderer<BasinTileEntity> {
 	protected void renderItem(PoseStack ms, MultiBufferSource buffer, int light, int overlay, ItemStack stack) {
 		Minecraft.getInstance()
 			.getItemRenderer()
-			.renderStatic(stack, TransformType.GROUND, light, overlay, ms, buffer);
+			.renderStatic(stack, TransformType.GROUND, light, overlay, ms, buffer, overlay);
 	}
 
 	protected float renderFluids(BasinTileEntity basin, float partialTicks, PoseStack ms, MultiBufferSource buffer,

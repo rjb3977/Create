@@ -3,6 +3,7 @@ package com.simibubi.create.content.curiosities.symmetry;
 import java.util.Random;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.curiosities.symmetry.mirror.EmptyMirror;
 import com.simibubi.create.content.curiosities.symmetry.mirror.SymmetryMirror;
@@ -45,7 +46,7 @@ public class SymmetryHandler {
 			return InteractionResult.PASS;
 
 		Player player = (Player) context.getPlayer();
-		Inventory inv = player.inventory;
+		Inventory inv = player.getInventory();
 		for (int i = 0; i < Inventory.getSelectionSize(); i++) {
 			if (!inv.getItem(i)
 				.isEmpty()
@@ -62,7 +63,7 @@ public class SymmetryHandler {
 		if (world.isClientSide())
 			return;
 
-		Inventory inv = player.inventory;
+		Inventory inv = player.getInventory();
 		for (int i = 0; i < Inventory.getSelectionSize(); i++) {
 			if (!inv.getItem(i)
 				.isEmpty() && AllItems.WAND_OF_SYMMETRY.isIn(inv.getItem(i))) {
@@ -79,7 +80,7 @@ public class SymmetryHandler {
 		LocalPlayer player = mc.player;
 
 		for (int i = 0; i < Inventory.getSelectionSize(); i++) {
-			ItemStack stackInSlot = player.inventory.getItem(i);
+			ItemStack stackInSlot = player.getInventory().getItem(i);
 			if (!AllItems.WAND_OF_SYMMETRY.isIn(stackInSlot))
 				continue;
 			if (!SymmetryWandItem.isEnabled(stackInSlot))
@@ -133,7 +134,7 @@ public class SymmetryHandler {
 
 		if (tickCounter % 10 == 0) {
 			for (int i = 0; i < Inventory.getSelectionSize(); i++) {
-				ItemStack stackInSlot = player.inventory.getItem(i);
+				ItemStack stackInSlot = player.getInventory().getItem(i);
 
 				if (stackInSlot != null && AllItems.WAND_OF_SYMMETRY.isIn(stackInSlot)
 					&& SymmetryWandItem.isEnabled(stackInSlot)) {
@@ -171,7 +172,7 @@ public class SymmetryHandler {
 			Vec3 pos = start.add(step.scale(i));
 			Vec3 speed = new Vec3(0, r.nextDouble() * -40f, 0);
 
-			Minecraft.getInstance().level.addParticle(new DustParticleOptions(1, 1, 1, 1), pos.x, pos.y, pos.z,
+			Minecraft.getInstance().level.addParticle(new DustParticleOptions(new Vector3f(1, 1, 1), 1), pos.x, pos.y, pos.z,
 				speed.x, speed.y, speed.z);
 		}
 

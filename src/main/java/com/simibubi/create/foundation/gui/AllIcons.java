@@ -163,7 +163,7 @@ public class AllIcons implements IScreenRenderable {
 	public void bind() {
 		Minecraft.getInstance()
 			.getTextureManager()
-			.bind(ICON_ATLAS);
+			.bindForSetup(ICON_ATLAS);
 	}
 
 	@Override

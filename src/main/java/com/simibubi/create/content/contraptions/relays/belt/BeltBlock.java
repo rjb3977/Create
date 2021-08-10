@@ -77,6 +77,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+// fixme LBA -Platy
 public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEntity>, ISpecialBlockItemRequirement,
 		BlockPickInteractionAware, CustomPathNodeTypeBlock, BlockExtensions {
 
