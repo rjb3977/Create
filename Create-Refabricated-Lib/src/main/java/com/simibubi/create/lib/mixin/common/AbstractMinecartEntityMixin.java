@@ -33,23 +33,23 @@ public abstract class AbstractMinecartEntityMixin extends Entity implements Abst
 	}
 
 	@Shadow
-	protected abstract double getMaximumSpeed();
+	protected abstract double getMaxSpeed();
 
 	@Shadow
 	public abstract AbstractMinecart.Type getMinecartType();
 
-	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V")
+	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V")
 	public void create$abstractMinecartEntity(EntityType<?> entityType, Level world, CallbackInfo ci) {
 		create$controller = MinecartController.InitController.initController.create(MixinHelper.cast(this));
 	}
 
-	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;DDD)V")
+	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;DDD)V")
 	public void create$abstractMinecartEntity(EntityType<?> entityType, Level world, double d, double e, double f, CallbackInfo ci) {
 		create$controller = MinecartController.InitController.initController.create(MixinHelper.cast(this));
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;floor(D)I", ordinal = 4),
-			method = "moveAlongTrack(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V")
+			method = "moveAlongTrack")
 	protected void create$moveAlongTrack(BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
 		if (blockState.getBlock() instanceof MinecartPassHandlerBlock) {
 			((MinecartPassHandlerBlock) blockState.getBlock()).onMinecartPass(blockState, MixinHelper.<Entity>cast(this).level, blockPos, MixinHelper.cast(this));
@@ -59,7 +59,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity implements Abst
 	@Override
 	public void create$moveMinecartOnRail(BlockPos pos) {
 		double d24 = isVehicle() ? 0.75D : 1.0D;
-		double d25 = getMaximumSpeed(); // getMaximumSpeed instead of getMaxSpeedWithRail *should* be fine after intense pain looking at Forge patches
+		double d25 = getMaxSpeed(); // getMaxSpeed instead of getMaxSpeedWithRail *should* be fine after intense pain looking at Forge patches
 		Vec3 vec3d1 = getDeltaMovement();
 		move(MoverType.SELF, new Vec3(Mth.clamp(d24 * vec3d1.x, -d25, d25), 0.0D, Mth.clamp(d24 * vec3d1.z, -d25, d25)));
 	}

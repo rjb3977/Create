@@ -22,7 +22,7 @@ public abstract class PlayerEntityMixin {
 	@Shadow
 	public Inventory inventory;
 
-	@Inject(at = @At("HEAD"), method = "isUsingEffectiveTool(Lnet/minecraft/block/BlockState;)Z", cancellable = true)
+	@Inject(at = @At("HEAD"), method = "hasCorrectToolForDrops", cancellable = true)
 	public void create$isUsingEffectiveTool(BlockState blockState, CallbackInfoReturnable<Boolean> cir) {
 		if (blockState.getBlock() instanceof HarvestableBlock && inventory.getSelected().getItem() instanceof DiggerItem) {
 			cir.setReturnValue(((HarvestableBlock) blockState.getBlock()).isToolEffective(blockState, (DiggerItem) inventory.getSelected().getItem()));

@@ -25,19 +25,20 @@ public abstract class IngameGuiMixin {
 	private Minecraft mc;
 
 	@Inject(at = @At("HEAD"),
-			method = "render(Lcom/mojang/blaze3d/matrix/MatrixStack;F)V")
+			method = "render")
 	public void create$render(PoseStack matrixStack, float f, CallbackInfo ci) {
 		create$partialTicks = f;
 	}
 
+	//This might be the wrong method to inject to
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/profiler/IProfiler;endSection()V"),
-			method = "renderStatusBars(Lcom/mojang/blaze3d/matrix/MatrixStack;)V")
+			method = "renderPlayerHealth")
 	private void create$renderStatusBars(PoseStack matrixStack, CallbackInfo ci) {
 		OverlayRenderCallback.EVENT.invoker().onOverlayRender(matrixStack, create$partialTicks, mc.getWindow(), OverlayRenderCallback.Types.AIR);
 	}
 
 	@Inject(at = @At("HEAD"),
-			method = "renderCrosshair(Lcom/mojang/blaze3d/matrix/MatrixStack;)V")
+			method = "renderCrosshair")
 	private void create$renderCrosshair(PoseStack matrixStack, CallbackInfo ci) {
 		OverlayRenderCallback.EVENT.invoker().onOverlayRender(matrixStack, create$partialTicks, mc.getWindow(), OverlayRenderCallback.Types.CROSSHAIRS);
 	}

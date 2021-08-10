@@ -17,6 +17,7 @@ import com.simibubi.create.lib.event.RenderTooltipBorderColorCallback;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.FormattedCharSequence;
@@ -31,7 +32,7 @@ public abstract class ScreenMixin {
 	private static final int CREATE$DEFAULT_BORDER_COLOR_END = 1344798847;
 	@Shadow
 	@Final
-	protected List<AbstractWidget> buttons;
+	protected List<Widget> renderables;
 	@Shadow
 	@Final
 	protected List<GuiEventListener> children;
@@ -40,23 +41,23 @@ public abstract class ScreenMixin {
 	@Unique
 	private RenderTooltipBorderColorCallback.BorderColorEntry create$borderColorEntry = null;
 
-	@Inject(method = "renderTooltip(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/item/ItemStack;II)V", at = @At("HEAD"))
+	@Inject(method = "renderTooltip(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/item/ItemStack;II)V", at = @At("HEAD"))
 	private void create$cacheItemStack(PoseStack matrixStack, ItemStack itemStack, int i, int j, CallbackInfo ci) {
 		create$cachedStack = itemStack;
 	}
 
-	@Inject(method = "renderTooltip(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/item/ItemStack;II)V", at = @At("RETURN"))
+	@Inject(method = "renderTooltip(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/item/ItemStack;II)V", at = @At("RETURN"))
 	private void create$wipeCachedItemStack(PoseStack matrixStack, ItemStack itemStack, int i, int j, CallbackInfo ci) {
 		create$cachedStack = ItemStack.EMPTY;
 	}
 
-	@Inject(method = "renderOrderedTooltip", at = @At("HEAD"))
+	@Inject(method = "renderTooltip(Lcom/mojang/blaze3d/vertex/PoseStack;Ljava/util/List;II)V", at = @At("HEAD"))
 	private void create$getBorderColors(PoseStack matrixStack, List<? extends FormattedCharSequence> list, int i, int j, CallbackInfo ci) {
 		create$borderColorEntry = RenderTooltipBorderColorCallback.EVENT.invoker()
 				.onTooltipBorderColor(create$cachedStack, CREATE$DEFAULT_BORDER_COLOR_START, CREATE$DEFAULT_BORDER_COLOR_END);
 	}
 
-	@ModifyConstant(method = "renderOrderedTooltip",
+	@ModifyConstant(method = "renderTooltip(Lcom/mojang/blaze3d/vertex/PoseStack;Ljava/util/List;II)V",
 			constant = {@Constant(intValue = CREATE$DEFAULT_BORDER_COLOR_START),
 					@Constant(intValue = CREATE$DEFAULT_BORDER_COLOR_END)}
 	)
@@ -68,7 +69,7 @@ public abstract class ScreenMixin {
 		return color;
 	}
 
-	@Inject(method = "renderOrderedTooltip", at = @At("RETURN"))
+	@Inject(method = "renderTooltip(Lcom/mojang/blaze3d/vertex/PoseStack;Ljava/util/List;II)V", at = @At("RETURN"))
 	private void create$wipeBorderColors(PoseStack matrixStack, List<? extends FormattedCharSequence> list, int i, int j, CallbackInfo ci) {
 		create$borderColorEntry = null;
 	}

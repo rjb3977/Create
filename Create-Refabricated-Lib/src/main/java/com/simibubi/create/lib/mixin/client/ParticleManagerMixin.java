@@ -24,28 +24,28 @@ import net.minecraft.world.level.block.state.BlockState;
 @Mixin(ParticleEngine.class)
 public abstract class ParticleManagerMixin implements ParticleManagerExtensions {
 	@Shadow
-	protected ClientLevel world;
+	protected ClientLevel level;
 
 	@Shadow
-	protected abstract <T extends ParticleOptions> void registerFactory(ParticleType<T> particleType, ParticleEngine.SpriteParticleRegistration<T> spriteAwareFactory);
+	protected abstract <T extends ParticleOptions> void register(ParticleType<T> particleType, ParticleEngine.SpriteParticleRegistration<T> spriteAwareFactory);
 
 	@Shadow
-	protected abstract <T extends ParticleOptions> void registerFactory(ParticleType<T> type, ParticleProvider<T> factory);
+	protected abstract <T extends ParticleOptions> void register(ParticleType<T> type, ParticleProvider<T> factory);
 
 	@Override
 	public <T extends ParticleOptions> void create$registerFactory0(ParticleType<T> particleType, ParticleEngine.SpriteParticleRegistration<T> spriteAwareFactory) {
-		registerFactory(particleType, spriteAwareFactory);
+		register(particleType, spriteAwareFactory);
 	}
 
 	@Override
 	public <T extends ParticleOptions> void create$registerFactory1(ParticleType<T> type, ParticleProvider<T> factory) {
-		registerFactory(type, factory);
+		register(type, factory);
 	}
 
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/block/BlockState;getShape(Lnet/minecraft/world/BlockGetter;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/math/shapes/VoxelShape;"),
-			method = "addBlockDestroyEffects(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V", cancellable = true)
+			method = "destroy", cancellable = true)
 	public void create$addBlockDestroyEffects(BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
-		if (((BlockStateExtensions) blockState).create$addDestroyEffects(world, blockPos, MixinHelper.cast(this))) {
+		if (((BlockStateExtensions) blockState).create$addDestroyEffects(level, blockPos, MixinHelper.cast(this))) {
 			ci.cancel();
 		}
 	}

@@ -17,7 +17,7 @@ import net.minecraft.client.KeyboardHandler;
 @Mixin(KeyboardHandler.class)
 public abstract class KeyboardListenerMixin {
 	// First return opcode is jumped over if condition is met.
-	@Inject(slice = @Slice(from = @At(value = "RETURN", ordinal = 0, shift = Shift.AFTER)), at = @At(value = "RETURN"), method = "onKeyEvent(JIIII)V")
+	@Inject(slice = @Slice(from = @At(value = "RETURN", ordinal = 0, shift = Shift.AFTER)), at = @At(value = "RETURN"), method = "keyPress(JIIII)V")
 	public void create$onHandleKeyInput(long window, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		KeyInputCallback.EVENT.invoker().onKeyInput(key, scancode, action, mods);
 	}

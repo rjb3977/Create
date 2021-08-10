@@ -22,12 +22,12 @@ public abstract class SSpawnObjectPacketMixin implements SSpawnObjectPacketExten
 	@Unique
 	private FriendlyByteBuf create$extraDataBuf;
 
-	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/entity/Entity;I)V")
+	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/Entity;I)V")
 	public void create$onEntityCtor(Entity entity, int entityData, CallbackInfo ci) {
 		create$setExtraData(entity);
 	}
 
-	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/EntityType;ILnet/minecraft/util/math/BlockPos;)V")
+	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/EntityType;ILnet/minecraft/core/BlockPos;)V")
 	public void create$onEntityCtor(Entity entity, EntityType<?> entityType, int data, BlockPos pos, CallbackInfo ci) {
 		create$setExtraData(entity);
 	}
@@ -40,14 +40,14 @@ public abstract class SSpawnObjectPacketMixin implements SSpawnObjectPacketExten
 		}
 	}
 
-	@Inject(at = @At("TAIL"), method = "writePacketData(Lnet/minecraft/network/PacketBuffer;)V")
+	@Inject(at = @At("TAIL"), method = "write")
 	public void create$onTailWrite(FriendlyByteBuf buf, CallbackInfo ci) {
 		if (create$extraDataBuf != null) {
 			buf.writeBytes(create$extraDataBuf);
 		}
 	}
 
-	@Inject(at = @At("TAIL"), method = "readPacketData(Lnet/minecraft/network/PacketBuffer;)V")
+	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V")
 	public void create$onTailRead(FriendlyByteBuf buf, CallbackInfo ci) {
 		int readable = buf.readableBytes();
 		if (readable != 0) {
@@ -55,7 +55,7 @@ public abstract class SSpawnObjectPacketMixin implements SSpawnObjectPacketExten
 		}
 	}
 
-	@Inject(at = @At("TAIL"), method = "processPacket(Lnet/minecraft/client/network/play/IClientPlayNetHandler;)V")
+	@Inject(at = @At("TAIL"), method = "handle")
 	public void create$onTailApply(ClientGamePacketListener listener, CallbackInfo ci) {
 		if (create$extraDataBuf != null) {
 			create$extraDataBuf.release();

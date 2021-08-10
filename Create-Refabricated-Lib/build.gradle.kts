@@ -36,8 +36,8 @@ dependencies {
     //modImplementation("alexiil.mc.lib", "libblockattributes-fluids", lba_version)
 
 	// Registrate // this version is not on github yet, Soon™
-	modImplementation("com.tterrag", "Registrate-Fabric3", registrate_version)
-	include("com.tterrag", "Registrate-Fabric3", registrate_version)
+	modImplementation("com.tterrag", "Registrate-Fabric-1.17", registrate_version)
+	include("com.tterrag", "Registrate-Fabric-1.17", registrate_version)
 }
 
 loom.accessWidener("src/main/resources/create_lib.accesswidener")

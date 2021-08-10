@@ -20,7 +20,7 @@ public abstract class DiggingParticle$FactoryMixin implements DiggingParticle$Fa
 	@Unique
 	public Particle create$makeParticleAtPos(BlockParticleOption blockParticleData, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
 		return !blockParticleData.getState().isAir() && !blockParticleData.getState().is(Blocks.MOVING_PISTON)
-				? ((DiggingParticle$FactoryExtensions) (new TerrainParticle(clientWorld, d, e, f, g, h, i, blockParticleData.getState())).init()).create$updateSprite(((BlockParticleDataExtensions) blockParticleData).create$getPos())
+				? ((DiggingParticle$FactoryExtensions) (new TerrainParticle(clientWorld, d, e, f, g, h, i, blockParticleData.getState()))).create$updateSprite(((BlockParticleDataExtensions) blockParticleData).create$getPos())
 				: null;
 	}
 }

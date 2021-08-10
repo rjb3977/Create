@@ -19,12 +19,12 @@ import net.minecraft.world.level.block.state.BlockState;
 public abstract class RedstoneWireBlockMixin {
 	// I have concerns for this Shadow but it should be fine? :tiny_potato:
 	@Shadow
-	protected static boolean canConnectTo(BlockState blockState, @Nullable Direction side) {
+	protected static boolean shouldConnectTo(BlockState blockState, @Nullable Direction side) {
 		return false;
 	}
 
 	@Inject(at = @At(value = "RETURN", ordinal = 3),
-			method = "canConnectTo(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/Direction;)Z", cancellable = true)
+			method = "shouldConnectTo(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;)Z", cancellable = true)
 	private static void create$canConnectTo(BlockState state, Direction side, CallbackInfoReturnable<Boolean> cir) {
 		if (state.getBlock() instanceof CanConnectRedstoneBlock) {
 			// Passing null for world and pos here just for extra upstream compat, not properly implementing it because
@@ -35,8 +35,8 @@ public abstract class RedstoneWireBlockMixin {
 	}
 
 	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/RedstoneWireBlock;canConnectUpwardsTo(Lnet/minecraft/block/BlockState;)Z"),
-			method = "method_27841(Lnet/minecraft/world/BlockGetter;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/Direction;Z)Lnet/minecraft/state/properties/RedstoneSide;")
+			method = "getConnectingSide(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;Z)Lnet/minecraft/world/level/block/state/properties/RedstoneSide;")
 	private boolean create$canConnectUpwardsTo(BlockState state, BlockGetter world, BlockPos pos, Direction side, boolean bl) {
-		return canConnectTo(state, side);
+		return shouldConnectTo(state, side);
 	}
 }

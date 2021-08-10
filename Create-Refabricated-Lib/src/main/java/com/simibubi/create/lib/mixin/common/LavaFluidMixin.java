@@ -13,7 +13,7 @@ import net.minecraft.world.level.material.LavaFluid;
 
 @Mixin(LavaFluid.class)
 public abstract class LavaFluidMixin {
-	@Redirect(method = "randomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/FluidState;Ljava/util/Random;)V",
+	@Redirect(method = "randomTick",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
 	private boolean create$randomTick(Level world, BlockPos pos, BlockState state) {
 		BlockState newState = FluidPlaceBlockCallback.EVENT.invoker().onFluidPlaceBlock(world, pos, state);
@@ -21,7 +21,7 @@ public abstract class LavaFluidMixin {
 		return world.setBlockAndUpdate(pos, newState != null ? newState : state);
 	}
 
-	@Redirect(method = "flowInto(Lnet/minecraft/world/IWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/Direction;Lnet/minecraft/fluid/FluidState;)V",
+	@Redirect(method = "spreadTo",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/IWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
 	private boolean create$flowInto(LevelAccessor world, BlockPos pos, BlockState state, int flags) {
 		BlockState newState = FluidPlaceBlockCallback.EVENT.invoker().onFluidPlaceBlock(world, pos, state);

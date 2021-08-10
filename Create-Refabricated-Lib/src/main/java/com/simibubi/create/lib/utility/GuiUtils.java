@@ -10,6 +10,9 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
+
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -33,18 +36,18 @@ public class GuiUtils { // name is this to maintain max compat with upstream
 		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
-		RenderSystem.shadeModel(GL11.GL_SMOOTH);
+		//RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
 		Tesselator tessellator = Tesselator.getInstance();
 		BufferBuilder buffer = tessellator.getBuilder();
-		buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
+		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		buffer.vertex(matrix, right, top, z).color(sR, sG, sB, sA).endVertex();
 		buffer.vertex(matrix, left, top, z).color(sR, sG, sB, sA).endVertex();
 		buffer.vertex(matrix, left, bottom, z).color(eR, eG, eB, eA).endVertex();
 		buffer.vertex(matrix, right, bottom, z).color(eR, eG, eB, eA).endVertex();
 		tessellator.end();
 
-		RenderSystem.shadeModel(GL11.GL_FLAT);
+		//RenderSystem.shadeModel(GL11.GL_FLAT);
 		RenderSystem.disableBlend();
 		RenderSystem.enableTexture();
 	}
@@ -59,7 +62,7 @@ public class GuiUtils { // name is this to maintain max compat with upstream
 
 	public static void drawHoveringText(@Nonnull final ItemStack stack, PoseStack mStack, List<? extends FormattedText> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, int backgroundColor, int borderColorStart, int borderColorEnd, Font font) {
 		if (!textLines.isEmpty()) {
-			RenderSystem.disableRescaleNormal();
+			//RenderSystem.disableRescaleNormal();
 			RenderSystem.disableDepthTest();
 			int tooltipTextWidth = 0;
 
@@ -171,7 +174,7 @@ public class GuiUtils { // name is this to maintain max compat with upstream
 			mStack.popPose();
 
 			RenderSystem.enableDepthTest();
-			RenderSystem.enableRescaleNormal();
+			//RenderSystem.enableRescaleNormal();
 		}
 	}
 }

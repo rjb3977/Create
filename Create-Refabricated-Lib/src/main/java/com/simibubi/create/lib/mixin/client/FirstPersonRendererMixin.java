@@ -24,11 +24,11 @@ import net.minecraft.world.item.ItemStack;
 @Environment(EnvType.CLIENT)
 @Mixin(ItemInHandRenderer.class)
 public abstract class FirstPersonRendererMixin {
+	@Shadow
+	private ItemStack mainHandItem;
+	@Shadow
+	private ItemStack offHandItem;
 	private static int slotMainHand = 0;
-	@Shadow
-	private ItemStack itemStackMainHand;
-	@Shadow
-	private ItemStack itemStackOffHand;
 
 	private static boolean create$shouldCauseReequipAnimation(@Nonnull ItemStack from, @Nonnull ItemStack to, int slot) {
 		if (from.isEmpty() && to.isEmpty()) return false;
@@ -42,8 +42,8 @@ public abstract class FirstPersonRendererMixin {
 		return ((ItemExtensions) from.getItem()).create$shouldCauseReequipAnimation(from, to, changed);
 	}
 
-	@Inject(at = @At("HEAD"), method = "renderFirstPersonItem(Lnet/minecraft/client/entity/player/AbstractClientPlayerEntity;FFLnet/minecraft/util/Hand;FLnet/minecraft/item/ItemStack;FLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V", cancellable = true)
-	private void create$onRenderFirstPersonItem(AbstractClientPlayer player, float tickDelta, float pitch, InteractionHand hand, float swingProgress, ItemStack stack, float equipProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
+	@Inject(at = @At("HEAD"), method = "renderArmWithItem", cancellable = true)
+	private void create$renderArmWithItem(AbstractClientPlayer player, float tickDelta, float pitch, InteractionHand hand, float swingProgress, ItemStack stack, float equipProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
 		if (RenderHandCallback.EVENT.invoker().onRenderHand(player, hand, stack, matrices, vertexConsumers, tickDelta, pitch, swingProgress, equipProgress, light)) {
 			ci.cancel();
 		}
@@ -54,12 +54,12 @@ public abstract class FirstPersonRendererMixin {
 			method = "tick()V")
 	public void tick(CallbackInfo ci,
 					 LocalPlayer clientPlayerEntity, ItemStack itemStack, ItemStack itemStack2) {
-		if (create$shouldCauseReequipAnimation(itemStackMainHand, itemStack, clientPlayerEntity.inventory.selected)) {
-			itemStackMainHand = itemStack;
+		if (create$shouldCauseReequipAnimation(mainHandItem, itemStack, clientPlayerEntity.getInventory().selected)) {
+			mainHandItem = itemStack;
 		}
 
-		if (create$shouldCauseReequipAnimation(itemStackOffHand, itemStack2, -1)) {
-			itemStackOffHand = itemStack2;
+		if (create$shouldCauseReequipAnimation(offHandItem, itemStack2, -1)) {
+			offHandItem = itemStack2;
 		}
 	}
 }

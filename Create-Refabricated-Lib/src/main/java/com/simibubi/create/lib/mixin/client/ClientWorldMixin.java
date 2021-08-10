@@ -20,10 +20,10 @@ import net.minecraft.client.multiplayer.ClientLevel;
 public abstract class ClientWorldMixin {
 	@Shadow
 	@Final
-	private Minecraft mc;
+	private Minecraft minecraft;
 
-	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/client/network/play/ClientPlayNetHandler;Lnet/minecraft/client/world/ClientWorld$ClientWorldInfo;Lnet/minecraft/util/RegistryKey;Lnet/minecraft/world/DimensionType;ILjava/util/function/Supplier;Lnet/minecraft/client/renderer/WorldRenderer;ZJ)V")
+	@Inject(at = @At("TAIL"), method = "<init>")
 	public void create$onTailInit(CallbackInfo ci) {
-		ClientWorldEvents.LOAD.invoker().onWorldLoad(mc, MixinHelper.cast(this));
+		ClientWorldEvents.LOAD.invoker().onWorldLoad(minecraft, MixinHelper.cast(this));
 	}
 }

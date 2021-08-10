@@ -26,7 +26,7 @@ public abstract class ModelManagerMixin implements ModelManagerExtensions {
 	@Shadow
 	private Map<ResourceLocation, BakedModel> modelRegistry;
 
-	@Inject(at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/profiler/IProfiler;endStartSection(Ljava/lang/String;)V", args = "ldc=cache", shift = At.Shift.BEFORE), method = "apply(Lnet/minecraft/client/renderer/model/ModelBakery;Lnet/minecraft/resources/IResourceManager;Lnet/minecraft/profiler/IProfiler;)V")
+	@Inject(at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/profiler/IProfiler;endStartSection(Ljava/lang/String;)V", args = "ldc=cache", shift = At.Shift.BEFORE), method = "apply")
 	public void create$onModelBake(ModelBakery modelLoader, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
 		ModelsBakedCallback.EVENT.invoker().onModelsBaked((ModelManager) (Object) this, modelRegistry, modelLoader);
 	}

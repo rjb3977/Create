@@ -15,14 +15,9 @@ import net.minecraft.world.item.ItemStack;
 
 @Mixin(Mob.class)
 public abstract class MobEntityMixin {
-	@Inject(at = @At("HEAD"), method = "getSlotForItemStack(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/inventory/EquipmentSlotType;", cancellable = true)
-	private static void create$getSlotForItemStack(ItemStack itemStack, CallbackInfoReturnable<EquipmentSlot> cir) {
-		if (itemStack.getItem() instanceof EquipmentItem) {
-			cir.setReturnValue(((EquipmentItem) itemStack.getItem()).getEquipmentSlot(itemStack));
-		}
-	}
 
-	@Inject(method = "setAttackTarget(Lnet/minecraft/entity/LivingEntity;)V", at = @At("TAIL"))
+
+	@Inject(method = "setTarget", at = @At("TAIL"))
 	private void create$setTarget(LivingEntity target, CallbackInfo ci) {
 		MobEntitySetTargetCallback.EVENT.invoker().onMobEntitySetTarget((Mob) (Object) this, target);
 	}

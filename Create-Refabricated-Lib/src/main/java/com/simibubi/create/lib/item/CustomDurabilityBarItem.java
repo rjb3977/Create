@@ -15,7 +15,7 @@ public interface CustomDurabilityBarItem extends CustomGuiOverlayItem {
 		if (showDurabilityBar(stack)) {
 			RenderSystem.disableDepthTest();
 			RenderSystem.disableTexture();
-			RenderSystem.disableAlphaTest();
+			//RenderSystem.disableAlphaTest();
 			RenderSystem.disableBlend();
 
 			BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
@@ -27,7 +27,7 @@ public interface CustomDurabilityBarItem extends CustomGuiOverlayItem {
 			((ItemRendererAccessor) itemRenderer).create$fillRect(bufferBuilder, x + 2, y + 13, width, 1, color >> 16 & 255, color >> 8 & 255, color & 255, 255);
 
 			RenderSystem.enableBlend();
-			RenderSystem.enableAlphaTest();
+			//RenderSystem.enableAlphaTest();
 			RenderSystem.enableTexture();
 			RenderSystem.enableDepthTest();
 

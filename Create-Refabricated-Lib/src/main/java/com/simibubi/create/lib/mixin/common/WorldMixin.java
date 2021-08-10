@@ -23,7 +23,7 @@ public abstract class WorldMixin {
 	@Shadow
 	public abstract BlockState getBlockState(BlockPos blockPos);
 
-	@Inject(at = @At("RETURN"), method = "getRedstonePower(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/Direction;)I", cancellable = true)
+	@Inject(at = @At("RETURN"), method = "getSignal", cancellable = true)
 	public void create$getRedstonePower(BlockPos blockPos, Direction direction, CallbackInfoReturnable<Integer> cir) {
 		BlockState create$blockstate = MixinHelper.<Level>cast(this).getBlockState(blockPos);
 		int create$i = create$blockstate.getSignal(MixinHelper.<Level>cast(this), blockPos, direction);
@@ -38,7 +38,7 @@ public abstract class WorldMixin {
 
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"),
 			locals = LocalCapture.CAPTURE_FAILEXCEPTION,
-			method = "updateComparatorOutputLevel(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V")
+			method = "updateNeighbourForOutputSignal")
 	public void create$updateComparatorOutputLevel(BlockPos blockPos, Block block, CallbackInfo ci,
 												   Iterator<?> var3, Direction direction, BlockPos blockPos2) {
 		((BlockStateExtensions) getBlockState(blockPos2)).create$onNeighborChange(MixinHelper.cast(this), blockPos2, blockPos);

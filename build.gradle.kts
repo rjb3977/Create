@@ -157,8 +157,8 @@ dependencies {
 	implementation("com.google.code.findbugs", "jsr305", "3.0.2")
 
 	// Registrate // this version is not on github yet, Soon™
-	modImplementation("com.tterrag", "Registrate-Fabric3", registrate_version)
-	include("com.tterrag", "Registrate-Fabric3", registrate_version)
+	modImplementation("com.tterrag", "Registrate-Fabric-1.17", registrate_version)
+	include("com.tterrag", "Registrate-Fabric-1.17", registrate_version)
 
 	// Flywheel // currently only available from mavenLocal, uses Jay's fork
 	modImplementation("com.jozufozu.flywheel", "Flywheel", flywheel_version)

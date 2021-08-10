@@ -14,7 +14,7 @@ import net.minecraft.world.entity.FlyingMob;
 public abstract class FlyingEntityMixin {
 	@ModifyVariable(slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;onGround:Z")),
 			at = @At(value = "STORE"),
-			method = "travel(Lnet/minecraft/util/math/vector/Vector3d;)V")
+			method = "travel")
 	public float create$setSlipperiness1(float f) {
 		BlockPos create$ground = new BlockPos(
 				MixinHelper.<FlyingMob>cast(this).getX(),
@@ -27,7 +27,7 @@ public abstract class FlyingEntityMixin {
 
 	@ModifyVariable(slice = @Slice(from = @At(value = "FIELD", ordinal = 1, target = "Lnet/minecraft/entity/Entity;onGround:Z")),
 			at = @At(value = "STORE"),
-			method = "travel(Lnet/minecraft/util/math/vector/Vector3d;)V")
+			method = "travel")
 	public float create$setSlipperiness2(float f) {
 		BlockPos create$ground = new BlockPos(
 				MixinHelper.<FlyingMob>cast(this).getX(),

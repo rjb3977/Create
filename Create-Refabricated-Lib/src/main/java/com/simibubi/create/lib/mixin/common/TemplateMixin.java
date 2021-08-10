@@ -20,16 +20,16 @@ import com.simibubi.create.lib.extensions.TemplateExtensions;
 public abstract class TemplateMixin implements TemplateExtensions {
 	@Shadow
 	@Final
-	private List<StructureTemplate.StructureEntityInfo> entities;
+	private List<StructureTemplate.StructureEntityInfo> entityInfoList;
 
 	@Unique
 	@Override
 	public List<StructureTemplate.StructureEntityInfo> create$getEntities() {
-		return entities;
+		return entityInfoList;
 	}
 
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/world/gen/feature/template/Template;spawnEntities(Lnet/minecraft/world/IServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/Mirror;Lnet/minecraft/util/Rotation;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/MutableBoundingBox;Z)V"),
-			method = "place(Lnet/minecraft/world/IServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/gen/feature/template/PlacementSettings;Ljava/util/Random;I)Z", cancellable = true)
+			method = "placeInWorld", cancellable = true)
 	public void create$place(ServerLevelAccessor iServerWorld, BlockPos blockPos, BlockPos blockPos2, StructurePlaceSettings placementSettings, Random random, int i, CallbackInfoReturnable<Boolean> cir) {
 		create$addEntitiesToWorld(iServerWorld, blockPos, placementSettings);
 		cir.setReturnValue(true);

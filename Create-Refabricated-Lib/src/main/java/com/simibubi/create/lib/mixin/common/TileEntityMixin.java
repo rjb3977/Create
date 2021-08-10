@@ -28,16 +28,16 @@ public abstract class TileEntityMixin implements TileEntityExtensions, NBTSerial
 		return create$extraCustomData;
 	}
 
-	@Inject(method = "fromTag(Lnet/minecraft/block/BlockState;Lnet/minecraft/nbt/CompoundNBT;)V",
+	@Inject(method = "load",
 			at = @At("TAIL"))
-	public void fromTag(BlockState blockState, CompoundTag compoundNBT, CallbackInfo ci) {
+	public void load(CompoundTag compoundNBT, CallbackInfo ci) {
 		if (compoundNBT.contains(TileEntityHelper.EXTRA_DATA_KEY))
 			this.create$extraCustomData = compoundNBT.getCompound(TileEntityHelper.EXTRA_DATA_KEY);
 	}
 
-	@Inject(method = "writeInternal(Lnet/minecraft/nbt/CompoundNBT;)Lnet/minecraft/nbt/CompoundNBT;",
+	@Inject(method = "saveMetadata",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundNBT;putString(Ljava/lang/String;Ljava/lang/String;)V"))
-	private void writeInternal(CompoundTag compoundNBT, CallbackInfoReturnable<CompoundTag> cir) {
+	private void saveMetadata(CompoundTag compoundNBT, CallbackInfoReturnable<CompoundTag> cir) {
 		if (this.create$extraCustomData != null) {
 			compoundNBT.put(TileEntityHelper.EXTRA_DATA_KEY, this.create$extraCustomData);
 		}
@@ -56,6 +56,6 @@ public abstract class TileEntityMixin implements TileEntityExtensions, NBTSerial
 	}
 
 	public void create$deserializeNBT(BlockState state, CompoundTag nbt) {
-		MixinHelper.<BlockEntity>cast(this).load(state, nbt);
+		MixinHelper.<BlockEntity>cast(this).load(nbt);
 	}
 }

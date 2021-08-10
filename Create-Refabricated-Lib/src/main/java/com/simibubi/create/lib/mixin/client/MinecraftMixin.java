@@ -36,30 +36,30 @@ public abstract class MinecraftMixin {
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/resources/SimpleReloadableResourceManager;<init>(Lnet/minecraft/resources/ResourcePackType;)V"),
-			method = "<init>(Lnet/minecraft/client/GameConfiguration;)V")
+			method = "<init>")
 	// should inject to right after the initialization of resourceManager
 	public void create$instanceRegistration(GameConfig args, CallbackInfo ci) {
 		InstanceRegistrationCallback.EVENT.invoker().registerInstance();
 	}
 
-	@Inject(at = @At("HEAD"), method = "loadWorld(Lnet/minecraft/client/world/ClientWorld;)V")
+	@Inject(at = @At("HEAD"), method = "setLevel")
 	public void create$onHeadJoinWorld(ClientLevel world, CallbackInfo ci) {
 		if (this.world != null) {
 			ClientWorldEvents.UNLOAD.invoker().onWorldUnload((Minecraft) (Object) this, this.world);
 		}
 	}
 
-	@Inject(at = @At(value = "JUMP", opcode = Opcodes.IFNULL, ordinal = 1, shift = Shift.AFTER), method = "func_213231_b(Lnet/minecraft/client/gui/screen/Screen;)V")
+	@Inject(at = @At(value = "JUMP", opcode = Opcodes.IFNULL, ordinal = 1, shift = Shift.AFTER), method = "clearLevel(Lnet/minecraft/client/gui/screens/Screen;)V")
 	public void create$onDisconnect(Screen screen, CallbackInfo ci) {
 		ClientWorldEvents.UNLOAD.invoker().onWorldUnload((Minecraft) (Object) this, this.world);
 	}
 
-	@Inject(method = "clickMouse()V", at = @At(value = "FIELD", ordinal = 2, target = "Lnet/minecraft/client/Minecraft;player:Lnet/minecraft/client/entity/player/ClientPlayerEntity;"))
+	@Inject(method = "startAttack()V", at = @At(value = "FIELD", ordinal = 2, target = "Lnet/minecraft/client/Minecraft;player:Lnet/minecraft/client/entity/player/ClientPlayerEntity;"))
 	private void create$onClickMouse(CallbackInfo ci) {
 		LeftClickAirCallback.EVENT.invoker().onLeftClickAir(player);
 	}
 
-	@Inject(method = "runGameLoop(Z)V", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gui/toasts/ToastGui;draw(Lcom/mojang/blaze3d/matrix/MatrixStack;)V"))
+	@Inject(method = "runTick(Z)V", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gui/toasts/ToastGui;draw(Lcom/mojang/blaze3d/matrix/MatrixStack;)V"))
 	private void create$renderTickStart(CallbackInfo ci) {
 		RenderTickStartCallback.EVENT.invoker().tick();
 	}

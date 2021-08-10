@@ -13,5 +13,5 @@ public final class BooleanStateHelper {
 		return MixinHelper.cast(state);
 	}
 
-	private GlStateManager$BooleanStateHelper() {}
+	private void GlStateManager$BooleanStateHelper() {}
 }

@@ -12,107 +12,107 @@ import com.simibubi.create.lib.utility.MixinHelper;
 @Mixin(Matrix4f.class)
 public abstract class Matrix4fMixin implements Matrix4fExtensions {
 	@Shadow
-	protected float a00;
+	protected float m00;
 	@Shadow
-	protected float a01;
+	protected float m01;
 	@Shadow
-	protected float a02;
+	protected float m02;
 	@Shadow
-	protected float a03;
+	protected float m03;
 	@Shadow
-	protected float a10;
+	protected float m10;
 	@Shadow
-	protected float a11;
+	protected float m11;
 	@Shadow
-	protected float a12;
+	protected float m12;
 	@Shadow
-	protected float a13;
+	protected float m13;
 	@Shadow
-	protected float a20;
+	protected float m20;
 	@Shadow
-	protected float a21;
+	protected float m21;
 	@Shadow
-	protected float a22;
+	protected float m22;
 	@Shadow
-	protected float a23;
+	protected float m23;
 	@Shadow
-	protected float a30;
+	protected float m30;
 	@Shadow
-	protected float a31;
+	protected float m31;
 	@Shadow
-	protected float a32;
+	protected float m32;
 	@Shadow
-	protected float a33;
+	protected float m33;
 
 	@Override
 	public void create$set(@NotNull Matrix4f other) {
 		Matrix4fMixin o = MixinHelper.cast(other); // This will look weird in the merged class
 
-		a00 = o.a00;
-		a01 = o.a01;
-		a02 = o.a02;
-		a03 = o.a03;
+		m00 = o.m00;
+		m01 = o.m01;
+		m02 = o.m02;
+		m03 = o.m03;
 
-		a10 = o.a10;
-		a11 = o.a11;
-		a12 = o.a12;
-		a13 = o.a13;
+		m10 = o.m10;
+		m11 = o.m11;
+		m12 = o.m12;
+		m13 = o.m13;
 
-		a20 = o.a20;
-		a21 = o.a21;
-		a22 = o.a22;
-		a23 = o.a23;
+		m20 = o.m20;
+		m21 = o.m21;
+		m22 = o.m22;
+		m23 = o.m23;
 
-		a30 = o.a30;
-		a31 = o.a31;
-		a32 = o.a32;
-		a33 = o.a33;
+		m30 = o.m30;
+		m31 = o.m31;
+		m32 = o.m32;
+		m33 = o.m33;
 	}
 
 	@ApiStatus.Internal
 	@Override
 	@Contract(mutates = "this")
 	public void create$fromFloatArray(float[] floats) {
-		a00 = floats[0];
-		a01 = floats[1];
-		a02 = floats[2];
-		a03 = floats[3];
+		m00 = floats[0];
+		m01 = floats[1];
+		m02 = floats[2];
+		m03 = floats[3];
 
-		a10 = floats[4];
-		a11 = floats[5];
-		a12 = floats[6];
-		a13 = floats[7];
+		m10 = floats[4];
+		m11 = floats[5];
+		m12 = floats[6];
+		m13 = floats[7];
 
-		a20 = floats[8];
-		a21 = floats[9];
-		a22 = floats[10];
-		a23 = floats[11];
+		m20 = floats[8];
+		m21 = floats[9];
+		m22 = floats[10];
+		m23 = floats[11];
 
-		a30 = floats[12];
-		a31 = floats[13];
-		a32 = floats[14];
-		a33 = floats[15];
+		m30 = floats[12];
+		m31 = floats[13];
+		m32 = floats[14];
+		m33 = floats[15];
 	}
 
 	@Override
 	public float[] create$writeMatrix() {
 		return new float[]{
-				a00,
-				a10,
-				a20,
-				a30,
-				a01,
-				a11,
-				a21,
-				a31,
-				a02,
-				a12,
-				a22,
-				a32,
-				a03,
-				a13,
-				a23,
-				a33,
+				m00,
+				m10,
+				m20,
+				m30,
+				m01,
+				m11,
+				m21,
+				m31,
+				m02,
+				m12,
+				m22,
+				m32,
+				m03,
+				m13,
+				m23,
+				m33,
 		};
 	}
 }

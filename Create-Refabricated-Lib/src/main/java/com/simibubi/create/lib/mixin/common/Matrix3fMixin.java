@@ -10,36 +10,36 @@ import com.simibubi.create.lib.utility.MixinHelper;
 @Mixin(Matrix3f.class)
 public abstract class Matrix3fMixin implements Matrix3fExtensions {
 	@Shadow
-	protected float a00;
+	protected float m00;
 	@Shadow
-	protected float a01;
+	protected float m01;
 	@Shadow
-	protected float a02;
+	protected float m02;
 	@Shadow
-	protected float a10;
+	protected float m10;
 	@Shadow
-	protected float a11;
+	protected float m11;
 	@Shadow
-	protected float a12;
+	protected float m12;
 	@Shadow
-	protected float a20;
+	protected float m20;
 	@Shadow
-	protected float a21;
+	protected float m21;
 	@Shadow
-	protected float a22;
+	protected float m22;
 
 	@Override
 	public float[] create$writeMatrix() {
 		return new float[]{
-				a00,
-				a10,
-				a20,
-				a01,
-				a11,
-				a21,
-				a02,
-				a12,
-				a22,
+				m00,
+				m10,
+				m20,
+				m01,
+				m11,
+				m21,
+				m02,
+				m12,
+				m22,
 		};
 	}
 
@@ -47,16 +47,16 @@ public abstract class Matrix3fMixin implements Matrix3fExtensions {
 	public void create$set(@NotNull Matrix3f other) {
 		Matrix3fMixin o = MixinHelper.cast(other); // This will look weird in the merged class
 
-		a00 = o.a00;
-		a01 = o.a01;
-		a02 = o.a02;
+		m00 = o.m00;
+		m01 = o.m01;
+		m02 = o.m02;
 
-		a10 = o.a10;
-		a11 = o.a11;
-		a12 = o.a12;
+		m10 = o.m10;
+		m11 = o.m11;
+		m12 = o.m12;
 
-		a20 = o.a20;
-		a21 = o.a21;
-		a22 = o.a22;
+		m20 = o.m20;
+		m21 = o.m21;
+		m22 = o.m22;
 	}
 }

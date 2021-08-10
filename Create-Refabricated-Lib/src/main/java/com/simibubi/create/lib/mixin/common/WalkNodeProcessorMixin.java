@@ -14,7 +14,8 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 
 @Mixin(WalkNodeEvaluator.class)
 public abstract class WalkNodeProcessorMixin {
-	@Inject(at = @At("HEAD"), method = "getCommonNodeType(Lnet/minecraft/world/BlockGetter;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/pathfinding/PathNodeType;", cancellable = true)
+	//TODO: This might not be correct
+	@Inject(at = @At("HEAD"), method = "getBlockPathTypeRaw", cancellable = true)
 	private static void create$getCommonNodeType(BlockGetter iBlockReader, BlockPos blockPos, CallbackInfoReturnable<BlockPathTypes> cir) {
 		Block block = iBlockReader.getBlockState(blockPos).getBlock();
 		if (block instanceof CustomPathNodeTypeBlock) {

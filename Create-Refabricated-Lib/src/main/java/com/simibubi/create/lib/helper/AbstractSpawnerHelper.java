@@ -1,13 +1,14 @@
 package com.simibubi.create.lib.helper;
 
-import java.util.List;
-import net.minecraft.world.level.BaseSpawner;
-import net.minecraft.world.level.SpawnData;
 import com.simibubi.create.lib.mixin.accessor.AbstractSpawnerAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
+import net.minecraft.util.random.WeightedRandomList;
+import net.minecraft.world.level.BaseSpawner;
+import net.minecraft.world.level.SpawnData;
+
 public final class AbstractSpawnerHelper {
-	public static List<SpawnData> getPotentialSpawns(BaseSpawner abstractSpawner) {
+	public static WeightedRandomList<SpawnData> getPotentialSpawns(BaseSpawner abstractSpawner) {
 		return get(abstractSpawner).create$spawnPotentials();
 	}
 

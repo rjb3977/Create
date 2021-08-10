@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(LiquidBlock.class)
 public abstract class FlowingFluidBlockMixin {
-	@Redirect(method = "reactWithNeighbors(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
+	@Redirect(method = "shouldSpreadLiquid",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
 	private boolean create$onReactWithNeighbors(Level world, BlockPos pos, BlockState state) {
 		BlockState newState = FluidPlaceBlockCallback.EVENT.invoker().onFluidPlaceBlock(world, pos, state);

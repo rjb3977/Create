@@ -95,7 +95,6 @@
     "accessor.FontRendererAccessor",
     "accessor.GameRendererAccessor",
     "accessor.GlStateManager$BooleanStateAccessor",
-    "accessor.GlStateManagerAccessor",
     "accessor.ItemRendererAccessor",
     "accessor.KeyBindingAccessor",
     "accessor.LivingRendererAccessor",

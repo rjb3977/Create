@@ -39,19 +39,19 @@ public abstract class ClientPlayNetHandlerMixin {
 	private static final Logger CREATE$LOGGER = LogManager.getLogger();
 	@Final
 	@Shadow
-	private Connection netManager;
+	private Connection connection;
 	@Shadow
-	private ClientLevel world;
+	private ClientLevel level;
 	@Unique
 	private boolean create$tileEntityHandled;
 
 	@ModifyVariable(at = @At(value = "JUMP", opcode = Opcodes.IFNULL, ordinal = 3, shift = Shift.BEFORE),
-			method = "handleSpawnObject(Lnet/minecraft/network/play/server/SSpawnObjectPacket;)V")
+			method = "handleAddEntity")
 	public Entity create$replaceNullEntity(Entity entity, ClientboundAddEntityPacket packet) {
 		if (entity == null) {
 			EntityType<?> type = packet.getType();
 			if (type != null) {
-				entity = type.create(world);
+				entity = type.create(level);
 				if (entity instanceof ClientSpawnHandlerEntity) {
 					((ClientSpawnHandlerEntity) entity).onClientSpawn(packet);
 				}
@@ -61,7 +61,7 @@ public abstract class ClientPlayNetHandlerMixin {
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;addEntity(ILnet/minecraft/entity/Entity;)V", shift = Shift.AFTER),
-			method = "handleSpawnObject(Lnet/minecraft/network/play/server/SSpawnObjectPacket;)V",
+			method = "handleAddEntity",
 			locals = LocalCapture.CAPTURE_FAILHARD)
 	public void create$afterAddEntity(ClientboundAddEntityPacket packet, CallbackInfo ci, double x, double y, double z, Entity entity) {
 		if (entity instanceof ExtraSpawnDataEntity) {
@@ -73,21 +73,21 @@ public abstract class ClientPlayNetHandlerMixin {
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/tileentity/TileEntity;fromTag(Lnet/minecraft/block/BlockState;Lnet/minecraft/nbt/CompoundNBT;)V"),
-		method = "handleUpdateTileEntity(Lnet/minecraft/network/play/server/SUpdateTileEntityPacket;)V"
+		method = "handleBlockEntityData"
 	)
 	private void create$teIsHandled1(ClientboundBlockEntityDataPacket sUpdateTileEntityPacket, CallbackInfo ci) {
 		create$tileEntityHandled = true;
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/CommandBlockScreen;updateGui()V"),
-		method = "handleUpdateTileEntity(Lnet/minecraft/network/play/server/SUpdateTileEntityPacket;)V"
+		method = "handleBlockEntityData"
 	)
 	private void create$teIsHandled2(ClientboundBlockEntityDataPacket sUpdateTileEntityPacket, CallbackInfo ci) {
 		create$tileEntityHandled = true;
 	}
 
 	@Inject(at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILEXCEPTION,
-			method = "handleUpdateTileEntity(Lnet/minecraft/network/play/server/SUpdateTileEntityPacket;)V",
+			method = "handleBlockEntityData",
 			cancellable = true)
 	public void create$handleCustomTileEntity(ClientboundBlockEntityDataPacket sUpdateTileEntityPacket, CallbackInfo ci, BlockPos pos, BlockEntity tileEntity) {
 		if (!create$tileEntityHandled) {
@@ -95,7 +95,7 @@ public abstract class ClientPlayNetHandlerMixin {
 				CREATE$LOGGER.error("Received invalid update packet for null TileEntity");
 				ci.cancel();
 			} else if (tileEntity instanceof CustomDataPacketHandlingTileEntity) {
-				((CustomDataPacketHandlingTileEntity) tileEntity).onDataPacket(netManager, sUpdateTileEntityPacket);
+				((CustomDataPacketHandlingTileEntity) tileEntity).onDataPacket(connection, sUpdateTileEntityPacket);
 			}
 		} else {
 			create$tileEntityHandled = false;

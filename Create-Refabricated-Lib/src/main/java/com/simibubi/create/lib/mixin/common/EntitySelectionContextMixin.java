@@ -16,7 +16,7 @@ public abstract class EntitySelectionContextMixin implements EntitySelectionCont
 	@Unique
 	private Entity create$cachedEntity;
 
-	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/entity/Entity;)V")
+	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/Entity;)V")
 	private void create$onTailEntityInit(Entity entity, CallbackInfo ci) {
 		create$cachedEntity = entity;
 	}
