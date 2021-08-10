@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.utility;
 
-import net.fabricmc.fabric.impl.content.registry.FuelRegistryImpl;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.world.item.ItemStack;
 
 public class BurnUtil {
@@ -8,7 +8,8 @@ public class BurnUtil {
 		if (stack.isEmpty()) {
 			return 0;
 		} else {
-			return FuelRegistryImpl.INSTANCE.getFuelTimes().getOrDefault(stack.getItem(), 0);
+			Integer burnTime = FuelRegistry.INSTANCE.get(stack.getItem());
+			return burnTime == null ? 0 : burnTime;
 		}
 	}
 }
