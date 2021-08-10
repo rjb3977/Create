@@ -38,8 +38,8 @@ public class PumpTileEntity extends KineticTileEntity {
 	Couple<MutableBoolean> sidesToUpdate;
 	boolean reversed;
 
-	public PumpTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public PumpTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		arrowDirection = LerpedFloat.linear()
 			.startWithValue(1);
 		sidesToUpdate = Couple.create(MutableBoolean::new);
@@ -298,9 +298,9 @@ public class PumpTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		reversed = compound.getBoolean("Reversed");
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 	public void updatePipesOnSide(Direction side) {

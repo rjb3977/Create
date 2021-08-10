@@ -58,7 +58,7 @@ public class PipeConnection {
 	}
 
 	public FluidStack getProvidedFluid() {
-		FluidStack empty = FluidStack.EMPTY;
+		FluidStack empty = FluidStack.empty();
 		if (!hasFlow())
 			return empty;
 		Flow flow = this.flow.get();
@@ -255,7 +255,7 @@ public class PipeConnection {
 
 		if (connectionData.contains("Flow")) {
 			CompoundTag flowData = connectionData.getCompound("Flow");
-			FluidStack fluid = FluidStack.loadFluidStackFromNBT(flowData);
+			FluidStack fluid = FluidStack.fromNBT(flowData);
 			boolean inbound = flowData.getBoolean("In");
 			if (!flow.isPresent()) {
 				flow = Optional.of(new Flow(inbound, fluid));
@@ -300,10 +300,10 @@ public class PipeConnection {
 
 	public FluidStack provideOutboundFlow() {
 		if (!hasFlow())
-			return FluidStack.EMPTY;
+			return FluidStack.empty();
 		Flow flow = this.flow.get();
 		if (!flow.complete || flow.inbound)
-			return FluidStack.EMPTY;
+			return FluidStack.empty();
 		return flow.fluid;
 	}
 

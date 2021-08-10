@@ -15,6 +15,7 @@ import com.simibubi.create.foundation.utility.Lang;
 
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.FluidStack;
 import com.simibubi.create.lib.utility.Constants.NBT;
 
 import com.simibubi.create.lib.utility.NetworkUtil;

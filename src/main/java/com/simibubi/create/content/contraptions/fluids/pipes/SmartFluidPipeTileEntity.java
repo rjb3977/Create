@@ -1,6 +1,11 @@
 package com.simibubi.create.content.contraptions.fluids.pipes;
 
 import java.util.List;
+
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.item.ItemStack;
@@ -63,7 +68,7 @@ public class SmartFluidPipeTileEntity extends SmartTileEntity {
 
 	}
 
-	class SmartPipeFilterSlot extends ValueBoxTransform {
+	static class SmartPipeFilterSlot extends ValueBoxTransform {
 
 		@Override
 		protected Vec3 getLocalOffset(BlockState state) {

@@ -20,7 +20,6 @@ import com.simibubi.create.lib.extensions.EntitySelectionContextExtensions;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.utility.TransferUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -107,8 +106,8 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 				if (heldItem.getItem()
 					.equals(Items.SPONGE)
 					&& !TransferUtil.getFluidHandler(te)
-						.map(iFluidHandler -> iFluidHandler.drain(Integer.MAX_VALUE, Simulation.ACTION))
-						.orElse(FluidStack.EMPTY)
+						.map(iFluidHandler -> iFluidHandler.drain(Integer.MAX_VALUE, false))
+						.orElse(FluidStack.empty())
 						.isEmpty()) {
 					return InteractionResult.SUCCESS;
 

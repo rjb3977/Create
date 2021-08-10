@@ -101,7 +101,7 @@ public class EncasedPipeBlock extends Block implements IWrenchable, ISpecialBloc
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.ENCASED_FLUID_PIPE.create();
+		return AllTileEntities.ENCASED_FLUID_PIPE.create(pos, state);
 	}
 
 	@Override

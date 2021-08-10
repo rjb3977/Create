@@ -16,8 +16,8 @@ public abstract class GeneratingKineticTileEntity extends KineticTileEntity {
 
 	public boolean reActivateSource;
 
-	public GeneratingKineticTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public GeneratingKineticTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	protected void notifyStressCapacityChange(float capacity) {

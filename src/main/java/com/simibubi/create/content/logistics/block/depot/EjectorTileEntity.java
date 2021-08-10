@@ -82,8 +82,8 @@ public class EjectorTileEntity extends KineticTileEntity {
 		CHARGED, LAUNCHING, RETRACTING;
 	}
 
-	public EjectorTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public EjectorTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		launcher = new EntityLauncher(1, 0);
 		lidProgress = LerpedFloat.linear()
 			.startWithValue(1);

@@ -15,6 +15,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
+import com.simibubi.create.lib.transfer.FluidStack;
+
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -49,7 +51,7 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 	public static FluidIngredient fromFluidStack(FluidStack fluidStack) {
 		FluidStackIngredient ingredient = new FluidStackIngredient();
 		ingredient.fluid = fluidStack.getFluid();
-		ingredient.amountRequired = fluidStack.getAmount();
+		ingredient.amountRequired = (int) fluidStack.getAmount();
 		ingredient.fixFlowing();
 //		if (fluidStack.hasTag())
 //			ingredient.tagToMatch = fluidStack.getTag();

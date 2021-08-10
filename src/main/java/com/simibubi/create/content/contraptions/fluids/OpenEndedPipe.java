@@ -3,23 +3,26 @@ package com.simibubi.create.content.contraptions.fluids;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.LEVEL_HONEY;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
-import AxisAlignedBB;
-import CompoundNBT;
-import World;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
 import com.simibubi.create.AllFluids;
+import com.simibubi.create.content.contraptions.fluids.potion.PotionFluidHandler;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.BlockFace;
 
-import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
+import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.FluidTank;
+import com.simibubi.create.lib.transfer.IFluidHandler;
+import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 
-import alexiil.mc.lib.attributes.Simulation;
+import com.simibubi.create.lib.utility.TagUtil;
+
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -29,18 +32,15 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 public class OpenEndedPipe extends FlowSource {
 
@@ -76,7 +76,7 @@ public class OpenEndedPipe extends FlowSource {
 		EFFECT_HANDLERS.add(handler);
 	}
 
-	public World getWorld() {
+	public Level getWorld() {
 		return world;
 	}
 
@@ -88,7 +88,7 @@ public class OpenEndedPipe extends FlowSource {
 		return outputPos;
 	}
 
-	public AxisAlignedBB getAOE() {
+	public AABB getAOE() {
 		return aoe;
 	}
 
@@ -98,8 +98,8 @@ public class OpenEndedPipe extends FlowSource {
 	}
 
 	@Override
-	public LazyOptional<IFluidHandler> provideHandler() {
-		return LazyOptional.of(() -> fluidHandler);
+	public IFluidHandler provideHandler() {
+		return fluidHandler;
 	}
 
 	@Override
@@ -107,15 +107,15 @@ public class OpenEndedPipe extends FlowSource {
 		return true;
 	}
 
-	public CompoundNBT serializeNBT() {
-		CompoundNBT compound = new CompoundNBT();
+	public CompoundTag serializeNBT() {
+		CompoundTag compound = new CompoundTag();
 		fluidHandler.writeToNBT(compound);
 		compound.putBoolean("Pulling", wasPulling);
 		compound.put("Location", location.serializeNBT());
 		return compound;
 	}
 
-	public static OpenEndedPipe fromNBT(CompoundNBT compound, BlockPos tilePos) {
+	public static OpenEndedPipe fromNBT(CompoundTag compound, BlockPos tilePos) {
 		BlockFace fromNBT = BlockFace.fromNBT(compound.getCompound("Location"));
 		OpenEndedPipe oep = new OpenEndedPipe(new BlockFace(tilePos, fromNBT.getFace()));
 		oep.fluidHandler.readFromNBT(compound);
@@ -124,7 +124,7 @@ public class OpenEndedPipe extends FlowSource {
 	}
 
 	private FluidStack removeFluidFromSpace(boolean simulate) {
-		FluidStack empty = FluidStack.EMPTY;
+		FluidStack empty = FluidStack.empty();
 		if (world == null)
 			return empty;
 		if (!LoadedCheckUtil.isAreaLoaded(world, outputPos, 0))
@@ -241,14 +241,14 @@ public class OpenEndedPipe extends FlowSource {
 		}
 	}
 
-	private class OpenEndFluidHandler extends SimpleFluidTank {
+	private class OpenEndFluidHandler extends FluidTank {
 
 		public OpenEndFluidHandler() {
-			super(1000);
+			super(FluidConstants.BUCKET);
 		}
 
 		@Override
-		public int fill(FluidStack resource, Simulation action) {
+		public long fill(FluidStack resource, boolean sim) {
 			// Never allow being filled when a source is attached
 			if (world == null)
 				return 0;
@@ -261,33 +261,33 @@ public class OpenEndedPipe extends FlowSource {
 
 			FluidStack containedFluidStack = getFluid();
 			if (!containedFluidStack.isEmpty() && !containedFluidStack.isFluidEqual(resource))
-				setFluid(FluidStack.EMPTY);
+				setFluid(FluidStack.empty());
 			if (wasPulling)
 				wasPulling = false;
 			if (canApplyEffects(resource))
 				resource = FluidHelper.copyStackWithAmount(resource, 1);
 
-			int fill = super.fill(resource, action);
-			if (action == Simulation.SIMULATE)
+			long fill = super.fill(resource, sim);
+			if (sim)
 				return fill;
-			if (getFluidAmount() == 1000 || !FluidHelper.hasBlockState(containedFluidStack.getFluid()))
+			if (getFluidAmount() == FluidConstants.BUCKET || !FluidHelper.hasBlockState(containedFluidStack.getFluid()))
 				if (provideFluidToSpace(containedFluidStack, false))
-					setFluid(FluidStack.EMPTY);
+					setFluid(FluidStack.empty());
 			return fill;
 		}
 
 		@Override
-		public FluidStack drain(FluidStack resource, Simulation action) {
-			return drainInner(resource.getAmount(), resource, action);
+		public FluidStack drain(FluidStack resource, boolean sim) {
+			return drainInner(resource.getAmount(), resource, sim);
 		}
 
 		@Override
-		public FluidStack drain(int maxDrain, Simulation action) {
-			return drainInner(maxDrain, null, action);
+		public FluidStack drain(long maxDrain, boolean sim) {
+			return drainInner(maxDrain, null, sim);
 		}
 
-		private FluidStack drainInner(int amount, @Nullable FluidStack filter, Simulation action) {
-			FluidStack empty = FluidStack.EMPTY;
+		private FluidStack drainInner(long amount, @Nullable FluidStack filter, boolean sim) {
+			FluidStack empty = FluidStack.empty();
 			boolean filterPresent = filter != null;
 
 			if (world == null)
@@ -296,8 +296,8 @@ public class OpenEndedPipe extends FlowSource {
 				return empty;
 			if (amount == 0)
 				return empty;
-			if (amount > 1000) {
-				amount = 1000;
+			if (amount > FluidConstants.BUCKET) {
+				amount = FluidConstants.BUCKET;
 				if (filterPresent)
 					filter = FluidHelper.copyStackWithAmount(filter, amount);
 			}
@@ -305,23 +305,23 @@ public class OpenEndedPipe extends FlowSource {
 			if (!wasPulling)
 				wasPulling = true;
 
-			FluidStack drainedFromInternal = filterPresent ? super.drain(filter, action) : super.drain(amount, action);
+			FluidStack drainedFromInternal = filterPresent ? super.drain(filter, sim) : super.drain(amount, sim);
 			if (!drainedFromInternal.isEmpty())
 				return drainedFromInternal;
 
-			FluidStack drainedFromWorld = removeFluidFromSpace(action == Simulation.SIMULATE);
+			FluidStack drainedFromWorld = removeFluidFromSpace(sim);
 			if (drainedFromWorld.isEmpty())
-				return FluidStack.EMPTY;
+				return FluidStack.empty();
 			if (filterPresent && !drainedFromWorld.isFluidEqual(filter))
-				return FluidStack.EMPTY;
+				return FluidStack.empty();
 
-			int remainder = drainedFromWorld.getAmount() - amount;
+			long remainder = drainedFromWorld.getAmount() - amount;
 			drainedFromWorld.setAmount(amount);
 
-			if (!(action == Simulation.SIMULATE) && remainder > 0) {
+			if (!sim && remainder > 0) {
 				if (!getFluid().isEmpty() && !getFluid().isFluidEqual(drainedFromWorld))
-					setFluid(FluidStack.EMPTY);
-				super.fill(FluidHelper.copyStackWithAmount(drainedFromWorld, remainder), Simulation.ACTION);
+					setFluid(FluidStack.empty());
+				super.fill(FluidHelper.copyStackWithAmount(drainedFromWorld, remainder), false);
 			}
 			return drainedFromWorld;
 		}
@@ -355,12 +355,12 @@ public class OpenEndedPipe extends FlowSource {
 			List<LivingEntity> list =
 				pipe.getWorld().getEntitiesOfClass(LivingEntity.class, pipe.getAOE(), LivingEntity::isAffectedByPotions);
 			for (LivingEntity livingentity : list) {
-				for (EffectInstance effectinstance : pipe.cachedEffects) {
-					Effect effect = effectinstance.getEffect();
+				for (MobEffectInstance effectinstance : pipe.cachedEffects) {
+					MobEffect effect = effectinstance.getEffect();
 					if (effect.isInstantenous()) {
 						effect.applyInstantenousEffect(null, null, livingentity, effectinstance.getAmplifier(), 0.5D);
 					} else {
-						livingentity.addEffect(new EffectInstance(effectinstance));
+						livingentity.addEffect(new MobEffectInstance(effectinstance));
 					}
 				}
 			}
@@ -370,12 +370,12 @@ public class OpenEndedPipe extends FlowSource {
 	public static class MilkEffectHandler implements IEffectHandler {
 		@Override
 		public boolean canApplyEffects(OpenEndedPipe pipe, FluidStack fluid) {
-			return Tags.Fluids.MILK.contains(fluid.getFluid());
+			return TagUtil.MILK.contains(fluid.getFluid());
 		}
 
 		@Override
 		public void applyEffects(OpenEndedPipe pipe, FluidStack fluid) {
-			World world = pipe.getWorld();
+			Level world = pipe.getWorld();
 			if (world.getGameTime() % 5 != 0)
 				return;
 			List<LivingEntity> list =

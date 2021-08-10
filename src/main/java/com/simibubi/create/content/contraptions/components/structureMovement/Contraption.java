@@ -22,6 +22,11 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import com.simibubi.create.lib.transfer.FluidTank;
+import com.simibubi.create.lib.transfer.IFluidHandler;
+
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -68,15 +73,10 @@ import com.simibubi.create.foundation.utility.NBTProcessors;
 import com.simibubi.create.foundation.utility.UniqueLinkedList;
 import com.simibubi.create.foundation.utility.worldWrappers.WrappedWorld;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
-import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
-import com.simibubi.create.lib.lba.item.CombinedInvWrapper;
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.utility.Constants.BlockFlags;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.StickinessUtil;
 
-import alexiil.mc.lib.attributes.Simulation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
@@ -91,7 +91,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.network.DebugPacketSender;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -110,7 +109,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -722,9 +720,9 @@ public abstract class Contraption {
 				if (!(tileEntity instanceof FluidTankTileEntity))
 					return;
 				FluidTankTileEntity tank = (FluidTankTileEntity) tileEntity;
-				SimpleFluidTank tankInventory = tank.getTankInventory();
-				if (tankInventory instanceof SimpleFluidTank)
-					((SimpleFluidTank) tankInventory).setFluid(mfs.tank.getFluid());
+				FluidTank tankInventory = tank.getTankInventory();
+				if (tankInventory instanceof FluidTank)
+					((FluidTank) tankInventory).setFluid(mfs.tank.getFluid());
 				tank.getFluidLevel()
 					.start(tank.getFillState());
 				mfs.assignTileEntity(tank);
@@ -1074,7 +1072,7 @@ public abstract class Contraption {
 				inventory.setStackInSlot(i, ItemStack.EMPTY);
 		}
 		for (int i = 0; i < fluidInventory.getTanks(); i++)
-			fluidInventory.drain(fluidInventory.getFluidInTank(i), Simulation.ACTION);
+			fluidInventory.drain(fluidInventory.getFluidInTank(i), false);
 
 		for (Pair<BlockPos, Direction> pair : superglue) {
 			BlockPos targetPos = transform.apply(pair.getKey());

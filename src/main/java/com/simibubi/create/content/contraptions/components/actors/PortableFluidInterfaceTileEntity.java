@@ -89,7 +89,7 @@ public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTi
 //		@Override
 //		public FluidStack drain(FluidStack resource, FluidAction action) {
 //			if (!canTransfer())
-//				return FluidStack.EMPTY;
+//				return FluidStack.empty();
 //			FluidStack drain = wrapped.drain(resource, action);
 //			if (!drain.isEmpty() && action.execute())
 //				keepAlive();
@@ -99,7 +99,7 @@ public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTi
 //		@Override
 //		public FluidStack drain(int maxDrain, FluidAction action) {
 //			if (!canTransfer())
-//				return FluidStack.EMPTY;
+//				return FluidStack.empty();
 //			FluidStack drain = wrapped.drain(maxDrain, action);
 //			if (!drain.isEmpty() && action.execute())
 //				keepAlive();

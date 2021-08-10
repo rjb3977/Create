@@ -28,8 +28,8 @@ public abstract class BlockBreakingKineticTileEntity extends KineticTileEntity {
 	protected int breakerId = -NEXT_BREAKER_ID.incrementAndGet();
 	protected BlockPos breakingPos;
 
-	public BlockBreakingKineticTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public BlockBreakingKineticTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

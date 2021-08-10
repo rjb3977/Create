@@ -1,15 +1,19 @@
 package com.simibubi.create.lib.transfer;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import java.util.Objects;
+
 @SuppressWarnings({"UnstableApiUsage", "deprecation"})
 public class FluidStack {
-	public static final FluidStack EMPTY = new FluidStack(FluidVariant.blank(), 0);
+	private static final FluidStack EMPTY = new FluidStack(FluidVariant.blank(), 0);
 
 	private FluidVariant type;
 	private long amount;
@@ -24,8 +28,13 @@ public class FluidStack {
 		this.amount = amount;
 	}
 
-	public void setAmount(long amount) {
+	public FluidStack(FluidStack copy, long amount) {
+		this(copy.getType(), amount);
+	}
+
+	public FluidStack setAmount(long amount) {
 		this.amount = amount;
+		return this;
 	}
 
 	public FluidVariant getType() {
@@ -34,6 +43,10 @@ public class FluidStack {
 
 	public Fluid getFluid() {
 		return getType().getFluid();
+	}
+
+	public Fluid getRawFluid() {
+		return getFluid();
 	}
 
 	public long getAmount() {
@@ -73,6 +86,21 @@ public class FluidStack {
 		return tag;
 	}
 
+	public static FluidStack fromNBT(CompoundTag tag) {
+		Tag fluidTag = tag.get("Fluid");
+		FluidVariant var = FluidVariant.fromNbt((CompoundTag) fluidTag);
+		long amount = tag.getLong("Amount");
+		return new FluidStack(var, amount);
+	}
+
+	public CompoundTag toTag() {
+		return writeToNBT(new CompoundTag());
+	}
+
+	public CompoundTag toTag(CompoundTag tag) {
+		return writeToNBT(tag);
+	}
+
 	public static FluidStack fromBuffer(FriendlyByteBuf buffer) {
 		Fluid fluid = Registry.FLUID.get(buffer.readResourceLocation());
 		long amount = buffer.readVarLong();
@@ -83,10 +111,26 @@ public class FluidStack {
 		return new FluidStack(FluidVariant.of(fluid, tag), amount);
 	}
 
+	public FriendlyByteBuf toBuffer(FriendlyByteBuf buffer) {
+		return toBuffer(this, buffer);
+	}
+
 	public static FriendlyByteBuf toBuffer(FluidStack stack, FriendlyByteBuf buffer) {
 		buffer.writeResourceLocation(Registry.FLUID.getKey(stack.getFluid()));
 		buffer.writeVarLong(stack.getAmount());
 		buffer.writeNbt(stack.type.copyNbt());
 		return buffer;
+	}
+
+	public static FluidStack empty() {
+		return EMPTY.copy();
+	}
+
+	public String getTranslationKey() {
+		return Util.makeDescriptionId("fluid", Registry.FLUID.getKey(getFluid()));
+	}
+
+	public FluidStack copy() {
+		return new FluidStack(FluidVariant.of(getFluid(), getType().copyNbt()), getAmount());
 	}
 }

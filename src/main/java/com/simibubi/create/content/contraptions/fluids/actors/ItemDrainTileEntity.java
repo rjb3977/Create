@@ -216,7 +216,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 		if (processingTicks > 5) {
 			internalTank.allowInsertion();
 			if (internalTank.getPrimaryHandler()
-				.fill(fluidFromItem, Simulation.SIMULATE) != fluidFromItem.getAmount()) {
+				.fill(fluidFromItem, true) != fluidFromItem.getAmount()) {
 				internalTank.forbidInsertion();
 				processingTicks = FILLING_TIME;
 				return true;
@@ -236,7 +236,7 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 			heldItem = null;
 		internalTank.allowInsertion();
 		internalTank.getPrimaryHandler()
-			.fill(fluidFromItem, Simulation.ACTION);
+			.fill(fluidFromItem, false);
 		internalTank.forbidInsertion();
 		notifyUpdate();
 		return true;

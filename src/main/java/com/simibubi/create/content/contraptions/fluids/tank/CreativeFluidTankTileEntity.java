@@ -2,15 +2,16 @@ package com.simibubi.create.content.contraptions.fluids.tank;
 
 import java.util.List;
 import java.util.function.Consumer;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import com.simibubi.create.lib.transfer.IFluidHandler;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
-
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
-import com.simibubi.create.lib.utility.FluidUtil;
-
-import alexiil.mc.lib.attributes.Simulation;
-import alexiil.mc.lib.attributes.fluid.FixedFluidInvView;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class CreativeFluidTankTileEntity extends FluidTankTileEntity implements IFluidHandler {
 
@@ -29,47 +30,42 @@ public class CreativeFluidTankTileEntity extends FluidTankTileEntity implements 
 	}
 
 	@Override
-	public FixedFluidInvView getFluidStorage() {
+	public IFluidHandler getFluidStorage() {
 		return tankInventory;
 	}
 
 	public static class CreativeSmartFluidTank extends SmartFluidTank {
-		// helper method
-		public int getTankCapacity(int tank) {
-			return FluidUtil.fluidAmountToMillibuckets(getMaxAmount_F());
-		}
-
 		public CreativeSmartFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
 			super(capacity, updateCallback);
 		}
 
 		@Override
-		public int getFluidAmount() {
-			return getInvFluid().isEmpty() ? 0 : getTankCapacity(0);
+		public long getFluidAmount() {
+			return getFluid().isEmpty() ? 0 : getTankCapacity(0);
 		}
 
 		public void setContainedFluid(FluidStack fluidStack) {
-			setFluid((FluidStack) fluidStack.copy());
+			setFluid(fluidStack.copy());
 			if (!fluidStack.isEmpty()) {
-				FluidStack newStack = new FluidStack(getFluid().fluidKey, getTankCapacity(0));
+				FluidStack newStack = new FluidStack(getFluid(), getTankCapacity(0));
 				setFluid(newStack);
 			}
 			onContentsChanged();
 		}
 
 		@Override
-		public int fill(FluidStack resource, Simulation action) {
+		public long fill(FluidStack resource, boolean sim) {
 			return resource.getAmount();
 		}
 
 		@Override
-		public FluidStack drain(FluidStack resource, Simulation action) {
-			return super.drain(resource, Simulation.SIMULATE);
+		public FluidStack drain(FluidStack resource, boolean sim) {
+			return super.drain(resource, true);
 		}
 
 		@Override
-		public FluidStack drain(int maxDrain, Simulation action) {
-			return super.drain(maxDrain, Simulation.SIMULATE);
+		public FluidStack drain(long maxDrain, boolean sim) {
+			return super.drain(maxDrain, true);
 		}
 
 	}

@@ -32,8 +32,8 @@ public class HosePulleyTileEntity extends KineticTileEntity {
 	private HosePulleyFluidHandler handler;
 	private boolean infinite;
 
-	public HosePulleyTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public HosePulleyTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		offset = LerpedFloat.linear()
 			.startWithValue(0);
 		isMoving = true;

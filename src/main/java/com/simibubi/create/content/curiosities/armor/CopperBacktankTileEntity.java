@@ -33,8 +33,8 @@ public class CopperBacktankTileEntity extends KineticTileEntity implements Namea
 	private int capacityEnchantLevel;
 	private ListTag enchantmentTag;
 
-	public CopperBacktankTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public CopperBacktankTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		enchantmentTag = new ListTag();
 	}
 

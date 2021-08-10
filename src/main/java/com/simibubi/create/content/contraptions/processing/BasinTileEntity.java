@@ -7,14 +7,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import com.mojang.math.Vector3d;
 import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.content.contraptions.components.mixer.MechanicalMixerTileEntity;
 import com.simibubi.create.content.contraptions.fluids.FluidFX;
 import com.simibubi.create.content.contraptions.fluids.particle.FluidParticleData;
 import com.simibubi.create.content.contraptions.goggles.IHaveGoggleInformation;
-import com.simibubi.create.content.contraptions.processing.BasinTileEntity.BasinValueBox;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.foundation.fluid.CombinedTankWrapper;
@@ -44,7 +42,6 @@ import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.NBTSerializer;
-import com.simibubi.create.lib.utility.TransferUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -518,7 +515,7 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 			return false;
 
 		for (FluidStack fluidStack : outputFluids) {
-			Simulation action = simulate ? Simulation.SIMULATE : Simulation.ACTION;
+			Simulation action = simulate ? true : false;
 			int fill = targetTank instanceof SmartFluidTankBehaviour.InternalFluidHandler
 				? ((SmartFluidTankBehaviour.InternalFluidHandler) targetTank).forceFill((FluidStack) fluidStack.copy(), action)
 				: targetTank.fill((FluidStack) fluidStack.copy(), action);

@@ -11,6 +11,11 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import com.simibubi.create.lib.transfer.FluidTank;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -24,8 +29,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.simibubi.create.content.contraptions.fluids.tank.CreativeFluidTankTileEntity.CreativeSmartFluidTank;
 import com.simibubi.create.foundation.utility.Iterate;
-
-import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
 
 public class FluidTankConnectivityHandler {
 
@@ -132,7 +135,7 @@ public class FluidTankConnectivityHandler {
 			}
 
 			te.setWindows(te.window);
-			te.onFluidStackChanged(te.tankInventory.getInvFluid(0));
+			te.onFluidStackChanged(te.tankInventory.getFluidInTank(0));
 			te.setChanged();
 		}
 
@@ -149,7 +152,7 @@ public class FluidTankConnectivityHandler {
 //		LazyOptional<IFluidHandler> capability = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY);
 //		FluidTank teTank = (FluidTank) capability.orElse(null);
 //		FluidStack fluid = capability.map(ifh -> ifh.getFluidInTank(0))
-//			.orElse(FluidStack.EMPTY);
+//			.orElse(FluidStack.empty());
 
 		Search:
 
@@ -205,14 +208,14 @@ public class FluidTankConnectivityHandler {
 						continue;
 
 					opaque |= !tank.window;
-					SimpleFluidTank tankTank = tank.tankInventory;
+					FluidTank tankTank = tank.tankInventory;
 					FluidStack fluidInTank = tankTank.getFluid();
 					if (!fluidInTank.isEmpty()) {
 //						if (teTank.isEmpty() && teTank instanceof CreativeSmartFluidTank)
 //							((CreativeSmartFluidTank) teTank).setContainedFluid(fluidInTank);
 //						teTank.fill(fluidInTank, FluidAction.EXECUTE);
 					}
-					tankTank.setFluid(FluidStack.EMPTY);
+					tankTank.setFluid(FluidStack.empty());
 
 					splitTankAndInvalidate(tank, cache, false);
 					tank.setController(origin);
@@ -273,12 +276,12 @@ public class FluidTankConnectivityHandler {
 					tankAt.removeController(true);
 
 					if (!toDistribute.isEmpty() && tankAt != te) {
-						FluidStack copy = (FluidStack) toDistribute.copy();
-						SimpleFluidTank tankInventory = tankAt.tankInventory;
+						FluidStack copy = toDistribute.copy();
+						FluidTank tankInventory = tankAt.tankInventory;
 						if (tankInventory.isEmpty() && tankInventory instanceof CreativeSmartFluidTank)
 							((CreativeSmartFluidTank) tankInventory).setContainedFluid(toDistribute);
 						else {
-							int split = Math.min(maxCapacity, toDistribute.getAmount());
+							long split = Math.min(maxCapacity, toDistribute.getAmount());
 							copy.setAmount(split);
 //							toDistribute.shrink(split);
 //							tankInventory.fill(copy, FluidAction.EXECUTE);

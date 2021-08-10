@@ -5,7 +5,10 @@ import com.simibubi.create.foundation.fluid.FluidRenderer;
 import com.simibubi.create.foundation.gui.widgets.InterpolatedChasingValue;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
 
-import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import com.simibubi.create.lib.transfer.FluidTank;
+
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.util.Mth;
@@ -38,15 +41,15 @@ public class FluidTankRenderer extends SafeTileEntityRenderer<FluidTankTileEntit
 			return;
 		float clampedLevel = Mth.clamp(level * totalHeight, 0, totalHeight);
 
-		SimpleFluidTank tank = te.tankInventory;
-		FluidStack fluidStack = (FluidStack) tank.getInvFluid();
+		FluidTank tank = te.tankInventory;
+		FluidStack fluidStack = (FluidStack) tank.getFluid();
 
 		if (fluidStack.isEmpty())
 			return;
 
-		boolean top = fluidStack//.getFluid()
+		boolean top = false;//fluidStack.getFluid()
 //			.getAttributes()
-			.isLighterThanAir();
+//			.isLighterThanAir();
 
 		float xMin = tankHullWidth;
 		float xMax = xMin + te.width - 2 * tankHullWidth;

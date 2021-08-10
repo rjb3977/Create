@@ -78,7 +78,7 @@ package com.simibubi.create.compat.jei.category;
 //				: recipe.getRollableResultsAsItemStacks()
 //					.get(0);
 //		FluidStack fluidOutput = recipe.getFluidResults()
-//			.isEmpty() ? FluidStack.EMPTY
+//			.isEmpty() ? FluidStack.empty()
 //				: recipe.getFluidResults()
 //					.get(0);
 //

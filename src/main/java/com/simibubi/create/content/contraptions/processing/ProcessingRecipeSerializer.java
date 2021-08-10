@@ -1,6 +1,9 @@
 package com.simibubi.create.content.contraptions.processing;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

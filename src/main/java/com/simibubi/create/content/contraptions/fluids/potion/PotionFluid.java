@@ -2,6 +2,9 @@ package com.simibubi.create.content.contraptions.fluids.potion;
 
 import java.util.Collection;
 import java.util.List;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

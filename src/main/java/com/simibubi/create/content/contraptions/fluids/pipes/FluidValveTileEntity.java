@@ -1,6 +1,10 @@
 package com.simibubi.create.content.contraptions.fluids.pipes;
 
 import java.util.List;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -68,8 +72,8 @@ public class FluidValveTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		pointer.readNBT(compound.getCompound("Pointer"), clientPacket);
 	}
 

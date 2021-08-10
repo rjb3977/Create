@@ -12,7 +12,6 @@ import com.simibubi.create.lib.utility.LazyOptional;
 
 import com.simibubi.create.lib.utility.NBTSerializer;
 
-import com.simibubi.create.lib.utility.TransferUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ChestBlock;

@@ -99,8 +99,8 @@ public abstract class FluidTransportBehaviour extends TileEntityBehaviour {
 		}
 
 		if (onServer) {
-			FluidStack availableFlow = FluidStack.EMPTY;
-			FluidStack collidingFlow = FluidStack.EMPTY;
+			FluidStack availableFlow = FluidStack.empty();
+			FluidStack collidingFlow = FluidStack.empty();
 
 			for (PipeConnection connection : connections) {
 				FluidStack fluidInFlow = connection.getProvidedFluid();
@@ -127,7 +127,7 @@ public abstract class FluidTransportBehaviour extends TileEntityBehaviour {
 
 			boolean sendUpdate = false;
 			for (PipeConnection connection : connections) {
-				FluidStack internalFluid = singleSource != connection ? availableFlow : FluidStack.EMPTY;
+				FluidStack internalFluid = singleSource != connection ? availableFlow : FluidStack.empty();
 				Predicate<FluidStack> extractionPredicate =
 					extracted -> canPullFluidFrom(extracted, tileEntity.getBlockState(), connection.side);
 				sendUpdate |= connection.manageFlows(world, pos, internalFluid, extractionPredicate);
@@ -175,7 +175,7 @@ public abstract class FluidTransportBehaviour extends TileEntityBehaviour {
 	public FluidStack getProvidedOutwardFluid(Direction side) {
 		createConnectionData();
 		if (!interfaces.containsKey(side))
-			return FluidStack.EMPTY;
+			return FluidStack.empty();
 		return interfaces.get(side)
 			.provideOutboundFlow();
 	}

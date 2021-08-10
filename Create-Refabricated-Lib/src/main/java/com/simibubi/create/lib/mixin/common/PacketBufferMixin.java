@@ -24,6 +24,6 @@ public abstract class PacketBufferMixin implements PacketBufferExtensions {
 
 	@Override
 	public FluidStack readFluidStack() {
-		return /*readBoolean() ? */FluidStack.EMPTY /*: FluidStack.readFromPacket(MixinHelper.cast(this))*/;
+		return /*readBoolean() ? */FluidStack.empty() /*: FluidStack.readFromPacket(MixinHelper.cast(this))*/;
 	}
 }

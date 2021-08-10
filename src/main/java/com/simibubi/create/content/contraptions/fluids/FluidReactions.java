@@ -4,6 +4,8 @@ import com.simibubi.create.AllFluids;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.BlockHelper;
+import com.simibubi.create.lib.transfer.FluidStack;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;

@@ -136,7 +136,7 @@ public class SmartFluidPipeBlock extends FaceAttachedHorizontalDirectionalBlock 
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.SMART_FLUID_PIPE.create();
+		return AllTileEntities.SMART_FLUID_PIPE.create(pos, state);
 	}
 
 	@Override

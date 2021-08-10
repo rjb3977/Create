@@ -11,6 +11,11 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import com.simibubi.create.lib.transfer.IFluidHandler;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -21,11 +26,8 @@ import com.simibubi.create.foundation.utility.BlockFace;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Pair;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
-
-import alexiil.mc.lib.attributes.Simulation;
 
 public class FluidNetwork {
 
@@ -51,7 +53,7 @@ public class FluidNetwork {
 		this.start = location;
 		this.sourceSupplier = sourceSupplier;
 		this.source = LazyOptional.empty();
-		this.fluid = FluidStack.EMPTY;
+		this.fluid = FluidStack.empty();
 		this.frontier = new HashSet<>();
 		this.visited = new HashSet<>();
 		this.targets = new ArrayList<>();
@@ -177,13 +179,12 @@ public class FluidNetwork {
 
 		int flowSpeed = transferSpeed;
 		for (boolean simulate : Iterate.trueAndFalse) {
-			Simulation action = simulate ? Simulation.SIMULATE : Simulation.ACTION;
 
 			IFluidHandler handler = source.orElse(null);
 			if (handler == null)
 				return;
 
-			FluidStack transfer = FluidStack.EMPTY;
+			FluidStack transfer = FluidStack.empty();
 			for (int i = 0; i < handler.getTanks(); i++) {
 				FluidStack contained = handler.getFluidInTank(i);
 				if (contained.isEmpty())
@@ -191,11 +192,11 @@ public class FluidNetwork {
 				if (!contained.isFluidEqual(fluid))
 					continue;
 				FluidStack toExtract = FluidHelper.copyStackWithAmount(contained, flowSpeed);
-				transfer = handler.drain(toExtract, action);
+				transfer = handler.drain(toExtract, simulate);
 			}
 
 			if (transfer.isEmpty()) {
-				FluidStack genericExtract = handler.drain(flowSpeed, action);
+				FluidStack genericExtract = handler.drain(flowSpeed, simulate);
 				if (!genericExtract.isEmpty() && genericExtract.isFluidEqual(fluid))
 					transfer = genericExtract;
 			}
@@ -205,13 +206,13 @@ public class FluidNetwork {
 
 			List<Pair<BlockFace, IFluidHandler>> availableOutputs = new ArrayList<>(targets);
 			while (!availableOutputs.isEmpty() && transfer.getAmount() > 0) {
-				int dividedTransfer = transfer.getAmount() / availableOutputs.size();
-				int remainder = transfer.getAmount() % availableOutputs.size();
+				long dividedTransfer = transfer.getAmount() / availableOutputs.size();
+				long remainder = transfer.getAmount() % availableOutputs.size();
 
 				for (Iterator<Pair<BlockFace, IFluidHandler>> iterator =
 					availableOutputs.iterator(); iterator.hasNext();) {
 					Pair<BlockFace, IFluidHandler> pair = iterator.next();
-					int toTransfer = dividedTransfer;
+					long toTransfer = dividedTransfer;
 					if (remainder > 0) {
 						toTransfer++;
 						remainder--;
@@ -228,7 +229,7 @@ public class FluidNetwork {
 
 					FluidStack divided = (FluidStack) transfer.copy();
 					divided.setAmount(toTransfer);
-					int fill = targetHandler.fill(divided, action);
+					int fill = targetHandler.fill(divided, simulate);
 					transfer.setAmount(transfer.getAmount() - fill);
 					if (fill < toTransfer)
 						iterator.remove();
@@ -237,7 +238,7 @@ public class FluidNetwork {
 			}
 
 			flowSpeed -= transfer.getAmount();
-			transfer = FluidStack.EMPTY;
+			transfer = FluidStack.empty();
 		}
 	}
 
@@ -269,7 +270,7 @@ public class FluidNetwork {
 		visited.clear();
 		targets.clear();
 		queued.clear();
-		fluid = FluidStack.EMPTY;
+		fluid = FluidStack.empty();
 		queued.add(start);
 		pauseBeforePropagation = 2;
 	}

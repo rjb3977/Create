@@ -34,8 +34,8 @@ public abstract class LinearActuatorTileEntity extends KineticTileEntity
 	// Custom position sync
 	protected float clientOffsetDiff;
 
-	public LinearActuatorTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public LinearActuatorTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		setLazyTickRate(3);
 		forceMove = true;
 	}

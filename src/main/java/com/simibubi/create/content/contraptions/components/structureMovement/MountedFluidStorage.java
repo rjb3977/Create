@@ -9,11 +9,11 @@ import com.simibubi.create.foundation.gui.widgets.InterpolatedChasingValue;
 import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.utility.NBTHelper;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
-import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
+import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.FluidTank;
+import com.simibubi.create.lib.transfer.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-import com.simibubi.create.lib.utility.TransferUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -85,9 +85,9 @@ public class MountedFluidStorage {
 			tank.setFluidLevel(new InterpolatedChasingValue().start(fillState));
 		tank.getFluidLevel()
 			.target(fillState);
-		SimpleFluidTank tankInventory = tank.getTankInventory();
+		FluidTank tankInventory = tank.getTankInventory();
 		if (tankInventory instanceof SmartFluidTank)
-			((SmartFluidTank) tankInventory).setFluid(fluid);
+			tankInventory.setFluid(fluid);
 	}
 
 	public void removeStorageFromWorld() {
@@ -123,14 +123,14 @@ public class MountedFluidStorage {
 	}
 
 	public IFluidHandler getFluidHandler() {
-		return (IFluidHandler) tank;
+		return tank;
 	}
 
 	public CompoundTag serialize() {
 		if (!valid)
 			return null;
 		CompoundTag tag = tank.writeToNBT(new CompoundTag());
-		tag.putInt("Capacity", tank.getCapacity());
+		tag.putLong("Capacity", tank.getCapacity());
 
 		if (tank instanceof CreativeSmartFluidTank) {
 			NBTHelper.putMarker(tag, "Bottomless");
@@ -150,7 +150,7 @@ public class MountedFluidStorage {
 		storage.valid = true;
 
 		if (nbt.contains("Bottomless")) {
-			FluidStack providedStack = FluidStack.loadFluidStackFromNBT(nbt.getCompound("ProvidedStack"));
+			FluidStack providedStack = FluidStack.fromNBT(nbt.getCompound("ProvidedStack"));
 			CreativeSmartFluidTank creativeSmartFluidTank = new CreativeSmartFluidTank(capacity, $ -> {
 			});
 			creativeSmartFluidTank.setContainedFluid(providedStack);

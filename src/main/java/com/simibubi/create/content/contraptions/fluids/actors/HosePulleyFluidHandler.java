@@ -28,17 +28,17 @@ public class HosePulleyFluidHandler implements IFluidHandler {
 		FluidStack remaining = (FluidStack) resource.copy();
 
 		if (predicate.get() && totalAmountAfterFill >= 1000) {
-			if (filler.tryDeposit(resource.getFluid(), rootPosGetter.get(), (action == Simulation.SIMULATE))) {
+			if (filler.tryDeposit(resource.getFluid(), rootPosGetter.get(), (action == true))) {
 				drainer.counterpartActed();
 //				remaining.shrink(1000);
 				diff -= 1000;
 			}
 		}
 
-		if (action == Simulation.SIMULATE)
+		if (action == true)
 			return diff <= 0 ? resource.getAmount() : internalTank.fill(remaining, action);
 		if (diff <= 0) {
-			internalTank.drain(-diff, Simulation.ACTION);
+			internalTank.drain(-diff, false);
 			return resource.getAmount();
 		}
 
@@ -64,12 +64,12 @@ public class HosePulleyFluidHandler implements IFluidHandler {
 
 	private FluidStack drainInternal(int maxDrain, @Nullable FluidStack resource, Simulation action) {
 //		if (resource != null && !internalTank.isEmpty() && !resource.isFluidEqual(internalTank.getFluid()))
-//			return FluidStack.EMPTY;
+//			return FluidStack.empty();
 		if (internalTank.getFluidAmount() >= 1000)
 			return internalTank.drain(maxDrain, action);
 		BlockPos pos = rootPosGetter.get();
 		FluidStack returned = drainer.getDrainableFluid(pos);
-		if (!predicate.get() || !drainer.pullNext(pos, (action == Simulation.SIMULATE)))
+		if (!predicate.get() || !drainer.pullNext(pos, (action == true)))
 			return internalTank.drain(maxDrain, action);
 
 		filler.counterpartActed();
@@ -82,7 +82,7 @@ public class HosePulleyFluidHandler implements IFluidHandler {
 //			return internalTank.drain(maxDrain, action);
 
 		if (resource != null && !returned.isFluidEqual(resource))
-			return FluidStack.EMPTY;
+			return FluidStack.empty();
 
 		drained = Math.min(maxDrain, available);
 		returned.setAmount(drained);

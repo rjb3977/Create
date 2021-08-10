@@ -37,7 +37,6 @@ import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 import com.simibubi.create.lib.utility.NBTSerializer;
-import com.simibubi.create.lib.utility.TransferUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

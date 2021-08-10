@@ -24,8 +24,6 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.lba.item.IItemHandler;
 
-import com.simibubi.create.lib.utility.TransferUtil;
-
 public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 
 	public static boolean match(BasinTileEntity basin, Recipe<?> recipe) {

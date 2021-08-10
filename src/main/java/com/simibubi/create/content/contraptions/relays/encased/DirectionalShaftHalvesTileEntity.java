@@ -7,8 +7,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class DirectionalShaftHalvesTileEntity extends KineticTileEntity {
 
-	public DirectionalShaftHalvesTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public DirectionalShaftHalvesTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	public Direction getSourceFacing() {

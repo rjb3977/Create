@@ -5,6 +5,8 @@ import java.util.function.Predicate;
 
 import com.simibubi.create.lib.transfer.FluidStack;
 
+import com.simibubi.create.lib.transfer.IFluidHandler;
+
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,8 +27,8 @@ public abstract class FlowSource {
 	public FluidStack provideFluid(Predicate<FluidStack> extractionPredicate) {
 		IFluidHandler tank = provideHandler();
 		if (tank == null)
-			return FluidStack.EMPTY;
-		FluidStack immediateFluid = tank.drain(1, Simulation.SIMULATE);
+			return FluidStack.empty();
+		FluidStack immediateFluid = tank.drain(1, true);
 		if (extractionPredicate.test(immediateFluid))
 			return immediateFluid;
 
@@ -36,12 +38,12 @@ public abstract class FlowSource {
 				continue;
 			if (!extractionPredicate.test(contained))
 				continue;
-			FluidStack toExtract = (FluidStack) contained.copy();
+			FluidStack toExtract = contained.copy();
 			toExtract.setAmount(1);
-			return tank.drain(toExtract, Simulation.SIMULATE);
+			return tank.drain(toExtract, true);
 		}
 
-		return FluidStack.EMPTY;
+		return FluidStack.empty();
 	}
 
 	// Layer III. PFIs need active attention to prevent them from disengaging early
@@ -108,10 +110,10 @@ public abstract class FlowSource {
 		@Override
 		public FluidStack provideFluid(Predicate<FluidStack> extractionPredicate) {
 			if (cached == null || cached.get() == null)
-				return FluidStack.EMPTY;
+				return FluidStack.empty();
 			FluidTransportBehaviour behaviour = cached.get();
 			FluidStack providedOutwardFluid = behaviour.getProvidedOutwardFluid(location.getOppositeFace());
-			return extractionPredicate.test(providedOutwardFluid) ? providedOutwardFluid : FluidStack.EMPTY;
+			return extractionPredicate.test(providedOutwardFluid) ? providedOutwardFluid : FluidStack.empty();
 		}
 
 		@Override

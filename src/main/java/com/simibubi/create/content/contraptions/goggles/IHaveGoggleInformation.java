@@ -4,13 +4,16 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.IFluidHandler;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import com.simibubi.create.foundation.utility.Lang;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.MinecraftClientUtil;
 
 /*

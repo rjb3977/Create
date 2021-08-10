@@ -9,8 +9,8 @@ import com.simibubi.create.foundation.renderState.RenderTypes;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 
+import com.simibubi.create.lib.transfer.FluidStack;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -48,10 +48,10 @@ public class FluidRenderer {
 		FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluid);
 		Function<ResourceLocation, TextureAtlasSprite> spriteAtlas = Minecraft.getInstance()
 			.getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
-		TextureAtlasSprite flowTexture = spriteAtlas.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().getDefaultState())[1].getName());
-		TextureAtlasSprite stillTexture = spriteAtlas.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().getDefaultState())[0].getName());
+		TextureAtlasSprite flowTexture = spriteAtlas.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().defaultFluidState())[1].getName());
+		TextureAtlasSprite stillTexture = spriteAtlas.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().defaultFluidState())[0].getName());
 
-		int color = handler.getFluidColor(null, null, fluidStack.getFluid().getDefaultState());
+		int color = handler.getFluidColor(null, null, fluidStack.getFluid().defaultFluidState());
 		int blockLightIn = (light >> 4) & 0xF;
 		int luminosity = 0;//Math.max(blockLightIn, fluidAttributes.getLuminosity(fluidStack));
 		light = (light & 0xF00000) | luminosity << 4;
@@ -100,15 +100,15 @@ public class FluidRenderer {
 		FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluid);
 		TextureAtlasSprite fluidTexture = Minecraft.getInstance()
 			.getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-			.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().getDefaultState())[0].getName());
+			.apply(handler.getFluidSprites(null, null, fluidStack.getFluid().defaultFluidState())[0].getName());
 
-		int color = handler.getFluidColor(null, null, fluidStack.getFluid().getDefaultState());
+		int color = handler.getFluidColor(null, null, fluidStack.getFluid().defaultFluidState());
 		int blockLightIn = (light >> 4) & 0xF;
 		int luminosity = 0;//Math.max(blockLightIn, fluidAttributes.getLuminosity(fluidStack));
 		light = (light & 0xF00000) | luminosity << 4;
 
 		Vec3 center = new Vec3(xMin + (xMax - xMin) / 2, yMin + (yMax - yMin) / 2, zMin + (zMax - zMin) / 2);
-		MatrixStacker msr = MatrixStacker.of(ms);
+		MatrixTransformStack msr = MatrixTransformStack.of(ms);
 		ms.pushPose();
 //		if (fluidStack.getFluid()
 //			.getAttributes()

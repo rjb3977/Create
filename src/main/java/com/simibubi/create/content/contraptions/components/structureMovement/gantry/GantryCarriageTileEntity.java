@@ -23,8 +23,8 @@ public class GantryCarriageTileEntity extends KineticTileEntity implements IDisp
 	boolean assembleNextTick;
 	protected AssemblyException lastException;
 
-	public GantryCarriageTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public GantryCarriageTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override

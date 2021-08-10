@@ -2,17 +2,15 @@ package com.simibubi.create.foundation.fluid;
 
 import java.util.function.Consumer;
 
+import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.FluidTank;
 
-import com.simibubi.create.lib.lba.fluid.SimpleFluidTank;
-import com.simibubi.create.lib.utility.FluidUtil;
 
-
-public class SmartFluidTank extends SimpleFluidTank {
-
+public class SmartFluidTank extends FluidTank {
 	private Consumer<FluidStack> updateCallback;
 
 	public SmartFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
-		super(FluidUtil.millibucketsToFluidAmount(capacity));
+		super(capacity);
 		this.updateCallback = updateCallback;
 	}
 

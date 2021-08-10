@@ -3,6 +3,8 @@ package com.simibubi.create.content.contraptions.components.structureMovement.sy
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 
 
+import com.simibubi.create.lib.transfer.FluidStack;
+
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
 import net.minecraft.client.Minecraft;
@@ -29,14 +31,14 @@ public class ContraptionFluidPacket implements S2CPacket {
 	public void read(FriendlyByteBuf buffer) {
 		entityId = buffer.readInt();
 		localPos = buffer.readBlockPos();
-		containedFluid = FluidStack.readFromPacket(buffer);
+		containedFluid = FluidStack.fromBuffer(buffer);
 	}
 
 	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeInt(entityId);
 		buffer.writeBlockPos(localPos);
-		containedFluid.writeToPacket(buffer);
+		containedFluid.toBuffer(buffer);
 	}
 
 	@Override

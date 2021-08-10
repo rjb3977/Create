@@ -13,11 +13,12 @@ import com.simibubi.create.foundation.tileEntity.ComparatorUtil;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.extensions.BlockExtensions;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.IFluidHandler;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
-import com.simibubi.create.lib.utility.FluidUtil;
+
 import com.simibubi.create.lib.utility.LazyOptional;
-import com.simibubi.create.lib.utility.TransferUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -147,7 +148,7 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 		SoundEvent soundevent = null;
 		BlockState fluidState = null;
 		FluidStack fluidInTank = tankCapability.map(fh -> fh.getFluidInTank(0))
-				.orElse(FluidStack.EMPTY);
+				.orElse(FluidStack.empty());
 
 		if (exchange == FluidExchange.ITEM_TO_TANK) {
 			if (creative && !onClient) {
@@ -169,7 +170,7 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 		if (exchange == FluidExchange.TANK_TO_ITEM) {
 			if (creative && !onClient)
 				if (fluidTank instanceof CreativeSmartFluidTank)
-					((CreativeSmartFluidTank) fluidTank).setContainedFluid(FluidStack.EMPTY);
+					((CreativeSmartFluidTank) fluidTank).setContainedFluid(FluidStack.empty());
 
 			Fluid fluid = prevFluidInTank.getFluid();
 			fluidState = fluid.defaultFluidState()
@@ -190,9 +191,9 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 			world.playSound(null, pos, soundevent, SoundSource.BLOCKS, .5f, pitch);
 		}
 
-		if (!fluidInTank.isFluidStackIdentical(prevFluidInTank)) {
+		if (!fluidInTank.isFluidEqual(prevFluidInTank)) {
 			if (te instanceof FluidTankTileEntity) {
-				FluidTankTileEntity controllerTE = ((FluidTankTileEntity) te).getControllerTE();
+				FluidTankTileEntity controllerTE = te.getControllerTE();
 				if (controllerTE != null) {
 					if (fluidState != null && onClient) {
 						BlockParticleOption blockParticleData = new BlockParticleOption(ParticleTypes.BLOCK, fluidState);
@@ -242,7 +243,7 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return creative ? AllTileEntities.CREATIVE_FLUID_TANK.create() : AllTileEntities.FLUID_TANK.create();
+		return creative ? AllTileEntities.CREATIVE_FLUID_TANK.create(pos, state) : AllTileEntities.FLUID_TANK.create(pos, state);
 	}
 
 	@Override

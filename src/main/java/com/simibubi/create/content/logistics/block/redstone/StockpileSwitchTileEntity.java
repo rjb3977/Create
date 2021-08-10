@@ -27,8 +27,8 @@ public class StockpileSwitchTileEntity extends SmartTileEntity {
 	private FilteringBehaviour filtering;
 	private InvManipulationBehaviour observedInventory;
 
-	public StockpileSwitchTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public StockpileSwitchTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 		onWhenAbove = .75f;
 		offWhenBelow = .25f;
 		currentLevel = -1;

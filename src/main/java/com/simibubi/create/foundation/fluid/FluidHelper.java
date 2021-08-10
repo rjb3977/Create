@@ -1,6 +1,13 @@
 package com.simibubi.create.foundation.fluid;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import com.simibubi.create.lib.transfer.IFluidHandler;
+
+import com.simibubi.create.lib.utility.LazyOptional;
+
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -25,15 +32,6 @@ import com.simibubi.create.content.contraptions.processing.EmptyingByBasin;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.utility.Pair;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
-import com.simibubi.create.lib.lba.fluid.IFluidHandlerItem;
-import com.simibubi.create.lib.utility.FluidUtil;
-import com.simibubi.create.lib.utility.LazyOptional;
-import com.simibubi.create.lib.utility.TransferUtil;
-
-import alexiil.mc.lib.attributes.SearchOptions;
-import alexiil.mc.lib.attributes.Simulation;
-
 public class FluidHelper {
 
 	public static enum FluidExchange {
@@ -54,11 +52,10 @@ public class FluidHelper {
 		return blockState != null && blockState != Blocks.AIR.defaultBlockState();
 	}
 
-	public static FluidStack copyStackWithAmount(FluidStack fs, int amount) {
+	public static FluidStack copyStackWithAmount(FluidStack fs, long amount) {
 		if (fs.isEmpty())
-			return FluidStack.EMPTY;
-		return (FluidStack) fs.withAmount(FluidUtil.millibucketsToFluidAmount(amount));
-
+			return FluidStack.empty();
+		return fs.copy().setAmount(amount);
 	}
 
 	public static Fluid convertToFlowing(Fluid fluid) {
@@ -125,14 +122,14 @@ public class FluidHelper {
 		IFluidHandler tank = capability.orElse(null);
 		FluidStack fluidStack = emptyingResult.getFirst();
 
-		if (tank == null || fluidStack.getAmount() != tank.fill(fluidStack, Simulation.SIMULATE))
+		if (tank == null || fluidStack.getAmount() != tank.fill(fluidStack, true))
 			return false;
 		if (worldIn.isClientSide)
 			return true;
 
 		ItemStack copyOfHeld = heldItem.copy();
 		emptyingResult = EmptyingByBasin.emptyItem(worldIn, copyOfHeld, false);
-		tank.fill(fluidStack, Simulation.ACTION);
+		tank.fill(fluidStack, false);
 
 		if (!player.isCreative() && !(te instanceof CreativeFluidTankTileEntity)) {
 			if (copyOfHeld.isEmpty())
@@ -173,8 +170,8 @@ public class FluidHelper {
 				heldItem = heldItem.copy();
 			ItemStack out = GenericItemFilling.fillItem(world, requiredAmountForItem, heldItem, (FluidStack) fluid.copy());
 
-			FluidStack copy = (FluidStack) fluid.withAmount(FluidUtil.millibucketsToFluidAmount(requiredAmountForItem));
-			tank.drain(copy, Simulation.ACTION);
+			FluidStack copy = fluid.copy().setAmount(requiredAmountForItem));
+			tank.drain(copy, false);
 
 			if (!player.isCreative())
 				player.getInventory().placeItemBackInInventory(out);
@@ -228,8 +225,8 @@ public class FluidHelper {
 					|| undecided && preferred == FluidExchange.ITEM_TO_TANK) {
 
 					int amount = fluidTank.fill(
-						fluidItem.drain(Math.min(maxTransferAmountPerTank, tankCapacity), Simulation.ACTION),
-						Simulation.ACTION);
+						fluidItem.drain(Math.min(maxTransferAmountPerTank, tankCapacity), false),
+						false);
 					if (amount > 0) {
 						lockedExchange = FluidExchange.ITEM_TO_TANK;
 						if (singleOp)
@@ -243,8 +240,8 @@ public class FluidHelper {
 					|| undecided && preferred == FluidExchange.TANK_TO_ITEM) {
 
 					int amount = fluidItem.fill(
-						fluidTank.drain(Math.min(maxTransferAmountPerTank, itemCapacity), Simulation.ACTION),
-						Simulation.ACTION);
+						fluidTank.drain(Math.min(maxTransferAmountPerTank, itemCapacity), false),
+						false);
 					if (amount > 0) {
 						lockedExchange = FluidExchange.TANK_TO_ITEM;
 						if (singleOp)

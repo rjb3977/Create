@@ -49,7 +49,7 @@ public class GlassFluidPipeBlock extends AxisPipeBlock implements SimpleWaterlog
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.GLASS_FLUID_PIPE.create();
+		return AllTileEntities.GLASS_FLUID_PIPE.create(pos, state);
 	}
 
 	@Override

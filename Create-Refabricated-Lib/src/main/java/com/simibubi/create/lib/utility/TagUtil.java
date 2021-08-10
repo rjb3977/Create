@@ -6,6 +6,7 @@ import java.util.Locale;
 import net.fabricmc.fabric.impl.tag.extension.TagDelegate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.DyeColor;
@@ -13,6 +14,7 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 
 public class TagUtil {
 	private static final String CREATE = "create";
@@ -65,6 +67,9 @@ public class TagUtil {
 	public static final Tag.Named<Item> WHITE_DYES = new TagDelegate<>(new ResourceLocation(COMMON, "white_dyes"), ItemTags::getAllTags);
 	public static final Tag.Named<Item> YELLOW_DYES = new TagDelegate<>(new ResourceLocation(COMMON, "yellow_dyes"), ItemTags::getAllTags);
 
+	// misc
+	public static final Tag.Named<Fluid> MILK = new TagDelegate<>(new ResourceLocation(COMMON, "milk"), FluidTags::getAllTags);
+
 	// helper methods
 	public static Tag.Named getTagFromResourceLocation(ResourceLocation location) {
 		String name = (String) Arrays.stream(location.getPath().split("/")).toArray()[location.getPath().split("/").length - 1];
@@ -112,46 +117,47 @@ public class TagUtil {
 	}
 
 	public static boolean isDye(Item item) {
-		return  item.is(BLACK_DYES) ||
-				item.is(BLUE_DYES) ||
-				item.is(BROWN_DYES) ||
-				item.is(CYAN_DYES) ||
-				item.is(GRAY_DYES) ||
-				item.is(GREEN_DYES) ||
-				item.is(LIGHT_BLUE_DYES) ||
-				item.is(LIGHT_GRAY_DYES) ||
-				item.is(LIME_DYES) ||
-				item.is(MAGENTA_DYES) ||
-				item.is(ORANGE_DYES) ||
-				item.is(PINK_DYES) ||
-				item.is(PURPLE_DYES) ||
-				item.is(RED_DYES) ||
-				item.is(WHITE_DYES) ||
-				item.is(YELLOW_DYES);
+		return  (item instanceof DyeItem) ||
+				(BLACK_DYES.contains(item)) ||
+				(BLUE_DYES.contains(item)) ||
+				(BROWN_DYES.contains(item)) ||
+				(CYAN_DYES.contains(item)) ||
+				(GRAY_DYES.contains(item)) ||
+				(GREEN_DYES.contains(item)) ||
+				(LIGHT_BLUE_DYES.contains(item)) ||
+				(LIGHT_GRAY_DYES.contains(item)) ||
+				(LIME_DYES.contains(item)) ||
+				(MAGENTA_DYES.contains(item)) ||
+				(ORANGE_DYES.contains(item)) ||
+				(PINK_DYES.contains(item)) ||
+				(PURPLE_DYES.contains(item)) ||
+				(RED_DYES.contains(item)) ||
+				(WHITE_DYES.contains(item)) ||
+				(YELLOW_DYES.contains(item));
 	}
 
 	public static DyeColor getColorFromStack(ItemStack stack) {
 		Item item = stack.getItem();
-		if (item instanceof DyeItem) {
-			return ((DyeItem) stack.getItem()).getDyeColor();
+		if (item instanceof DyeItem dyeItem) {
+			return dyeItem.getDyeColor();
 		}
 
-		if (item.is(BLACK_DYES)) return DyeColor.BLACK;
-		if (item.is(BLUE_DYES)) return DyeColor.BLUE;
-		if (item.is(BROWN_DYES)) return DyeColor.BROWN;
-		if (item.is(CYAN_DYES)) return DyeColor.CYAN;
-		if (item.is(GRAY_DYES)) return DyeColor.GRAY;
-		if (item.is(GREEN_DYES)) return DyeColor.GREEN;
-		if (item.is(LIGHT_BLUE_DYES)) return DyeColor.LIGHT_BLUE;
-		if (item.is(LIGHT_GRAY_DYES)) return DyeColor.LIGHT_GRAY;
-		if (item.is(LIME_DYES)) return DyeColor.LIME;
-		if (item.is(MAGENTA_DYES)) return DyeColor.MAGENTA;
-		if (item.is(ORANGE_DYES)) return DyeColor.ORANGE;
-		if (item.is(PINK_DYES)) return DyeColor.PINK;
-		if (item.is(PURPLE_DYES)) return DyeColor.PURPLE;
-		if (item.is(RED_DYES)) return DyeColor.RED;
-		if (item.is(WHITE_DYES)) return DyeColor.WHITE;
-		if (item.is(YELLOW_DYES)) return DyeColor.YELLOW;
+		if (BLACK_DYES.contains(item)) return DyeColor.BLACK;
+		if (BLUE_DYES.contains(item)) return DyeColor.BLUE;
+		if (BROWN_DYES.contains(item)) return DyeColor.BROWN;
+		if (CYAN_DYES.contains(item)) return DyeColor.CYAN;
+		if (GRAY_DYES.contains(item)) return DyeColor.GRAY;
+		if (GREEN_DYES.contains(item)) return DyeColor.GREEN;
+		if (LIGHT_BLUE_DYES.contains(item)) return DyeColor.LIGHT_BLUE;
+		if (LIGHT_GRAY_DYES.contains(item)) return DyeColor.LIGHT_GRAY;
+		if (LIME_DYES.contains(item)) return DyeColor.LIME;
+		if (MAGENTA_DYES.contains(item)) return DyeColor.MAGENTA;
+		if (ORANGE_DYES.contains(item)) return DyeColor.ORANGE;
+		if (PINK_DYES.contains(item)) return DyeColor.PINK;
+		if (PURPLE_DYES.contains(item)) return DyeColor.PURPLE;
+		if (RED_DYES.contains(item)) return DyeColor.RED;
+		if (WHITE_DYES.contains(item)) return DyeColor.WHITE;
+		if (YELLOW_DYES.contains(item)) return DyeColor.YELLOW;
 
 		// item is not in color tags, default to white I guess
 		return DyeColor.WHITE;

@@ -5,10 +5,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public abstract class SplitShaftTileEntity extends DirectionalShaftHalvesTileEntity {
 
-	public SplitShaftTileEntity(BlockEntityType<?> typeIn) {
-		super(typeIn);
+	public SplitShaftTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	public abstract float getRotationSpeedModifier(Direction face);
-	
+
 }

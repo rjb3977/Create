@@ -176,20 +176,20 @@ public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 			notifyUpdate();
 			return;
 		}
-		FluidStack drained = localTank.drain(144, Simulation.SIMULATE);
+		FluidStack drained = localTank.drain(144, true);
 		if (!drained.isEmpty()) {
-			int filled = handler.fill(drained, Simulation.SIMULATE);
+			int filled = handler.fill(drained, true);
 			shouldAnimate = filled > 0;
 			sendSplash = shouldAnimate;
 			if (processingTicks == 5) {
 				if (filled > 0) {
-					drained = localTank.drain(filled, Simulation.ACTION);
+					drained = localTank.drain(filled, false);
 					if (!drained.isEmpty()) {
 						FluidStack fillStack = (FluidStack) drained.copy();
 						fillStack.setAmount(Math.min(drained.getAmount(), 6));
 //						drained.shrink(filled);
 						fillStack.setAmount(filled);
-						handler.fill(fillStack, Simulation.ACTION);
+						handler.fill(fillStack, false);
 					}
 				}
 				tank.getPrimaryHandler()
