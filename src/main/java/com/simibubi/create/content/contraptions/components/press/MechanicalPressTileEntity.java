@@ -4,24 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.particles.ItemParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
+import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllSoundEvents;
@@ -40,11 +23,32 @@ import com.simibubi.create.foundation.tileEntity.behaviour.belt.BeltProcessingBe
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import com.simibubi.create.lib.utility.Constants.NBT;
+import com.simibubi.create.lib.utility.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.NBTSerializer;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 
 public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
@@ -79,12 +83,12 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		running = compound.getBoolean("Running");
 		mode = Mode.values()[compound.getInt("Mode")];
 		finished = compound.getBoolean("Finished");
 		prevRunningTicks = runningTicks = compound.getInt("Ticks");
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 
 		if (clientPacket) {
 			NBTHelper.iterateCompoundList(compound.getList("ParticleItems", NBT.TAG_COMPOUND),
@@ -329,7 +333,8 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 		}
 	}
 
-	private static final RecipeWrapper pressingInv = new RecipeWrapper(new ItemStackHandler(1));
+	//private static final RecipeWrapper pressingInv = new RecipeWrapper(new ItemStackHandler(1));
+	private static final Container pressingInv = new SimpleContainer(1);
 
 	public Optional<PressingRecipe> getRecipe(ItemStack item) {
 		Optional<PressingRecipe> assemblyRecipe =
@@ -344,14 +349,14 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 	private static final List<ResourceLocation> RECIPE_DENY_LIST =
 		ImmutableList.of(new ResourceLocation("occultism", "spirit_trade"));
 
-	public static <C extends IInventory> boolean canCompress(IRecipe<C> recipe) {
+	public static <C extends Container> boolean canCompress(Recipe<C> recipe) {
 		NonNullList<Ingredient> ingredients = recipe.getIngredients();
-		if (!(recipe instanceof ICraftingRecipe))
+		if (!(recipe instanceof CraftingRecipe))
 			return false;
 
-		IRecipeSerializer<?> serializer = recipe.getSerializer();
+		RecipeSerializer<?> serializer = recipe.getSerializer();
 		for (ResourceLocation denied : RECIPE_DENY_LIST)
-			if (serializer != null && denied.equals(serializer.getRegistryName()))
+			if (serializer != null && denied.equals(Registry.RECIPE_SERIALIZER.getKey(serializer)))
 				return false;
 
 		return AllConfigs.SERVER.recipes.allowShapedSquareInPress.get()

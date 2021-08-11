@@ -50,7 +50,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
@@ -65,13 +64,14 @@ import net.minecraft.world.level.block.StemGrownBlock;
 import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class SawTileEntity extends BlockBreakingKineticTileEntity {
 
-	private static final AxisAlignedBB RENDER_BOX = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
+	private static final AABB RENDER_BOX = new AABB(0, 0, 0, 1, 1, 1);
 
 	private static final Object cuttingRecipesKey = new Object();
 	public static final LazyLoadedValue<RecipeType<?>> woodcuttingRecipeType =

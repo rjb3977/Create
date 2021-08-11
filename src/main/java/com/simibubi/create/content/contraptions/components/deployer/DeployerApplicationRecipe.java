@@ -6,36 +6,36 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.simibubi.create.AllBlocks;
+import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.content.contraptions.itemAssembly.IAssemblyRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 
-public class DeployerApplicationRecipe extends ProcessingRecipe<RecipeWrapper> implements IAssemblyRecipe {
+public class DeployerApplicationRecipe extends ProcessingRecipe<Container> implements IAssemblyRecipe {
 
 	public DeployerApplicationRecipe(ProcessingRecipeParams params) {
 		super(AllRecipeTypes.DEPLOYING, params);
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, Level p_77569_2_) {
+	public boolean matches(Container inv, Level p_77569_2_) {
 		return ingredients.get(0)
 			.test(inv.getItem(0))
 			&& ingredients.get(1)

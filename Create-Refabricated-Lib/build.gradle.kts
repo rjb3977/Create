@@ -6,9 +6,9 @@ base {
 }
 
 repositories {
-    maven("https://mod-buildcraft.com/maven/") {
-        name = "BuildCraft"
-    }
+	maven("https://mod-buildcraft.com/maven/") {
+		name = "BuildCraft"
+	}
 
 	maven("https://jitpack.io/") {
 		name = "Jitpack"
@@ -16,6 +16,13 @@ repositories {
 		content {
 			// So Gradle doesn't spend time searching JitPack for other deps
 			includeGroup("com.github.PepperCode1")
+		}
+	}
+
+	maven("https://raw.githubusercontent.com/Technici4n/Technici4n-maven/master/") {
+		name = "Technici4n"
+		content {
+			includeGroup("net.fabricmc.fabric-api")
 		}
 	}
 
@@ -34,6 +41,9 @@ dependencies {
 //    modImplementation("alexiil.mc.lib", "libblockattributes-all", lba_version)
     //modImplementation("alexiil.mc.lib", "libblockattributes-items", lba_version)
     //modImplementation("alexiil.mc.lib", "libblockattributes-fluids", lba_version)
+
+	modImplementation("net.fabricmc.fabric-api:fabric-api-lookup-api-v1:1.3.0+b246072f13")
+	modImplementation("net.fabricmc.fabric-api:fabric-transfer-api-v1:1.1.0-pre.04+648b8b6c18")
 
 	// Registrate // this version is not on github yet, Soon™
 	modImplementation("com.tterrag", "Registrate-Fabric-1.17", registrate_version)

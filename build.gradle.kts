@@ -137,6 +137,13 @@ repositories {
 			includeGroup("com.jamieswhiteshirt")
 		}
 	}
+
+	maven("https://raw.githubusercontent.com/Technici4n/Technici4n-maven/master/") {
+		name = "Technici4n"
+		content {
+			includeGroup("net.fabricmc.fabric-api")
+		}
+	}
 	mavenLocal()
 }
 
@@ -177,6 +184,10 @@ dependencies {
 	// REI // can't be found?
 //	modCompileOnly("me.shedaniel", "RoughlyEnoughItems-api", rei_version)
 //	modRuntime("me.shedaniel", "RoughlyEnoughItems", rei_version)
+
+	// Transfer API
+	modImplementation("net.fabricmc.fabric-api:fabric-api-lookup-api-v1:1.3.0+b246072f13")
+	modImplementation("net.fabricmc.fabric-api:fabric-transfer-api-v1:1.1.0-pre.04+648b8b6c18")
 
 	// DataBreaker
 	modRuntime("com.github.SuperCoder7979", "databreaker", databreaker_version) {

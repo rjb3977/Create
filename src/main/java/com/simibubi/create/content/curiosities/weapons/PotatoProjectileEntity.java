@@ -2,15 +2,12 @@ package com.simibubi.create.content.curiosities.weapons;
 
 import javax.annotation.Nullable;
 
-import com.mojang.math.Vector3d;
 import com.simibubi.create.AllEnchantments;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.contraptions.particle.AirParticleData;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.entity.ExtraSpawnDataEntity;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-
 import com.simibubi.create.lib.utility.NBTSerializer;
 
 import net.minecraft.core.BlockPos;
@@ -20,6 +17,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -210,7 +208,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (targetIsEnderman)
 			return;
 
-		if (!projectileType.onEntityHit(ray) && onServer)
+		if (!projectileType.preEntityHit(ray) && onServer)
 			if (random.nextDouble() <= recoveryChance)
 				recoverItem();
 
@@ -262,8 +260,11 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	}
 
 	private void recoverItem() {
-		if (!stack.isEmpty())
-			spawnAtLocation(ItemHandlerHelper.copyStackWithSize(stack, 1));
+		if (!stack.isEmpty()) {
+			ItemStack itemStack = stack.copy();
+			itemStack.setCount(1);
+			spawnAtLocation(itemStack);
+		}
 	}
 
 	public static void playHitSound(Level world, Vec3 location) {
@@ -327,7 +328,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 	@Override
 	public Packet<?> getAddEntityPacket() {
-		return NetworkHooks.getEntitySpawningPacket(this);
+		return new ClientboundAddEntityPacket(this);
 	}
 
 	@Override

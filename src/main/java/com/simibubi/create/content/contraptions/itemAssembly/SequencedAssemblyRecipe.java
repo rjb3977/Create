@@ -27,12 +27,17 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+
+import com.simibubi.create.foundation.utility.Pair;
+
+import com.simibubi.create.lib.utility.ItemHandlerHelper;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 
-public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
+public class SequencedAssemblyRecipe implements Recipe<Container> {
 
 	protected ResourceLocation id;
 	protected SequencedAssemblyRecipeSerializer serializer;
@@ -61,7 +66,7 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 	public static <R extends ProcessingRecipe<?>> Optional<R> getRecipe(Level world, ItemStack item,
 		RecipeType<R> type, Class<R> recipeClass) {
 		List<SequencedAssemblyRecipe> all = world.getRecipeManager()
-			.<RecipeWrapper, SequencedAssemblyRecipe>getAllRecipesFor(AllRecipeTypes.SEQUENCED_ASSEMBLY.getType());
+			.<Container, SequencedAssemblyRecipe>getAllRecipesFor(AllRecipeTypes.SEQUENCED_ASSEMBLY.getType());
 		for (SequencedAssemblyRecipe sequencedAssemblyRecipe : all) {
 			if (!sequencedAssemblyRecipe.appliesTo(item))
 				continue;
@@ -75,10 +80,10 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 		return Optional.empty();
 	}
 
-	public static <R extends ProcessingRecipe<?>> Stream<R> getRecipes(World world, ItemStack item,
-		IRecipeType<R> type, Class<R> recipeClass) {
+	public static <R extends ProcessingRecipe<?>> Stream<R> getRecipes(Level world, ItemStack item,
+		RecipeType<R> type, Class<R> recipeClass) {
 		List<SequencedAssemblyRecipe> all = world.getRecipeManager()
-			.<RecipeWrapper, SequencedAssemblyRecipe>getAllRecipesFor(AllRecipeTypes.SEQUENCED_ASSEMBLY.getType());
+			.<Container, SequencedAssemblyRecipe>getAllRecipesFor(AllRecipeTypes.SEQUENCED_ASSEMBLY.getType());
 
 		return all.stream()
 				.filter(it -> it.appliesTo(item))
@@ -169,12 +174,12 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, Level p_77569_2_) {
+	public boolean matches(Container inv, Level p_77569_2_) {
 		return false;
 	}
 
 	@Override
-	public ItemStack assemble(RecipeWrapper p_77572_1_) {
+	public ItemStack assemble(Container p_77572_1_) {
 		return ItemStack.EMPTY;
 	}
 

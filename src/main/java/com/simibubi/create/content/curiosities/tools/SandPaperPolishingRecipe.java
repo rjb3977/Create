@@ -3,16 +3,17 @@ package com.simibubi.create.content.curiosities.tools;
 import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
+
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.content.curiosities.tools.SandPaperPolishingRecipe.SandPaperInv;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
+
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 @ParametersAreNonnullByDefault
 public class SandPaperPolishingRecipe extends ProcessingRecipe<SandPaperInv> {
@@ -55,11 +56,11 @@ public class SandPaperPolishingRecipe extends ProcessingRecipe<SandPaperInv> {
 			.getRecipesFor(AllRecipeTypes.SANDPAPER_POLISHING.getType(), new SandPaperInv(stack), world);
 	}
 
-	public static class SandPaperInv extends RecipeWrapper {
+	public static class SandPaperInv extends SimpleContainer {
 
 		public SandPaperInv(ItemStack stack) {
-			super(new ItemStackHandler(1));
-			inv.setStackInSlot(0, stack);
+			super(1);
+			this.setItem(0, stack);
 		}
 
 	}

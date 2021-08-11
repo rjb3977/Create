@@ -8,29 +8,28 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
+//import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.content.contraptions.itemAssembly.IAssemblyRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 @ParametersAreNonnullByDefault
-public class PressingRecipe extends ProcessingRecipe<RecipeWrapper> implements IAssemblyRecipe {
+public class PressingRecipe extends ProcessingRecipe<Container> implements IAssemblyRecipe {
 
 	public PressingRecipe(ProcessingRecipeParams params) {
 		super(AllRecipeTypes.PRESSING, params);
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, Level worldIn) {
+	public boolean matches(Container inv, Level worldIn) {
 		if (inv.isEmpty())
 			return false;
 		return ingredients.get(0)
@@ -61,9 +60,9 @@ public class PressingRecipe extends ProcessingRecipe<RecipeWrapper> implements I
 		list.add(AllBlocks.MECHANICAL_PRESS.get());
 	}
 
-	@Override
-	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory() {
-		return () -> SequencedAssemblySubCategory.AssemblyPressing::new;
-	}
+//	@Override
+//	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory() {
+//		return () -> SequencedAssemblySubCategory.AssemblyPressing::new;
+//	}
 
 }

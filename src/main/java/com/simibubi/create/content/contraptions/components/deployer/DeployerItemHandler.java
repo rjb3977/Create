@@ -1,13 +1,15 @@
 package com.simibubi.create.content.contraptions.components.deployer;
 
 import java.util.Iterator;
+
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
-public class DeployerItemHandler implements IItemHandlerModifiable {
+public class DeployerItemHandler implements Container {
 
 	private DeployerTileEntity te;
 	private DeployerFakePlayer player;
@@ -18,12 +20,12 @@ public class DeployerItemHandler implements IItemHandlerModifiable {
 	}
 
 	@Override
-	public int getSlots() {
+	public int getContainerSize() {
 		return 1;
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int slot) {
+	public ItemStack getItem(int slot) {
 		return getHeld();
 	}
 

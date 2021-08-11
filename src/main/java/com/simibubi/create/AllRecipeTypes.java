@@ -7,6 +7,7 @@ import com.simibubi.create.foundation.utility.recipe.IRecipeTypeInfo;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -96,7 +97,7 @@ public enum AllRecipeTypes implements IRecipeTypeInfo {
 		return (T) type;
 	}
 
-	public <C extends Inventory, T extends Recipe<C>> Optional<T> find(C inv, Level world) {
+	public <C extends Container, T extends Recipe<C>> Optional<T> find(C inv, Level world) {
 		return world.getRecipeManager()
 			.getRecipeFor(getType(), inv, world);
 	}

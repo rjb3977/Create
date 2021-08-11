@@ -15,7 +15,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ClipContext;
@@ -436,7 +438,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 		animatedOffset.setValue(offset);
 	}
 
-	RecipeWrapper recipeInv = new RecipeWrapper(new ItemStackHandler(2));
+	Container recipeInv = new SimpleContainer(2);
 	SandPaperInv sandpaperInv = new SandPaperInv(ItemStack.EMPTY);
 
 	@Nullable
