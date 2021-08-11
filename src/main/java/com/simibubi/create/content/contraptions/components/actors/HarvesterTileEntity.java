@@ -1,7 +1,10 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import com.simibubi.create.foundation.tileEntity.SyncedTileEntity;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

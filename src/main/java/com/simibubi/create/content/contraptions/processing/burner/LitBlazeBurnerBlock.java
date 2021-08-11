@@ -1,7 +1,6 @@
 package com.simibubi.create.content.contraptions.processing.burner;
 
 import java.util.Random;
-import EnumProperty;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.utility.Lang;
@@ -13,15 +12,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -38,7 +42,7 @@ public class LitBlazeBurnerBlock extends Block implements BlockPickInteractionAw
 	}
 
 	@Override
-	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
 		builder.add(FLAME_TYPE);
 	}
@@ -48,8 +52,8 @@ public class LitBlazeBurnerBlock extends Block implements BlockPickInteractionAw
 		BlockHitResult blockRayTraceResult) {
 		ItemStack heldItem = player.getItemInHand(hand);
 
-		if (heldItem.getToolTypes().contains(ToolType.SHOVEL)) {
-			world.playSound(player, pos, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5f, 2);
+		if (heldItem.getItem() instanceof ShovelItem) {
+			world.playSound(player, pos, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 0.5f, 2);
 			if (world.isClientSide)
 				return InteractionResult.SUCCESS;
 			heldItem.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
@@ -58,8 +62,8 @@ public class LitBlazeBurnerBlock extends Block implements BlockPickInteractionAw
 		}
 
 		if (state.getValue(FLAME_TYPE) == FlameType.REGULAR) {
-			if (heldItem.getItem().is(ItemTags.SOUL_FIRE_BASE_BLOCKS)) {
-				world.playSound(player, pos, SoundEvents.SOUL_SAND_PLACE, SoundCategory.BLOCKS, 1.0f, world.random.nextFloat() * 0.4F + 0.8F);
+			if (heldItem.is(ItemTags.SOUL_FIRE_BASE_BLOCKS)) {
+				world.playSound(player, pos, SoundEvents.SOUL_SAND_PLACE, SoundSource.BLOCKS, 1.0f, world.random.nextFloat() * 0.4F + 0.8F);
 				if (world.isClientSide)
 					return InteractionResult.SUCCESS;
 				world.setBlockAndUpdate(pos, defaultBlockState().setValue(FLAME_TYPE, FlameType.SOUL));
@@ -144,7 +148,7 @@ public class LitBlazeBurnerBlock extends Block implements BlockPickInteractionAw
 			return 12;
 	}
 
-	public enum FlameType implements IStringSerializable {
+	public enum FlameType implements StringRepresentable {
 
 		REGULAR, SOUL;
 

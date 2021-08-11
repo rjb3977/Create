@@ -1,15 +1,15 @@
 package com.simibubi.create.foundation.block.render;
 
-import List;
-import com.mojang.math.Vector3f;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
+
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
-import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ColoredVertexModel extends ForwardingBakedModel {

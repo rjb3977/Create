@@ -2,20 +2,16 @@ package com.simibubi.create.foundation.data;
 
 import javax.annotation.Nullable;
 
-import com.simibubi.create.foundation.render.backend.instancing.IRendererFactory;
 import com.simibubi.create.lib.event.InstanceRegistrationCallback;
-import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
 import com.jozufozu.flywheel.backend.instancing.tile.ITileInstanceFactory;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.BuilderCallback;
 import com.tterrag.registrate.builders.TileEntityBuilder;
 import com.tterrag.registrate.fabric.EnvExecutor;
-import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import net.fabricmc.api.EnvType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class CreateTileEntityBuilder<T extends BlockEntity, P> extends TileEntityBuilder<T, P> {
 
@@ -23,12 +19,12 @@ public class CreateTileEntityBuilder<T extends BlockEntity, P> extends TileEntit
 	private NonNullSupplier<ITileInstanceFactory<? super T>> instanceFactory;
 
 	public static <T extends BlockEntity, P> TileEntityBuilder<T, P> create(AbstractRegistrate<?> owner, P parent,
-		String name, BuilderCallback callback, NonNullFunction<BlockEntityType<T>, ? extends T> factory) {
+		String name, BuilderCallback callback, BlockEntityFactory<T> factory) {
 		return new CreateTileEntityBuilder<>(owner, parent, name, callback, factory);
 	}
 
 	protected CreateTileEntityBuilder(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback,
-		NonNullFunction<BlockEntityType<T>, ? extends T> factory) {
+		BlockEntityFactory<T> factory) {
 		super(owner, parent, name, callback, factory);
 		InstanceRegistrationCallback.EVENT.register(this::registerInstance);
 	}
@@ -45,7 +41,7 @@ public class CreateTileEntityBuilder<T extends BlockEntity, P> extends TileEntit
 
 	protected void registerInstance() {
 //		OneTimeEventReceiver.addModListener(FMLClientSetupEvent.class, $ -> {
-			NonNullSupplier<IRendererFactory<? super T>> instanceFactory = this.instanceFactory;
+			NonNullSupplier<ITileInstanceFactory<? super T>> instanceFactory = this.instanceFactory;
 			if (instanceFactory != null) {
 //				InstancedRenderRegistry.getInstance().register(getEntry(), instanceFactory.get());
 			}

@@ -205,7 +205,7 @@ public class FluidHelper {
 			for (int slot = 0; slot < fluidItem.getTanks(); slot++) {
 
 				FluidStack fluidInTank = fluidTank.getFluidInTank(tankSlot);
-				int tankCapacity = fluidTank.getTankCapacity(tankSlot) - fluidInTank.getAmount();
+				long tankCapacity = fluidTank.getTankCapacity(tankSlot) - fluidInTank.getAmount();
 				boolean tankEmpty = fluidInTank.isEmpty();
 
 				FluidStack fluidInItem = fluidItem.getFluidInTank(tankSlot);

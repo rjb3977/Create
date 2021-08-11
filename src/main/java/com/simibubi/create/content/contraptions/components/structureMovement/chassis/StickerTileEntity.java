@@ -15,6 +15,7 @@ import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
 
 import com.tterrag.registrate.fabric.EnvExecutor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -82,8 +83,8 @@ public class StickerTileEntity extends SmartTileEntity implements IInstanceRende
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		if (clientPacket)
 			update = true;
 	}

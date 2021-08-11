@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -112,8 +113,8 @@ public class NixieTubeTileEntity extends SmartTileEntity {
 	//
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag nbt, boolean clientPacket) {
-		super.fromTag(state, nbt, clientPacket);
+	protected void fromTag(CompoundTag nbt, boolean clientPacket) {
+		super.fromTag(nbt, clientPacket);
 
 		if (nbt.contains("RawCustomText", Constants.NBT.TAG_STRING)) {
 			rawCustomText = getJsonFromString(nbt.getString("RawCustomText"));

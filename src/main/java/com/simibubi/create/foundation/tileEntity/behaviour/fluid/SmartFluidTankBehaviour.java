@@ -1,6 +1,11 @@
 package com.simibubi.create.foundation.tileEntity.behaviour.fluid;
 
 import java.util.function.Consumer;
+
+import com.simibubi.create.lib.transfer.FluidStack;
+
+import com.simibubi.create.lib.transfer.IFluidHandler;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -14,11 +19,8 @@ import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
-
-import alexiil.mc.lib.attributes.Simulation;
 
 public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 
@@ -198,28 +200,28 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 		}
 
 		@Override
-		public int fill(FluidStack resource, Simulation action) {
+		public long fill(FluidStack resource, boolean sim) {
 			if (!insertionAllowed)
 				return 0;
-			return super.fill(resource, action);
+			return super.fill(resource, sim);
 		}
 
-		public int forceFill(FluidStack resource, FluidAction action) {
-			return super.fill(resource, action);
-		}
-
-		@Override
-		public FluidStack drain(FluidStack resource, Simulation action) {
-			if (!extractionAllowed)
-				return FluidStack.empty();
-			return super.drain(resource, action);
+		public long forceFill(FluidStack resource, boolean sim) {
+			return super.fill(resource, sim);
 		}
 
 		@Override
-		public FluidStack drain(int maxDrain, Simulation action) {
+		public FluidStack drain(FluidStack resource, boolean sim) {
 			if (!extractionAllowed)
 				return FluidStack.empty();
-			return super.drain(maxDrain, action);
+			return super.drain(resource, sim);
+		}
+
+		@Override
+		public FluidStack drain(long maxDrain, boolean sim) {
+			if (!extractionAllowed)
+				return FluidStack.empty();
+			return super.drain(maxDrain, sim);
 		}
 
 	}

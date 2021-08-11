@@ -16,13 +16,16 @@ import com.jozufozu.flywheel.core.Materials;
 import com.jozufozu.flywheel.core.QuadConverter;
 import com.jozufozu.flywheel.core.instancing.ConditionalInstance;
 import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.jozufozu.flywheel.core.model.IModel;
 import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3d;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllStitchedTextures;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 
+import net.fabricmc.loader.util.sat4j.core.Vec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
@@ -101,8 +104,8 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 	public static class GlueModel implements IModel {
 		@Override
 		public void buffer(VecBuffer buffer) {
-			Vector3d diff = Vector3d.atLowerCornerOf(Direction.SOUTH.getNormal());
-			Vector3d extension = diff.normalize()
+			Vec3 diff = Vec3.atLowerCornerOf(Direction.SOUTH.getNormal());
+			Vec3 extension = diff.normalize()
 					.scale(1 / 32f - 1 / 128f);
 
 			Vec3 plane = VecHelper.axisAlingedPlaneOf(diff);
@@ -141,17 +144,18 @@ public class GlueInstance extends EntityInstance<SuperGlueEntity> implements ITi
 				maxU = maxV = 1;
 			}
 
-		//             pos                                               normal                                   uv
-		// inside quad
-		buffer.putVec3((float) a1.x, (float) a1.y, (float) a1.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getU1(), sprite.getV0());
-		buffer.putVec3((float) a2.x, (float) a2.y, (float) a2.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getU1(), sprite.getV1());
-		buffer.putVec3((float) a3.x, (float) a3.y, (float) a3.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getU0(), sprite.getV1());
-		buffer.putVec3((float) a4.x, (float) a4.y, (float) a4.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(sprite.getU0(), sprite.getV0());
-		// outside quad
-		buffer.putVec3((float) b4.x, (float) b4.y, (float) b4.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU0(), sprite.getV0());
-		buffer.putVec3((float) b3.x, (float) b3.y, (float) b3.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU0(), sprite.getV1());
-		buffer.putVec3((float) b2.x, (float) b2.y, (float) b2.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU1(), sprite.getV1());
-		buffer.putVec3((float) b1.x, (float) b1.y, (float) b1.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(sprite.getU1(), sprite.getV0());
+			//             pos                                               normal                                   uv
+			// inside quad
+			buffer.putVec3((float) a1.x, (float) a1.y, (float) a1.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(maxU, minV);
+			buffer.putVec3((float) a2.x, (float) a2.y, (float) a2.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(maxU, maxV);
+			buffer.putVec3((float) a3.x, (float) a3.y, (float) a3.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(minU, maxV);
+			buffer.putVec3((float) a4.x, (float) a4.y, (float) a4.z).putVec3((byte) 0, (byte) 0, (byte) -127).putVec2(minU, minV);
+			// outside quad
+			buffer.putVec3((float) b4.x, (float) b4.y, (float) b4.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(minU, minV);
+			buffer.putVec3((float) b3.x, (float) b3.y, (float) b3.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(minU, maxV);
+			buffer.putVec3((float) b2.x, (float) b2.y, (float) b2.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(maxU, maxV);
+			buffer.putVec3((float) b1.x, (float) b1.y, (float) b1.z).putVec3((byte) 0, (byte) 0, (byte) 127).putVec2(maxU, minV);
+		}
 
 		@Override
 		public int vertexCount() {

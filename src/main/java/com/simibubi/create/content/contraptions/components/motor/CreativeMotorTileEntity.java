@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.components.motor;
 
 import java.util.List;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.base.GeneratingKineticTileEntity;
@@ -10,6 +12,8 @@ import com.simibubi.create.foundation.tileEntity.behaviour.CenteredSideValueBoxT
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueBehaviour.StepContext;
 import com.simibubi.create.foundation.utility.Lang;
+
+import net.minecraft.world.level.block.state.BlockState;
 
 public class CreativeMotorTileEntity extends GeneratingKineticTileEntity {
 

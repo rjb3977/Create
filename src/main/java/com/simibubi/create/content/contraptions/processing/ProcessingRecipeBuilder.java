@@ -3,6 +3,10 @@ package com.simibubi.create.content.contraptions.processing;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import com.simibubi.create.foundation.utility.recipe.IRecipeTypeInfo;
+import com.simibubi.create.lib.transfer.FluidStack;
+
 import net.minecraft.client.renderer.block.model.multipart.Condition;
 import net.minecraft.core.NonNullList;
 import net.minecraft.data.recipes.FinishedRecipe;

@@ -2,6 +2,10 @@ package com.simibubi.create.content.contraptions.components.millstone;
 
 import java.util.List;
 import java.util.Optional;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;

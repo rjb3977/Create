@@ -1,6 +1,10 @@
 package com.simibubi.create.content.logistics.block.inventories;
 
 import java.util.List;
+
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;

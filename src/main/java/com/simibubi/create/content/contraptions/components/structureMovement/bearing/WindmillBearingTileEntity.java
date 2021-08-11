@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.bearing;
 
 import java.util.List;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;

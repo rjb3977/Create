@@ -25,6 +25,7 @@ import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.builders.Builder;
 import com.tterrag.registrate.builders.FluidBuilder;
 import com.tterrag.registrate.builders.ItemBuilder;
+import com.tterrag.registrate.builders.TileEntityBuilder;
 import com.tterrag.registrate.fabric.EnvExecutor;
 import com.tterrag.registrate.fabric.RegistryObject;
 import com.tterrag.registrate.fabric.SimpleFlowableFluid;
@@ -111,13 +112,13 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	}
 
 	public <T extends BlockEntity> CreateTileEntityBuilder<T, CreateRegistrate> tileEntity(String name,
-																						  NonNullFunction<BlockEntityType<T>, ? extends T> factory) {
+																						   TileEntityBuilder.BlockEntityFactory<T> factory) {
 		return this.tileEntity(this.self(), name, factory);
 	}
 
 	@Override
 	public <T extends BlockEntity, P> CreateTileEntityBuilder<T, P> tileEntity(P parent, String name,
-																			  NonNullFunction<BlockEntityType<T>, ? extends T> factory) {
+																			   TileEntityBuilder.BlockEntityFactory<T> factory) {
 		return (CreateTileEntityBuilder<T, P>) this.entry(name, (callback) -> {
 			return CreateTileEntityBuilder.create(this, parent, name, callback, factory);
 		});

@@ -3,7 +3,8 @@ package com.simibubi.create.content.contraptions.processing;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
+import com.simibubi.create.lib.transfer.FluidStack;
+
 import net.minecraft.world.level.Level;
 
 public class EmptyingRecipe extends ProcessingRecipe<RecipeWrapper> {

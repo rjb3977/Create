@@ -1,9 +1,12 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTileEntity {
 

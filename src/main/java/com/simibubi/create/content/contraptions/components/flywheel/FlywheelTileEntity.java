@@ -2,6 +2,8 @@ package com.simibubi.create.content.contraptions.components.flywheel;
 
 import com.simibubi.create.content.contraptions.base.GeneratingKineticTileEntity;
 import com.simibubi.create.foundation.gui.widgets.InterpolatedChasingValue;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -60,11 +62,11 @@ public class FlywheelTileEntity extends GeneratingKineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		generatedSpeed = compound.getFloat("GeneratedSpeed");
 		generatedCapacity = compound.getFloat("GeneratedCapacity");
 		stoppingCooldown = compound.getInt("Cooldown");
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 		if (clientPacket)
 			visualSpeed.withSpeed(1 / 32f)
 				.target(getGeneratedSpeed());

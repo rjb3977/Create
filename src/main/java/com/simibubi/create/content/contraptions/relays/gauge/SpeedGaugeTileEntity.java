@@ -2,6 +2,7 @@ package com.simibubi.create.content.contraptions.relays.gauge;
 
 import java.util.List;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -11,6 +12,8 @@ import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Lang;
+
+import net.minecraft.world.level.block.state.BlockState;
 
 public class SpeedGaugeTileEntity extends GaugeTileEntity {
 

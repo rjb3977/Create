@@ -2,6 +2,8 @@ package com.simibubi.create.content.contraptions.components.flywheel.engine;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.block.BlockStressValues;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;

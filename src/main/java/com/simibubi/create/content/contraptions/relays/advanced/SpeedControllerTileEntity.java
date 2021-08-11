@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.relays.advanced;
 
 import java.util.List;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
