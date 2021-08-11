@@ -138,8 +138,8 @@ public class SchematicTableScreen extends AbstractSimiContainerScreen<SchematicT
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
+	public void containerTick() {
+		super.containerTick();
 		boolean finished = menu.getSlot(1)
 			.hasItem();
 

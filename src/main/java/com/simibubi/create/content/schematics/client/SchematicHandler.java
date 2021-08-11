@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.entity.player.Inventory;
@@ -121,7 +122,7 @@ public class SchematicHandler {
 
 	private void setupRenderer() {
 		StructureTemplate schematic = SchematicItem.loadSchematic(activeSchematicItem);
-		BlockPos size = schematic.getSize();
+		Vec3i size = schematic.getSize();
 		if (size.equals(BlockPos.ZERO))
 			return;
 

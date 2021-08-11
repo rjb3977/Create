@@ -117,7 +117,7 @@ public abstract class AbstractFunnelBlock extends Block implements ITE<FunnelTil
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.FUNNEL.create();
+		return AllTileEntities.FUNNEL.create(pos, state);
 	}
 
 	@Override

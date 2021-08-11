@@ -3,6 +3,8 @@ package com.simibubi.create.content.contraptions.components.actors.dispenser;
 import java.util.HashMap;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior;
@@ -88,7 +90,7 @@ public class DispenserMovementBehaviour extends DropperMovementBehaviour {
 	@MethodsReturnNonnullByDefault
 	private static class DispenserLookup extends DispenserBlock {
 		protected DispenserLookup() {
-			super(AbstractBlock.Properties.copy(Blocks.DISPENSER));
+			super(FabricBlockSettings.copy(Blocks.DISPENSER));
 		}
 
 		public DispenseItemBehavior getDispenseMethod(ItemStack itemStack) {

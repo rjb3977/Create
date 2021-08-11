@@ -32,8 +32,6 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.lib.block.CanConnectRedstoneBlock;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-import alexiil.mc.lib.attributes.item.ItemAttributes;
-
 public class ContentObserverBlock extends HorizontalDirectionalBlock implements ITE<ContentObserverTileEntity>, IWrenchable, CanConnectRedstoneBlock, EntityBlock {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -58,12 +56,6 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 //	public boolean hasTileEntity(BlockState state) {
 //		return true;
 //	}
-
-	@Override
-	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-		builder.add(POWERED, FACING);
-		super.createBlockStateDefinition(builder);
-	}
 
 	@Override
 	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {

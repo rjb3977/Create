@@ -37,7 +37,7 @@ public abstract class WorldMixin {
 	}
 
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"),
-			locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+			locals = LocalCapture.CAPTURE_FAILHARD,
 			method = "updateNeighbourForOutputSignal")
 	public void create$updateComparatorOutputLevel(BlockPos blockPos, Block block, CallbackInfo ci,
 												   Iterator<?> var3, Direction direction, BlockPos blockPos2) {

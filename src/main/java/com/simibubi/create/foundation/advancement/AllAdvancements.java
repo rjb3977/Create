@@ -317,8 +317,8 @@ public class AllAdvancements implements DataProvider {
 				.save(t, id + ":brass_casing");
 
 		Advancement nixie_tube =
-			advancement("nixie_tube", AllBlocks.NIXIE_TUBE.get(), TaskType.NORMAL).parent(brass_casing)
-				.addCriterion("0", placeBlock(AllBlocks.NIXIE_TUBE.get()))
+			advancement("nixie_tube", AllBlocks.ORANGE_NIXIE_TUBE.get(), TaskType.NORMAL).parent(brass_casing)
+				.addCriterion("0", placeBlock(AllBlocks.ORANGE_NIXIE_TUBE.get()))
 				.save(t, id + ":nixie_tube");
 
 		Advancement crafter = kinecticAdvancement("crafter", AllBlocks.MECHANICAL_CRAFTER.get(), TaskType.MILESTONE)
@@ -365,11 +365,11 @@ public class AllAdvancements implements DataProvider {
 				.save(t, id + ":deployer");
 
 		Advancement clockwork_component =
-			itemAdvancement("clockwork_component", AllItems.CLOCKWORK_COMPONENT, TaskType.NORMAL).parent(deployer)
+			itemAdvancement("clockwork_component", AllItems.PRECISION_MECHANISM, TaskType.NORMAL).parent(deployer)
 				.save(t, id + ":clockwork_component");
 
 		Advancement clockwork_component_eob = deadEnd().parent(clockwork_component)
-			.addCriterion("0", itemGathered(AllItems.CLOCKWORK_COMPONENT.get()))
+			.addCriterion("0", itemGathered(AllItems.PRECISION_MECHANISM.get()))
 			.save(t, id + ":clockwork_component_eob");
 
 		Advancement extendo_grip =

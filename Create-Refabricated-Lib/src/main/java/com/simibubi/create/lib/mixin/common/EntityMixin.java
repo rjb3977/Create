@@ -1,6 +1,9 @@
 package com.simibubi.create.lib.mixin.common;
 
 import java.util.Collection;
+
+import com.simibubi.create.lib.entity.CustomPosHandlingEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
@@ -34,18 +37,17 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 	@Unique
 	private static final Logger CREATE$LOGGER = LogManager.getLogger();
 	@Shadow
-	public Level world;
-	@Shadow
-	private BlockPos blockPos;
+	public Level level;
 	@Shadow
 	private float eyeHeight;
+
+	@Shadow
+	protected abstract void readAdditionalSaveData(CompoundTag compoundTag);
+
 	@Unique
 	private CompoundTag create$extraCustomData;
 	@Unique
 	private Collection<ItemEntity> create$captureDrops = null;
-
-	@Shadow
-	public abstract void read(CompoundTag compoundNBT);
 
 	@Inject(at = @At("TAIL"), method = "<init>")
 	public void create$entityInit(EntityType<?> entityType, Level world, CallbackInfo ci) {
@@ -54,10 +56,18 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 			eyeHeight = newEyeHeight;
 	}
 
+	@Inject(at = @At("HEAD"), method = "setPosRaw", cancellable = true)
+	public final void setPosRaw(double d, double e, double f, CallbackInfo ci) {
+		if (this instanceof CustomPosHandlingEntity entity) {
+			entity.setPosRawOverride(d, e, f);
+			ci.cancel();
+		}
+	}
+
 	// CAPTURE DROPS
 
 	@Inject(locals = LocalCapture.CAPTURE_FAILHARD,
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/item/ItemEntity;setDefaultPickupDelay()V", shift = At.Shift.AFTER),
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;setDefaultPickUpDelay()V", shift = At.Shift.AFTER),
 			method = "spawnAtLocation(Lnet/minecraft/world/item/ItemStack;F)Lnet/minecraft/world/entity/item/ItemEntity;", cancellable = true)
 	public void create$spawnAtLocation(ItemStack stack, float f, CallbackInfoReturnable<ItemEntity> cir, ItemEntity itemEntity) {
 		if (create$captureDrops != null) create$captureDrops.add(itemEntity);
@@ -80,7 +90,7 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 
 	// EXTRA CUSTOM DATA
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;writeAdditional(Lnet/minecraft/nbt/CompoundNBT;)V"),
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"),
 			method = "saveWithoutId")
 	public void create$beforeWriteCustomData(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
 		if (create$extraCustomData != null && !create$extraCustomData.isEmpty()) {
@@ -89,7 +99,7 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 		}
 	}
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;readAdditional(Lnet/minecraft/nbt/CompoundNBT;)V"), method = "load")
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"), method = "load")
 	public void create$beforeReadCustomData(CompoundTag tag, CallbackInfo ci) {
 		if (tag.contains(EntityHelper.EXTRA_DATA_KEY)) {
 			create$extraCustomData = tag.getCompound(EntityHelper.EXTRA_DATA_KEY);
@@ -98,11 +108,11 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 
 	// RUNNING EFFECTS
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;", shift = At.Shift.AFTER),
-			locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;", shift = At.Shift.AFTER),
+			locals = LocalCapture.CAPTURE_FAILHARD,
 			method = "spawnSprintParticle", cancellable = true)
 	public void create$spawnSprintParticle(CallbackInfo ci, int i, int j, int k, BlockPos blockPos) {
-		if (((BlockStateExtensions) world.getBlockState(blockPos)).create$addRunningEffects(world, blockPos, MixinHelper.cast(this))) {
+		if (((BlockStateExtensions) level.getBlockState(blockPos)).create$addRunningEffects(level, blockPos, MixinHelper.cast(this))) {
 			ci.cancel();
 		}
 	}
@@ -116,7 +126,7 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 		}
 	}
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;canBeRidden(Lnet/minecraft/entity/Entity;)Z", shift = At.Shift.BEFORE),
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;canAddPassenger(Lnet/minecraft/world/entity/Entity;)Z", shift = At.Shift.BEFORE),
 			method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", cancellable = true)
 	public void create$startRiding(Entity entity, boolean bl, CallbackInfoReturnable<Boolean> cir) {
 		if (StartRidingCallback.EVENT.invoker().onStartRiding(MixinHelper.cast(this), entity) == InteractionResult.FAIL) {
@@ -149,6 +159,6 @@ public abstract class EntityMixin implements EntityExtensions, NBTSerializable {
 	@Unique
 	@Override
 	public void create$deserializeNBT(CompoundTag nbt) {
-		read(nbt);
+		readAdditionalSaveData(nbt);
 	}
 }

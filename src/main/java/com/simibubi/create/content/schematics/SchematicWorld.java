@@ -109,7 +109,7 @@ public class SchematicWorld extends WrappedWorld implements ServerLevelAccessor 
 	}
 
 	protected void onTEadded(BlockEntity tileEntity, BlockPos pos) {
-		tileEntity.setLevelAndPosition(this, pos);
+//		tileEntity.setLevelAndPosition(this, pos); // this really isn't needed because this stuff is set in constructors
 	}
 
 	@Override

@@ -72,7 +72,7 @@ public class ArmBlock extends KineticBlock implements ITE<ArmTileEntity>, ICogWh
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.MECHANICAL_ARM.create();
+		return AllTileEntities.MECHANICAL_ARM.create(pos, state);
 	}
 
 	@Override

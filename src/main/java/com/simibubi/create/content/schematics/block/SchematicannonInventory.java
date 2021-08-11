@@ -3,7 +3,6 @@ package com.simibubi.create.content.schematics.block;
 import org.jetbrains.annotations.NotNull;
 
 import com.simibubi.create.AllItems;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 

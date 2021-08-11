@@ -34,7 +34,7 @@ public class SchematicannonBlock extends Block implements ITE<SchematicannonTile
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.SCHEMATICANNON.create();
+		return AllTileEntities.SCHEMATICANNON.create(pos, state);
 	}
 
 	@Override

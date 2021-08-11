@@ -24,7 +24,7 @@ public class AdjustableRepeaterInstance extends BlockEntityInstance<AdjustableRe
                 .getModel(AllBlockPartials.FLEXPEATER_INDICATOR, blockState).createInstance();
 
         PoseStack ms = new PoseStack();
-        MatrixStacker.of(ms).translate(getInstancePosition());
+        MatrixTransformStack.of(ms).translate(getInstancePosition());
 
         indicator
                  .setTransform(ms)

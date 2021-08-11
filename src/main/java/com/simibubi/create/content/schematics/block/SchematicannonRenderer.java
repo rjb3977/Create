@@ -98,7 +98,7 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 			yaw = Mth.atan2(diffX, diffZ);
 			yaw = yaw / Math.PI * 180;
 
-			float distance = Mth.sqrt(diffX * diffX + diffZ * diffZ);
+			float distance = Mth.sqrt((float) (diffX * diffX + diffZ * diffZ));
 			double yOffset = 0 + distance * 2f;
 			pitch = Mth.atan2(distance, diff.y() * 3 + yOffset);
 			pitch = pitch / Math.PI * 180 + 10;

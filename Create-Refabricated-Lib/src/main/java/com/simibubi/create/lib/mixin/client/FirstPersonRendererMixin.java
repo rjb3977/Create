@@ -50,7 +50,7 @@ public abstract class FirstPersonRendererMixin {
 	}
 
 	@Inject(at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/client/entity/player/ClientPlayerEntity;getCooledAttackStrength(F)F"),
-			locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+			locals = LocalCapture.CAPTURE_FAILHARD,
 			method = "tick()V")
 	public void tick(CallbackInfo ci,
 					 LocalPlayer clientPlayerEntity, ItemStack itemStack, ItemStack itemStack2) {

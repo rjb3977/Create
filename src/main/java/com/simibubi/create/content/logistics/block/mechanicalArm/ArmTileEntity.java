@@ -467,12 +467,12 @@ public class ArmTileEntity extends KineticTileEntity implements ITransformableTE
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		int previousIndex = chasedPointIndex;
 		Phase previousPhase = phase;
 		ListTag interactionPointTagBefore = interactionPointTag;
 
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 		heldItem = ItemStack.of(compound.getCompound("HeldItem"));
 		phase = NBTHelper.readEnum(compound, "Phase", Phase.class);
 		chasedPointIndex = compound.getInt("TargetPointIndex");

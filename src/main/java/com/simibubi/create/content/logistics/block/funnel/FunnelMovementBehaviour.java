@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,7 +16,6 @@ import com.simibubi.create.content.contraptions.components.structureMovement.Mov
 import com.simibubi.create.content.logistics.item.filter.FilterItem;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.item.ItemHelper;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
 public class FunnelMovementBehaviour extends MovementBehaviour {
 
@@ -111,7 +111,7 @@ public class FunnelMovementBehaviour extends MovementBehaviour {
 				continue;
 			if (remainder.isEmpty()) {
 				item.setItem(ItemStack.EMPTY);
-				item.remove();
+				item.remove(Entity.RemovalReason.DISCARDED);
 				continue;
 			}
 

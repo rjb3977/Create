@@ -43,7 +43,7 @@ public class AnalogLeverBlock extends FaceAttachedHorizontalDirectionalBlock imp
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.ANALOG_LEVER.create();
+		return AllTileEntities.ANALOG_LEVER.create(pos, state);
 	}
 
 	@Override

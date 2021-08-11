@@ -46,10 +46,10 @@ public class AdjustableRepeaterTileEntity extends SmartTileEntity implements IIn
 	}
 
 	@Override
-	protected void fromTag(BlockState blockState, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		state = compound.getInt("State");
 		charging = compound.getBoolean("Charging");
-		super.fromTag(blockState, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 	@Override

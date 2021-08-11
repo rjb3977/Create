@@ -79,15 +79,15 @@ public abstract class ShootableGadgetRenderHandler {
 			.getRenderer(player);
 		ItemInHandRenderer firstPersonRenderer = mc.getItemInHandRenderer();
 
-		MatrixStack ms = event.getMatrixStack();
-		IRenderTypeBuffer buffer = event.getBuffers();
-		int light = event.getLight();
-		float pt = event.getPartialTicks();
+//		PoseStack ms = event.getMatrixStack();
+//		IRenderTypeBuffer buffer = event.getBuffers();
+//		int light = event.getLight();
+//		float pt = event.getPartialTicks();
 
-		boolean rightHand = event.getHand() == Hand.MAIN_HAND ^ mc.player.getMainArm() == HandSide.LEFT;
-		float recoil = rightHand ? MathHelper.lerp(pt, lastRightHandAnimation, rightHandAnimation)
-			: MathHelper.lerp(pt, lastLeftHandAnimation, leftHandAnimation);
-		float equipProgress = event.getEquipProgress();
+		boolean rightHand = hand == InteractionHand.MAIN_HAND ^ mc.player.getMainArm() == HumanoidArm.LEFT;
+		float recoil = rightHand ? Mth.lerp(tickDelta, lastRightHandAnimation, rightHandAnimation)
+			: Mth.lerp(tickDelta, lastLeftHandAnimation, leftHandAnimation);
+//		float equipProgress = event.getEquipProgress();
 
 		if (rightHand && (rightHandAnimation > .01f || dontReequipRight))
 			equipProgress = 0;
@@ -96,7 +96,7 @@ public abstract class ShootableGadgetRenderHandler {
 
 		// Render arm
 		ms.pushPose();
-		textureManager.bind(player.getSkinTextureLocation());
+		textureManager.bindForSetup(player.getSkinTextureLocation());
 
 		float flip = rightHand ? 1.0F : -1.0F;
 		float f1 = Mth.sqrt(swingProgress);

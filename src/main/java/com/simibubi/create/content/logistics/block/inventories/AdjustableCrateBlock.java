@@ -31,7 +31,7 @@ public class AdjustableCrateBlock extends CrateBlock implements EntityBlock {
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.ADJUSTABLE_CRATE.create();
+		return AllTileEntities.ADJUSTABLE_CRATE.create(pos, state);
 	}
 
 	@Override

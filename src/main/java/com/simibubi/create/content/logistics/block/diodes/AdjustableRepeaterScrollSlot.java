@@ -19,7 +19,7 @@ public class AdjustableRepeaterScrollSlot extends ValueBoxTransform {
 	@Override
 	protected void rotate(BlockState state, PoseStack ms) {
 		float yRot = AngleHelper.horizontalAngle(state.getValue(BlockStateProperties.HORIZONTAL_FACING)) + 180;
-		MatrixStacker.of(ms)
+		MatrixTransformStack.of(ms)
 			.rotateY(yRot)
 			.rotateX(90);
 	}

@@ -165,7 +165,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 	}
 
 	@Override
-	public void tick() {
+	public void containerTick() {
 		SchematicannonTileEntity te = menu.getTileEntity();
 
 		if (!placementSettingsHidden()) {
@@ -204,7 +204,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 
 		handleTooltips();
 
-		super.tick();
+		super.containerTick();
 	}
 
 	protected void handleTooltips() {

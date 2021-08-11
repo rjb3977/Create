@@ -2,8 +2,6 @@ package com.simibubi.create.content.contraptions.components.actors;
 
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.foundation.item.ItemHandlerWrapper;
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.ItemStackUtil;
 import com.simibubi.create.lib.utility.LazyOptional;
 

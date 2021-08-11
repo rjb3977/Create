@@ -77,8 +77,7 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenc
 		boolean display = heldItem.getItem() == Items.NAME_TAG && heldItem.hasCustomHoverName();
 		DyeColor dye = null;
 		for (DyeColor color : DyeColor.values())
-			if (heldItem.getItem()
-				.is(DyeHelper.getTagOfDye(color)))
+			if (DyeHelper.getTagOfDye(color).contains(heldItem.getItem()))
 				dye = color;
 
 		if (!display && dye == null)
@@ -194,7 +193,7 @@ public class NixieTubeBlock extends HorizontalDirectionalBlock implements IWrenc
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new NixieTubeTileEntity(AllTileEntities.NIXIE_TUBE.get());
+		return AllTileEntities.NIXIE_TUBE.create(pos ,state);
 	}
 
 //	@Override

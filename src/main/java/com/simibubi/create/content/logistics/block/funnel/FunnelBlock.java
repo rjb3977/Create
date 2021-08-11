@@ -119,7 +119,7 @@ public abstract class FunnelBlock extends AbstractDirectionalFunnelBlock {
 		ItemStack remainder = tryInsert(worldIn, pos, toInsert, false);
 
 		if (remainder.isEmpty())
-			itemEntity.remove();
+			itemEntity.remove(Entity.RemovalReason.DISCARDED);
 		if (remainder.getCount() < toInsert.getCount())
 			itemEntity.setItem(remainder);
 	}

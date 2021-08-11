@@ -7,10 +7,12 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public abstract class SafeTileEntityRenderer<T extends BlockEntity> extends BlockEntityRenderer<T> {
+public abstract class SafeTileEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
+
+	protected final BlockEntityRenderDispatcher dispatcher;
 
 	public SafeTileEntityRenderer(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
+		this.dispatcher = dispatcher;
 	}
 
 	@Override

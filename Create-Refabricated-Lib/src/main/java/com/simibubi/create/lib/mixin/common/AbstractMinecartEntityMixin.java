@@ -48,7 +48,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity implements Abst
 		create$controller = MinecartController.InitController.initController.create(MixinHelper.cast(this));
 	}
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;floor(D)I", ordinal = 4),
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 4),
 			method = "moveAlongTrack")
 	protected void create$moveAlongTrack(BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
 		if (blockState.getBlock() instanceof MinecartPassHandlerBlock) {

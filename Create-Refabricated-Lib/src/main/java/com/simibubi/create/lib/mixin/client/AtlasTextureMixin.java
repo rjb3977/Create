@@ -23,7 +23,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 @Environment(EnvType.CLIENT)
 @Mixin(TextureAtlas.class)
 public abstract class AtlasTextureMixin {
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/IProfiler;endStartSection(Ljava/lang/String;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/IProfiler;endStartSection(Ljava/lang/String;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
 			method = "prepareToStitch")
 	public void create$stitch(ResourceManager iResourceManager, Stream<ResourceLocation> stream, ProfilerFiller iProfiler, int i, CallbackInfoReturnable<TextureAtlas.Preparations> cir, Set<ResourceLocation> set) {
 		OnTextureStitchCallback.EVENT.invoker().onModelRegistry(new TextureStitchUtil(MixinHelper.cast(this), set));

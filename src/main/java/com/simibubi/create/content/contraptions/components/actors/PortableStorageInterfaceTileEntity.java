@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import java.util.List;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -81,8 +83,8 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		transferTimer = compound.getInt("Timer");
 		distance = compound.getFloat("Distance");
 		powered = compound.getBoolean("Powered");

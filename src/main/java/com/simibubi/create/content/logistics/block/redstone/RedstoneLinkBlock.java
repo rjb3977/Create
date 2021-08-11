@@ -132,7 +132,7 @@ public class RedstoneLinkBlock extends ProperDirectionalBlock implements ITE<Red
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.REDSTONE_LINK.create();
+		return AllTileEntities.REDSTONE_LINK.create(pos, state);
 	}
 
 	@Override

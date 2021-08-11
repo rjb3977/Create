@@ -39,7 +39,7 @@ public abstract class ItemStackMixin implements NBTSerializable {
 	}
 
 	@Inject(at = @At("HEAD"),
-			method = "onItemUse(Lnet/minecraft/item/ItemUseContext;)Lnet/minecraft/util/InteractionResult;", cancellable = true)
+			method = "useOn", cancellable = true)
 	public void onItemUse(UseOnContext itemUseContext, CallbackInfoReturnable<InteractionResult> cir) {
 		if (!itemUseContext.getLevel().isClientSide) {
 			InteractionResult result = BlockPlaceCallback.EVENT.invoker().onBlockPlace(itemUseContext);

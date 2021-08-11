@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.TickPriority;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -124,7 +125,7 @@ public class StockpileSwitchTileEntity extends SmartTileEntity {
 	}
 
 	protected void scheduleBlockTick() {
-		ITickList<Block> blockTicks = level.getBlockTicks();
+		TickList<Block> blockTicks = level.getBlockTicks();
 		Block block = getBlockState().getBlock();
 		if (!blockTicks.willTickThisTick(worldPosition, block))
 			blockTicks.scheduleTick(worldPosition, block, 2, TickPriority.NORMAL);

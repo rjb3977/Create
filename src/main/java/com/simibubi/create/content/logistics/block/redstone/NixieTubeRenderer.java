@@ -17,8 +17,8 @@ import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.item.DyeColor;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class NixieTubeRenderer extends SafeTileEntityRenderer<NixieTubeTileEntity> {
@@ -119,8 +119,8 @@ public class NixieTubeRenderer extends SafeTileEntityRenderer<NixieTubeTileEntit
 		fontRenderer.drawInBatch(c, 0, 0, color, false, ms.last()
 			.pose(), buffer, false, 0, 15728880);
 		if (buffer instanceof BufferSource) {
-			BakedGlyph texturedglyph = FontRendererHelper.getFontStorage(fontRenderer, Style.DEFAULT_FONT).getRectangleRenderer();
-			((BufferSource) buffer).endBatch(texturedglyph.renderType(false));
+			BakedGlyph texturedglyph = FontRendererHelper.getFontStorage(fontRenderer, Style.DEFAULT_FONT).whiteGlyph();
+			((BufferSource) buffer).endBatch(texturedglyph.renderType(Font.DisplayMode.NORMAL));
 		}
 	}
 

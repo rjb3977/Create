@@ -111,7 +111,7 @@ public abstract class LivingEntityMixin extends Entity {
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/server/ServerWorld;spawnParticle(Lnet/minecraft/particles/IParticleData;DDDIDDDD)I", shift = At.Shift.BEFORE),
-			locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+			locals = LocalCapture.CAPTURE_FAILHARD,
 			method = "checkFallDamage", cancellable = true)
 	protected void create$updateFallState(double d, boolean bl, BlockState blockState, BlockPos blockPos, CallbackInfo ci,
 										  float f, double e, int i) {

@@ -12,7 +12,7 @@ import net.minecraft.world.entity.FlyingMob;
 
 @Mixin(FlyingMob.class)
 public abstract class FlyingEntityMixin {
-	@ModifyVariable(slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;onGround:Z")),
+	@ModifyVariable(slice = @Slice(from = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;")),
 			at = @At(value = "STORE"),
 			method = "travel")
 	public float create$setSlipperiness1(float f) {
@@ -25,7 +25,7 @@ public abstract class FlyingEntityMixin {
 				.create$getSlipperiness(MixinHelper.<FlyingMob>cast(this).level, create$ground, MixinHelper.<FlyingMob>cast(this)) * 0.91F;
 	}
 
-	@ModifyVariable(slice = @Slice(from = @At(value = "FIELD", ordinal = 1, target = "Lnet/minecraft/entity/Entity;onGround:Z")),
+	@ModifyVariable(slice = @Slice(from = @At(value = "INVOKE", ordinal = 1, shift = At.Shift.BEFORE, target = "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;")),
 			at = @At(value = "STORE"),
 			method = "travel")
 	public float create$setSlipperiness2(float f) {

@@ -78,7 +78,7 @@ public class SchematicTableBlock extends HorizontalDirectionalBlock implements I
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.SCHEMATIC_TABLE.create();
+		return AllTileEntities.SCHEMATIC_TABLE.create(pos, state);
 	}
 
 	@Override

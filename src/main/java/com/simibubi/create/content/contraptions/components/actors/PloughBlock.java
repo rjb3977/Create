@@ -24,7 +24,7 @@ public class PloughBlock extends AttachedActorBlock {
 				new GameProfile(UUID.fromString("9e2faded-eeee-4ec2-c314-dad129ae971d"), "Plough");
 
 		public PloughFakePlayer(ServerLevel world) {
-			super(world.getServer(), world, PLOUGH_PROFILE, new ServerPlayerGameMode(world)); // this should work?
+			super(world.getServer(), world, PLOUGH_PROFILE); // this should work?
 		}
 	}
 }

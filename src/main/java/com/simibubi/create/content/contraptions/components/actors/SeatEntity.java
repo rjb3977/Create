@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import com.simibubi.create.AllEntityTypes;
+import com.simibubi.create.lib.entity.CustomPosHandlingEntity;
 import com.simibubi.create.lib.entity.ExtraSpawnDataEntity;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -22,7 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class SeatEntity extends Entity implements ExtraSpawnDataEntity {
+public class SeatEntity extends Entity implements ExtraSpawnDataEntity, CustomPosHandlingEntity {
 
 	public SeatEntity(EntityType<?> p_i48580_1_, Level p_i48580_2_) {
 		super(p_i48580_1_, p_i48580_2_);
@@ -39,13 +40,13 @@ public class SeatEntity extends Entity implements ExtraSpawnDataEntity {
 		return entityBuilder.dimensions(EntityDimensions.scalable(0.25f, 0.35f));
 	}
 
-	@Override
-	public AABB getBoundingBox() {
-		return super.getBoundingBox();
-	}
+//	@Override
+//	public AABB getBoundingBox() {
+//		return super.getBoundingBox();
+//	}
 
 	@Override
-	public void setPosRaw(double x, double y, double z) {
+	public void setPosRawOverride(double x, double y, double z) {
 		super.setPosRaw(x, y, z);
 		AABB bb = getBoundingBox();
 		Vec3 diff = new Vec3(x, y, z).subtract(bb.getCenter());
@@ -63,7 +64,7 @@ public class SeatEntity extends Entity implements ExtraSpawnDataEntity {
 			.getBlock() instanceof SeatBlock;
 		if (isVehicle() && blockPresent)
 			return;
-		this.remove();
+		this.remove(RemovalReason.DISCARDED);
 	}
 
 	@Override

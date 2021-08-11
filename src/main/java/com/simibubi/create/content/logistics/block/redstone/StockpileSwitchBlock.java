@@ -14,7 +14,6 @@ import com.simibubi.create.lib.extensions.BlockExtensions;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
-import alexiil.mc.lib.attributes.item.ItemAttributes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.player.LocalPlayer;
@@ -161,7 +160,7 @@ public class StockpileSwitchBlock extends HorizontalDirectionalBlock implements 
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.STOCKPILE_SWITCH.create();
+		return AllTileEntities.STOCKPILE_SWITCH.create(pos, state);
 	}
 
 	@Override

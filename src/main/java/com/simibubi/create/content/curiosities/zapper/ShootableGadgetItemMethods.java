@@ -10,7 +10,6 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 public class ShootableGadgetItemMethods {
 
@@ -25,8 +24,10 @@ public class ShootableGadgetItemMethods {
 	public static void sendPackets(Player player, Function<Boolean, ? extends ShootGadgetPacket> factory) {
 		if (!(player instanceof ServerPlayer))
 			return;
-		AllPackets.channel.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), factory.apply(false));
-		AllPackets.channel.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), factory.apply(true));
+		AllPackets.channel.sendToClientsTracking(factory.apply(false), player);
+//		AllPackets.channel.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), factory.apply(false));
+		AllPackets.channel.sendToClient(factory.apply(false), (ServerPlayer) player);
+//		AllPackets.channel.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), factory.apply(true));
 	}
 
 	public static boolean shouldSwap(Player player, ItemStack item, InteractionHand hand, Predicate<ItemStack> predicate) {
@@ -55,8 +56,8 @@ public class ShootableGadgetItemMethods {
 	public static Vec3 getGunBarrelVec(Player player, boolean mainHand, Vec3 rightHandForward) {
 		Vec3 start = player.position()
 			.add(0, player.getEyeHeight(), 0);
-		float yaw = (float) ((player.yRot) / -180 * Math.PI);
-		float pitch = (float) ((player.xRot) / -180 * Math.PI);
+		float yaw = (float) ((player.getYRot()) / -180 * Math.PI);
+		float pitch = (float) ((player.getXRot()) / -180 * Math.PI);
 		int flip = mainHand == (player.getMainArm() == HumanoidArm.RIGHT) ? -1 : 1;
 		Vec3 barrelPosNoTransform = new Vec3(flip * rightHandForward.x, rightHandForward.y, rightHandForward.z);
 		Vec3 barrelPos = start.add(barrelPosNoTransform.xRot(pitch)

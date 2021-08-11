@@ -3,6 +3,10 @@ package com.simibubi.create.content.schematics;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.simibubi.create.lib.utility.BoundingBoxUtil;
+import com.simibubi.create.lib.utility.LoadedCheckUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -90,20 +94,18 @@ public class SchematicPrinter {
 		blockReader = new SchematicWorld(schematicAnchor, originalWorld);
 		activeTemplate.placeInWorldChunk(blockReader, schematicAnchor, settings, blockReader.getRandom());
 
-		BlockPos extraBounds = Template.calculateRelativePosition(settings, activeTemplate.getSize()
-			.offset(-1, -1, -1));
-		blockReader.bounds.expand(new MutableBoundingBox(extraBounds, extraBounds));
-
+		BlockPos extraBounds = StructureTemplate.calculateRelativePosition(settings, new BlockPos(activeTemplate.getSize().offset(-1, -1, -1)));
+		blockReader.bounds = BoundingBoxUtil.expandFromOtherBox(blockReader.bounds, BoundingBoxUtil.from2BlockPos(extraBounds, extraBounds));
 		StructureTransform transform = new StructureTransform(settings.getRotationPivot(), Direction.Axis.Y,
 			settings.getRotation(), settings.getMirror());
-		for (TileEntity te : blockReader.tileEntities.values())
+		for (BlockEntity te : blockReader.tileEntities.values())
 			transform.apply(te);
 
 		printingEntityIndex = -1;
 		printStage = PrintStage.BLOCKS;
 		deferredBlocks.clear();
 		BoundingBox bounds = blockReader.getBounds();
-		currentPos = new BlockPos(bounds.x0 - 1, bounds.y0, bounds.z0);
+		currentPos = new BlockPos(bounds.minX() - 1, bounds.minY(), bounds.minZ());
 		schematicLoaded = true;
 	}
 
@@ -228,7 +230,7 @@ public class SchematicPrinter {
 			BlockState required = blockReader.getBlockState(relPos);
 			BlockEntity requiredTE = blockReader.getBlockEntity(relPos);
 
-			if (!world.hasChunksAt(pos.offset(schematicAnchor), 0)) {
+			if (!LoadedCheckUtil.isAreaLoaded(world, pos.offset(schematicAnchor), 0)) {
 				checklist.warnBlockNotLoaded();
 				continue;
 			}
@@ -293,12 +295,12 @@ public class SchematicPrinter {
 	public boolean tryAdvanceCurrentPos() {
 		currentPos = currentPos.relative(Direction.EAST);
 		BoundingBox bounds = blockReader.getBounds();
-		BlockPos posInBounds = currentPos.offset(-bounds.x0, -bounds.y0, -bounds.z0);
+		BlockPos posInBounds = currentPos.offset(-bounds.minX(), -bounds.minY(), -bounds.minZ());
 
 		if (posInBounds.getX() > bounds.getXSpan())
-			currentPos = new BlockPos(bounds.x0, currentPos.getY(), currentPos.getZ() + 1).west();
+			currentPos = new BlockPos(bounds.minX(), currentPos.getY(), currentPos.getZ() + 1).west();
 		if (posInBounds.getZ() > bounds.getZSpan())
-			currentPos = new BlockPos(currentPos.getX(), currentPos.getY() + 1, bounds.z0).west();
+			currentPos = new BlockPos(currentPos.getX(), currentPos.getY() + 1, bounds.minZ()).west();
 
 		// End of blocks reached
 		if (currentPos.getY() > bounds.getYSpan()) {

@@ -8,6 +8,7 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
@@ -101,7 +102,7 @@ public class PloughMovementBehaviour extends BlockBreakingMovementBehaviour {
 	public void stopMoving(MovementContext context) {
 		super.stopMoving(context);
 		if (context.temporaryData instanceof PloughFakePlayer)
-			((PloughFakePlayer) context.temporaryData).remove();
+			((PloughFakePlayer) context.temporaryData).remove(Entity.RemovalReason.DISCARDED);
 	}
 
 	private PloughFakePlayer getPlayer(MovementContext context) {

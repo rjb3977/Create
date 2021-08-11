@@ -86,7 +86,7 @@ public abstract class ClientPlayNetHandlerMixin {
 		create$tileEntityHandled = true;
 	}
 
-	@Inject(at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+	@Inject(at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD,
 			method = "handleBlockEntityData",
 			cancellable = true)
 	public void create$handleCustomTileEntity(ClientboundBlockEntityDataPacket sUpdateTileEntityPacket, CallbackInfo ci, BlockPos pos, BlockEntity tileEntity) {

@@ -157,7 +157,7 @@ public interface IMovedDispenseItemBehaviour {
 					BlockState state = context.world.getBlockState(interactAt);
 					Block block = state.getBlock();
 
-					if (block.is(BlockTags.BEEHIVES) && state.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
+					if (BlockTags.BEEHIVES.contains(block) && state.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
 						((BeehiveBlock) block).releaseBeesAndResetHoneyLevel(context.world, state, interactAt, null,
 							BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
 						this.successful = true;
@@ -184,10 +184,8 @@ public interface IMovedDispenseItemBehaviour {
 					BlockState state = context.world.getBlockState(interactAt);
 					Block block = state.getBlock();
 					if (block instanceof BucketPickup) {
-						Fluid fluid = ((BucketPickup) block).takeLiquid(context.world, interactAt, state);
-						if (fluid instanceof FlowingFluid)
-							return placeItemInInventory(itemStack, new ItemStack(fluid.getBucket()), context, pos,
-								facing);
+						ItemStack collectedStack = ((BucketPickup) block).pickupBlock(context.world, interactAt, state);
+						return placeItemInInventory(itemStack, collectedStack, context, pos, facing);
 					}
 					return super.dispenseStack(itemStack, context, pos, facing);
 				}
