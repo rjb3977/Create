@@ -2,10 +2,12 @@ package com.simibubi.create.lib.transfer;
 
 import com.simibubi.create.lib.transfer.fluid.FluidStorageHandler;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.StorageFluidHandler;
 import com.simibubi.create.lib.transfer.item.IItemHandler;
 
 import com.simibubi.create.lib.transfer.item.ItemStorageHandler;
 
+import com.simibubi.create.lib.transfer.item.StorageItemHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -19,11 +21,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public class TransferUtil {
 	public static LazyOptional<IItemHandler> getItemHandler(BlockEntity be) {
 		Storage<ItemVariant> itemStorage = ItemStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, Direction.UP);
+		if (itemStorage instanceof StorageItemHandler handler) {
+			return LazyOptional.ofObject(handler.getHandler());
+		}
 		return LazyOptional.ofObject(new ItemStorageHandler(itemStorage));
 	}
 
 	public static LazyOptional<IFluidHandler> getFluidHandler(BlockEntity be) {
 		Storage<FluidVariant> fluidStorage = FluidStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, Direction.UP);
+		if (fluidStorage instanceof StorageFluidHandler handler) {
+			return LazyOptional.ofObject(handler.getHandler());
+		}
 		return LazyOptional.ofObject(new FluidStorageHandler(fluidStorage));
 	}
 }

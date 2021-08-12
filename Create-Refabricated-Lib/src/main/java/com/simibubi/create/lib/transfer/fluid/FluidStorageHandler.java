@@ -5,6 +5,9 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
+/**
+ * Wraps a Storage in an IFluidHandler, for use in Create
+ */
 @SuppressWarnings({"deprecation", "UnstableApiUsage"})
 public class FluidStorageHandler implements IFluidHandler {
 	protected final Storage<FluidVariant> storage;

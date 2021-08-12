@@ -7,6 +7,9 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.world.item.ItemStack;
 
 // this class is awful, but we don't have many options
+/**
+ * Wraps a Storage in an IItemHandler, for use in Create
+ */
 @SuppressWarnings({"UnstableApiUsage", "deprecation"})
 public class ItemStorageHandler implements IItemHandlerModifiable {
 	protected final Storage<ItemVariant> storage;
