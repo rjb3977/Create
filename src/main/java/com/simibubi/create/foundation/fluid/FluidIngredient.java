@@ -15,7 +15,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;

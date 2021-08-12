@@ -1,10 +1,12 @@
 package com.simibubi.create.content.contraptions.components.crusher;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
+
 import net.minecraft.world.level.Level;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 
 @ParametersAreNonnullByDefault
 public class CrushingRecipe extends AbstractCrushingRecipe {

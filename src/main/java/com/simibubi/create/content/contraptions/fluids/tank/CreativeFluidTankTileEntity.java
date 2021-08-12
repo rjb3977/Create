@@ -3,9 +3,9 @@ package com.simibubi.create.content.contraptions.fluids.tank;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
-import com.simibubi.create.lib.transfer.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

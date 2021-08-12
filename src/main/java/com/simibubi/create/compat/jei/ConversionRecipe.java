@@ -1,6 +1,9 @@
 package com.simibubi.create.compat.jei;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -10,7 +13,6 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 
 /**
  * Helper recipe type for displaying an item relationship in JEI

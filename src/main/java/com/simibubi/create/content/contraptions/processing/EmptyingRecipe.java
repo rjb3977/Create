@@ -3,7 +3,9 @@ package com.simibubi.create.content.contraptions.processing;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
 
 import net.minecraft.world.level.Level;
 

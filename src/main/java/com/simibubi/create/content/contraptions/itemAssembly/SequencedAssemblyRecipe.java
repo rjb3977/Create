@@ -30,8 +30,6 @@ import net.minecraft.world.level.Level;
 
 import com.simibubi.create.foundation.utility.Pair;
 
-import com.simibubi.create.lib.utility.ItemHandlerHelper;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraftforge.items.ItemHandlerHelper;

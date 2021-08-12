@@ -1,4 +1,4 @@
-package com.simibubi.create.lib.transfer;
+package com.simibubi.create.lib.transfer.fluid;
 
 import net.minecraft.nbt.CompoundTag;
 

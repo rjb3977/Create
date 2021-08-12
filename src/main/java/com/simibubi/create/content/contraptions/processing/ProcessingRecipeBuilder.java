@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.simibubi.create.foundation.utility.recipe.IRecipeTypeInfo;
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import net.minecraft.client.renderer.block.model.multipart.Condition;
 import net.minecraft.core.NonNullList;

@@ -3,11 +3,10 @@ package com.simibubi.create.content.contraptions.fluids;
 import java.lang.ref.WeakReference;
 import java.util.function.Predicate;
 
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
-import com.simibubi.create.lib.transfer.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;

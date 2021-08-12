@@ -14,10 +14,9 @@ import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.BlockFace;
 
-import com.simibubi.create.lib.transfer.FluidStack;
-import com.simibubi.create.lib.transfer.FluidTank;
-import com.simibubi.create.lib.transfer.IFluidHandler;
-import com.simibubi.create.lib.utility.LazyOptional;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidTank;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 
 import com.simibubi.create.lib.utility.TagUtil;

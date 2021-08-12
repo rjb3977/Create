@@ -12,8 +12,11 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.IntAttached;
 import com.simibubi.create.foundation.utility.VecHelper;
 
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
@@ -50,7 +53,7 @@ public class BasinRenderer extends SmartTileEntityRenderer<BasinTileEntity> {
 		Random r = new Random(pos.hashCode());
 		Vec3 baseVector = new Vec3(.125, level, 0);
 
-		IItemHandlerModifiable inv = basin.itemCapability.orElse(new ItemStackHandler());
+		IItemHandlerModifiable inv = basin.itemCapability.orElse(new ItemStackHandler(1));
 		int itemCount = 0;
 		for (int slot = 0; slot < inv.getSlots(); slot++)
 			if (!inv.getStackInSlot(slot)

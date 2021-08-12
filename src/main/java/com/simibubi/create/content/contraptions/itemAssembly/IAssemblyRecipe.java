@@ -26,6 +26,6 @@ public interface IAssemblyRecipe {
 
 	default void addAssemblyFluidIngredients(List<FluidIngredient> list) {}
 
-	//public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory();
+//	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory();
 
 }

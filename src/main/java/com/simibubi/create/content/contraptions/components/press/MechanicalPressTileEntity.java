@@ -24,7 +24,6 @@ import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemS
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.utility.Constants.NBT;
-import com.simibubi.create.lib.utility.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
 import net.minecraft.core.BlockPos;

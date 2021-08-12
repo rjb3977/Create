@@ -2,7 +2,7 @@ package com.simibubi.create.content.contraptions.fluids.tank;
 
 
 
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

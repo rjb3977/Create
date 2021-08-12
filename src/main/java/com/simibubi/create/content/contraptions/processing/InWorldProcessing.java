@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.components.fan.SplashingRecipe;
@@ -18,15 +19,16 @@ import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour.TransportedResult;
 import com.simibubi.create.foundation.utility.Color;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -95,7 +97,7 @@ public class InWorldProcessing {
 
 	private static boolean canProcess(ItemStack stack, Type type, Level world) {
 		if (type == Type.BLASTING) {
-			WRAPPER.setInventorySlotContents(0, stack);
+			WRAPPER.setItem(0, stack);
 			Optional<SmeltingRecipe> smeltingRecipe = world.getRecipeManager()
 				.getRecipeFor(RecipeType.SMELTING, WRAPPER, world);
 
@@ -138,7 +140,7 @@ public class InWorldProcessing {
 		if (stacks == null)
 			return;
 		if (stacks.isEmpty()) {
-			entity.remove();
+			entity.remove(Entity.RemovalReason.DISCARDED);
 			return;
 		}
 		entity.setItem(stacks.remove(0));
@@ -194,7 +196,7 @@ public class InWorldProcessing {
 
 		if (type == Type.BLASTING) {
 			if (!smokingRecipe.isPresent()) {
-				WRAPPER.setInventorySlotContents(0, stack);
+				WRAPPER.setItem(0, stack);
 				Optional<SmeltingRecipe> smeltingRecipe = world.getRecipeManager()
 					.getRecipeFor(RecipeType.SMELTING, WRAPPER, world);
 
@@ -248,7 +250,7 @@ public class InWorldProcessing {
 		if (stacks == null)
 			return;
 		if (stacks.isEmpty()) {
-			entity.remove();
+			entity.remove(Entity.RemovalReason.DISCARDED);
 			return;
 		}
 		entity.setItem(stacks.remove(0));
@@ -308,7 +310,7 @@ public class InWorldProcessing {
 			break;
 		case SPLASHING:
 			Vec3 color = Color.vectorFromRGB(0x0055FF);
-			world.addParticle(new DustParticleOptions((float) color.x, (float) color.y, (float) color.z, 1),
+			world.addParticle(new DustParticleOptions(new Vector3f((float) color.x, (float) color.y, (float) color.z), 1),
 				vec.x + (world.random.nextFloat() - .5f) * .5f, vec.y + .5f, vec.z + (world.random.nextFloat() - .5f) * .5f,
 				0, 1 / 8f, 0);
 			world.addParticle(ParticleTypes.SPIT, vec.x + (world.random.nextFloat() - .5f) * .5f, vec.y + .5f,

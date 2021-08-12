@@ -12,9 +12,9 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
-import com.simibubi.create.lib.transfer.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

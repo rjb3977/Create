@@ -1,11 +1,14 @@
 package com.simibubi.create.foundation.item;
 
 import java.util.function.Consumer;
+
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.foundation.tileEntity.SyncedTileEntity;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import com.simibubi.create.lib.utility.NBTSerializable;
 
 public class SmartInventory extends RecipeWrapper

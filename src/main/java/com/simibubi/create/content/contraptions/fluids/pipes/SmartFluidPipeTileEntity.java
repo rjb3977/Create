@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.fluids.pipes;
 import java.util.List;
 
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,8 +15,6 @@ import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.Vec3;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.contraptions.fluids.FluidPropagator;
-import com.simibubi.create.content.contraptions.fluids.pipes.SmartFluidPipeTileEntity.SmartPipeBehaviour;
-import com.simibubi.create.content.contraptions.fluids.pipes.SmartFluidPipeTileEntity.SmartPipeFilterSlot;
 import com.simibubi.create.content.contraptions.fluids.pipes.StraightPipeTileEntity.StraightPipeFluidTransportBehaviour;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;

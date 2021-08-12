@@ -7,6 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -20,9 +26,6 @@ import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBe
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
 import com.simibubi.create.foundation.utility.Iterate;
-
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
-import com.simibubi.create.lib.lba.item.IItemHandler;
 
 public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 
@@ -123,7 +126,7 @@ public class BasinRecipe extends ProcessingRecipe<SmartInventory> {
 						continue;
 					if (!fluidIngredient.test(fluidStack))
 						continue;
-					int drainedAmount = Math.min(amountRequired, fluidStack.getAmount());
+					long drainedAmount = Math.min(amountRequired, fluidStack.getAmount());
 					if (!simulate) {
 						fluidStack.shrink(drainedAmount);
 						fluidsAffected = true;

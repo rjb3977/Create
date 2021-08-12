@@ -6,13 +6,14 @@ import java.util.function.Supplier;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.content.contraptions.itemAssembly.IAssemblyRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import com.simibubi.create.foundation.utility.Lang;
+
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -22,10 +23,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 public class FillingRecipe extends ProcessingRecipe<RecipeWrapper> implements IAssemblyRecipe {
 
@@ -40,7 +37,7 @@ public class FillingRecipe extends ProcessingRecipe<RecipeWrapper> implements IA
 //	}
 
 	@Override
-	public boolean matches(RecipeWrapper iInventory, Level world) {
+	public boolean matches(RecipeWrapper inv, Level world) {
 		return ingredients.get(0)
 				.test(inv.getItem(0));
 	}
@@ -91,9 +88,9 @@ public class FillingRecipe extends ProcessingRecipe<RecipeWrapper> implements IA
 		list.add(AllBlocks.SPOUT.get());
 	}
 
-	@Override
-	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory() {
-		return () -> SequencedAssemblySubCategory.AssemblySpouting::new;
-	}
+//	@Override
+//	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory() {
+//		return () -> SequencedAssemblySubCategory.AssemblySpouting::new;
+//	}
 
 }

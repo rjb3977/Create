@@ -4,6 +4,7 @@ import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.lib.lba.item.RecipeWrapper;
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
 
 
 public abstract class AbstractCrushingRecipe extends ProcessingRecipe<RecipeWrapper> {

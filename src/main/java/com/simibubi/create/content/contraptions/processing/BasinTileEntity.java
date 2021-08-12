@@ -34,11 +34,12 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
-import com.simibubi.create.lib.lba.item.CombinedInvWrapper;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.item.CombinedInvWrapper;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.NBTSerializer;
@@ -61,7 +62,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-// fixme LBA -Platy
 public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInformation {
 
 	private boolean areFluidsMoving;
@@ -138,8 +138,8 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		inputInventory.create$deserializeNBT(compound.getCompound("InputItems"));
 		outputInventory.create$deserializeNBT(compound.getCompound("OutputItems"));
 
@@ -151,7 +151,7 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		disabledList.forEach(d -> disabledSpoutputs.add(Direction.valueOf(((StringTag) d).getAsString())));
 		spoutputBuffer = NBTHelper.readItemList(compound.getList("Overflow", NBT.TAG_COMPOUND));
 		spoutputFluidBuffer = NBTHelper.readCompoundList(compound.getList("FluidOverflow", NBT.TAG_COMPOUND),
-			FluidStack::loadFluidStackFromNBT);
+			FluidStack::fromNBT);
 
 		if (!clientPacket)
 			return;
@@ -160,7 +160,7 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 			c -> visualizedOutputItems.add(IntAttached.with(OUTPUT_ANIMATION_TIME, ItemStack.of(c))));
 		NBTHelper.iterateCompoundList(compound.getList("VisualizedFluids", NBT.TAG_COMPOUND),
 			c -> visualizedOutputFluids
-				.add(IntAttached.with(OUTPUT_ANIMATION_TIME, FluidStack.loadFluidStackFromNBT(c))));
+				.add(IntAttached.with(OUTPUT_ANIMATION_TIME, FluidStack.fromNBT(c))));
 	}
 
 	@Override
@@ -364,10 +364,9 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 				break;
 
 			for (boolean simulate : Iterate.trueAndFalse) {
-				FluidAction action = simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE;
-				int fill = targetTank instanceof SmartFluidTankBehaviour.InternalFluidHandler
-					? ((SmartFluidTankBehaviour.InternalFluidHandler) targetTank).forceFill(fluidStack.copy(), action)
-					: targetTank.fill(fluidStack.copy(), action);
+				long fill = targetTank instanceof SmartFluidTankBehaviour.InternalFluidHandler
+					? ((SmartFluidTankBehaviour.InternalFluidHandler) targetTank).forceFill(fluidStack.copy(), simulate)
+					: targetTank.fill(fluidStack.copy(), simulate);
 				if (fill != fluidStack.getAmount())
 					break;
 				if (simulate)
@@ -515,10 +514,9 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 			return false;
 
 		for (FluidStack fluidStack : outputFluids) {
-			Simulation action = simulate ? true : false;
-			int fill = targetTank instanceof SmartFluidTankBehaviour.InternalFluidHandler
-				? ((SmartFluidTankBehaviour.InternalFluidHandler) targetTank).forceFill((FluidStack) fluidStack.copy(), action)
-				: targetTank.fill((FluidStack) fluidStack.copy(), action);
+			long fill = targetTank instanceof SmartFluidTankBehaviour.InternalFluidHandler
+				? ((SmartFluidTankBehaviour.InternalFluidHandler) targetTank).forceFill((FluidStack) fluidStack.copy(), simulate)
+				: targetTank.fill(fluidStack.copy(), simulate);
 			if (fill != fluidStack.getAmount())
 				return false;
 		}

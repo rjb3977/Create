@@ -2,9 +2,9 @@ package com.simibubi.create.foundation.fluid;
 
 import com.simibubi.create.foundation.utility.Iterate;
 
-import com.simibubi.create.lib.transfer.EmptyTank;
-import com.simibubi.create.lib.transfer.FluidStack;
-import com.simibubi.create.lib.transfer.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.EmptyTank;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 
 
 /**

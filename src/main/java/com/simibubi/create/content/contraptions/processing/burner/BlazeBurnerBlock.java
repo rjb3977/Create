@@ -97,7 +97,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 	@Nullable
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.HEATER.create();
+		return AllTileEntities.HEATER.create(pos, state);
 	}
 
 	@Override

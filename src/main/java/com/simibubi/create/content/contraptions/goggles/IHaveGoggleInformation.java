@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import com.simibubi.create.lib.transfer.FluidStack;
-import com.simibubi.create.lib.transfer.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

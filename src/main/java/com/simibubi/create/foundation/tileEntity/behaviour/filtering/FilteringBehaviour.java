@@ -3,7 +3,7 @@ package com.simibubi.create.foundation.tileEntity.behaviour.filtering;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

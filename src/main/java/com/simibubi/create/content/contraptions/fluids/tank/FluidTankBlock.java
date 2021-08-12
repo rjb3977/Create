@@ -13,8 +13,8 @@ import com.simibubi.create.foundation.tileEntity.ComparatorUtil;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.extensions.BlockExtensions;
 
-import com.simibubi.create.lib.transfer.FluidStack;
-import com.simibubi.create.lib.transfer.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 
 import com.simibubi.create.lib.utility.LazyOptional;

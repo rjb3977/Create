@@ -2,9 +2,9 @@ package com.simibubi.create.foundation.tileEntity.behaviour.fluid;
 
 import java.util.function.Consumer;
 
-import com.simibubi.create.lib.transfer.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
-import com.simibubi.create.lib.transfer.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

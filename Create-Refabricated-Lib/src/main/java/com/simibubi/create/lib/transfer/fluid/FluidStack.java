@@ -1,4 +1,4 @@
-package com.simibubi.create.lib.transfer;
+package com.simibubi.create.lib.transfer.fluid;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.Util;
@@ -8,8 +8,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-
-import java.util.Objects;
 
 @SuppressWarnings({"UnstableApiUsage", "deprecation"})
 public class FluidStack {

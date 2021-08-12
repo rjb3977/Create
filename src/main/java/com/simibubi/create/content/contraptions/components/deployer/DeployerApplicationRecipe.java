@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.content.contraptions.itemAssembly.IAssemblyRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeBuilder;
@@ -96,9 +95,9 @@ public class DeployerApplicationRecipe extends ProcessingRecipe<Container> imple
 		list.add(AllBlocks.DEPLOYER.get());
 	}
 
-	@Override
-	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory() {
-		return () -> SequencedAssemblySubCategory.AssemblyDeploying::new;
-	}
+//	@Override
+//	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory() {
+//		return () -> SequencedAssemblySubCategory.AssemblyDeploying::new;
+//	}
 
 }

@@ -1,4 +1,4 @@
-package com.simibubi.create.lib.transfer;
+package com.simibubi.create.lib.transfer.fluid;
 
 public class EmptyTank extends FluidTank {
 	public static final EmptyTank INSTANCE = new EmptyTank();
