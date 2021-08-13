@@ -4,7 +4,12 @@ import java.util.List;
 
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -16,10 +21,11 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 
-import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-public class CreativeCrateTileEntity extends CrateTileEntity {
+import org.jetbrains.annotations.Nullable;
+
+public class CreativeCrateTileEntity extends CrateTileEntity implements ItemTransferable {
 
 	public CreativeCrateTileEntity(BlockEntityType<? extends CreativeCrateTileEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -111,4 +117,9 @@ public class CreativeCrateTileEntity extends CrateTileEntity {
 		});
 	}
 
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		return itemHandler.getValueUnsafer();
+	}
 }

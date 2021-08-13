@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -36,10 +41,17 @@ import com.simibubi.create.foundation.tileEntity.behaviour.inventory.InvManipula
 import com.simibubi.create.foundation.utility.BlockFace;
 import com.simibubi.create.foundation.utility.Pointing;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-public class MechanicalCrafterTileEntity extends KineticTileEntity {
+import org.jetbrains.annotations.Nullable;
+
+public class MechanicalCrafterTileEntity extends KineticTileEntity implements ItemTransferable {
+
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		return invSupplier.getValueUnsafer();
+	}
 
 	enum Phase {
 		IDLE, ACCEPTING, ASSEMBLING, EXPORTING, WAITING, CRAFTING, INSERTING;
@@ -154,7 +166,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		Phase phaseBefore = phase;
 		GroupedItems before = this.groupedItems;
 
@@ -169,7 +181,7 @@ public class MechanicalCrafterTileEntity extends KineticTileEntity {
 				this.phase = phase;
 		countDown = compound.getInt("CountDown");
 		covered = compound.getBoolean("Cover");
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 		if (!clientPacket)
 			return;
 		if (compound.contains("Redraw"))

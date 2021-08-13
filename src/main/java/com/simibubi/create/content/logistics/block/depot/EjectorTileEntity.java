@@ -26,12 +26,13 @@ import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
 import net.fabricmc.api.EnvType;
-import net.minecraft.block.ObserverBlock;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -53,6 +54,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ClipContext.Block;
 import net.minecraft.world.level.ClipContext.Fluid;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ObserverBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -60,7 +62,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 
-public class EjectorTileEntity extends KineticTileEntity {
+public class EjectorTileEntity extends KineticTileEntity implements ItemTransferable {
 	List<IntAttached<ItemStack>> launchedItems;
 	ScrollValueBehaviour maxStackSize;
 	DepotBehaviour depotBehaviour;
@@ -78,6 +80,12 @@ public class EjectorTileEntity extends KineticTileEntity {
 	int scanCooldown;
 	ItemStack trackedItem;
 
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		return depotBehaviour.itemHandler;
+	}
+
 	public enum State {
 		CHARGED, LAUNCHING, RETRACTING;
 	}
@@ -87,7 +95,7 @@ public class EjectorTileEntity extends KineticTileEntity {
 		launcher = new EntityLauncher(1, 0);
 		lidProgress = LerpedFloat.linear()
 			.startWithValue(1);
-		state = State.RETRACTING;
+		this.state = State.RETRACTING;
 		launchedItems = new ArrayList<>();
 		powered = false;
 	}
@@ -161,8 +169,8 @@ public class EjectorTileEntity extends KineticTileEntity {
 				.getItem() instanceof ElytraItem))
 				continue;
 
-			playerEntity.yRot = facing.toYRot();
-			playerEntity.xRot = -35;
+			playerEntity.setYRot(facing.toYRot());
+			playerEntity.setXRot(-35);
 			playerEntity.setDeltaMovement(playerEntity.getDeltaMovement()
 				.scale(.75f));
 			deployElytra(playerEntity);
@@ -466,7 +474,7 @@ public class EjectorTileEntity extends KineticTileEntity {
 		if (hd == 0 && vd == 0)
 			distanceFactor = 1;
 		else
-			distanceFactor = 1 * Mth.sqrt(Math.pow(hd, 2) + Math.pow(vd, 2));
+			distanceFactor = 1 * Mth.sqrt((float) (Math.pow(hd, 2) + Math.pow(vd, 2)));
 		return speedFactor / distanceFactor;
 	}
 
@@ -496,8 +504,8 @@ public class EjectorTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState blockState, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(blockState, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		int horizontalDistance = compound.getInt("HorizontalDistance");
 		int verticalDistance = compound.getInt("VerticalDistance");
 

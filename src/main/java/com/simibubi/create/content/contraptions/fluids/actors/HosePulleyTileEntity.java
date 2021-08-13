@@ -10,19 +10,23 @@ import com.simibubi.create.foundation.utility.ServerSpeedProvider;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidTransferable;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
-public class HosePulleyTileEntity extends KineticTileEntity {
+import javax.annotation.Nullable;
+
+public class HosePulleyTileEntity extends KineticTileEntity implements FluidTransferable {
 
 	LerpedFloat offset;
 	boolean isMoving;
@@ -196,5 +200,14 @@ public class HosePulleyTileEntity extends KineticTileEntity {
 	@Override
 	public boolean shouldRenderNormally() {
 		return true;
+	}
+
+	@Override
+	@Nullable
+	public IFluidHandler getFluidHandler(@Nullable Direction direction) {
+		if (direction == null || HosePulleyBlock.hasPipeTowards(level, worldPosition, getBlockState(), direction)) {
+			return capability.getValueUnsafer();
+		}
+		return null;
 	}
 }

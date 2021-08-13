@@ -7,6 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -46,15 +52,12 @@ import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBe
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import com.simibubi.create.lib.utility.Constants;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import com.simibubi.create.lib.utility.NBTSerializer;
 
-public class DeployerTileEntity extends KineticTileEntity {
+public class DeployerTileEntity extends KineticTileEntity implements ItemTransferable {
 
 	protected State state;
 	protected Mode mode;
@@ -73,8 +76,14 @@ public class DeployerTileEntity extends KineticTileEntity {
 
 	public BeltProcessingBehaviour processingBehaviour;
 
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		return invHandler == null ? null : invHandler.getValueUnsafer();
+	}
+
 	enum State {
-		WAITING, EXPANDING, RETRACTING, DUMPING;
+		WAITING, EXPANDING, RETRACTING, DUMPING
 	}
 
 	enum Mode {
@@ -83,7 +92,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 
 	public DeployerTileEntity(BlockEntityType<? extends DeployerTileEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		state = State.WAITING;
+		this.state = State.WAITING;
 		mode = Mode.USE;
 		heldItem = ItemStack.EMPTY;
 		redstoneLocked = false;
@@ -280,8 +289,8 @@ public class DeployerTileEntity extends KineticTileEntity {
 		Direction direction = getBlockState().getValue(FACING);
 		Vec3 center = VecHelper.getCenterOf(worldPosition);
 		BlockPos clickedPos = worldPosition.relative(direction, 2);
-		player.yRot = direction.toYRot();
-		player.xRot = direction == Direction.UP ? -90 : direction == Direction.DOWN ? 90 : 0;
+		player.setYRot(direction.toYRot());
+		player.setXRot(direction == Direction.UP ? -90 : direction == Direction.DOWN ? 90 : 0);
 
 		if (direction == Direction.DOWN
 			&& TileEntityBehaviour.get(level, clickedPos, TransportedItemStackHandlerBehaviour.TYPE) != null)
@@ -300,7 +309,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState blockState, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		state = NBTHelper.readEnum(compound, "State", State.class);
 		mode = NBTHelper.readEnum(compound, "Mode", Mode.class);
 		timer = compound.getInt("Timer");
@@ -310,7 +319,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 		overflowItems = NBTHelper.readItemList(compound.getList("Overflow", Constants.NBT.TAG_COMPOUND));
 		if (compound.contains("HeldItem"))
 			heldItem = ItemStack.of(compound.getCompound("HeldItem"));
-		super.fromTag(blockState, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 
 		if (!clientPacket)
 			return;
@@ -333,7 +342,7 @@ public class DeployerTileEntity extends KineticTileEntity {
 			ListTag invNBT = new ListTag();
 			player.getInventory().save(invNBT);
 			compound.put("Inventory", invNBT);
-			compound.put("HeldItem", player.getMainHandItem().serializeNBT());
+			compound.put("HeldItem", NBTSerializer.serializeNBT(player.getMainHandItem()));
 			compound.put("Overflow", NBTHelper.writeItemList(overflowItems));
 		} else if (deferredInventoryList != null) {
 			compound.put("Inventory", deferredInventoryList);

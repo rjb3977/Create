@@ -22,8 +22,12 @@ import java.util.List;
 public class StorageItemHandler implements Storage<ItemVariant> {
 	protected final IItemHandler handler;
 
-	public StorageItemHandler(IItemHandler handler) {
-		this.handler = handler;
+	public StorageItemHandler(@Nullable IItemHandler handler) {
+		if (handler == null) {
+			this.handler = EmptyHandler.INSTANCE;
+		} else {
+			this.handler = handler;
+		}
 	}
 
 	public IItemHandler getHandler() {

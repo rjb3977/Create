@@ -20,8 +20,12 @@ import java.util.List;
 public class StorageFluidHandler implements Storage<FluidVariant> {
 	protected final IFluidHandler handler;
 
-	public StorageFluidHandler(IFluidHandler handler) {
-		this.handler = handler;
+	public StorageFluidHandler(@Nullable IFluidHandler handler) {
+		if (handler == null) {
+			this.handler = EmptyTank.INSTANCE;
+		} else {
+			this.handler = handler;
+		}
 	}
 
 	public IFluidHandler getHandler() {

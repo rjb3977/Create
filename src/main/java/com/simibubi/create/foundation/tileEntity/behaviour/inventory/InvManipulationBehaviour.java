@@ -4,6 +4,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,13 +23,8 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.utility.BlockFace;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-import alexiil.mc.lib.attributes.SearchOptions;
-import alexiil.mc.lib.attributes.item.ItemAttributes;
-import alexiil.mc.lib.attributes.item.ItemTransferable;
 
 public class InvManipulationBehaviour extends TileEntityBehaviour {
 
@@ -195,11 +196,8 @@ public class InvManipulationBehaviour extends TileEntityBehaviour {
 		BlockEntity invTE = world.getBlockEntity(pos);
 		if (invTE == null)
 			return;
-		// fixme: assume that if something is insertable, it is also extractable. probably a bad idea.
-		ItemTransferable transferable = (ItemTransferable) (bypassSided
-				? ItemAttributes.INSERTABLE.getFirstOrNull(invTE.getLevel(), invTE.getBlockPos())
-				: ItemAttributes.INSERTABLE.getFirstOrNull(invTE.getLevel(), invTE.getBlockPos(), SearchOptions.inDirection(targetBlockFace.getFace())));
-		targetCapability = transferable == null ? LazyOptional.empty() : LazyOptional.of(() -> (IItemHandler) transferable);
+		targetCapability = bypassSided ? TransferUtil.getItemHandler(invTE)
+				: TransferUtil.getItemHandler(invTE, targetBlockFace.getFace());
 		if (targetCapability.isPresent())
 			targetCapability.addListener(this::onHandlerInvalidated);
 	}

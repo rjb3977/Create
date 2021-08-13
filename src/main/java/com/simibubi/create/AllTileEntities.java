@@ -163,6 +163,7 @@ import com.simibubi.create.content.schematics.block.SchematicannonInstance;
 import com.simibubi.create.content.schematics.block.SchematicannonRenderer;
 import com.simibubi.create.content.schematics.block.SchematicannonTileEntity;
 import com.simibubi.create.foundation.tileEntity.renderer.SmartTileEntityRenderer;
+import com.simibubi.create.lib.transfer.TransferUtil;
 import com.tterrag.registrate.util.entry.TileEntityEntry;
 
 public class AllTileEntities {
@@ -500,7 +501,7 @@ public class AllTileEntities {
 		Create.registrate()
 			.tileEntity("crushing_wheel_controller", CrushingWheelControllerTileEntity::new)
 			.validBlocks(AllBlocks.CRUSHING_WHEEL_CONTROLLER)
-			// .renderer(() -> renderer)
+//			 .renderer(() -> renderer)
 			.register();
 
 	public static final TileEntityEntry<WaterWheelTileEntity> WATER_WHEEL = Create.registrate()
@@ -692,5 +693,30 @@ public class AllTileEntities {
 		.renderer(() -> BellRenderer::new)
 		.register();
 
-	public static void register() {}
+	public static void register() {
+		TransferUtil.registerStorages(true,
+				BASIN.get(),
+				FLUID_TANK.get(),
+				CREATIVE_FLUID_TANK.get(),
+				HOSE_PULLEY.get(),
+				ITEM_DRAIN.get(),
+				PORTABLE_FLUID_INTERFACE.get(),
+				SPOUT.get());
+		TransferUtil.registerStorages(false,
+				ADJUSTABLE_CRATE.get(),
+				CREATIVE_CRATE.get(),
+				BASIN.get(),
+				BELT.get(),
+				ANDESITE_TUNNEL.get(),
+				BRASS_TUNNEL.get(),
+				CHUTE.get(),
+				CRUSHING_WHEEL_CONTROLLER.get(),
+				DEPLOYER.get(),
+				DEPOT.get(),
+				WEIGHTED_EJECTOR.get(),
+				ITEM_DRAIN.get(),
+				MECHANICAL_CRAFTER.get(),
+				MILLSTONE.get(),
+				SAW.get());
+	}
 }

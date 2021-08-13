@@ -1,13 +1,17 @@
 package com.simibubi.create.content.logistics.block.inventories;
 
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.core.BlockPos;
+
+import net.minecraft.core.Direction;
 
 import org.jetbrains.annotations.NotNull;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,7 +26,18 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class AdjustableCrateTileEntity extends CrateTileEntity implements MenuProvider {
+import org.jetbrains.annotations.Nullable;
+
+public class AdjustableCrateTileEntity extends CrateTileEntity implements MenuProvider, ItemTransferable {
+
+	@Override
+	@Nullable
+	public IItemHandler getItemHandler(Direction direction) {
+		AdjustableCrateTileEntity mainCrate = getMainCrate();
+		if (mainCrate != null && mainCrate.invHandler != null && mainCrate.invHandler.isPresent())
+			return mainCrate.invHandler.getValueUnsafer();
+		return null;
+	}
 
 	public class Inv extends ItemStackHandler {
 		public Inv() {
@@ -151,10 +166,10 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements MenuPr
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		allowedAmount = compound.getInt("AllowedAmount");
 		inventory.deserializeNBT(compound.getCompound("Inventory"));
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 	@Override

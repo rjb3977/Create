@@ -28,9 +28,12 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.recipe.RecipeConditions;
 import com.simibubi.create.foundation.utility.recipe.RecipeFinder;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-import com.simibubi.create.lib.lba.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
 import com.simibubi.create.lib.utility.ItemStackUtil;
 import com.simibubi.create.lib.utility.LazyOptional;
+
+import com.simibubi.create.lib.utility.NBTSerializer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -46,6 +49,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -67,9 +71,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import org.jetbrains.annotations.Nullable;
+
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class SawTileEntity extends BlockBreakingKineticTileEntity {
+public class SawTileEntity extends BlockBreakingKineticTileEntity implements ItemTransferable {
 
 	private static final AABB RENDER_BOX = new AABB(0, 0, 0, 1, 1, 1);
 
@@ -109,24 +115,24 @@ public class SawTileEntity extends BlockBreakingKineticTileEntity {
 
 		if (!clientPacket || playEvent.isEmpty())
 			return;
-		compound.put("PlayEvent", playEvent.serializeNBT());
+		compound.put("PlayEvent", NBTSerializer.serializeNBT(playEvent));
 		playEvent = ItemStack.EMPTY;
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		inventory.deserializeNBT(compound.getCompound("Inventory"));
 		recipeIndex = compound.getInt("RecipeIndex");
 		if (compound.contains("PlayEvent"))
 			playEvent = ItemStack.of(compound.getCompound("PlayEvent"));
 	}
 
-	@Override
-	protected AxisAlignedBB makeRenderBoundingBox() {
-		return RENDER_BOX.inflate(.125f)
-			.move(worldPosition);
-	}
+//	@Override
+//	protected AABB makeRenderBoundingBox() {
+//		return RENDER_BOX.inflate(.125f)
+//			.move(worldPosition);
+//	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
@@ -140,7 +146,7 @@ public class SawTileEntity extends BlockBreakingKineticTileEntity {
 			Item item = playEvent.getItem();
 			if (item instanceof BlockItem) {
 				Block block = ((BlockItem) item).getBlock();
-				isWood = block.getSoundType(block.defaultBlockState(), level, worldPosition, null) == SoundType.WOOD;
+				isWood = block.getSoundType(block.defaultBlockState()) == SoundType.WOOD;
 			}
 			spawnEventParticles(playEvent);
 			playEvent = ItemStack.EMPTY;
@@ -383,7 +389,7 @@ public class SawTileEntity extends BlockBreakingKineticTileEntity {
 		ItemStack remainder = inventory.insertItem(0, entity.getItem()
 			.copy(), false);
 		if (remainder.isEmpty())
-			entity.remove();
+			entity.remove(Entity.RemovalReason.DISCARDED);
 		else
 			entity.setItem(remainder);
 	}
@@ -499,4 +505,12 @@ public class SawTileEntity extends BlockBreakingKineticTileEntity {
 		return true;
 	}
 
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		if (direction != Direction.DOWN) {
+			return invProvider.getValueUnsafer();
+		}
+		return null;
+	}
 }

@@ -29,11 +29,6 @@ public class CreativeFluidTankTileEntity extends FluidTankTileEntity implements 
 		return false;
 	}
 
-	@Override
-	public IFluidHandler getFluidStorage() {
-		return tankInventory;
-	}
-
 	public static class CreativeSmartFluidTank extends SmartFluidTank {
 		public CreativeSmartFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
 			super(capacity, updateCallback);

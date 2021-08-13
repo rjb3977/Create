@@ -21,9 +21,11 @@ import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemS
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.utility.VecHelper;
 
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
-import alexiil.mc.lib.attributes.Simulation;
+import com.simibubi.create.lib.transfer.fluid.FluidTransferable;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,7 +41,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInformation {
+public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInformation, FluidTransferable {
 	private static final boolean IS_TIC_LOADED = FabricLoader.getInstance().isModLoaded("tconstruct"); // TODO may not be the modid of fabric port
 	private static final Class<?> CASTING_FLUID_HANDLER_CLASS;
 	static {
@@ -178,7 +180,7 @@ public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		}
 		FluidStack drained = localTank.drain(144, true);
 		if (!drained.isEmpty()) {
-			int filled = handler.fill(drained, true);
+			long filled = handler.fill(drained, true);
 			shouldAnimate = filled > 0;
 			sendSplash = shouldAnimate;
 			if (processingTicks == 5) {
@@ -216,8 +218,8 @@ public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		processingTicks = compound.getInt("ProcessingTicks");
 		if (!clientPacket)
 			return;
@@ -288,6 +290,15 @@ public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-		return false;//containedFluidTooltip(tooltip, isPlayerSneaking, getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY));
+		return containedFluidTooltip(tooltip, isPlayerSneaking, getFluidHandler(null));
+	}
+
+	@Nullable
+	@Override
+	public IFluidHandler getFluidHandler(@Nullable Direction direction) {
+		if (direction != Direction.DOWN) {
+			return tank.getCapability().getValueUnsafer();
+		}
+		return null;
 	}
 }

@@ -15,7 +15,10 @@ import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 import com.simibubi.create.lib.transfer.fluid.FluidTank;
+import com.simibubi.create.lib.transfer.fluid.FluidTransferable;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+
+import com.simibubi.create.lib.utility.LazyOptional;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -29,7 +32,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
-public class FluidTankTileEntity extends SmartTileEntity implements IHaveGoggleInformation, IFluidHandler {
+public class FluidTankTileEntity extends SmartTileEntity implements IHaveGoggleInformation, IFluidHandler, FluidTransferable {
 
 	private static final int MAX_SIZE = 3;
 
@@ -494,5 +497,11 @@ public class FluidTankTileEntity extends SmartTileEntity implements IHaveGoggleI
 	@Override
 	public FluidStack drain(long amount, boolean sim) {
 		return tankInventory.drain(amount, sim);
+	}
+
+	@Override
+	@Nullable
+	public IFluidHandler getFluidHandler(@Nullable Direction direction) {
+		return tankInventory;
 	}
 }

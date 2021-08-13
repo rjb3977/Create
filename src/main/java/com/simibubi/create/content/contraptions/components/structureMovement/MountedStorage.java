@@ -5,9 +5,10 @@ import com.simibubi.create.content.contraptions.processing.ProcessingInventory;
 import com.simibubi.create.content.logistics.block.inventories.AdjustableCrateBlock;
 import com.simibubi.create.content.logistics.block.inventories.BottomlessItemHandler;
 import com.simibubi.create.foundation.utility.NBTHelper;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import com.simibubi.create.lib.utility.NBTSerializer;
@@ -67,7 +68,7 @@ public class MountedStorage {
 				te.getLevel()
 					.setBlockAndUpdate(te.getBlockPos(), te.getBlockState()
 						.setValue(ChestBlock.TYPE, ChestType.SINGLE));
-			te.clearCache();
+			te.setBlockState(null);
 		}
 
 		// Split double flexcrates
@@ -77,7 +78,7 @@ public class MountedStorage {
 				te.getLevel()
 					.setBlockAndUpdate(te.getBlockPos(), te.getBlockState()
 						.setValue(AdjustableCrateBlock.DOUBLE, false));
-			te.clearCache();
+			te.setBlockState(null);
 		}
 
 		IItemHandler teHandler = TransferUtil.getItemHandler(te)

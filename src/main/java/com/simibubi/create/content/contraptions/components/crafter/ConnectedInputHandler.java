@@ -12,6 +12,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import com.simibubi.create.lib.transfer.item.CombinedInvWrapper;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -22,10 +30,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.lib.lba.item.CombinedInvWrapper;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
 
 public class ConnectedInputHandler {
@@ -198,7 +202,7 @@ public class ConnectedInputHandler {
 			isController = nbt.getBoolean("Controller");
 			data.clear();
 			nbt.getList("Data", NBT.TAG_COMPOUND)
-				.forEach(inbt -> data.add(NBTUtil.readBlockPos((CompoundNBT) inbt)));
+				.forEach(inbt -> data.add(NBTUtil.readBlockPos((CompoundTag) inbt)));
 		}
 
 	}

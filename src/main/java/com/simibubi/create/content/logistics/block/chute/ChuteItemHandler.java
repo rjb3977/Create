@@ -1,6 +1,7 @@
 package com.simibubi.create.content.logistics.block.chute;
 
-import com.simibubi.create.lib.lba.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 

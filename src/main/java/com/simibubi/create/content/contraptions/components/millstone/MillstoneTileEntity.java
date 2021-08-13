@@ -3,9 +3,18 @@ package com.simibubi.create.content.contraptions.components.millstone;
 import java.util.List;
 import java.util.Optional;
 
+import com.simibubi.create.lib.transfer.item.CombinedInvWrapper;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -22,14 +31,11 @@ import com.simibubi.create.foundation.sound.SoundScapes.AmbienceGroup;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputBehaviour;
 import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.lib.lba.item.CombinedInvWrapper;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-public class MillstoneTileEntity extends KineticTileEntity {
+import org.jetbrains.annotations.Nullable;
+
+public class MillstoneTileEntity extends KineticTileEntity implements ItemTransferable {
 
 	public ItemStackHandler inputInv;
 	public ItemStackHandler outputInv;
@@ -61,7 +67,7 @@ public class MillstoneTileEntity extends KineticTileEntity {
 			.isEmpty())
 			return;
 
-		float pitch = MathHelper.clamp((Math.abs(getSpeed()) / 256f) + .45f, .85f, 1f);
+		float pitch = Mth.clamp((Math.abs(getSpeed()) / 256f) + .45f, .85f, 1f);
 		SoundScapes.play(AmbienceGroup.MILLING, worldPosition, pitch);
 	}
 
@@ -160,11 +166,11 @@ public class MillstoneTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		timer = compound.getInt("Timer");
 		inputInv.deserializeNBT(compound.getCompound("InputInventory"));
 		outputInv.deserializeNBT(compound.getCompound("OutputInventory"));
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 	public int getProcessingSpeed() {
@@ -187,6 +193,12 @@ public class MillstoneTileEntity extends KineticTileEntity {
 			return true;
 		return AllRecipeTypes.MILLING.find(inventoryIn, level)
 			.isPresent();
+	}
+
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		return capability.getValueUnsafer();
 	}
 
 	private class MillstoneInventoryHandler extends CombinedInvWrapper {
@@ -217,7 +229,5 @@ public class MillstoneTileEntity extends KineticTileEntity {
 				return ItemStack.EMPTY;
 			return super.extractItem(slot, amount, simulate);
 		}
-
 	}
-
 }

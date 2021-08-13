@@ -9,4 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface BeaconTileEntityAccessor {
 	@Accessor("beamSections")
 	List<BeaconBlockEntity.BeaconBeamSection> create$beamSections();
+
+	@Accessor("levels")
+	int create$getLevels();
 }

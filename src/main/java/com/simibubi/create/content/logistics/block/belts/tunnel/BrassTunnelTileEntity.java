@@ -11,6 +11,12 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -52,7 +58,7 @@ import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
-public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHaveGoggleInformation {
+public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHaveGoggleInformation, ItemTransferable {
 
 	SidedFilteringBehaviour filtering;
 
@@ -334,7 +340,7 @@ public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHave
 		for (boolean left : Iterate.trueAndFalse) {
 			BrassTunnelTileEntity adjacent = this;
 			while (adjacent != null) {
-				if (!level.isAreaLoaded(adjacent.getBlockPos(), 1))
+				if (!LoadedCheckUtil.isAreaLoaded(level, adjacent.getBlockPos(), 1))
 					return null;
 				adjacent = adjacent.getAdjacent(left);
 				if (adjacent == null)
@@ -579,7 +585,7 @@ public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHave
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		boolean wasConnectedLeft = connectedLeft;
 		boolean wasConnectedRight = connectedRight;
 
@@ -601,7 +607,7 @@ public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHave
 				}));
 		}
 
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 
 		if (!clientPacket)
 			return;
@@ -699,11 +705,13 @@ public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHave
 //	}
 
 	public LazyOptional<IItemHandler> getBeltCapability() {
-//		if (!beltCapability.isPresent()) {
-//			TileEntity tileEntity = level.getBlockEntity(worldPosition.below());
-//			if (tileEntity != null)
-//				beltCapability = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
-//		}
+		if (!beltCapability.isPresent()) {
+			BlockEntity tileEntity = level.getBlockEntity(worldPosition.below());
+			if (tileEntity != null && tileEntity instanceof ItemTransferable transferable) {
+				IItemHandler handler = transferable.getItemHandler(null);
+				beltCapability = LazyOptional.ofObject(handler);
+			}
+		}
 		return beltCapability;
 	}
 
@@ -763,4 +771,9 @@ public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHave
 		return true;
 	}
 
+	@Override
+	@Nullable
+	public IItemHandler getItemHandler(Direction direction) {
+		return tunnelCapability.getValueUnsafer();
+	}
 }

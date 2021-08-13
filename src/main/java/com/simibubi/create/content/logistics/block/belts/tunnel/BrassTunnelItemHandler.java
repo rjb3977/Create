@@ -1,8 +1,9 @@
 package com.simibubi.create.content.logistics.block.belts.tunnel;
 
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
 import org.jetbrains.annotations.NotNull;
 
-import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 import net.minecraft.world.item.ItemStack;
 

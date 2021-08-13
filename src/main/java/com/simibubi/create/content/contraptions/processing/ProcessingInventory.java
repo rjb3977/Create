@@ -1,13 +1,18 @@
 package com.simibubi.create.content.contraptions.processing;
 
 import java.util.function.Consumer;
+
+import com.simibubi.create.foundation.item.ItemHelper;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
+import com.simibubi.create.lib.utility.ItemStackUtil;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class ProcessingInventory extends SimpleContainer {
+public class ProcessingInventory extends ItemStackHandler {
 	public float remainingTime;
 	public float recipeDuration;
 	public boolean appliedRecipe;
@@ -30,16 +35,16 @@ public class ProcessingInventory extends SimpleContainer {
 	}
 
 	public void clear() {
-		for (int i = 0; i < getContainerSize(); i++)
-			setItem(i, ItemStack.EMPTY);
+		for (int i = 0; i < getSlots(); i++)
+			setStackInSlot(i, ItemStack.EMPTY);
 		remainingTime = 0;
 		recipeDuration = 0;
 		appliedRecipe = false;
 	}
 
 	public boolean isEmpty() {
-		for (int i = 0; i < getContainerSize(); i++)
-			if (!getItem(i).isEmpty())
+		for (int i = 0; i < getSlots(); i++)
+			if (!getStackInSlot(i).isEmpty())
 				return false;
 		return true;
 	}
@@ -47,8 +52,8 @@ public class ProcessingInventory extends SimpleContainer {
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		ItemStack insertItem = super.insertItem(slot, stack, simulate);
-		if (slot == 0 && !ItemStack.matches(insertItem, stack))
-			callback.accept(getItem(slot));
+		if (slot == 0 && !ItemStackUtil.areTagsEqual(insertItem, stack))
+			callback.accept(getStackInSlot(slot));
 		return insertItem;
 	}
 
@@ -77,7 +82,7 @@ public class ProcessingInventory extends SimpleContainer {
 	}
 
 	@Override
-	public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+	public boolean isItemValid(int slot, ItemStack stack) {
 		return slot == 0 && isEmpty();
 	}
 

@@ -2,14 +2,20 @@ package com.simibubi.create.content.logistics.block.depot;
 
 import java.util.List;
 
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 
 import net.minecraft.world.level.block.state.BlockState;
 
-public class DepotTileEntity extends SmartTileEntity {
+import org.jetbrains.annotations.Nullable;
+
+public class DepotTileEntity extends SmartTileEntity implements ItemTransferable {
 
 	DepotBehaviour depotBehaviour;
 
@@ -21,6 +27,12 @@ public class DepotTileEntity extends SmartTileEntity {
 	public void addBehaviours(List<TileEntityBehaviour> behaviours) {
 		behaviours.add(depotBehaviour = new DepotBehaviour(this));
 		depotBehaviour.addSubBehaviours(behaviours);
+	}
+
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		return depotBehaviour.itemHandler;
 	}
 
 //	@Override

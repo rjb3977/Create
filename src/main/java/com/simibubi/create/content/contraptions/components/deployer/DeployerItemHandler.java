@@ -2,14 +2,15 @@ package com.simibubi.create.content.contraptions.components.deployer;
 
 import java.util.Iterator;
 
-import net.minecraft.world.Container;
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
-public class DeployerItemHandler implements Container {
+public class DeployerItemHandler implements IItemHandlerModifiable {
 
 	private DeployerTileEntity te;
 	private DeployerFakePlayer player;
@@ -20,12 +21,12 @@ public class DeployerItemHandler implements Container {
 	}
 
 	@Override
-	public int getContainerSize() {
+	public int getSlots() {
 		return 1;
 	}
 
 	@Override
-	public ItemStack getItem(int slot) {
+	public ItemStack getStackInSlot(int slot) {
 		return getHeld();
 	}
 
@@ -112,11 +113,11 @@ public class DeployerItemHandler implements Container {
 		if (amount == 0 || held.isEmpty())
 			return ItemStack.EMPTY;
 		if (!te.filtering.getFilter()
-			.isEmpty() && te.filtering.test(held))
+				.isEmpty() && te.filtering.test(held))
 			return ItemStack.EMPTY;
 		if (simulate)
 			return held.copy()
-				.split(amount);
+					.split(amount);
 
 		ItemStack toReturn = held.split(amount);
 		te.setChanged();
@@ -139,5 +140,4 @@ public class DeployerItemHandler implements Container {
 	public void setStackInSlot(int slot, ItemStack stack) {
 		set(stack);
 	}
-
 }

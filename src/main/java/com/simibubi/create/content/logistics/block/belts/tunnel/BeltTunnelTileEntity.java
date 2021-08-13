@@ -7,13 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.simibubi.create.AllBlocks;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.core.BlockPos;
+
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.jozufozu.flywheel.backend.instancing.IInstanceRendered;
 import com.jozufozu.flywheel.backend.instancing.InstancedRenderDispatcher;
-import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.logistics.block.belts.tunnel.BeltTunnelBlock.Shape;
 import com.simibubi.create.content.logistics.block.funnel.BeltFunnelBlock;
 import com.simibubi.create.content.logistics.packet.TunnelFlapPacket;
@@ -22,7 +28,6 @@ import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.tterrag.registrate.fabric.EnvExecutor;
@@ -40,7 +45,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class BeltTunnelTileEntity extends SmartTileEntity implements IInstanceRendered {
+import org.jetbrains.annotations.Nullable;
+
+public class BeltTunnelTileEntity extends SmartTileEntity implements IInstanceRendered, ItemTransferable {
 
 	public Map<Direction, InterpolatedChasingValue> flaps;
 	public Set<Direction> sides;
@@ -183,6 +190,25 @@ public class BeltTunnelTileEntity extends SmartTileEntity implements IInstanceRe
 
 	@Override
 	public void addBehaviours(List<TileEntityBehaviour> behaviours) {}
+
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(Direction direction) {
+		if (!this.cap.isPresent()) {
+			if (AllBlocks.BELT.has(level.getBlockState(worldPosition.below()))) {
+				BlockEntity teBelow = level.getBlockEntity(worldPosition.below());
+				if (teBelow != null) {
+					if (teBelow instanceof ItemTransferable transferable) {
+						IItemHandler handlerBelow = transferable.getItemHandler(Direction.UP);
+						if (handlerBelow != null) {
+							cap = LazyOptional.ofObject(handlerBelow).cast();
+						}
+					}
+				}
+			}
+		}
+		return this.cap.getValueUnsafer();
+	}
 
 //	@Override
 //	public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {

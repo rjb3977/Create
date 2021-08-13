@@ -6,6 +6,14 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -47,8 +56,6 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.ItemStackUtil;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.NBTSerializer;
@@ -59,7 +66,7 @@ import com.simibubi.create.lib.utility.NBTSerializer;
  * Commented Code: Chutes create air streams and act similarly to encased fans
  * (Unfinished)
  */
-public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInformation { // , IAirCurrentSource {
+public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInformation, ItemTransferable { // , IAirCurrentSource {
 
 	//	public AirCurrent airCurrent;
 
@@ -230,7 +237,7 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 				continue;
 			setItem(entityItem.copy(), (float) (itemEntity.getBoundingBox()
 				.getCenter().y - worldPosition.getY()));
-			itemEntity.remove();
+			itemEntity.remove(Entity.RemovalReason.DISCARDED);
 			AllTriggers.triggerForNearbyPlayers(AllTriggers.UPWARD_CHUTE, level, worldPosition, 5);
 			break;
 		}
@@ -518,14 +525,14 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		ItemStack previousItem = item;
 		item = ItemStack.of(compound.getCompound("Item"));
 		itemPosition.lastValue = itemPosition.value = compound.getFloat("ItemPosition");
 		pull = compound.getFloat("Pull");
 		push = compound.getFloat("Push");
 		bottomPullDistance = compound.getFloat("BottomAirFlowDistance");
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 //		if (clientPacket)
 //			airCurrent.rebuild();
 
@@ -564,7 +571,7 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	}
 
 	public void onAdded() {
-		clearCache();
+		this.setBlockState(null);
 		updatePull();
 		ChuteTileEntity targetChute = getTargetChute(getBlockState());
 		if (targetChute != null)
@@ -727,6 +734,12 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 
 	public ItemStack getItem() {
 		return item;
+	}
+
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		return lazyHandler.getValueUnsafer();
 	}
 
 	//	@Override

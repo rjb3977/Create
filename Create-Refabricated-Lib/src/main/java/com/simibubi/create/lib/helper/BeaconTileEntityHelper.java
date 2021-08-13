@@ -11,6 +11,10 @@ public final class BeaconTileEntityHelper {
 		return get(bte).create$beamSections();
 	}
 
+	public static int getLevels(BeaconBlockEntity bte) {
+		return get(bte).create$getLevels();
+	}
+
 	private static BeaconTileEntityAccessor get(BeaconBlockEntity bte) {
 		return MixinHelper.cast(bte);
 	}

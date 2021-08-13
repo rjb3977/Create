@@ -8,6 +8,14 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
+
+import com.tterrag.registrate.fabric.EnvExecutor;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
@@ -45,11 +53,11 @@ import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputB
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.helper.EntityHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 import com.simibubi.create.lib.utility.ItemStackUtil;
 
-public class CrushingWheelControllerTileEntity extends SmartTileEntity {
+import org.jetbrains.annotations.Nullable;
+
+public class CrushingWheelControllerTileEntity extends SmartTileEntity implements ItemTransferable {
 
 	public Entity processingEntity;
 	private UUID entityUUID;
@@ -107,7 +115,7 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 			return;
 
 		if (level.isClientSide)
-			DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> () -> this.tickAudio());
+			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> this.tickAudio());
 
 		float speed = crushingspeed * 4;
 
@@ -377,4 +385,9 @@ public class CrushingWheelControllerTileEntity extends SmartTileEntity {
 		return processingEntity != null;
 	}
 
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		return handler;
+	}
 }

@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -78,8 +79,8 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 		CRecipes config = AllConfigs.SERVER.recipes;
 		if (world.isClientSide) {
 			int light = itemData.getInt("CollectingLight");
-			if (random.nextInt(config.lightSourceCountForRefinedRadiance.get() + 20) < light) {
-				Vec3 start = VecHelper.offsetRandomly(positionVec, random, 3);
+			if (world.getRandom().nextInt(config.lightSourceCountForRefinedRadiance.get() + 20) < light) {
+				Vec3 start = VecHelper.offsetRandomly(positionVec, world.getRandom(), 3);
 				Vec3 motion = positionVec.subtract(start)
 					.normalize()
 					.scale(.2f);
@@ -112,7 +113,7 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 			stack.split(1);
 			entity.setItem(stack);
 			if (stack.isEmpty())
-				entity.remove();
+				entity.remove(Entity.RemovalReason.DISCARDED);
 			return false;
 		}
 
@@ -138,7 +139,7 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 
 				BeaconBlockEntity bte = (BeaconBlockEntity) te;
 
-				if (bte.getLevels() != 0 && !BeaconTileEntityHelper.getBeamSegments(bte).isEmpty())
+				if (BeaconTileEntityHelper.getLevels(bte) != 0 && !BeaconTileEntityHelper.getBeamSegments(bte).isEmpty())
 					isOverBeacon = true;
 
 				break;
@@ -186,7 +187,7 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 		world.addFreshEntity(newEntity);
 //		entity.lifespan = 6000; todo: see if this is actually needed
 		if (stack.isEmpty())
-			entity.remove();
+			entity.remove(Entity.RemovalReason.DISCARDED);
 
 		return false;
 	}

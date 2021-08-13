@@ -31,7 +31,9 @@ import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputB
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour.TransportedResult;
 import com.simibubi.create.foundation.utility.NBTHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
 import net.fabricmc.api.EnvType;
@@ -54,7 +56,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
-public class BeltTileEntity extends KineticTileEntity implements LightUpdateListener, RenderAttachmentBlockEntity {
+public class BeltTileEntity extends KineticTileEntity implements ILightUpdateListener, RenderAttachmentBlockEntity, ItemTransferable {
 
 	public Map<Entity, TransportedEntityInfo> passengers;
 	public Optional<DyeColor> color;
@@ -71,6 +73,14 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 
 	// client
 	public byte[] light;
+
+	@Override
+	public IItemHandler getItemHandler(Direction direction) {
+		if (direction == Direction.UP || BeltBlock.canAccessFromSide(direction, getBlockState())) {
+			return itemHandler;
+		}
+		return null;
+	}
 
 	public static enum CasingType {
 		NONE, ANDESITE, BRASS;
@@ -186,12 +196,6 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	}
 
 	@Override
-	public void setRemoved() {
-		super.setRemoved();
-		itemHandler.invalidate();
-	}
-
-	@Override
 	public void write(CompoundTag compound, boolean clientPacket) {
 		if (controller != null)
 			compound.put("Controller", NbtUtils.writeBlockPos(controller));
@@ -209,8 +213,8 @@ public class BeltTileEntity extends KineticTileEntity implements LightUpdateList
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 
 		if (compound.getBoolean("IsController"))
 			controller = worldPosition;

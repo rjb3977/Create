@@ -34,18 +34,25 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
 
+import com.simibubi.create.lib.transfer.TransferUtil;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidTransferable;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 import com.simibubi.create.lib.transfer.item.CombinedInvWrapper;
 import com.simibubi.create.lib.transfer.item.IItemHandler;
 import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
 import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -62,7 +69,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInformation {
+import org.jetbrains.annotations.Nullable;
+
+public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInformation, FluidTransferable, ItemTransferable {
 
 	private boolean areFluidsMoving;
 	LerpedFloat ingredientRotationSpeed;
@@ -322,7 +331,7 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 				.orElse(inserter == null ? null : inserter.getInventory());
 
 		IFluidHandler targetTank = te == null ? null
-			: te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, direction.getOpposite())
+			: TransferUtil.getFluidHandler(te, direction.getOpposite())
 				.orElse(null);
 
 		boolean update = false;
@@ -468,10 +477,10 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 			InvManipulationBehaviour inserter =
 				te == null ? null : TileEntityBehaviour.get(level, te.getBlockPos(), InvManipulationBehaviour.TYPE);
 			IItemHandler targetInv = te == null ? null
-				: te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, direction.getOpposite())
+				: TransferUtil.getItemHandler(te, direction.getOpposite())
 					.orElse(inserter == null ? null : inserter.getInventory());
 			IFluidHandler targetTank = te == null ? null
-				: te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, direction.getOpposite())
+				: TransferUtil.getFluidHandler(te, direction.getOpposite())
 					.orElse(null);
 			if (!outputItems.isEmpty() && targetInv == null)
 				return false;
@@ -661,6 +670,18 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		return containedFluidTooltip(tooltip, isPlayerSneaking,
 				TransferUtil.getFluidHandler(this).orElse(null));
+	}
+
+	@Override
+	@Nullable
+	public IFluidHandler getFluidHandler(@Nullable Direction direction) {
+		return fluidCapability.getValueUnsafer();
+	}
+
+	@Override
+	@Nullable
+	public IItemHandler getItemHandler(Direction direction) {
+		return itemCapability.getValueUnsafer();
 	}
 
 	class BasinValueBox extends ValueBoxTransform.Sided {

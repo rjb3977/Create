@@ -3,6 +3,17 @@ package com.simibubi.create.content.contraptions.fluids.actors;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.simibubi.create.foundation.utility.Pair;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
+import com.simibubi.create.lib.transfer.fluid.FluidTransferable;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
+import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -22,15 +33,13 @@ import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputB
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.foundation.utility.Pair;
 import com.simibubi.create.foundation.utility.VecHelper;
 
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-import alexiil.mc.lib.attributes.Simulation;
+import org.jetbrains.annotations.Nullable;
 
-public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleInformation {
+public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleInformation, FluidTransferable, ItemTransferable {
 
 	public static final int FILLING_TIME = 20;
 
@@ -267,12 +276,12 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		heldItem = null;
 		processingTicks = compound.getInt("ProcessingTicks");
 		if (compound.contains("HeldItem"))
 			heldItem = TransportedItemStack.read(compound.getCompound("HeldItem"));
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 //	@Override
@@ -294,4 +303,21 @@ public class ItemDrainTileEntity extends SmartTileEntity implements IHaveGoggleI
 		return false;//containedFluidTooltip(tooltip, isPlayerSneaking, getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY));
 	}
 
+	@Nullable
+	@Override
+	public IFluidHandler getFluidHandler(@Nullable Direction direction) {
+		if (direction != Direction.UP) {
+			return internalTank.getCapability().getValueUnsafer();
+		}
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler(@Nullable Direction direction) {
+		if (direction != null && direction.getAxis().isHorizontal()) {
+			return itemHandlers.get(direction).getValueUnsafer();
+		}
+		return null;
+	}
 }

@@ -27,6 +27,13 @@ import com.simibubi.create.lib.transfer.fluid.FluidStack;
 import com.simibubi.create.lib.transfer.fluid.FluidTank;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 
+import com.simibubi.create.lib.transfer.item.CombinedInvWrapper;
+
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+
+import net.minecraft.network.protocol.game.DebugPackets;
+import net.minecraft.server.level.ServerLevel;
+
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -302,7 +309,7 @@ public abstract class Contraption {
 			return false;
 		visited.add(pos);
 
-		if (Level.isOutsideBuildHeight(pos))
+		if (world.isOutsideBuildHeight(pos))
 			return true;
 		if (!world.isLoaded(pos))
 			throw AssemblyException.unloadedChunk(pos);
@@ -890,10 +897,10 @@ public abstract class Contraption {
 				tag.putInt("y", info.pos.getY());
 				tag.putInt("z", info.pos.getZ());
 
-				BlockEntity te = BlockEntity.loadStatic(info.state, tag);
+				BlockEntity te = BlockEntity.loadStatic(info.pos, info.state, tag);
 				if (te == null)
 					return;
-				te.setLevelAndPosition(new ContraptionTileWorld(world, te, info), te.getBlockPos());
+				te.setLevel(new ContraptionTileWorld(world, te, info));
 				if (te instanceof KineticTileEntity)
 					((KineticTileEntity) te).setSpeed(0);
 				te.getBlockState();
@@ -928,7 +935,7 @@ public abstract class Contraption {
 			.forEach(MountedStorage::removeStorageFromWorld);
 		fluidStorage.values()
 			.forEach(MountedFluidStorage::removeStorageFromWorld);
-		glueToRemove.forEach(SuperGlueEntity::remove);
+		glueToRemove.forEach(entity -> entity.remove(Entity.RemovalReason.DISCARDED));
 
 		for (boolean brittles : Iterate.trueAndFalse) {
 			for (Iterator<StructureBlockInfo> iterator = blocks.values()
@@ -968,11 +975,11 @@ public abstract class Contraption {
 			// when the blockstate is set to air, the block's POI data is removed, but markAndNotifyBlock tries to
 			// remove it again, so to prevent an error from being logged by double-removal we add the POI data back now
 			// (code copied from ServerWorld.onBlockStateChange)
-			ServerWorld serverWorld = (ServerWorld) world;
-			PointOfInterestType.forState(block.state).ifPresent(poiType -> {
+			ServerLevel serverWorld = (ServerLevel) world;
+			PoiType.forState(block.state).ifPresent(poiType -> {
 				world.getServer().execute(() -> {
 					serverWorld.getPoiManager().add(add, poiType);
-					DebugPacketSender.sendPoiAddedPacket(serverWorld, add);
+					DebugPackets.sendPoiAddedPacket(serverWorld, add);
 				});
 			});
 
@@ -1041,7 +1048,7 @@ public abstract class Contraption {
 					if (tileEntity instanceof FluidTankTileEntity && tag.contains("LastKnownPos"))
 						tag.put("LastKnownPos", NbtUtils.writeBlockPos(BlockPos.ZERO.below()));
 
-					tileEntity.load(block.state, tag);
+					tileEntity.load(tag);
 
 					if (storage.containsKey(block.pos)) {
 						MountedStorage mountedStorage = storage.get(block.pos);
