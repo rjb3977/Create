@@ -309,13 +309,6 @@ public class FluidTankTileEntity extends SmartTileEntity implements IHaveGoggleI
 //		return renderBoundingBox;
 //	}
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public double getViewDistance() {
-		int dist = 64 + getMaxHeight() * 2;
-		return dist * dist;
-	}
-
 	@Nullable
 	public FluidTankTileEntity getOtherFluidTankTileEntity(Direction direction) {
 		BlockEntity otherTE = level.getBlockEntity(worldPosition.relative(direction));

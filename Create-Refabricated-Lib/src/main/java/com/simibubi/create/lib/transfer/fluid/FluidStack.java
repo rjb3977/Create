@@ -59,6 +59,10 @@ public class FluidStack {
 		setAmount(getAmount() - amount);
 	}
 
+	public void shrink (long amount) {
+		setAmount(getAmount() - amount);
+	}
+
 	public boolean isFluidEqual(FluidStack other) {
 		if (this == other) return true;
 		if (other == null) return false;

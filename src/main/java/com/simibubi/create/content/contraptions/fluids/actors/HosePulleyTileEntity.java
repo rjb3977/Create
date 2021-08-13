@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 
 public class HosePulleyTileEntity extends KineticTileEntity implements FluidTransferable {
 
-	LerpedFloat offset;
+	public LerpedFloat offset;
 	boolean isMoving;
 
 	private SmartFluidTank internalTank;
@@ -105,12 +105,6 @@ public class HosePulleyTileEntity extends KineticTileEntity implements FluidTran
 	@Environment(EnvType.CLIENT)
 	public AABB getRenderBoundingBox() {
 		return super.getRenderBoundingBox().expandTowards(0, -offset.getValue(), 0);
-	}
-
-	@Override
-	@Environment(EnvType.CLIENT)
-	public double getViewDistance() {
-		return super.getViewDistance() + offset.getValue() * offset.getValue();
 	}
 
 	@Override

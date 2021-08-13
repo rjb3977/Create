@@ -379,9 +379,9 @@ public class OpenEndedPipe extends FlowSource {
 				return;
 			List<LivingEntity> list =
 				world.getEntitiesOfClass(LivingEntity.class, pipe.getAOE(), LivingEntity::isAffectedByPotions);
-			ItemStack curativeItem = new ItemStack(Items.MILK_BUCKET);
+//			ItemStack curativeItem = new ItemStack(Items.MILK_BUCKET);
 			for (LivingEntity livingentity : list)
-				livingentity.curePotionEffects(curativeItem);
+				livingentity.removeAllEffects();
 		}
 	}
 

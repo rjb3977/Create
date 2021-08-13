@@ -38,6 +38,7 @@ import com.simibubi.create.lib.transfer.TransferUtil;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 import com.simibubi.create.lib.transfer.fluid.FluidTransferable;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandlerItem;
 import com.simibubi.create.lib.transfer.item.CombinedInvWrapper;
 import com.simibubi.create.lib.transfer.item.IItemHandler;
 import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
@@ -444,12 +445,6 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		return outputInventory;
 	}
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public double getViewDistance() {
-		return 256;
-	}
-
 	public boolean canContinueProcessing() {
 		return spoutputBuffer.isEmpty() && spoutputFluidBuffer.isEmpty();
 	}
@@ -490,7 +485,8 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 			if (simulate)
 				return true;
 			for (ItemStack itemStack : outputItems) {
-				if (itemStack.hasContainerItem() && itemStack.getContainerItem()
+				IFluidHandlerItem handler = TransferUtil.getFluidHandlerItem(itemStack, getWorld()).getValueUnsafer();
+				if (handler != null && handler.getContainer()
 					.sameItem(itemStack))
 					continue;
 				spoutputBuffer.add(itemStack.copy());

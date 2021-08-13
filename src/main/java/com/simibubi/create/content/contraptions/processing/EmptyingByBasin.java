@@ -3,10 +3,14 @@ package com.simibubi.create.content.contraptions.processing;
 import java.util.List;
 import java.util.Optional;
 
+import com.simibubi.create.lib.transfer.TransferUtil;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
+import com.simibubi.create.lib.transfer.fluid.IFluidHandlerItem;
 import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 import com.simibubi.create.lib.transfer.item.RecipeWrapper;
+
+import com.simibubi.create.lib.utility.LazyOptional;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.minecraft.world.item.ItemStack;
@@ -31,7 +35,7 @@ public class EmptyingByBasin {
 			return true;
 
 		LazyOptional<IFluidHandlerItem> capability =
-				TransferUtil.getFluidHandlerItem(stack);
+				TransferUtil.getFluidHandlerItem(stack, world);
 		IFluidHandlerItem tank = capability.orElse(null);
 		if (tank == null)
 			return false;
@@ -65,7 +69,7 @@ public class EmptyingByBasin {
 		ItemStack split = stack.copy();
 		split.setCount(1);
 		LazyOptional<IFluidHandlerItem> capability =
-				TransferUtil.getFluidHandlerItem(split);
+				TransferUtil.getFluidHandlerItem(split, world);
 		IFluidHandlerItem tank = capability.orElse(null);
 		if (tank == null)
 			return Pair.of(resultingFluid, resultingItem);

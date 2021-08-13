@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -35,11 +36,6 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 //	public AxisAlignedBB makeRenderBoundingBox() {
 //		return super.makeRenderBoundingBox().expand(0, -offset, 0);
 //	}
-
-	@Override
-	public double getViewDistance() {
-		return super.getViewDistance() + offset * offset;
-	}
 
 	@Override
 	public void tick() {
@@ -155,7 +151,7 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 		}
 
 		if (movedContraption != null)
-			movedContraption.remove();
+			movedContraption.remove(Entity.RemovalReason.DISCARDED);
 		movedContraption = null;
 		initialOffset = 0;
 		running = false;

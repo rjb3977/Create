@@ -9,6 +9,8 @@ import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import com.simibubi.create.lib.transfer.fluid.FluidTank;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.util.Mth;
@@ -17,6 +19,12 @@ public class FluidTankRenderer extends SafeTileEntityRenderer<FluidTankTileEntit
 
 	public FluidTankRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
+	}
+
+	@Override
+	public int getViewDistance() {
+		int dist = 64 + FluidTankTileEntity.getMaxHeight() * 2;
+		return dist * dist;
 	}
 
 	@Override

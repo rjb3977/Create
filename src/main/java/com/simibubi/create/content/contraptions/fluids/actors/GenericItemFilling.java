@@ -4,7 +4,12 @@ import com.simibubi.create.AllFluids;
 import com.simibubi.create.content.contraptions.fluids.potion.PotionFluidHandler;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 
+import com.simibubi.create.lib.transfer.TransferUtil;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
+import com.simibubi.create.lib.transfer.fluid.IFluidHandlerItem;
+
+import com.simibubi.create.lib.utility.LazyOptional;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -50,7 +55,7 @@ public class GenericItemFilling {
 			return false;
 
 		LazyOptional<IFluidHandlerItem> capability =
-				TransferUtil.getFluidHandlerItem(stack);
+				TransferUtil.getFluidHandlerItem(stack, world);
 
 		IFluidHandlerItem tank = capability.orElse(null);
 		if (tank == null)
@@ -71,24 +76,24 @@ public class GenericItemFilling {
 		if (stack.getItem() == Items.BUCKET && canFillBucketInternally(availableFluid))
 			return 1000;
 
-//		LazyOptional<IFluidHandlerItem> capability =
-//			stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
-//		IFluidHandlerItem tank = capability.orElse(null);
-//		if (tank == null)
-//			return -1;
+		LazyOptional<IFluidHandlerItem> capability =
+			TransferUtil.getFluidHandlerItem(stack, world);
+		IFluidHandlerItem tank = capability.orElse(null);
+		if (tank == null)
+			return -1;
 //		if (tank instanceof FluidBucketWrapper) {
-			Item filledBucket = availableFluid.getFluid()
-				.getBucket();
-			if (filledBucket == null || filledBucket == Items.AIR)
-				return -1;
+//			Item filledBucket = availableFluid.getFluid()
+//				.getBucket();
+//			if (filledBucket == null || filledBucket == Items.AIR)
+//				return -1;
 //			if (!((FluidBucketWrapper) tank).getFluid()
 //				.isEmpty())
 //				return -1;
-			return 1000;
+//			return 1000;
 //		}
 
-//		int filled = tank.fill(availableFluid, FluidAction.SIMULATE);
-//		return filled == 0 ? -1 : filled;
+		long filled = tank.fill(availableFluid, false);
+		return filled == 0 ? -1 : (int) filled;
 	}
 
 	private static boolean canFillGlassBottleInternally(FluidStack availableFluid) {
@@ -103,9 +108,9 @@ public class GenericItemFilling {
 	}
 
 	public static ItemStack fillItem(Level world, int requiredAmount, ItemStack stack, FluidStack availableFluid) {
-		FluidStack toFill = (FluidStack) availableFluid.withAmount(FluidUtil.millibucketsToFluidAmount(requiredAmount));
-
-//		availableFluid.shrink(requiredAmount);
+		FluidStack toFill = availableFluid.copy();
+		toFill.setAmount(requiredAmount);
+		availableFluid.shrink(requiredAmount);
 
 		if (stack.getItem() == Items.GLASS_BOTTLE && canFillGlassBottleInternally(toFill)) {
 			ItemStack fillBottle = ItemStack.EMPTY;
@@ -120,17 +125,16 @@ public class GenericItemFilling {
 
 		ItemStack split = stack.copy();
 		split.setCount(1);
-//		LazyOptional<IFluidHandlerItem> capability =
-//			split.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
-//		IFluidHandlerItem tank = capability.orElse(null);
-//		if (tank == null)
-//			return ItemStack.EMPTY;
-//		tank.fill(toFill, FluidAction.EXECUTE);
-//		ItemStack container = tank.getContainer()
-//			.copy();
+		LazyOptional<IFluidHandlerItem> capability =
+			TransferUtil.getFluidHandlerItem(split, world);
+		IFluidHandlerItem tank = capability.orElse(null);
+		if (tank == null)
+			return ItemStack.EMPTY;
+		tank.fill(toFill, false);
+		ItemStack container = tank.getContainer()
+			.copy();
 		stack.shrink(1);
-//		return container;
-	return ItemStack.EMPTY;
+		return container;
 	}
 
 }

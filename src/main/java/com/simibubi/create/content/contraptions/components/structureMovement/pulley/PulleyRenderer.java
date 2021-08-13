@@ -6,15 +6,25 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
+import com.simibubi.create.content.contraptions.fluids.actors.HosePulleyTileEntity;
 import com.simibubi.create.foundation.render.SuperByteBuffer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public class PulleyRenderer extends AbstractPulleyRenderer {
 
 	public PulleyRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher, AllBlockPartials.ROPE_HALF, AllBlockPartials.ROPE_HALF_MAGNET);
+	}
+
+	public int getViewDistance(PulleyTileEntity te) {
+		return (int) (super.getViewDistance() + te.offset * te.offset);
+	}
+
+	public boolean shouldRender(KineticTileEntity blockEntity, Vec3 vec3) {
+		return Vec3.atCenterOf(blockEntity.getBlockPos()).closerThan(vec3, this.getViewDistance((PulleyTileEntity) blockEntity));
 	}
 
 	@Override

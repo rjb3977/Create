@@ -1,8 +1,11 @@
 package com.simibubi.create.lib.transfer;
 
+import com.simibubi.create.lib.transfer.fluid.FluidStorageHandlerItem;
 import com.simibubi.create.lib.transfer.fluid.FluidStorageHandler;
 import com.simibubi.create.lib.transfer.fluid.FluidTransferable;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandlerItem;
+import com.simibubi.create.lib.transfer.fluid.SingleItemStackContext;
 import com.simibubi.create.lib.transfer.fluid.StorageFluidHandler;
 import com.simibubi.create.lib.transfer.item.IItemHandler;
 
@@ -12,7 +15,6 @@ import com.simibubi.create.lib.transfer.item.ItemTransferable;
 import com.simibubi.create.lib.transfer.item.StorageItemHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -20,6 +22,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -54,6 +57,13 @@ public class TransferUtil {
 	public static LazyOptional<IFluidHandler> getFluidHandler(BlockEntity be, Direction side) {
 		Storage<FluidVariant> fluidStorage = FluidStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, side);
 		return handleInstanceOfChecks(fluidStorage).cast();
+	}
+
+	// Fluid-containing items
+
+	public static LazyOptional<IFluidHandlerItem> getFluidHandlerItem(ItemStack stack, Level level) {
+		Storage<FluidVariant> fluidStorage = FluidStorage.ITEM.find(stack, new SingleItemStackContext(stack, level));
+		return LazyOptional.ofObject(new FluidStorageHandlerItem(stack, fluidStorage));
 	}
 
 	// Helpers

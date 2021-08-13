@@ -17,6 +17,8 @@ import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
 
 import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
@@ -33,6 +35,11 @@ public class BasinRenderer extends SmartTileEntityRenderer<BasinTileEntity> {
 
 	public BasinRenderer(BlockEntityRenderDispatcher dispatcher) {
 		super(dispatcher);
+	}
+
+	@Override
+	public int getViewDistance() {
+		return 256;
 	}
 
 	@Override

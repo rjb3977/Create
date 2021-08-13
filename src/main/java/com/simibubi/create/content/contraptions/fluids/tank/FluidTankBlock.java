@@ -13,6 +13,7 @@ import com.simibubi.create.foundation.tileEntity.ComparatorUtil;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.lib.extensions.BlockExtensions;
 
+import com.simibubi.create.lib.transfer.TransferUtil;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
@@ -199,7 +200,7 @@ public class FluidTankBlock extends Block implements IWrenchable, ITE<FluidTankT
 						BlockParticleOption blockParticleData = new BlockParticleOption(ParticleTypes.BLOCK, fluidState);
 						float level = (float) fluidInTank.getAmount() / fluidTank.getTankCapacity(0);
 
-						boolean reversed = FluidUtil.isLighterThanAir(fluidInTank.getFluid());
+						boolean reversed = false;//FluidUtil.isLighterThanAir(fluidInTank.getFluid());
 
 						if (reversed)
 							level = 1 - level;
