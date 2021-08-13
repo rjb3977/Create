@@ -17,6 +17,7 @@ import com.jozufozu.flywheel.event.BeginFrameEvent;
 import com.jozufozu.flywheel.light.GridAlignedBB;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3d;
 import com.simibubi.create.content.contraptions.components.structureMovement.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionLighter;
@@ -24,14 +25,13 @@ import com.simibubi.create.foundation.render.CreateContexts;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class RenderedContraption extends ContraptionRenderInfo {
 
@@ -82,16 +82,16 @@ public class RenderedContraption extends ContraptionRenderInfo {
 
 		if (!isVisible()) return;
 
-		kinetics.beginFrame(event.getInfo());
+		kinetics.beginFrame(info);
 
-		Vector3d cameraPos = event.getCameraPos();
+		Vec3 cameraPos = new Vec3(camX, camY, camZ);
 
 		lightBox = GridAlignedBB.toAABB(lighter.lightVolume.getTextureVolume())
 				.move(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 	}
 
 	@Override
-	public void setupMatrices(MatrixStack viewProjection, double camX, double camY, double camZ) {
+	public void setupMatrices(PoseStack viewProjection, double camX, double camY, double camZ) {
 		super.setupMatrices(viewProjection, camX, camY, camZ);
 
 		if (!modelViewPartialReady) {
@@ -148,9 +148,9 @@ public class RenderedContraption extends ContraptionRenderInfo {
 						.canInstance(te.getType())) {
 					Level world = te.getLevel();
 					BlockPos pos = te.getBlockPos();
-					te.setLevelAndPosition(renderWorld, pos);
+					te.setLevel(renderWorld);
 					kinetics.add(te);
-					te.setLevelAndPosition(world, pos);
+					te.setLevel(world);
 				}
 			}
 		}
@@ -161,9 +161,9 @@ public class RenderedContraption extends ContraptionRenderInfo {
 	}
 
 	public static void setupModelViewPartial(Matrix4f matrix, Matrix4f modelMatrix, AbstractContraptionEntity entity, double camX, double camY, double camZ, float pt) {
-		float x = (float) (MathHelper.lerp(pt, entity.xOld, entity.getX()) - camX);
-		float y = (float) (MathHelper.lerp(pt, entity.yOld, entity.getY()) - camY);
-		float z = (float) (MathHelper.lerp(pt, entity.zOld, entity.getZ()) - camZ);
+		float x = (float) (Mth.lerp(pt, entity.xOld, entity.getX()) - camX);
+		float y = (float) (Mth.lerp(pt, entity.yOld, entity.getY()) - camY);
+		float z = (float) (Mth.lerp(pt, entity.zOld, entity.getZ()) - camZ);
 		matrix.setTranslation(x, y, z);
 		matrix.multiply(modelMatrix);
 	}

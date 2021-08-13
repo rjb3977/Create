@@ -67,7 +67,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 		coil.setRotation(rotationAxis.rotationDegrees(offset * 180));
 		magnet.update().get().ifPresent(data ->
 				{
-					int index = Math.max(0, MathHelper.floor(offset));
+					int index = Math.max(0, Mth.floor(offset));
 					data.setPosition(getInstancePosition())
 							.nudge(0, -offset, 0)
 							.setBlockLight(bLight[index])
@@ -187,8 +187,8 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		changed.forEachContained((x, y, z) -> {
 			pos.set(x, y, z);
-			byte block = (byte) world.getBrightness(LightType.BLOCK, pos);
-			byte sky = (byte) world.getBrightness(LightType.SKY, pos);
+			byte block = (byte) world.getBrightness(LightLayer.BLOCK, pos);
+			byte sky = (byte) world.getBrightness(LightLayer.SKY, pos);
 
 			int i = top - y;
 

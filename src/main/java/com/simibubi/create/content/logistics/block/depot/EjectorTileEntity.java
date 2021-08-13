@@ -582,12 +582,6 @@ public class EjectorTileEntity extends KineticTileEntity implements ItemTransfer
 		return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);//INFINITE_EXTENT_AABB;
 	}
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public double getViewDistance() {
-		return super.getViewDistance() * 16;
-	}
-
 	private static abstract class EntityHack extends Entity {
 
 		public EntityHack(EntityType<?> p_i48580_1_, Level p_i48580_2_) {

@@ -32,6 +32,11 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 	}
 
 	@Override
+	public int getViewDistance() {
+		return super.getViewDistance() * 16;
+	}
+
+	@Override
 	public boolean shouldRenderOffScreen(SchematicannonTileEntity p_188185_1_) {
 		return true;
 	}

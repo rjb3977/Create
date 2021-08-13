@@ -487,7 +487,7 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 
 	@Override
 	public void remove(RemovalReason reason /*boolean keepData*/) {
-		if (!level.isClientSide && !removed && contraption != null) {
+		if (!level.isClientSide && !isRemoved() && contraption != null) {
 			if (!ticking)
 				contraption.stop(level);
 		}
@@ -559,9 +559,9 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 		List<Entity> passengers = getPassengers();
 
 		for (Entity entity : passengers) {
-			// fixme I do not know how this converts -Platy
 			// setPos has world accessing side-effects when removed == false
-			entity.removed = true;
+			// note from 1.17: not anymore!
+//			entity.removed = true;
 
 			// Gather passengers into same chunk when saving
 			Vec3 prevVec = entity.position();
@@ -569,7 +569,7 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 
 			// Super requires all passengers to not be removed in order to write them to the
 			// tag
-			entity.removed = false;
+//			entity.removed = false;
 		}
 
 		CompoundTag tag = super.saveWithoutId(nbt);

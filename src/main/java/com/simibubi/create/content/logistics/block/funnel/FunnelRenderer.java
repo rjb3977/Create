@@ -24,6 +24,15 @@ public class FunnelRenderer extends SmartTileEntityRenderer<FunnelTileEntity> {
 		super(dispatcher);
 	}
 
+	public int getViewDistance(boolean flap) {
+		return flap ? super.getViewDistance() : 64;
+	}
+
+	@Override
+	public boolean shouldRender(FunnelTileEntity blockEntity, Vec3 vec3) {
+		return Vec3.atCenterOf(blockEntity.getBlockPos()).closerThan(vec3, this.getViewDistance(blockEntity.hasFlap()));
+	}
+
 	@Override
 	protected void renderSafe(FunnelTileEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 		int light, int overlay) {

@@ -14,9 +14,9 @@ import net.minecraft.world.entity.Entity;
  * </p>
  */
 public class ContraptionMatrices {
-	private final PoseStack modelViewProjection = new MatrixStack();
-	private final PoseStack viewProjection = new MatrixStack();
-	private final PoseStack model = new MatrixStack();
+	private final PoseStack modelViewProjection = new PoseStack();
+	private final PoseStack viewProjection = new PoseStack();
+	private final PoseStack model = new PoseStack();
 	private final Matrix4f world = new Matrix4f();
 	private final Matrix4f light = new Matrix4f();
 
@@ -97,7 +97,7 @@ public class ContraptionMatrices {
 		matrix.setTranslation((float) x, (float) y, (float) z);
 	}
 
-	public static void clearStack(MatrixStack ms) {
+	public static void clearStack(PoseStack ms) {
 		while (!ms.clear()) {
 			ms.popPose();
 		}

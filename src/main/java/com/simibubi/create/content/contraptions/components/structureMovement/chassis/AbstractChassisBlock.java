@@ -38,7 +38,7 @@ public abstract class AbstractChassisBlock extends RotatedPillarBlock implements
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.CHASSIS.create();
+		return AllTileEntities.CHASSIS.create(pos, state);
 	}
 
 	@Override

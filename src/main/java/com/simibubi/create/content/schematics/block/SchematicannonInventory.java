@@ -1,5 +1,7 @@
 package com.simibubi.create.content.schematics.block;
 
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
 import org.jetbrains.annotations.NotNull;
 
 import com.simibubi.create.AllItems;

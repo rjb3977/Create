@@ -1,6 +1,9 @@
 package com.simibubi.create.content.contraptions.components.structureMovement;
 
 import java.util.function.BiPredicate;
+
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;

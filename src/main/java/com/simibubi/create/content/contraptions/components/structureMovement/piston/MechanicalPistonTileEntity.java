@@ -31,9 +31,9 @@ public class MechanicalPistonTileEntity extends LinearActuatorTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		extensionLength = compound.getInt("ExtensionLength");
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 	@Override

@@ -123,8 +123,8 @@ public class CouplingRenderer {
 		double yIn = lerp(pt, cart.yOld, cart.getY());
 		double zIn = lerp(pt, cart.zOld, cart.getZ());
 
-		float yaw = lerp(pt, cart.yRotO, cart.yRot);
-		float pitch = lerp(pt, cart.xRotO, cart.xRot);
+		float yaw = lerp(pt, cart.yRotO, cart.getYRot());
+		float pitch = lerp(pt, cart.xRotO, cart.getXRot());
 		float roll = cart.getHurtTime() - pt;
 
 		float rollAmplifier = cart.getDamage() - pt;

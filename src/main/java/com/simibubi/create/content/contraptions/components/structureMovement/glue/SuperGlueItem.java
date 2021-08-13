@@ -77,7 +77,7 @@ public class SuperGlueItem extends Item implements CustomMaxCountItem {
 	}
 
 	protected boolean canPlace(Player entity, Direction facing, ItemStack stack, BlockPos pos) {
-		return !Level.isOutsideBuildHeight(pos) && entity.mayUseItemAt(pos, facing, stack);
+		return !entity.level.isOutsideBuildHeight(pos) && entity.mayUseItemAt(pos, facing, stack);
 	}
 
 	@Environment(EnvType.CLIENT)

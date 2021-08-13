@@ -3,4 +3,4 @@ package com.simibubi.create.content.contraptions.components.structureMovement.re
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import mcp.MethodsReturnNonnullByDefault;
+import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;

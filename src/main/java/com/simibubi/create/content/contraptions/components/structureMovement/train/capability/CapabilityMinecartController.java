@@ -144,7 +144,8 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 			if (!minecartController.isPresent())
 				continue;
 			AbstractMinecart cart = minecartController.cart();
-			if (cart.xChunk == chunkPos.x && cart.zChunk == chunkPos.z)
+			ChunkPos cartPos = cart.chunkPosition();
+			if (cartPos.x == chunkPos.x && cartPos.z == chunkPos.z)
 				queuedUnloads.get(world)
 					.add(cart.getUUID());
 		}
@@ -213,8 +214,8 @@ public class CapabilityMinecartController implements NBTSerializable/*ICapabilit
 			if (capability.cap.isPresent())
 				capability.cap.invalidate();
 		});
-		queuedAdditions.get(entity.getCommandSenderWorld())
-			.add((AbstractMinecartEntity) entity);
+		queuedAdditions.get(cart.getCommandSenderWorld())
+			.add(cart);
 	}
 
 	public static void startTracking(Entity entity) {

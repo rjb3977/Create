@@ -2,6 +2,11 @@ package com.simibubi.create.content.contraptions.components.structureMovement.gl
 
 import javax.annotation.Nullable;
 
+import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameRules;
+
 import org.apache.commons.lang3.Validate;
 
 import com.jozufozu.flywheel.backend.instancing.IInstanceRendered;
@@ -25,7 +30,6 @@ import com.tterrag.registrate.fabric.EnvExecutor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.entity.EntityPickInteractionAware;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -33,7 +37,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.entity.MobEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -59,7 +62,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.AABB;
@@ -68,7 +70,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 
-public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISpecialEntityItemRequirement, IInstanceRendered {
+public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISpecialEntityItemRequirement, IInstanceRendered, BlockPickInteractionAware {
 
 	private int validationTimer;
 	protected BlockPos hangingPosition;
@@ -113,16 +115,15 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 		Validate.notNull(getFacingDirection());
 		if (getFacingDirection().getAxis()
 			.isHorizontal()) {
-			this.xRot = 0.0F;
-			this.yRot = getFacingDirection().get2DDataValue() * 90;
+			this.setXRot(0);
+			this.setYRot(getFacingDirection().get2DDataValue() * 90);
 		} else {
-			this.xRot = -90 * getFacingDirection().getAxisDirection()
-				.getStep();
-			this.yRot = 0.0F;
+			this.setXRot(-90 * getFacingDirection().getAxisDirection().getStep());
+			this.setYRot(0);
 		}
 
-		this.xRotO = this.xRot;
-		this.yRotO = this.yRot;
+		this.xRotO = this.getXRot();
+		this.yRotO = this.getYRot();
 		this.updateBoundingBox();
 	}
 
@@ -163,7 +164,7 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 		if (this.validationTimer++ == 10 && !this.level.isClientSide) {
 			this.validationTimer = 0;
 			if (isAlive() && !this.onValidSurface()) {
-				remove();
+				remove(RemovalReason.DISCARDED);
 				onBroken(null);
 			}
 		}
@@ -267,7 +268,7 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 
 		boolean mobGriefing = level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
 		Entity trueSource = source.getEntity();
-		if (!mobGriefing && trueSource instanceof MobEntity)
+		if (!mobGriefing && trueSource instanceof Mob)
 			return false;
 
 		Entity immediateSource = source.getDirectEntity();
@@ -277,7 +278,7 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 		}
 
 		if (isAlive() && !level.isClientSide) {
-			remove();
+			remove(RemovalReason.DISCARDED);
 			markHurt();
 			onBroken(source.getEntity());
 		}
@@ -288,7 +289,7 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 	@Override
 	public void move(MoverType typeIn, Vec3 pos) {
 		if (!level.isClientSide && isAlive() && pos.lengthSqr() > 0.0D) {
-			remove();
+			remove(RemovalReason.DISCARDED);
 			onBroken(null);
 		}
 	}
@@ -296,7 +297,7 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 	@Override
 	public void push(double x, double y, double z) {
 		if (!level.isClientSide && isAlive() && x * x + y * y + z * z > 0.0D) {
-			remove();
+			remove(RemovalReason.DISCARDED);
 			onBroken(null);
 		}
 	}
@@ -307,7 +308,7 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 	}
 
 	@Override
-	public ItemStack getPickedStack(Player player, HitResult target) {
+	public ItemStack getPickedStack(BlockState state, BlockGetter view, BlockPos pos, @Nullable Player player, @Nullable HitResult result) {
 		return AllItems.SUPER_GLUE.asStack();
 	}
 
@@ -424,7 +425,7 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 			}
 		}
 
-		float f = Mth.wrapDegrees(this.yRot);
+		float f = Mth.wrapDegrees(this.getYRot());
 		switch (transformRotation) {
 		case CLOCKWISE_180:
 			return f + 180.0F;

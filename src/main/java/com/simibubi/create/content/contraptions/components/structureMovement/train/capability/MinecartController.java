@@ -416,16 +416,16 @@ public class MinecartController implements NBTSerializable, ListenerProvider, co
 		StallData(AbstractMinecart entity) {
 			position = entity.position();
 			motion = entity.getDeltaMovement();
-			yaw = entity.yRot;
-			pitch = entity.xRot;
+			yaw = entity.getYRot();
+			pitch = entity.getXRot();
 			tick(entity);
 		}
 
 		void tick(AbstractMinecart entity) {
 			entity.setPos(position.x, position.y, position.z);
 			entity.setDeltaMovement(Vec3.ZERO);
-			entity.yRot = yaw;
-			entity.xRot = pitch;
+			entity.setYRot(yaw);
+			entity.setXRot(pitch);
 		}
 
 		void release(AbstractMinecart entity) {

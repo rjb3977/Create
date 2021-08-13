@@ -36,6 +36,11 @@ public class EjectorRenderer extends KineticTileEntityRenderer {
 	}
 
 	@Override
+	public int getViewDistance() {
+		return super.getViewDistance() * 16;
+	}
+
+	@Override
 	protected void renderSafe(KineticTileEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 		int light, int overlay) {
 		super.renderSafe(te, partialTicks, ms, buffer, light, overlay);

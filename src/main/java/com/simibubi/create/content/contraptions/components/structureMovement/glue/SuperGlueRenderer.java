@@ -65,7 +65,7 @@ public class SuperGlueRenderer extends EntityRenderer<SuperGlueEntity> {
 		MultiBufferSource buffer, int light) {
 		super.render(entity, yaw, partialTicks, ms, buffer, light);
 
-		VertexConsumer builder = buffer.getBuffer(RenderType.entityCutout(getEntityTexture(entity)));
+		VertexConsumer builder = buffer.getBuffer(RenderType.entityCutout(getTextureLocation(entity)));
 		light = getBrightnessForRender(entity);
 		Direction face = entity.getFacingDirection();
 

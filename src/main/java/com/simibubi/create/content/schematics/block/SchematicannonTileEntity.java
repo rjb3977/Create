@@ -31,9 +31,10 @@ import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.NBTProcessors;
 import com.simibubi.create.lib.block.CustomRenderBoundingBox;
-import com.simibubi.create.lib.lba.item.EmptyHandler;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.item.EmptyHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 import com.simibubi.create.lib.utility.NBTSerializer;
@@ -118,12 +119,6 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 //		return new AxisAlignedBB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 //	}
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public double getViewDistance() {
-		return super.getViewDistance() * 16;
-	}
-
 	public SchematicannonTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		setLazyTickRate(30);
@@ -131,7 +126,7 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 		flyingBlocks = new LinkedList<>();
 		inventory = new SchematicannonInventory(this);
 		statusMsg = "idle";
-		state = State.STOPPED;
+		this.state = State.STOPPED;
 		replaceMode = 2;
 		checklist = new MaterialChecklist();
 		printer = new SchematicPrinter();
@@ -161,9 +156,9 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 	}
 
 	@Override
-	protected void fromTag(BlockState blockState, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		if (!clientPacket) {
-			inventory.deserializeNBT(compound.getCompound("Inventory"));
+			NBTSerializer.deserializeNBT(inventory, compound.getCompound("Inventory"));
 		}
 
 		// Gui information
@@ -191,7 +186,7 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 		if (compound.contains("FlyingBlocks"))
 			readFlyingBlocks(compound);
 
-		super.fromTag(blockState, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 	protected void readFlyingBlocks(CompoundTag compound) {
@@ -232,7 +227,7 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 	@Override
 	public void write(CompoundTag compound, boolean clientPacket) {
 		if (!clientPacket) {
-			compound.put("Inventory", inventory.serializeNBT());
+			compound.put("Inventory", NBTSerializer.serializeNBT(inventory));
 			if (state == State.RUNNING) {
 				compound.putBoolean("Running", true);
 			}

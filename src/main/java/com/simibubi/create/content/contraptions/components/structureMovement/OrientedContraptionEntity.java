@@ -2,6 +2,7 @@ package com.simibubi.create.content.contraptions.components.structureMovement;
 
 import static com.simibubi.create.foundation.utility.AngleHelper.angleLerp;
 
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Optional;
 import java.util.UUID;
@@ -376,12 +377,12 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 		if (!rotationLock) {
 			if (riding instanceof AbstractMinecart) {
 				AbstractMinecart minecartEntity = (AbstractMinecart) riding;
-				BlockPos railPosition = minecartEntity.getCurrentRailPosition();
+				BlockPos railPosition = MinecartAndRailUtil.getExpectedRailPos(minecartEntity);
 				BlockState blockState = level.getBlockState(railPosition);
 				if (blockState.getBlock() instanceof BaseRailBlock) {
-					BaseRailBlock abstractRailBlock = (BaseRailBlock) blockState.getBlock();
+//					BaseRailBlock abstractRailBlock = (BaseRailBlock) blockState.getBlock();
 					RailShape railDirection =
-						abstractRailBlock.getRailDirection(blockState, level, railPosition, minecartEntity);
+							MinecartAndRailUtil.getDirectionOfRail(blockState, level, railPosition, minecartEntity);
 					motion = VecHelper.project(motion, MinecartSim2020.getRailVec(railDirection));
 				}
 			}

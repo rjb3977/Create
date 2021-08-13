@@ -1,11 +1,12 @@
 package com.simibubi.create.content.contraptions.components.structureMovement;
 
 import static net.minecraft.world.entity.Entity.collideBoundingBoxHeuristically;
-import static net.minecraft.world.entity.Entity.getHorizontalDistanceSqr;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import com.simibubi.create.content.contraptions.components.structureMovement.train.MinecartSim2020;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableFloat;
@@ -333,7 +334,7 @@ public class ContraptionCollider {
 
 			double d0 = entity.getX() - entity.xo - contactPointMotion.x;
 			double d1 = entity.getZ() - entity.zo - contactPointMotion.z;
-			float limbSwing = Mth.sqrt(d0 * d0 + d1 * d1) * 4.0F;
+			float limbSwing = Mth.sqrt((float) (d0 * d0 + d1 * d1)) * 4.0F;
 			if (limbSwing > 1.0F)
 				limbSwing = 1.0F;
 			AllPackets.channel.sendToServer(new ClientMotionPacket(entityMotion, true, limbSwing));
@@ -425,12 +426,12 @@ public class ContraptionCollider {
 			if (allowedStepGivenMovement.y < (double) e.maxUpStep) {
 				Vec3 vec3 = collideBoundingBoxHeuristically(e, new Vec3(movement.x, 0.0D, movement.z),
 					bb.move(allowedStepGivenMovement), world, ctx, reuseablestream).add(allowedStepGivenMovement);
-				if (getHorizontalDistanceSqr(vec3) > getHorizontalDistanceSqr(allowedStep)) {
+				if (MinecartSim2020.getHorizontalDistanceSqr(vec3) > MinecartSim2020.getHorizontalDistanceSqr(allowedStep)) {
 					allowedStep = vec3;
 				}
 			}
 
-			if (getHorizontalDistanceSqr(allowedStep) > getHorizontalDistanceSqr(allowedMovement)) {
+			if (MinecartSim2020.getHorizontalDistanceSqr(allowedStep) > MinecartSim2020.getHorizontalDistanceSqr(allowedMovement)) {
 				return allowedStep.add(collideBoundingBoxHeuristically(e, new Vec3(0.0D, -allowedStep.y + movement.y, 0.0D),
 					bb.move(allowedStep), world, ctx, reuseablestream));
 			}

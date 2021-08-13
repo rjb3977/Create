@@ -85,8 +85,7 @@ public class SailBlock extends ProperDirectionalBlock implements BlockPickIntera
 			return InteractionResult.PASS;
 
 		for (DyeColor color : DyeColor.values()) {
-			if (!heldItem.getItem()
-					.is(DyeHelper.getTagOfDye(color)))
+			if (!heldItem.is(DyeHelper.getTagOfDye(color)))
 				continue;
 			if (!world.isClientSide)
 				applyDye(state, world, pos, color);

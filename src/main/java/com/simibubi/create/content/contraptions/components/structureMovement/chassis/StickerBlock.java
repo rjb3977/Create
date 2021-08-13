@@ -87,7 +87,7 @@ public class StickerBlock extends ProperDirectionalBlock implements ITE<StickerT
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.STICKER.create();
+		return AllTileEntities.STICKER.create(pos, state);
 	}
 
 	@Override

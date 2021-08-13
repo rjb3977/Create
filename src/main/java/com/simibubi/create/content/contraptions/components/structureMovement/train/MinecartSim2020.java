@@ -1,13 +1,12 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.train;
 
-import static net.minecraft.world.entity.Entity.getHorizontalDistanceSqr;
-
 import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.MinecartFurnace;
 import net.minecraft.world.level.block.state.BlockState;
@@ -202,4 +201,7 @@ public class MinecartSim2020 {
 		}
 	}
 
+	public static double getHorizontalDistanceSqr(Vec3 vec) {
+		return vec.x() * vec.x() + vec.z() * vec.z();
+	}
 }

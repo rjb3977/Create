@@ -334,11 +334,6 @@ public class FunnelTileEntity extends SmartTileEntity implements IHaveHoveringIn
 			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> InstancedRenderDispatcher.enqueueUpdate(this));
 	}
 
-	@Override
-	public double getViewDistance() {
-		return hasFlap() ? super.getViewDistance() : 64;
-	}
-
 	public void onTransfer(ItemStack stack) {
 		AllBlocks.CONTENT_OBSERVER.get()
 			.onFunnelTransfer(level, worldPosition, stack);

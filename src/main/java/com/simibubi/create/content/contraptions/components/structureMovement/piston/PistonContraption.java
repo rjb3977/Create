@@ -163,7 +163,7 @@ public class PistonContraption extends TranslatingContraption {
 			if (offset == 1 && retracting)
 				return true;
 			BlockPos currentPos = pos.relative(orientation, offset + initialExtensionProgress);
-			if (retracting && Level.isOutsideBuildHeight(currentPos))
+			if (retracting && world.isOutsideBuildHeight(currentPos))
 				return true;
 			if (!world.isLoaded(currentPos))
 				throw AssemblyException.unloadedChunk(currentPos);
