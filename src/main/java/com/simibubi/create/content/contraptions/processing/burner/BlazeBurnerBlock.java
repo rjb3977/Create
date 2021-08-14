@@ -46,6 +46,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
@@ -158,7 +159,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 			return InteractionResultHolder.fail(ItemStack.EMPTY);
 
 		if (!doNotConsume) {
-			ItemStack container = stack.getContainerItem();
+			ItemStack container = new ItemStack(stack.getItem().getCraftingRemainingItem());
 			if (!world.isClientSide && !simulate) {
 				stack.shrink(1);
 			}
@@ -205,7 +206,7 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathType type) {
+	public boolean isPathfindable(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, PathComputationType pathComputationType) {
 		return false;
 	}
 
@@ -231,24 +232,24 @@ public class BlazeBurnerBlock extends Block implements ITE<BlazeBurnerTileEntity
 			.ordinal() * 4 - 1, 0, 15);
 	}
 
-	public static LootTable.Builder buildLootTable() {
-		IBuilder survivesExplosion = SurvivesExplosion.survivesExplosion();
-		BlazeBurnerBlock block = AllBlocks.BLAZE_BURNER.get();
-
-		LootTable.Builder builder = LootTable.lootTable();
-		LootPool.Builder poolBuilder = LootPool.lootPool();
-		for (HeatLevel level : HeatLevel.values()) {
-			IItemProvider drop =
-				level == HeatLevel.NONE ? AllItems.EMPTY_BLAZE_BURNER.get() : AllBlocks.BLAZE_BURNER.get();
-			poolBuilder.add(ItemLootEntry.lootTableItem(drop)
-				.when(survivesExplosion)
-				.when(BlockStateProperty.hasBlockStateProperties(block)
-					.setProperties(StatePropertiesPredicate.Builder.properties()
-						.hasProperty(HEAT_LEVEL, level))));
-		}
-		builder.withPool(poolBuilder.setRolls(ConstantValue.exactly(1)));
-		return builder;
-	}
+//	public static LootTable.Builder buildLootTable() {
+//		IBuilder survivesExplosion = SurvivesExplosion.survivesExplosion();
+//		BlazeBurnerBlock block = AllBlocks.BLAZE_BURNER.get();
+//
+//		LootTable.Builder builder = LootTable.lootTable();
+//		LootPool.Builder poolBuilder = LootPool.lootPool();
+//		for (HeatLevel level : HeatLevel.values()) {
+//			IItemProvider drop =
+//				level == HeatLevel.NONE ? AllItems.EMPTY_BLAZE_BURNER.get() : AllBlocks.BLAZE_BURNER.get();
+//			poolBuilder.add(ItemLootEntry.lootTableItem(drop)
+//				.when(survivesExplosion)
+//				.when(BlockStateProperty.hasBlockStateProperties(block)
+//					.setProperties(StatePropertiesPredicate.Builder.properties()
+//						.hasProperty(HEAT_LEVEL, level))));
+//		}
+//		builder.withPool(poolBuilder.setRolls(ConstantValue.exactly(1)));
+//		return builder;
+//	}
 
 	public enum HeatLevel implements StringRepresentable {
 		NONE, SMOULDERING, FADING, KINDLED, SEETHING, ;

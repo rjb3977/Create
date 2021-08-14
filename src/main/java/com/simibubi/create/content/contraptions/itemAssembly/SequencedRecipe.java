@@ -5,13 +5,19 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipe;
 import com.simibubi.create.content.contraptions.processing.ProcessingRecipeSerializer;
+
+import com.simibubi.create.lib.mixin.accessor.IngredientAccessor;
+
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 public class SequencedRecipe<T extends ProcessingRecipe<?>> {
 
@@ -33,7 +39,7 @@ public class SequencedRecipe<T extends ProcessingRecipe<?>> {
 		@SuppressWarnings("unchecked")
 		ProcessingRecipeSerializer<T> serializer = (ProcessingRecipeSerializer<T>) wrapped.getSerializer();
 		JsonObject json = new JsonObject();
-		json.addProperty("type", ForgeRegistries.RECIPE_SERIALIZERS.getKey(serializer)
+		json.addProperty("type", Registry.RECIPE_SERIALIZER.getKey(serializer)
 			.toString());
 		serializer.write(json, wrapped);
 		return json;
@@ -49,7 +55,7 @@ public class SequencedRecipe<T extends ProcessingRecipe<?>> {
 			if (assemblyRecipe.supportsAssembly()) {
 				Ingredient transit = Ingredient.of(parent.getTransitionalItem());
 				processingRecipe.getIngredients()
-					.set(0, index == 0 ? Ingredient.merge(ImmutableList.of(transit, parent.getIngredient())) : transit);
+					.set(0, index == 0 ? merge(ImmutableList.of(transit, parent.getIngredient())) : transit);
 				SequencedRecipe<?> sequencedRecipe = new SequencedRecipe<>(processingRecipe);
 				return sequencedRecipe;
 			}
@@ -57,10 +63,14 @@ public class SequencedRecipe<T extends ProcessingRecipe<?>> {
 		throw new JsonParseException("Not a supported recipe type");
 	}
 
+	public static Ingredient merge(Collection<Ingredient> parts) {
+		return IngredientAccessor.invokeFromValues(parts.stream().flatMap(i -> Arrays.stream(((IngredientAccessor) (Object) i).getAcceptedItems())));
+	}
+
 	public void writeToBuffer(FriendlyByteBuf buffer) {
 		@SuppressWarnings("unchecked")
 		ProcessingRecipeSerializer<T> serializer = (ProcessingRecipeSerializer<T>) wrapped.getSerializer();
-		buffer.writeResourceLocation(ForgeRegistries.RECIPE_SERIALIZERS.getKey(serializer));
+		buffer.writeResourceLocation(Registry.RECIPE_SERIALIZER.getKey(serializer));
 		buffer.writeResourceLocation(wrapped.getId());
 		serializer.toNetwork(buffer, wrapped);
 	}
@@ -68,7 +78,7 @@ public class SequencedRecipe<T extends ProcessingRecipe<?>> {
 	public static SequencedRecipe<?> readFromBuffer(FriendlyByteBuf buffer) {
 		ResourceLocation resourcelocation = buffer.readResourceLocation();
 		ResourceLocation resourcelocation1 = buffer.readResourceLocation();
-		RecipeSerializer<?> serializer = ForgeRegistries.RECIPE_SERIALIZERS.getValue(resourcelocation);
+		RecipeSerializer<?> serializer = Registry.RECIPE_SERIALIZER.get(resourcelocation);
 		if (!(serializer instanceof ProcessingRecipeSerializer))
 			throw new JsonParseException("Not a supported recipe type");
 		@SuppressWarnings("rawtypes")

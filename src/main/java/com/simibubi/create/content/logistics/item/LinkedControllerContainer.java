@@ -2,8 +2,10 @@ package com.simibubi.create.content.logistics.item;
 
 import com.simibubi.create.AllContainerTypes;
 import com.simibubi.create.foundation.gui.IClearableContainer;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.SlotItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
+import com.simibubi.create.lib.transfer.item.SlotItemHandler;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;

@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.simibubi.create.AllRecipeTypes;
@@ -24,8 +27,6 @@ import com.simibubi.create.content.logistics.item.filter.attribute.astralsorcery
 import com.simibubi.create.content.logistics.item.filter.attribute.astralsorcery.AstralSorceryCrystalAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.astralsorcery.AstralSorceryPerkGemAttribute;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.RecipeWrapper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

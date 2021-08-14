@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.mojang.math.Vector3d;
 import com.simibubi.create.content.curiosities.bell.SoulParticle.ExpandingPerimeterData;
 import com.simibubi.create.foundation.utility.VecHelper;
 
@@ -73,8 +75,8 @@ public class SoulPulseEffect {
 			.collect(Collectors.toList());
 	}
 
-	public static boolean isDark(World world, BlockPos at) {
-		return world.getBrightness(LightType.BLOCK, at) < 8;
+	public static <World> boolean isDark(Level world, BlockPos at) {
+		return world.getBrightness(LightLayer.BLOCK, at) < 8;
 	}
 
 	public static boolean canSpawnSoulAt(Level world, BlockPos at, boolean ignoreLight) {
@@ -83,12 +85,12 @@ public class SoulPulseEffect {
 		double w2 = dummyWidth / 2;
 
 		return world != null
-			&& WorldEntitySpawner
-				.isSpawnPositionOk(EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, world, at, dummy)
+			&& NaturalSpawner
+				.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, world, at, dummy)
 			&& (ignoreLight || isDark(world, at))
 			&& world
 				.getBlockCollisions(null,
-					new AxisAlignedBB(at.getX() + 0.5 - w2, at.getY(), at.getZ() + 0.5 - w2, at.getX() + 0.5 + w2,
+					new AABB(at.getX() + 0.5 - w2, at.getY(), at.getZ() + 0.5 - w2, at.getX() + 0.5 + w2,
 						at.getY() + dummyHeight, at.getZ() + 0.5 + w2),
 					(a, b) -> true)
 				.allMatch(VoxelShape::isEmpty);
@@ -98,13 +100,13 @@ public class SoulPulseEffect {
 		if (world == null || !world.isClientSide)
 			return;
 
-		Vector3d p = Vector3d.atLowerCornerOf(at);
+		Vec3 p = Vec3.atLowerCornerOf(at);
 		if (canOverlap())
 			world.addAlwaysVisibleParticle(((int) Math.round(VecHelper.getCenterOf(pos)
 				.distanceTo(VecHelper.getCenterOf(at)))) >= distance ? new SoulParticle.PerimeterData()
 					: new ExpandingPerimeterData(),
 				p.x + 0.5, p.y + 0.5, p.z + 0.5, 0, 0, 0);
-		if (world.getBrightness(LightType.BLOCK, at) < 8) {
+		if (world.getBrightness(LightLayer.BLOCK, at) < 8) {
 			world.addAlwaysVisibleParticle(new SoulParticle.Data(), p.x + 0.5, p.y + 0.5, p.z + 0.5, 0, 0, 0);
 			world.addParticle(new SoulBaseParticle.Data(), p.x + 0.5, p.y + 0.01, p.z + 0.5, 0, 0, 0);
 		}

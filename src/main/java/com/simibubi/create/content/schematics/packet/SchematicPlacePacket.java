@@ -4,14 +4,10 @@ import java.util.function.Supplier;
 
 import com.simibubi.create.content.schematics.SchematicPrinter;
 import com.simibubi.create.foundation.config.AllConfigs;
-import com.simibubi.create.foundation.networking.SimplePacketBase;
 import com.simibubi.create.foundation.utility.BlockHelper;
-import com.simibubi.create.content.schematics.SchematicProcessor;
-import com.simibubi.create.content.schematics.item.SchematicItem;
 
 import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.SimpleChannel.ResponseTarget;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
@@ -56,11 +52,11 @@ public class SchematicPlacePacket implements C2SPacket {
 					continue;
 
 				printer.handleCurrentTarget((pos, state, tile) -> {
-					boolean placingAir = state.getBlock().isAir(state, world, pos);
+					boolean placingAir = state.isAir();
 					if (placingAir && !includeAir)
 						return;
 
-					CompoundNBT tileData = tile != null ? tile.save(new CompoundNBT()) : null;
+					CompoundTag tileData = tile != null ? tile.save(new CompoundTag()) : null;
 					BlockHelper.placeSchematicBlock(world, state, pos, null, tileData);
 				}, (pos, entity) -> {
 					world.addFreshEntity(entity);

@@ -5,7 +5,8 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.content.logistics.RedstoneLinkNetworkHandler;
 import com.simibubi.create.content.logistics.RedstoneLinkNetworkHandler.Frequency;
 import com.simibubi.create.foundation.utility.Couple;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.item.UseFirstBehaviorItem;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.NetworkUtil;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
@@ -31,7 +32,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class LinkedControllerItem extends Item implements MenuProvider {
+public class LinkedControllerItem extends Item implements MenuProvider, UseFirstBehaviorItem {
 
 	public LinkedControllerItem(Properties properties) {
 		super(properties);

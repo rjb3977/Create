@@ -7,6 +7,11 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
+import com.simibubi.create.lib.utility.BoundingBoxUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -18,7 +23,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import com.simibubi.create.content.contraptions.fluids.actors.FluidDrainingBehaviour.FluidBlockType;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
@@ -67,7 +71,7 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 		}
 
 		if (affectedArea == null)
-			affectedArea = new BoundingBox(root, root);
+			affectedArea = BoundingBoxUtil.from2BlockPos(root, root);
 
 		Level world = getWorld();
 		if (!queue.isEmpty() && !isValid) {
@@ -95,7 +99,7 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 //				if (blockState.getValue(FlowingFluidBlock.LEVEL) == 0)
 //					fluid = flowingFluid.getFluid();
 //				else {
-					affectedArea.expand(new BoundingBox(currentPos, currentPos));
+				BoundingBoxUtil.expandFromOtherBox(affectedArea, BoundingBoxUtil.from2BlockPos(currentPos, currentPos));
 					if (!tileEntity.isVirtual())
 						world.setBlock(currentPos, emptied, 2 | 16);
 					queue.dequeue();
@@ -139,7 +143,7 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 
 			if (!tileEntity.isVirtual())
 				world.setBlock(currentPos, emptied, 2 | 16);
-			affectedArea.expand(new BoundingBox(currentPos, currentPos));
+			BoundingBoxUtil.expandFromOtherBox(affectedArea, BoundingBoxUtil.from2BlockPos(currentPos, currentPos));
 
 			queue.dequeue();
 			if (queue.isEmpty()) {
@@ -236,7 +240,7 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 	public void rebuildContext(BlockPos root) {
 		reset();
 		rootPos = root;
-		affectedArea = new BoundingBox(rootPos, rootPos);
+		affectedArea = BoundingBoxUtil.from2BlockPos(rootPos, rootPos);
 		if (isValid)
 			frontier.add(new BlockPosEntry(root, 0));
 	}

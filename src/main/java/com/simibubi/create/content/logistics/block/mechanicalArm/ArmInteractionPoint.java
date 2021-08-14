@@ -5,6 +5,12 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.InvWrapper;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.jozufozu.flywheel.core.PartialModel;
@@ -76,7 +82,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
-// fixme all sorts of LBA -Platy
 public abstract class ArmInteractionPoint {
 	public enum Mode {
 		DEPOSIT, TAKE
@@ -165,8 +170,8 @@ public abstract class ArmInteractionPoint {
 			BlockEntity te = world.getBlockEntity(pos);
 			if (te == null)
 				return null;
-			ItemInsertable insertable = ItemAttributes.INSERTABLE.getFirstOrNull(te.getLevel(), te.getBlockPos(), SearchOptions.inDirection(Direction.UP));
-			cachedHandler = insertable == null ? LazyOptional.empty() : LazyOptional.of(() -> (IItemHandler) insertable);
+			IItemHandler insertable = TransferUtil.getItemHandler(te, Direction.UP).getValueUnsafer();
+			cachedHandler = insertable == null ? LazyOptional.empty() : LazyOptional.of(() -> insertable);
 		}
 		return cachedHandler.orElse(null);
 	}
@@ -232,9 +237,9 @@ public abstract class ArmInteractionPoint {
 	}
 
 	protected static void transformPos(StructureTransform transform, CompoundTag nbt) {
-		BlockPos pos = NBTUtil.readBlockPos(nbt.getCompound("Pos"));
+		BlockPos pos = NbtUtils.readBlockPos(nbt.getCompound("Pos"));
 		pos = transform.applyWithoutOffset(pos);
-		nbt.put("Pos", NBTUtil.writeBlockPos(pos));
+		nbt.put("Pos", NbtUtils.writeBlockPos(pos));
 	}
 
 	public static abstract class TopFaceArmInteractionPoint extends ArmInteractionPoint {
@@ -349,7 +354,7 @@ public abstract class ArmInteractionPoint {
 				.isEmpty()) {
 				return stack;
 			}
-			InteractionResultHolder<ItemStack> res = BlazeBurnerBlock.tryInsert(state, world, pos, input, false, simulate);
+			InteractionResultHolder<ItemStack> res = BlazeBurnerBlock.tryInsert(state, world, pos, input, false, false, simulate);
 			return res.getResult() == InteractionResult.SUCCESS
 				? ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - 1)
 				: stack;

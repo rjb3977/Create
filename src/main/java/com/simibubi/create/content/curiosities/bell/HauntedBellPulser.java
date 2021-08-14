@@ -13,6 +13,7 @@ import com.simibubi.create.foundation.utility.IntAttached;
 import com.simibubi.create.lib.event.PlayerTickEndCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -37,10 +38,10 @@ public class HauntedBellPulser {
 
 		if (player.level.getGameTime() % RECHARGE_TICKS != 0)
 			return;
-		if (!event.player.isHolding(AllBlocks.HAUNTED_BELL::is))
+		if (!player.isHolding(AllBlocks.HAUNTED_BELL::is))
 			return;
 
-		Entity player = event.player;
+//		Entity player = event.player;
 		boolean firstPulse = false;
 
 		try {
@@ -55,7 +56,7 @@ public class HauntedBellPulser {
 
 		long gameTime = player.level.getGameTime();
 		if (firstPulse || gameTime % RECHARGE_TICKS != 0)
-			sendPulse(player.level, event.player.blockPosition(), DISTANCE, false);
+			sendPulse(player.level, player.blockPosition(), DISTANCE, false);
 	}
 
 	public static void sendPulse(Level world, BlockPos pos, int distance, boolean canOverlap) {

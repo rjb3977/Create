@@ -94,7 +94,7 @@ public class SchematicItem extends Item {
 	public static void writeSize(ItemStack blueprint) {
 		CompoundTag tag = blueprint.getTag();
 		StructureTemplate t = loadSchematic(blueprint);
-		tag.put("Bounds", NbtUtils.writeBlockPos(t.getSize()));
+		tag.put("Bounds", NbtUtils.writeBlockPos(new BlockPos(t.getSize())));
 		blueprint.setTag(tag);
 		SchematicInstances.clearHash(blueprint);
 	}

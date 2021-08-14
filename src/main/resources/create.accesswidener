@@ -2,24 +2,20 @@ accessWidener v1 named
 
 accessible class com/mojang/blaze3d/platform/GlStateManager$BooleanState
 accessible class com/mojang/blaze3d/platform/GlStateManager$FogState
+
 accessible class net/minecraft/client/particle/ParticleEngine$SpriteParticleRegistration
 
-accessible class net/minecraft/world/chunk/ChunkStatus$IGenerationWorker
-accessible class net/minecraft/world/chunk/ChunkStatus$ILoadingWorker
+accessible class net/minecraft/world/level/chunk/ChunkStatus$GenerationTask
+accessible class net/minecraft/world/level/chunk/ChunkStatus$LoadingTask
 
 accessible class net/minecraft/world/level/biome/Biome$ClimateSettings
 
-accessible class net/minecraft/util/palette/IResizeCallback
+accessible class net/minecraft/world/level/chunk/PaletteResize
 
-accessible class net/minecraft/client/gui/ScreenManager$IScreenFactory
-accessible method net/minecraft/client/gui/ScreenManager registerFactory (Lnet/minecraft/inventory/container/ContainerType;Lnet/minecraft/client/gui/ScreenManager$IScreenFactory;)V
+accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 
-accessible method net/minecraft/inventory/container/ContainerType <init> (Lnet/minecraft/inventory/container/ContainerType$IFactory;)V
+extendable method net/minecraft/entity/Entity positionRider (Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity$MoveFunction;)V
 
-extendable method net/minecraft/entity/Entity updatePassengerPosition (Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/Entity$IMoveCallback;)V
-
-extendable class dev/inkwell/conrad/api/value/ValueKey
-
-accessible class net/minecraft/item/crafting/Ingredient$IItemList
-accessible class net/minecraft/item/crafting/Ingredient$SingleItemList
-accessible class net/minecraft/item/crafting/Ingredient$TagList
+accessible class net/minecraft/world/item/crafting/Ingredient$Value
+accessible class net/minecraft/world/item/crafting/Ingredient$ItemValue
+accessible class net/minecraft/world/item/crafting/Ingredient$TagValue

@@ -13,9 +13,9 @@ import com.simibubi.create.content.logistics.item.filter.AttributeFilterContaine
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.utility.Lang;
 
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
 
 import com.simibubi.create.lib.utility.NetworkUtil;

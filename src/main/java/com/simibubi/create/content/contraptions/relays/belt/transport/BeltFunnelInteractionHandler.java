@@ -7,7 +7,8 @@ import com.simibubi.create.content.logistics.block.funnel.FunnelTileEntity;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.inventory.InvManipulationBehaviour;
 
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;

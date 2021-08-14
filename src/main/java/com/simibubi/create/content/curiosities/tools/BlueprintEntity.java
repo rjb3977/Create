@@ -11,6 +11,10 @@ import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 
 import com.simibubi.create.lib.entity.FakePlayer;
 
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+import com.simibubi.create.lib.transfer.item.InvWrapper;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
 import org.apache.commons.lang3.Validate;
 
 import com.simibubi.create.AllEntityTypes;
@@ -26,9 +30,6 @@ import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.entity.ExtraSpawnDataEntity;
 import com.simibubi.create.lib.helper.EntityHelper;
-import com.simibubi.create.lib.lba.item.IItemHandlerModifiable;
-import com.simibubi.create.lib.lba.item.InvWrapper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.NetworkUtil;
 
 import net.fabricmc.api.EnvType;

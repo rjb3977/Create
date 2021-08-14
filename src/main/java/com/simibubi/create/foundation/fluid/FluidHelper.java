@@ -2,10 +2,12 @@ package com.simibubi.create.foundation.fluid;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.lib.transfer.TransferUtil;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 
+import com.simibubi.create.lib.transfer.fluid.IFluidHandlerItem;
 import com.simibubi.create.lib.utility.LazyOptional;
 
 import net.minecraft.core.Registry;
@@ -118,7 +120,7 @@ public class FluidHelper {
 			return false;
 
 		Pair<FluidStack, ItemStack> emptyingResult = EmptyingByBasin.emptyItem(worldIn, heldItem, true);
-		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te.getLevel(), te.getBlockPos(), SearchOptions.ALL);
+		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te);
 		IFluidHandler tank = capability.orElse(null);
 		FluidStack fluidStack = emptyingResult.getFirst();
 
@@ -147,7 +149,7 @@ public class FluidHelper {
 		if (!GenericItemFilling.canItemBeFilled(world, heldItem))
 			return false;
 
-		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te.getLevel(), te.getBlockPos(), SearchOptions.ALL);
+		LazyOptional<IFluidHandler> capability = TransferUtil.getFluidHandler(te);
 		IFluidHandler tank = capability.orElse(null);
 
 		if (tank == null)
@@ -170,7 +172,7 @@ public class FluidHelper {
 				heldItem = heldItem.copy();
 			ItemStack out = GenericItemFilling.fillItem(world, requiredAmountForItem, heldItem, (FluidStack) fluid.copy());
 
-			FluidStack copy = fluid.copy().setAmount(requiredAmountForItem));
+			FluidStack copy = fluid.copy().setAmount(requiredAmountForItem);
 			tank.drain(copy, false);
 
 			if (!player.isCreative())
@@ -209,7 +211,7 @@ public class FluidHelper {
 				boolean tankEmpty = fluidInTank.isEmpty();
 
 				FluidStack fluidInItem = fluidItem.getFluidInTank(tankSlot);
-				int itemCapacity = fluidItem.getTankCapacity(tankSlot) - fluidInItem.getAmount();
+				long itemCapacity = fluidItem.getTankCapacity(tankSlot) - fluidInItem.getAmount();
 				boolean itemEmpty = fluidInItem.isEmpty();
 
 				boolean undecided = lockedExchange == null;
@@ -224,7 +226,7 @@ public class FluidHelper {
 				if (((tankEmpty || itemCapacity <= 0) && canMoveToTank)
 					|| undecided && preferred == FluidExchange.ITEM_TO_TANK) {
 
-					int amount = fluidTank.fill(
+					long amount = fluidTank.fill(
 						fluidItem.drain(Math.min(maxTransferAmountPerTank, tankCapacity), false),
 						false);
 					if (amount > 0) {
@@ -239,7 +241,7 @@ public class FluidHelper {
 				if (((itemEmpty || tankCapacity <= 0) && canMoveToItem)
 					|| undecided && preferred == FluidExchange.TANK_TO_ITEM) {
 
-					int amount = fluidItem.fill(
+					long amount = fluidItem.fill(
 						fluidTank.drain(Math.min(maxTransferAmountPerTank, itemCapacity), false),
 						false);
 					if (amount > 0) {

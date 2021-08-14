@@ -1,6 +1,9 @@
 package com.simibubi.create.content.curiosities.tools;
 
 import java.util.Collection;
+
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -26,8 +29,6 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.content.logistics.item.filter.AttributeFilterContainer.WhitelistMode;
 import com.simibubi.create.content.logistics.item.filter.FilterItem;
 import com.simibubi.create.content.logistics.item.filter.ItemAttribute;
-
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 
 import com.simibubi.create.lib.mixin.accessor.IngredientAccessor;
 

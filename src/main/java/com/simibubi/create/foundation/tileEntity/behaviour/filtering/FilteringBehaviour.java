@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -22,7 +24,6 @@ import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.utility.VecHelper;
 
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
 public class FilteringBehaviour extends TileEntityBehaviour {

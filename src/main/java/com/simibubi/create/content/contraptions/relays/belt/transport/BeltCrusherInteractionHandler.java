@@ -4,7 +4,8 @@ import com.simibubi.create.content.contraptions.components.crusher.CrushingWheel
 import com.simibubi.create.content.contraptions.components.crusher.CrushingWheelControllerTileEntity;
 import com.simibubi.create.content.contraptions.relays.belt.BeltHelper;
 
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -54,7 +55,7 @@ public class BeltCrusherInteractionHandler {
 
             ItemStack toInsert = currentItem.stack.copy();
 
-            ItemStack remainder = crusherTE.inventory.insert(toInsert);//.insertItemStacked(crusherTE.inventory, toInsert, false);
+            ItemStack remainder = ItemHandlerHelper.insertItemStacked(crusherTE.inventory, toInsert, false);
             if (ItemStack.matches(toInsert, remainder))
                 return true;
 

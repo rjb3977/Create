@@ -2,7 +2,7 @@ package com.simibubi.create.content.logistics.block.inventories;
 
 import com.simibubi.create.AllContainerTypes;
 
-import com.simibubi.create.lib.lba.item.SlotItemHandler;
+import com.simibubi.create.lib.transfer.item.SlotItemHandler;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -50,7 +50,7 @@ public class AdjustableCrateContainer extends AbstractContainerMenu {
 		int maxCol = doubleCrate ? 8 : 4;
 		for (int row = 0; row < 4; ++row) {
 			for (int col = 0; col < maxCol; ++col) {
-				this.addSlot(SlotItemHandler.create(te.inventory, col + row * maxCol, x + col * 18, 20 + row * 18));
+				this.addSlot(new SlotItemHandler(te.inventory, col + row * maxCol, x + col * 18, 20 + row * 18));
 			}
 		}
 

@@ -4,7 +4,7 @@ import com.simibubi.create.foundation.gui.IInteractionChecker;
 import com.simibubi.create.foundation.tileEntity.SyncedTileEntity;
 import com.simibubi.create.foundation.utility.Lang;
 
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -16,10 +16,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class SchematicTableTileEntity extends SyncedTileEntity implements TickableBlockEntity, MenuProvider, IInteractionChecker {
+public class SchematicTableTileEntity extends SyncedTileEntity implements MenuProvider, IInteractionChecker {
 
 	public SchematicTableInventory inventory;
 	public boolean isUploading;
@@ -52,14 +51,14 @@ public class SchematicTableTileEntity extends SyncedTileEntity implements Tickab
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag compound) {
+	public void load(CompoundTag compound) {
 		inventory.deserializeNBT(compound.getCompound("Inventory"));
-		readClientUpdate(state, compound);
-		super.load(state, compound);
+		readClientUpdate(compound);
+		super.load(compound);
 	}
 
 	@Override
-	public void readClientUpdate(BlockState state, CompoundTag compound) {
+	public void readClientUpdate(CompoundTag compound) {
 		if (compound.contains("Uploading")) {
 			isUploading = true;
 			uploadingSchematic = compound.getString("Schematic");

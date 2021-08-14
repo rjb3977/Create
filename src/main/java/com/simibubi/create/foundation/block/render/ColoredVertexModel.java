@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
@@ -28,8 +30,8 @@ public class ColoredVertexModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand, IModelData extraData) {
-		List<BakedQuad> quads = super.getQuads(state, side, rand, extraData);
+	public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) {
+		List<BakedQuad> quads = super.getQuads(state, side, rand);
 		if (quads.isEmpty())
 			return quads;
 		if (!extraData.hasProperty(POSITION_PROPERTY))
@@ -38,7 +40,7 @@ public class ColoredVertexModel extends ForwardingBakedModel {
 		quads = new ArrayList<>(quads);
 
 		// Optifine might've rejigged vertex data
-		VertexFormat format = DefaultVertexFormats.BLOCK;
+		VertexFormat format = DefaultVertexFormat.BLOCK;
 		int colorIndex = 0;
 		for (int elementId = 0; elementId < format.getElements().size(); elementId++) {
 			VertexFormatElement element = format.getElements().get(elementId);
@@ -60,10 +62,10 @@ public class ColoredVertexModel extends ForwardingBakedModel {
 				int color = this.color.getColor(x + data.getX(), y + data.getY(), z + data.getZ());
 				vertexData[vertex + colorOffset] = color;
 			}
-			return true;
-		});
-		super.emitBlockQuads(blockView, state, pos, randomSupplier, context);
-		context.popTransform();
+
+			quads.set(i, newQuad);
+		}
+		return quads;
 	}
 
 }

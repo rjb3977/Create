@@ -58,11 +58,11 @@ public abstract class SyncedTileEntity extends BlockEntity implements TileEntity
 
 	@Override
 	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-		readClientUpdate(getBlockState(), pkt.getTag());
+		readClientUpdate(pkt.getTag());
 	}
 
 	// Special handling for client update packets
-	public void readClientUpdate(BlockState state, CompoundTag tag) {
+	public void readClientUpdate(CompoundTag tag) {
 		load(tag);
 	}
 

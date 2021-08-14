@@ -1,7 +1,7 @@
 package com.simibubi.create.foundation.gui;
 
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

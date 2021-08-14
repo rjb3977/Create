@@ -3,9 +3,14 @@ package com.simibubi.create.content.logistics.item;
 import java.util.List;
 import java.util.UUID;
 
+import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
+import com.simibubi.create.lib.helper.EntityHelper;
+
+import com.tterrag.registrate.fabric.EnvExecutor;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,8 +27,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.fml.DistExecutor;
+
+import org.apache.logging.log4j.core.jmx.Server;
 
 public class LecternControllerTileEntity extends SmartTileEntity {
 
@@ -54,8 +59,8 @@ public class LecternControllerTileEntity extends SmartTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		controller = ItemStack.of(compound.getCompound("Controller"));
 		user = compound.hasUUID("User") ? compound.getUUID("User") : null;
 	}
@@ -82,20 +87,20 @@ public class LecternControllerTileEntity extends SmartTileEntity {
 
 	private void startUsing(Player player) {
 		user = player.getUUID();
-		player.getPersistentData().putBoolean("IsUsingLecternController", true);
+		EntityHelper.getExtraCustomData(player).putBoolean("IsUsingLecternController", true);
 		sendData();
 	}
 
 	private void stopUsing(Player player) {
 		user = null;
 		if (player != null)
-			player.getPersistentData().remove("IsUsingLecternController");
+			EntityHelper.getExtraCustomData(player).remove("IsUsingLecternController");
 		deactivatedThisTick = true;
 		sendData();
 	}
 
 	public static boolean playerIsUsingLectern(Player player) {
-		return player.getPersistentData().contains("IsUsingLecternController");
+		return EntityHelper.getExtraCustomData(player).contains("IsUsingLecternController");
 	}
 
 	@Override
@@ -103,7 +108,7 @@ public class LecternControllerTileEntity extends SmartTileEntity {
 		super.tick();
 
 		if (level.isClientSide) {
-			DistExecutor.unsafeRunWhenOn(EnvType.CLIENT, () -> this::tryToggleActive);
+			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> this::tryToggleActive);
 			prevUser = user;
 		}
 
@@ -155,9 +160,9 @@ public class LecternControllerTileEntity extends SmartTileEntity {
 	}
 
 	public void dropController(BlockState state) {
-		Entity playerEntity = ((ServerWorld) level).getEntity(user);
-		if (playerEntity instanceof PlayerEntity)
-			stopUsing((PlayerEntity) playerEntity);
+		Entity playerEntity = ((ServerLevel) level).getEntity(user);
+		if (playerEntity instanceof Player)
+			stopUsing((Player) playerEntity);
 
 		Direction dir = state.getValue(LecternControllerBlock.FACING);
 		double x = worldPosition.getX() + 0.5 + 0.25*dir.getStepX();
@@ -171,7 +176,7 @@ public class LecternControllerTileEntity extends SmartTileEntity {
 
 	public static boolean playerInRange(Player player, Level world, BlockPos pos) {
 		//double modifier = world.isRemote ? 0 : 1.0;
-		double reach = 0.4*player.getAttributeValue(ForgeMod.REACH_DISTANCE.get());// + modifier;
+		double reach = 0.4*player.getAttributeValue(ReachEntityAttributes.REACH);// + modifier;
 		return player.distanceToSqr(Vec3.atCenterOf(pos)) < reach*reach;
 	}
 

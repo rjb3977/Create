@@ -18,7 +18,6 @@ import com.simibubi.create.foundation.render.SuperByteBuffer;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -202,7 +201,6 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 		float yRot = AngleHelper.horizontalAngle(crafterState.getValue(HORIZONTAL_FACING));
 		buffer.rotateCentered(Direction.UP, (float) ((yRot + 90) / 180 * Math.PI));
 		buffer.rotateCentered(Direction.EAST, (float) ((xRot) / 180 * Math.PI));
-		buffer.light(LevelRenderer.getLightColor(te.getLevel(), crafterState, pos));
 		return buffer;
 	}
 

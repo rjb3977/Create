@@ -44,6 +44,7 @@ import com.simibubi.create.lib.utility.TextureStitchUtil;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
@@ -144,8 +145,8 @@ public class CreateClient implements ClientModInitializer {
 				.getEntityRenderDispatcher());
 //		});
 		// Replaces ArmorItem#getArmorTexture from a Forge patch
-		ArmorRenderingRegistry.registerSimpleTexture(new ResourceLocation(Create.ID, "copper"),
-				AllItems.COPPER_BACKTANK.get(), AllItems.DIVING_HELMET.get(), AllItems.DIVING_BOOTS.get());
+//		ArmorRenderingRegistry.registerSimpleTexture(new ResourceLocation(Create.ID, "copper"),
+//				AllItems.COPPER_BACKTANK.get(), AllItems.DIVING_HELMET.get(), AllItems.DIVING_BOOTS.get());
 
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityRenderer == null)

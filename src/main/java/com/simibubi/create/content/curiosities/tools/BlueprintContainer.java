@@ -3,15 +3,14 @@ package com.simibubi.create.content.curiosities.tools;
 import java.util.Optional;
 
 import com.simibubi.create.AllContainerTypes;
-import com.simibubi.create.content.curiosities.tools.BlueprintContainer.BlueprintCraftSlot;
-import com.simibubi.create.content.curiosities.tools.BlueprintContainer.BlueprintCraftingInventory;
 import com.simibubi.create.content.curiosities.tools.BlueprintEntity.BlueprintSection;
 import com.simibubi.create.foundation.gui.GhostItemContainer;
 
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 
-import com.simibubi.create.lib.lba.item.SlotItemHandler;
+import com.simibubi.create.lib.transfer.item.SlotItemHandler;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -97,8 +96,8 @@ public class BlueprintContainer extends GhostItemContainer<BlueprintSection> {
 	}
 
 	@Override
-	public void setItem(int p_75141_1_, ItemStack p_75141_2_) {
-		if (p_75141_1_ == 36 + 9) {
+	public void setItem(int slot, int stateId, ItemStack p_75141_2_) {
+		if (slot == 36 + 9) {
 			if (p_75141_2_.hasTag()) {
 				contentHolder.inferredIcon = p_75141_2_.getTag()
 						.getBoolean("InferredFromRecipe");
@@ -107,7 +106,7 @@ public class BlueprintContainer extends GhostItemContainer<BlueprintSection> {
 			} else
 				contentHolder.inferredIcon = false;
 		}
-		super.setItem(p_75141_1_, p_75141_2_);
+		super.setItem(slot, stateId, p_75141_2_);
 	}
 
 	@Override
@@ -160,7 +159,7 @@ public class BlueprintContainer extends GhostItemContainer<BlueprintSection> {
 
 		private int index;
 
-		public BlueprintCraftSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+		public BlueprintCraftSlot(IItemHandlerModifiable itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, index, xPosition, yPosition);
 			this.index = index;
 		}
@@ -171,7 +170,7 @@ public class BlueprintContainer extends GhostItemContainer<BlueprintSection> {
 			if (index == 9 && hasItem() && !contentHolder.getBlueprintWorld().isClientSide) {
 				contentHolder.inferredIcon = false;
 				ServerPlayer serverplayerentity = (ServerPlayer) player;
-				serverplayerentity.connection.send(new ClientboundContainerSetSlotPacket(containerId, 36 + 9, getStack()));
+				serverplayerentity.connection.send(new ClientboundContainerSetSlotPacket(containerId, 36 + 9, getItem()));
 			}
 			if (index < 9)
 				onCraftMatrixChanged();

@@ -86,7 +86,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 	}
 
 	@Override
-	public final void readClientUpdate(BlockState state, CompoundTag tag) {
+	public final void readClientUpdate(CompoundTag tag) {
 		fromTag(tag, true);
 	}
 

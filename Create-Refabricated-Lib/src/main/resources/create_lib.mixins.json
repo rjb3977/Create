@@ -93,6 +93,7 @@
     "client.DiggingParticleMixin",
     "client.FirstPersonRendererMixin",
     "client.FogRendererMixin",
+    "client.HumanoidArmorLayerMixin",
     "client.IngameGuiMixin",
     "client.ItemRendererMixin",
     "client.KeyboardListenerMixin",

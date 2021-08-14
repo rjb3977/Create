@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +43,6 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.NBTProcessors;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
-import com.simibubi.create.lib.lba.item.IItemHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
 import com.simibubi.create.lib.utility.NBTSerializer;
 
@@ -81,8 +83,8 @@ public class DeployerMovementBehaviour extends MovementBehaviour {
 			.getNormal());
 		facingVec = context.rotation.apply(facingVec);
 		Vec3 vec = context.position.subtract(facingVec.scale(2));
-		player.yRot = AbstractContraptionEntity.yawFromVector(facingVec);
-		player.xRot = AbstractContraptionEntity.pitchFromVector(facingVec) - 90;
+		player.setYRot(AbstractContraptionEntity.yawFromVector(facingVec));
+		player.setXRot(AbstractContraptionEntity.pitchFromVector(facingVec) - 90);
 
 		DeployerHandler.activate(player, vec, pos, facingVec, mode);
 	}
@@ -235,7 +237,7 @@ public class DeployerMovementBehaviour extends MovementBehaviour {
 	private DeployerFakePlayer getPlayer(MovementContext context) {
 		if (!(context.temporaryData instanceof DeployerFakePlayer) && context.world instanceof ServerLevel) {
 			DeployerFakePlayer deployerFakePlayer = new DeployerFakePlayer((ServerLevel) context.world);
-			deployerFakePlayer.inventory.load(context.tileData.getList("Inventory", NBT.TAG_COMPOUND));
+			deployerFakePlayer.getInventory().load(context.tileData.getList("Inventory", NBT.TAG_COMPOUND));
 			if (context.data.contains("HeldItem"))
 				deployerFakePlayer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.of(context.data.getCompound("HeldItem")));
 			context.tileData.remove("Inventory");

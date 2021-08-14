@@ -6,6 +6,10 @@ import static com.simibubi.create.foundation.gui.AllGuiTextures.SCHEMATIC_TABLE_
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Lighting;
+
 import net.minecraft.Util;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;

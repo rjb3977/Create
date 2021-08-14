@@ -1,7 +1,8 @@
 package com.simibubi.create.content.contraptions.components.actors.dispenser;
 
 import com.simibubi.create.content.contraptions.components.structureMovement.MovementContext;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;

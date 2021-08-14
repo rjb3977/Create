@@ -3,6 +3,12 @@ package com.simibubi.create.foundation.tileEntity.behaviour.belt;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -17,13 +23,7 @@ import com.simibubi.create.content.logistics.block.funnel.FunnelTileEntity;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
-import com.simibubi.create.lib.lba.item.IItemHandler;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 import com.simibubi.create.lib.utility.LazyOptional;
-
-import alexiil.mc.lib.attributes.SearchOptions;
-import alexiil.mc.lib.attributes.item.ItemAttributes;
-import alexiil.mc.lib.attributes.item.ItemInsertable;
 
 /**
  * Behaviour for TileEntities to which belts can transfer items directly in a
@@ -65,10 +65,10 @@ public class DirectBeltInputBehaviour extends TileEntityBehaviour {
 	}
 
 	private ItemStack defaultInsertionCallback(TransportedItemStack inserted, Direction side, boolean simulate) {
-		ItemInsertable insertable = ItemAttributes.INSERTABLE.getFirstOrNull(tileEntity.getLevel(), tileEntity.getBlockPos(), SearchOptions.inDirection(side));
+		IItemHandler insertable = TransferUtil.getItemHandler(tileEntity, side).getValueUnsafer();
 		LazyOptional<IItemHandler> lazy = insertable == null
 				? LazyOptional.empty()
-				: LazyOptional.of(() -> (IItemHandler) insertable);
+				: LazyOptional.of(() -> insertable);
 
 		if (!lazy.isPresent())
 			return inserted.stack;

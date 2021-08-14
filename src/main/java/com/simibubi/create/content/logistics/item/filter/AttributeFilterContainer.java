@@ -2,6 +2,10 @@ package com.simibubi.create.content.logistics.item.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.SlotItemHandler;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,8 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import com.simibubi.create.AllContainerTypes;
 import com.simibubi.create.foundation.utility.Pair;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-import com.simibubi.create.lib.lba.item.SlotItemHandler;
 import com.simibubi.create.lib.utility.Constants.NBT;
 
 public class AttributeFilterContainer extends AbstractFilterContainer {

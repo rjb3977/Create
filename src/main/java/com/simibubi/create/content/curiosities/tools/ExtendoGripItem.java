@@ -4,6 +4,7 @@ import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,7 +24,7 @@ import com.simibubi.create.lib.item.CustomDurabilityBarItem;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 import com.simibubi.create.foundation.config.AllConfigs;
 
-public class ExtendoGripItem extends Item implements IBackTankRechargeable, CustomDurabilityBarItem {
+public class ExtendoGripItem extends Item implements CustomDurabilityBarItem {
 	private static DamageSource lastActiveDamageSource;
 
 	public static final int MAX_DAMAGE = 200;
@@ -156,37 +157,37 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 //		}
 //	}
 
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void consumeDurabilityOnBlockBreak(BreakEvent event) {
-		findAndDamageExtendoGrip(event.getPlayer());
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void consumeDurabilityOnPlace(EntityPlaceEvent event) {
-		Entity entity = event.getEntity();
-		if (entity instanceof Player)
-			findAndDamageExtendoGrip((Player) entity);
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void consumeDurabilityOnPlace(PlayerInteractEvent event) {
+//	@SubscribeEvent(priority = EventPriority.LOWEST)
+//	public static void consumeDurabilityOnBlockBreak(BreakEvent event) {
 //		findAndDamageExtendoGrip(event.getPlayer());
-	}
+//	}
+
+//	@SubscribeEvent(priority = EventPriority.LOWEST)
+//	public static void consumeDurabilityOnPlace(EntityPlaceEvent event) {
+//		Entity entity = event.getEntity();
+//		if (entity instanceof Player)
+//			findAndDamageExtendoGrip((Player) entity);
+//	}
+
+//	@SubscribeEvent(priority = EventPriority.LOWEST)
+//	public static void consumeDurabilityOnPlace(PlayerInteractEvent event) {
+//		findAndDamageExtendoGrip(event.getPlayer());
+//	}
 
 	private static void findAndDamageExtendoGrip(Player player) {
 		if (player == null)
 			return;
 		if (player.level.isClientSide)
 			return;
-		Hand hand = Hand.MAIN_HAND;
+		InteractionHand hand = InteractionHand.MAIN_HAND;
 		ItemStack extendo = player.getMainHandItem();
 		if (!AllItems.EXTENDO_GRIP.isIn(extendo)) {
 			extendo = player.getOffhandItem();
-			hand = Hand.OFF_HAND;
+			hand = InteractionHand.OFF_HAND;
 		}
 		if (!AllItems.EXTENDO_GRIP.isIn(extendo))
 			return;
-		final Hand h = hand;
+		final InteractionHand h = hand;
 		if (!BackTankUtil.canAbsorbDamage(player, maxUses()))
 			extendo.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(h));
 	}
@@ -220,18 +221,18 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 //		return MAX_DAMAGE; // handled in constructor for item
 //	}
 
-	@SubscribeEvent
-	public static void bufferLivingAttackEvent(LivingAttackEvent event) {
-		// Workaround for removed patch to get the attacking entity.
-		lastActiveDamageSource = event.getSource();
-
-		DamageSource source = event.getSource();
-		if (source == null)
-			return;
-		Entity trueSource = source.getEntity();
-		if (trueSource instanceof Player)
-			findAndDamageExtendoGrip((Player) trueSource);
-	}
+//	@SubscribeEvent
+//	public static void bufferLivingAttackEvent(LivingAttackEvent event) {
+//		// Workaround for removed patch to get the attacking entity.
+//		lastActiveDamageSource = event.getSource();
+//
+//		DamageSource source = event.getSource();
+//		if (source == null)
+//			return;
+//		Entity trueSource = source.getEntity();
+//		if (trueSource instanceof Player)
+//			findAndDamageExtendoGrip((Player) trueSource);
+//	}
 
 	public static float attacksByExtendoGripHaveMoreKnockback(float strength, Player player) {
 //		if (lastActiveDamageSource == null)
@@ -291,7 +292,7 @@ public class ExtendoGripItem extends Item implements IBackTankRechargeable, Cust
 //				.sendToServer(new ExtendoGripInteractionPacket(target, event.getHand(), event.getLocalPos()));
 //	}
 
-	public static boolean isHoldingExtendoGrip(PlayerEntity player) {
+	public static boolean isHoldingExtendoGrip(Player player) {
 		boolean inOff = AllItems.EXTENDO_GRIP.isIn(player.getOffhandItem());
 		boolean inMain = AllItems.EXTENDO_GRIP.isIn(player.getMainHandItem());
 		boolean holdingGrip = inOff || inMain;

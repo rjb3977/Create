@@ -43,10 +43,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraftforge.common.util.Constants.NBT;
-import net.minecraftforge.fml.DistExecutor;
 
 
 public abstract class ZapperItem extends Item implements EntitySwingListenerItem, ItemExtensions {
@@ -229,7 +225,7 @@ public abstract class ZapperItem extends Item implements EntitySwingListenerItem
 				data.putInt("x", pos.getX());
 				data.putInt("y", pos.getY());
 				data.putInt("z", pos.getZ());
-				tile.load(state, data);
+				tile.load(data);
 			}
 		}
 	}

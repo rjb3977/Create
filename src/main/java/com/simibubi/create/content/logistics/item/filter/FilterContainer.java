@@ -2,9 +2,9 @@ package com.simibubi.create.content.logistics.item.filter;
 
 import com.simibubi.create.AllContainerTypes;
 
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.SlotItemHandler;
 
-import com.simibubi.create.lib.lba.item.SlotItemHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;

@@ -4,6 +4,9 @@ import static com.simibubi.create.content.contraptions.base.DirectionalKineticBl
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -24,7 +27,6 @@ import com.simibubi.create.content.curiosities.tools.SandPaperPolishingRecipe;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.BeltProcessingBehaviour.ProcessingResult;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour.TransportedResult;
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
 
 public class BeltDeployerCallbacks {
 

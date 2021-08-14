@@ -3,46 +3,46 @@ package com.simibubi.create.content.contraptions.fluids.actors;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
+
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.minecraft.core.BlockPos;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
-
-import com.simibubi.create.lib.lba.fluid.IFluidHandler;
-
-import alexiil.mc.lib.attributes.Simulation;
-import alexiil.mc.lib.attributes.fluid.FixedFluidInvView;
 
 public class HosePulleyFluidHandler implements IFluidHandler {
 
 	// The dynamic interface
 
 	@Override
-	public int fill(FluidStack resource, Simulation action) {
+	public long fill(FluidStack resource, boolean sim) {
 //		if (!internalTank.isEmpty() && !resource.isFluidEqual(internalTank.getFluid()))
 //			return 0;
 		if (resource.isEmpty() || !FluidHelper.hasBlockState(resource.getFluid()))
 			return 0;
 
-		int diff = resource.getAmount();
-		int totalAmountAfterFill = diff + internalTank.getFluidAmount();
+		long diff = resource.getAmount();
+		long totalAmountAfterFill = diff + internalTank.getFluidAmount();
 		FluidStack remaining = (FluidStack) resource.copy();
 
 		if (predicate.get() && totalAmountAfterFill >= 1000) {
-			if (filler.tryDeposit(resource.getFluid(), rootPosGetter.get(), (action == true))) {
+			if (filler.tryDeposit(resource.getFluid(), rootPosGetter.get(), (sim == true))) {
 				drainer.counterpartActed();
 //				remaining.shrink(1000);
 				diff -= 1000;
 			}
 		}
 
-		if (action == true)
-			return diff <= 0 ? resource.getAmount() : internalTank.fill(remaining, action);
+		if (sim == true)
+			return diff <= 0 ? resource.getAmount() : internalTank.fill(remaining, sim);
 		if (diff <= 0) {
 			internalTank.drain(-diff, false);
 			return resource.getAmount();
 		}
 
-		return internalTank.fill(remaining, action);
+		return internalTank.fill(remaining, sim);
 	}
 
 	@Override
@@ -53,29 +53,29 @@ public class HosePulleyFluidHandler implements IFluidHandler {
 	}
 
 	@Override
-	public FluidStack drain(FluidStack resource, Simulation action) {
-		return drainInternal(resource.getAmount(), resource, action);
+	public FluidStack drain(FluidStack resource, boolean sim) {
+		return drainInternal(resource.getAmount(), resource, sim);
 	}
 
 	@Override
-	public FluidStack drain(int maxDrain, Simulation action) {
-		return drainInternal(maxDrain, null, action);
+	public FluidStack drain(long maxDrain, boolean sim) {
+		return drainInternal(maxDrain, null, sim);
 	}
 
-	private FluidStack drainInternal(int maxDrain, @Nullable FluidStack resource, Simulation action) {
+	private FluidStack drainInternal(long maxDrain, @Nullable FluidStack resource, boolean sim) {
 //		if (resource != null && !internalTank.isEmpty() && !resource.isFluidEqual(internalTank.getFluid()))
 //			return FluidStack.empty();
 		if (internalTank.getFluidAmount() >= 1000)
-			return internalTank.drain(maxDrain, action);
+			return internalTank.drain(maxDrain, sim);
 		BlockPos pos = rootPosGetter.get();
 		FluidStack returned = drainer.getDrainableFluid(pos);
-		if (!predicate.get() || !drainer.pullNext(pos, (action == true)))
-			return internalTank.drain(maxDrain, action);
+		if (!predicate.get() || !drainer.pullNext(pos, (sim == true)))
+			return internalTank.drain(maxDrain, sim);
 
 		filler.counterpartActed();
 		FluidStack leftover = (FluidStack) returned.copy();
-		int available = 1000 + internalTank.getFluidAmount();
-		int drained;
+		long available = FluidConstants.BUCKET + internalTank.getFluidAmount();
+		long drained;
 
 //		if (!internalTank.isEmpty() && !internalTank.getFluid()
 //			.isFluidEqual(returned) || returned.isEmpty())
@@ -110,18 +110,13 @@ public class HosePulleyFluidHandler implements IFluidHandler {
 	}
 
 	@Override
-	public FixedFluidInvView getFluidStorage() {
-		return null;
-	}
-
-	@Override
 	public int getTanks() {
 		return 1;//internalTank.getTanks();
 	}
 
 	@Override
-	public int getTankCapacity(int tank) {
-		return 0;//internalTank.getTankCapacity(tank);
+	public long getTankCapacity(int tank) {
+		return internalTank.getTankCapacity(tank);
 	}
 
 //	@Override

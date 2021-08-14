@@ -1,14 +1,17 @@
 package com.simibubi.create.content.curiosities.bell;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import com.simibubi.create.AllParticleTypes;
+import com.simibubi.create.lib.helper.ParticleHelper;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.particles.IParticleData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.util.math.vector.Vector3f;
 
 public class SoulParticle extends CustomRotationParticle {
 
@@ -38,7 +41,7 @@ public class SoulParticle extends CustomRotationParticle {
 	protected int perimeterFrames = 8;
 
 	public SoulParticle(ClientLevel worldIn, double x, double y, double z, double vx, double vy, double vz,
-		SpriteSet spriteSet, IParticleData data) {
+		SpriteSet spriteSet, ParticleOptions data) {
 		super(worldIn, x, y, z, spriteSet, 0);
 		this.animatedSprite = spriteSet;
 		this.quadSize = 0.5f;
@@ -50,7 +53,7 @@ public class SoulParticle extends CustomRotationParticle {
 		this.numLoops = (int) (1f + this.random.nextFloat() * 2f);
 
 		this.setFrame(0);
-		this.stoppedByCollision = true; // disable movement
+		ParticleHelper.setStoppedByCollision(this, true); // disable movement
 		this.mirror = this.random.nextBoolean();
 
 		this.isPerimeter = data instanceof PerimeterData;
@@ -80,7 +83,7 @@ public class SoulParticle extends CustomRotationParticle {
 	}
 
 	@Override
-	public void render(IVertexBuilder builder, ActiveRenderInfo camera, float partialTicks) {
+	public void render(VertexConsumer builder, Camera camera, float partialTicks) {
 		if (!isVisible)
 			return;
 		super.render(builder, camera, partialTicks);
