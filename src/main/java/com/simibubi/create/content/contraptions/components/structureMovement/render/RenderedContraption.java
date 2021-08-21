@@ -106,7 +106,7 @@ public class RenderedContraption extends ContraptionRenderInfo {
 		lighter.lightVolume.bind();
 	}
 
-	void invalidate() {
+	public void invalidate() {
 		for (ModelRenderer buffer : renderLayers.values()) {
 			buffer.delete();
 		}
