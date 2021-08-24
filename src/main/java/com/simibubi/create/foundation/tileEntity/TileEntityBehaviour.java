@@ -86,7 +86,7 @@ public abstract class TileEntityBehaviour {
 	}
 
 	public static <T extends TileEntityBehaviour> T get(BlockGetter reader, BlockPos pos, BehaviourType<T> type) {
-		TileEntity te;
+		BlockEntity te;
 		try {
 			te = reader.getBlockEntity(pos);
 		} catch (ConcurrentModificationException e) {

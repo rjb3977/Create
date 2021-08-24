@@ -10,7 +10,10 @@ import javax.annotation.Nullable;
 import com.simibubi.create.lib.transfer.item.IItemHandler;
 import com.simibubi.create.lib.transfer.item.IItemHandlerModifiable;
 
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 import com.simibubi.create.lib.transfer.item.ItemTransferable;
+
+import com.simibubi.create.lib.transfer.item.RecipeWrapper;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,6 +28,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ClipContext.Block;
 import net.minecraft.world.level.ClipContext.Fluid;
@@ -446,11 +450,11 @@ public class DeployerTileEntity extends KineticTileEntity implements ItemTransfe
 		animatedOffset.setValue(offset);
 	}
 
-	Container recipeInv = new SimpleContainer(2);
+	RecipeWrapper recipeInv = new RecipeWrapper(new ItemStackHandler(2));
 	SandPaperInv sandpaperInv = new SandPaperInv(ItemStack.EMPTY);
 
 	@Nullable
-	public Recipe<? extends IInventory> getRecipe(ItemStack stack) {
+	public Recipe<? extends Container> getRecipe(ItemStack stack) {
 		// safety checks
 		if (player == null || level == null)
 			return null;
@@ -476,7 +480,7 @@ public class DeployerTileEntity extends KineticTileEntity implements ItemTransfe
 		event.addRecipe(() -> AllRecipeTypes.DEPLOYING.find(event.getInventory(), level), 50);
 
 		// post the event, get result
-		MinecraftForge.EVENT_BUS.post(event);
+		DeployerRecipeSearchEvent.EVENT.invoker().handle(event);
 		return event.getRecipe();
 	}
 
