@@ -9,6 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.ConcurrentModificationException;
+
 public abstract class TileEntityBehaviour {
 
 	public SmartTileEntity tileEntity;
@@ -84,7 +86,13 @@ public abstract class TileEntityBehaviour {
 	}
 
 	public static <T extends TileEntityBehaviour> T get(BlockGetter reader, BlockPos pos, BehaviourType<T> type) {
-		return get(reader.getBlockEntity(pos), type);
+		TileEntity te;
+		try {
+			te = reader.getBlockEntity(pos);
+		} catch (ConcurrentModificationException e) {
+			te = null;
+		}
+		return get(te, type);
 	}
 
 	public static <T extends TileEntityBehaviour> void destroy(BlockGetter reader, BlockPos pos,
