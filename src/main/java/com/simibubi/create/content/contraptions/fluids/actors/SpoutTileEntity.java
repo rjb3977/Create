@@ -41,6 +41,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
+
 public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInformation, FluidTransferable {
 	private static final boolean IS_TIC_LOADED = FabricLoader.getInstance().isModLoaded("tconstruct"); // TODO may not be the modid of fabric port
 	private static final Class<?> CASTING_FLUID_HANDLER_CLASS;
@@ -201,7 +203,7 @@ public class SpoutTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 		if (processingTicks >= 0) {
 			processingTicks--;
 			if (processingTicks == 5 && customProcess != null) {
-				int fillBlock = customProcess.fillBlock(level, worldPosition.below(2), this, currentFluidInTank, false);
+				long fillBlock = customProcess.fillBlock(level, worldPosition.below(2), this, currentFluidInTank, false);
 				customProcess = null;
 				if (fillBlock > 0) {
 					tank.getPrimaryHandler()

@@ -7,10 +7,11 @@ import com.simibubi.create.Create;
 import com.simibubi.create.compat.tconstruct.SpoutCasting;
 import com.simibubi.create.content.contraptions.fluids.actors.SpoutTileEntity;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 public abstract class BlockSpoutingBehaviour {
 
@@ -34,7 +35,7 @@ public abstract class BlockSpoutingBehaviour {
 	 * When fillBlock returns &gt; 0 once again, the Spout will drain its content by the returned amount of units <br>
 	 * Perform any other side-effects in this method <br>
 	 * This method is called server-side only (except in ponder) <br>
-	 * 
+	 *
 	 * @param world
 	 * @param pos            of the affected block
 	 * @param spout
@@ -42,8 +43,8 @@ public abstract class BlockSpoutingBehaviour {
 	 * @param simulate       whether the spout is testing or actually performing this behaviour
 	 * @return amount filled into the block, 0 to idle/cancel
 	 */
-	public abstract int fillBlock(World world, BlockPos pos, SpoutTileEntity spout, FluidStack availableFluid,
-		boolean simulate);
+	public abstract long fillBlock(Level world, BlockPos pos, SpoutTileEntity spout, FluidStack availableFluid,
+								  boolean simulate);
 
 	public static void register() {
 		addCustomSpoutInteraction(Create.asResource("ticon_casting"), new SpoutCasting());

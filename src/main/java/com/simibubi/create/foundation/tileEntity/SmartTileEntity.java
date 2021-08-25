@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.simibubi.create.api.event.TileEntityBehaviourEvent;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -71,7 +73,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 	public void initialize() {
 		if (firstNbtRead) {
 			firstNbtRead = false;
-			MinecraftForge.EVENT_BUS.post(new TileEntityBehaviourEvent<>(getBlockState(), this, behaviours));
+			TileEntityBehaviourEvent.EVENT.invoker().onDeserialize(new TileEntityBehaviourEvent(getBlockState(), this, behaviours));
 			updateBehaviorList();
 		}
 
@@ -110,7 +112,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 			ArrayList<TileEntityBehaviour> list = new ArrayList<>();
 			addBehavioursDeferred(list);
 			list.forEach(b -> behaviours.put(b.getType(), b));
-			MinecraftForge.EVENT_BUS.post(new TileEntityBehaviourEvent<>(state, this, behaviours));
+			TileEntityBehaviourEvent.EVENT.invoker().onDeserialize(new TileEntityBehaviourEvent(getBlockState(), this, behaviours));
 			updateBehaviorList();
 		}
 		super.load(compound);
