@@ -69,6 +69,12 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 	}
 
 	public void initialize() {
+		if (firstNbtRead) {
+			firstNbtRead = false;
+			MinecraftForge.EVENT_BUS.post(new TileEntityBehaviourEvent<>(getBlockState(), this, behaviours));
+			updateBehaviorList();
+		}
+
 		behaviourList.forEach(TileEntityBehaviour::initialize);
 		lazyTick();
 	}
@@ -104,7 +110,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 			ArrayList<TileEntityBehaviour> list = new ArrayList<>();
 			addBehavioursDeferred(list);
 			list.forEach(b -> behaviours.put(b.getType(), b));
-
+			MinecraftForge.EVENT_BUS.post(new TileEntityBehaviourEvent<>(state, this, behaviours));
 			updateBehaviorList();
 		}
 		super.load(compound);

@@ -99,7 +99,6 @@ public class BlazeBurnerTileEntity extends SmartTileEntity {
 			activeFuel = FuelType.NONE;
 
 		updateBlockState();
-		notifyUpdate();
 	}
 
 	private void tickRotation() {

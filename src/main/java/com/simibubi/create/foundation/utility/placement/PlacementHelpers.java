@@ -139,7 +139,7 @@ public class PlacementHelpers {
 			lastTarget = target;
 	}
 
-	@Environment(EnvType.CLIENT)
+	@Environment(EnvType.CLIENT) // fixme change to Post equivalant
 	public static void onRender(PoseStack stack, float partialTicks, Window window, OverlayRenderCallback.Types type) {
 		if (type != OverlayRenderCallback.Types.CROSSHAIRS)
 			return;
@@ -211,7 +211,7 @@ public class PlacementHelpers {
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-		ms.translate(centerX, centerY, 0);
+		ms.translate(centerX, centerY, 5);
 		ms.mulPose(Vector3f.ZP.rotationDegrees(angle.get(0)));
 		//RenderSystem.rotatef(snappedAngle, 0, 0, 1);
 		double scale = AllConfigs.CLIENT.indicatorScale.get();
@@ -246,11 +246,12 @@ public class PlacementHelpers {
 		RenderSystem.enableTexture();
 		AllGuiTextures.PLACEMENT_INDICATOR_SHEET.bind();
 		RenderSystem.enableBlend();
+		RenderSystem.enableDepthTest();
 		RenderSystem.enableAlphaTest();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-		ms.translate(centerX, centerY, 0);
+		ms.translate(centerX, centerY, 50);
 		float scale = AllConfigs.CLIENT.indicatorScale.get().floatValue() * .75f;
 		ms.scale(scale, scale, 1);
 		ms.scale(12, 12, 1);

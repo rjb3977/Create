@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.simibubi.create.api.behaviour.BlockSpoutingBehaviour;
 import com.simibubi.create.content.CreateItemGroup;
 import com.simibubi.create.content.contraptions.TorquePropagator;
 import com.simibubi.create.content.contraptions.components.structureMovement.train.capability.CapabilityMinecartController;
@@ -39,7 +40,7 @@ public class Create implements ModInitializer {
 
 	public static final String ID = "create";
 	public static final String NAME = "Create";
-	public static final String VERSION = "0.3.2d";
+	public static final String VERSION = "0.3.2e";
 
 	public static final Logger LOGGER = LogManager.getLogger();
 
@@ -77,6 +78,7 @@ public class Create implements ModInitializer {
 		AllWorldFeatures.register();
 		AllEnchantments.register();
 		AllConfigs.register();
+		BlockSpoutingBehaviour.register();
 
 //		IEventBus modEventBus = FMLJavaModLoadingContext.get()
 //			.getModEventBus();
