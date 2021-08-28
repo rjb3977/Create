@@ -6,6 +6,12 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.lib.mixin.accessor.ServerPlayerGameModeAccessor;
+
+import net.fabricmc.fabric.mixin.event.interaction.MixinServerPlayerInteractionManager;
+
+import net.minecraft.server.level.DemoMode;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Multimap;
@@ -340,8 +346,8 @@ public class DeployerHandler {
 	public static boolean tryHarvestBlock(ServerPlayerGameMode interactionManager, BlockPos pos) {
 		// <> PlayerInteractionManager#tryHarvestBlock
 
-		ServerLevel world = interactionManager.level;
-		ServerPlayer player = interactionManager.player;
+		ServerLevel world = ((ServerPlayerGameModeAccessor) interactionManager).getLevel();
+		ServerPlayer player = ((ServerPlayerGameModeAccessor) interactionManager).getPlayer();
 		BlockState blockstate = world.getBlockState(pos);
 		GameType gameType = interactionManager.getGameModeForPlayer();
 

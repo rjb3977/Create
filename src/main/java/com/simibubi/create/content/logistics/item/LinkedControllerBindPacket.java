@@ -1,11 +1,12 @@
 package com.simibubi.create.content.logistics.item;
 
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.simibubi.create.content.logistics.RedstoneLinkNetworkHandler.Frequency;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.linked.LinkBehaviour;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

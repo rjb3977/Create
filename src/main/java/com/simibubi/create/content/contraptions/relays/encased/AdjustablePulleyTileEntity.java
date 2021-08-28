@@ -25,9 +25,9 @@ public class AdjustablePulleyTileEntity extends KineticTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
 		signal = compound.getInt("Signal");
-		super.fromTag(state, compound, clientPacket);
+		super.fromTag(compound, clientPacket);
 	}
 
 	public float getModifier() {

@@ -95,9 +95,9 @@ public class BaseConfigScreen extends ConfigScreen {
 	 * please use {@link #withSpecs(ForgeConfigSpec, ForgeConfigSpec, ForgeConfigSpec)} instead
 	 */
 	public BaseConfigScreen searchForSpecsInModContainer() {
-		if (!ConfigHelper.hasAnyConfig(this.modID)){
-			return this;
-		}
+//		if (!ConfigHelper.hasAnyConfig(this.modID)){
+//			return this;
+//		}
 
 		try {
 			clientSpec = ConfigHelper.findConfigSpecFor("client", this.modID);
@@ -190,7 +190,7 @@ public class BaseConfigScreen extends ConfigScreen {
 									"Gameplay settings can only be accessed from the in-game menu after joining a World or Server."),
 							ChatFormatting.GRAY, ChatFormatting.GRAY));
 		} else {
-			serverConfigWidget.withCallback(() -> linkTo(new SubMenuConfigScreen(this, ModConfig.Type.SERVER, serverSpec)));
+			serverConfigWidget.withCallback(() -> linkTo(new SubMenuConfigScreen(this, AllConfigs.SERVER.getName(), serverSpec)));
 			serverText.withElementRenderer(BoxWidget.gradientFactory.apply(serverConfigWidget));
 		}
 
@@ -227,7 +227,7 @@ public class BaseConfigScreen extends ConfigScreen {
 		TextStencilElement othersText = new TextStencilElement(minecraft.font, new TextComponent("Access Configs of other Mods")).centered(true, true);
 		others = new BoxWidget(width / 2 - 100, height / 2 - 15 + 90, 200, 16).showingElement(othersText);
 		othersText.withElementRenderer(BoxWidget.gradientFactory.apply(others));
-		others.withCallback(() -> linkTo(new ConfigModListScreen(this)));
+//		others.withCallback(() -> linkTo(new ConfigModListScreen(this)));
 		widgets.add(others);
 
 	}

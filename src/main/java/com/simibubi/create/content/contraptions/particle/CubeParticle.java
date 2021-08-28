@@ -1,6 +1,12 @@
 package com.simibubi.create.content.contraptions.particle;
 
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.simibubi.create.lib.helper.ParticleHelper;
+
+import com.simibubi.create.lib.mixin.accessor.ParticleAccessor;
+
+import net.minecraft.client.Minecraft;
 
 import org.lwjgl.opengl.GL11;
 
@@ -61,15 +67,16 @@ public class CubeParticle extends Particle {
 			RenderSystem.depthMask(false);
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
-			RenderSystem.enableLighting();
-			RenderSystem.enableColorMaterial();
+//			RenderSystem.enableLighting();		//				 |
+//			RenderSystem.enableColorMaterial(); // replaced by   V
+			Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 
 			// opaque
 //			RenderSystem.depthMask(true);
 //			RenderSystem.disableBlend();
 //			RenderSystem.enableLighting();
 
-			builder.begin(GL11.GL_QUADS, DefaultVertexFormat.BLOCK);
+			builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
 		}
 
 		@Override
@@ -77,7 +84,7 @@ public class CubeParticle extends Particle {
 			tessellator.end();
 			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			RenderSystem.disableLighting();
+			Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
 			RenderSystem.enableTexture();
 		}
 	};
@@ -114,7 +121,7 @@ public class CubeParticle extends Particle {
 		if (this.hot && this.age > 0) {
 			if (this.yo == this.y) {
 				billowing = true;
-				stoppedByCollision = false; // Prevent motion being ignored due to vertical collision
+				((ParticleAccessor) this).create$stoppedByCollision(false); // Prevent motion being ignored due to vertical collision
 				if (this.xd == 0 && this.zd == 0) {
 					Vec3 diff = Vec3.atLowerCornerOf(new BlockPos(x, y, z)).add(0.5, 0.5, 0.5).subtract(x, y, z);
 					this.xd = -diff.x * 0.1;

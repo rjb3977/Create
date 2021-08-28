@@ -9,6 +9,8 @@ import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankB
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
 
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;

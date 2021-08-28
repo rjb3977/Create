@@ -23,6 +23,7 @@
     "accessor.PlayerEntityAccessor",
     "accessor.RailStateAccessor",
     "accessor.ServerPlayerEntityAccessor",
+    "accessor.ServerPlayerGameModeAccessor",
     "accessor.ServerPlayNetHandlerAccessor",
     "accessor.ServerTickListAccessor",
     "accessor.SlotAccessor",

@@ -8,6 +8,8 @@ import com.simibubi.create.Create;
 import com.simibubi.create.foundation.gui.GuiGameElement;
 import com.simibubi.create.foundation.gui.IScreenRenderable;
 import com.simibubi.create.foundation.ponder.PonderLocalization;
+import com.simibubi.create.foundation.ponder.PonderRegistry;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -139,7 +141,7 @@ public class PonderTag implements IScreenRenderable {
 		return this;
 	}
 
-	public PonderTag item(IItemProvider item) {
+	public PonderTag item(ItemLike item) {
 		return this.item(item, true, true);
 	}
 

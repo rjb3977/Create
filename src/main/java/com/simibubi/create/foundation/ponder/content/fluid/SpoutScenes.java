@@ -17,13 +17,14 @@ import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.ponder.instructions.EmitParticlesInstruction.Emitter;
 import com.simibubi.create.foundation.utility.Pointing;
 import com.simibubi.create.foundation.utility.VecHelper;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidStack;
 
 public class SpoutScenes {
 
@@ -66,9 +67,8 @@ public class SpoutScenes {
 
 		scene.idle(20);
 		FluidStack honey = new FluidStack(FluidHelper.convertToStill(AllFluids.HONEY.get()), 1000);
-		ItemStack bucket = AllFluids.HONEY.get()
-			.getAttributes()
-			.getBucket(honey);
+		ItemStack bucket = new ItemStack(AllFluids.HONEY.get()
+			.getBucket());
 		scene.overlay.showControls(
 			new InputWindowElement(util.vector.blockSurface(util.grid.at(2, 3, 2), Direction.NORTH), Pointing.RIGHT)
 				.showing(AllIcons.I_MTD_CLOSE)

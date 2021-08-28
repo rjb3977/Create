@@ -219,12 +219,9 @@ public class GoggleOverlayRenderer {
 		}
 
 		@Override
-		public void init(Minecraft mc, int width, int height) {
-			this.minecraft = mc;
-			this.itemRenderer = mc.getItemRenderer();
-			this.font = mc.font;
-			this.width = width;
-			this.height = height;
+		public void init() {
+			this.itemRenderer = minecraft.getItemRenderer();
+			this.font = minecraft.font;
 		}
 	}
 

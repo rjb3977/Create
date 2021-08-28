@@ -14,7 +14,8 @@ import com.simibubi.create.foundation.ponder.elements.InputWindowElement;
 import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.utility.Pointing;
 
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;

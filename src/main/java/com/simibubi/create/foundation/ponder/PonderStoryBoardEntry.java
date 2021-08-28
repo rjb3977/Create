@@ -3,6 +3,9 @@ package com.simibubi.create.foundation.ponder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import com.simibubi.create.foundation.ponder.content.PonderChapter;
+
 import net.minecraft.resources.ResourceLocation;
 import com.simibubi.create.foundation.ponder.content.PonderTag;
 

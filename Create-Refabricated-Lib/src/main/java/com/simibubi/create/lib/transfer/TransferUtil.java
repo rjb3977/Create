@@ -42,6 +42,11 @@ public class TransferUtil {
 		return handleInstanceOfChecks(itemStorage).cast();
 	}
 
+	public static LazyOptional<IItemHandler> getItemHandler(Level level, BlockPos pos) {
+		Storage<ItemVariant> itemStorage = ItemStorage.SIDED.find(level, pos, Direction.UP);
+		return handleInstanceOfChecks(itemStorage).cast();
+	}
+
 	public static LazyOptional<IItemHandler> getItemHandler(Level level, BlockPos pos, Direction direction) {
 		Storage<ItemVariant> itemStorage = ItemStorage.SIDED.find(level, pos, direction);
 		return handleInstanceOfChecks(itemStorage).cast();

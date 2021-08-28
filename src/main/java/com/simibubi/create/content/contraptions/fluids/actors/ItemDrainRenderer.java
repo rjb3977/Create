@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.fluids.actors;
 
 import java.util.Random;
+
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.content.contraptions.processing.EmptyingByBasin;
@@ -13,11 +15,14 @@ import com.simibubi.create.foundation.tileEntity.renderer.SmartTileEntityRendere
 import com.simibubi.create.foundation.utility.VecHelper;
 
 
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
@@ -76,7 +81,7 @@ public class ItemDrainRenderer extends SmartTileEntityRenderer<ItemDrainTileEnti
 			.getItemRenderer();
 		int count = (int) (Mth.log2((int) (itemStack.getCount()))) / 2;
 		boolean renderUpright = BeltHelper.isItemUpright(itemStack);
-		boolean blockItem = itemRenderer.getModel(itemStack, null, null)
+		boolean blockItem = itemRenderer.getModel(itemStack, null, null, 0)
 			.isGui3d();
 
 		if (renderUpright)

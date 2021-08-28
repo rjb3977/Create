@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.simibubi.create.AllBlocks;
@@ -77,7 +81,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-// fixme LBA -Platy
 public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEntity>, ISpecialBlockItemRequirement,
 		BlockPickInteractionAware, CustomPathNodeTypeBlock, BlockExtensions {
 
@@ -205,13 +208,13 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 				return;
 			withTileEntityDo(worldIn, pos, te -> {
 				ItemEntity itemEntity = (ItemEntity) entityIn;
-				ItemStackHandler handler = (ItemStackHandler) ItemAttributes.INSERTABLE.get(worldIn, pos);
+				IItemHandler handler = TransferUtil.getItemHandler(worldIn, pos).orElse(null);
 				if (handler == null)
 					return;
 				ItemStack remainder = handler.insertItem(0, itemEntity.getItem()
 					.copy(), false);
 				if (remainder.isEmpty())
-					itemEntity.remove();
+					itemEntity.remove(Entity.RemovalReason.DISCARDED);
 			});
 			return;
 		}

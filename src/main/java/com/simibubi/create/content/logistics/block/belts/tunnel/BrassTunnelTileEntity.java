@@ -601,7 +601,7 @@ public class BrassTunnelTileEntity extends BeltTunnelTileEntity implements IHave
 		for (boolean filtered : Iterate.trueAndFalse) {
 			distributionTargets.set(filtered, NBTHelper
 				.readCompoundList(compound.getList(filtered ? "FilteredTargets" : "Targets", NBT.TAG_COMPOUND), nbt -> {
-					BlockPos pos = NBTUtil.readBlockPos(nbt.getCompound("Pos"));
+					BlockPos pos = NbtUtils.readBlockPos(nbt.getCompound("Pos"));
 					Direction face = Direction.from3DDataValue(nbt.getInt("Face"));
 					return Pair.of(pos, face);
 				}));

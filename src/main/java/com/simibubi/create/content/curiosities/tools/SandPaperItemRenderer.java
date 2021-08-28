@@ -22,7 +22,7 @@ public class SandPaperItemRenderer implements DynamicItemRenderer {
 	public void renderByItem(ItemStack stack, TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 		LocalPlayer player = Minecraft.getInstance().player;
-		SandPaperModel mainModel = (SandPaperModel) itemRenderer.getModel(stack, Minecraft.getInstance().level, null);
+		SandPaperModel mainModel = (SandPaperModel) itemRenderer.getModel(stack, Minecraft.getInstance().level, null, 0);
 		float partialTicks = AnimationTickHolder.getPartialTicks();
 
 		boolean leftHand = transformType == TransformType.FIRST_PERSON_LEFT_HAND;

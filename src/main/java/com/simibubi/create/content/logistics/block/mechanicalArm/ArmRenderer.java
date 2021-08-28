@@ -14,7 +14,6 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Iterate;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -53,7 +52,7 @@ public class ArmRenderer extends KineticTileEntityRenderer {
 											 .getItemRenderer();
 
 		boolean isBlockItem = hasItem && (item.getItem() instanceof BlockItem)
-				&& itemRenderer.getModel(item, Minecraft.getInstance().level, null)
+				&& itemRenderer.getModel(item, Minecraft.getInstance().level, null, 0)
 							   .isGui3d();
 
 		VertexConsumer builder = buffer.getBuffer(RenderType.solid());

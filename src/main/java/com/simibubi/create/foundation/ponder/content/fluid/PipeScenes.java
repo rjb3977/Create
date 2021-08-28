@@ -22,6 +22,10 @@ import com.simibubi.create.foundation.ponder.elements.InputWindowElement;
 import com.simibubi.create.foundation.ponder.elements.WorldSectionElement;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.utility.Pointing;
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -34,9 +38,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class PipeScenes {
 
@@ -66,9 +67,9 @@ public class PipeScenes {
 		scene.world.showSection(tank, Direction.DOWN);
 		scene.idle(5);
 		scene.world.showSection(tank2, Direction.DOWN);
-		FluidStack content = new FluidStack(Fluids.LAVA, 10000);
+		FluidStack content = new FluidStack(Fluids.LAVA, 10 * FluidConstants.BUCKET);
 		scene.world.modifyTileEntity(util.grid.at(4, 1, 2), FluidTankTileEntity.class, te -> te.getTankInventory()
-			.fill(content, FluidAction.EXECUTE));
+			.fill(content, false));
 		scene.idle(10);
 
 		for (int i = 4; i >= 1; i--) {
@@ -220,7 +221,7 @@ public class PipeScenes {
 			te -> te.getBehaviour(SmartFluidTankBehaviour.TYPE)
 				.allowInsertion()
 				.getPrimaryHandler()
-				.fill(new FluidStack(Fluids.WATER, 1500), FluidAction.EXECUTE));
+				.fill(new FluidStack(Fluids.WATER, (long) (1.5 * FluidConstants.BUCKET)), false));
 
 		scene.idle(50);
 		scene.overlay.showOutline(PonderPalette.MEDIUM, new Object(), drain, 40);
@@ -520,9 +521,8 @@ public class PipeScenes {
 		scene.idle(90);
 
 		FluidStack chocolate = new FluidStack(FluidHelper.convertToStill(AllFluids.CHOCOLATE.get()), 1000);
-		ItemStack bucket = AllFluids.CHOCOLATE.get()
-			.getAttributes()
-			.getBucket(chocolate);
+		ItemStack bucket = new ItemStack(AllFluids.CHOCOLATE.get()
+			.getBucket());
 		ItemStack milkBucket = new ItemStack(Items.MILK_BUCKET);
 		scene.overlay.showControls(new InputWindowElement(filterVec, Pointing.DOWN).rightClick()
 			.withItem(bucket), 80);
@@ -562,8 +562,8 @@ public class PipeScenes {
 		}
 		scene.idle(15);
 		scene.world.modifyTileEntity(basinPos, BasinTileEntity.class,
-			te -> te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-				.ifPresent(ifh -> ifh.fill(chocolate, FluidAction.EXECUTE)));
+			te -> TransferUtil.getFluidHandler(te)
+				.ifPresent(ifh -> ifh.fill(chocolate, false)));
 		scene.idle(10);
 
 		scene.overlay.showText(80)

@@ -7,8 +7,6 @@ import java.util.function.Supplier;
 
 import com.simibubi.create.foundation.utility.Lang;
 
-import net.minecraftforge.fml.ModList;
-
 /**
  * For compatibility with and without another mod present, we have to define load conditions of the specific code
  */
@@ -18,7 +16,7 @@ public enum Mods {
 
 	;
 
-	private boolean loaded;
+	private final boolean loaded;
 
 	private Mods() {
 		loaded = FabricLoader.getInstance().isModLoaded(asId());

@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
 import com.simibubi.create.lib.transfer.fluid.FluidTransferable;
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 import com.simibubi.create.lib.utility.LazyOptional;
@@ -61,68 +62,62 @@ public class PortableFluidInterfaceTileEntity extends PortableStorageInterfaceTi
 //		return super.getCapability(cap, side);
 //	}
 //
-//	public class InterfaceFluidHandler implements IFluidHandler {
-//
-//		private IFluidHandler wrapped;
-//
-//		public InterfaceFluidHandler(IFluidHandler wrapped) {
-//			this.wrapped = wrapped;
-//		}
-//
-//		@Override
-//		public int getTanks() {
-//			return wrapped.getTanks();
-//		}
-//
-//		@Override
-//		public FluidStack getFluidInTank(int tank) {
-//			return wrapped.getFluidInTank(tank);
-//		}
-//
-//		@Override
-//		public int getTankCapacity(int tank) {
-//			return wrapped.getTankCapacity(tank);
-//		}
-//
-//		@Override
-//		public boolean isFluidValid(int tank, FluidStack stack) {
-//			return wrapped.isFluidValid(tank, stack);
-//		}
-//
-//		@Override
-//		public int fill(FluidStack resource, FluidAction action) {
-//			if (!isConnected())
-//				return 0;
-//			int fill = wrapped.fill(resource, action);
-//			if (fill > 0 && action.execute())
-//				keepAlive();
-//			return fill;
-//		}
-//
-//		@Override
-//		public FluidStack drain(FluidStack resource, FluidAction action) {
-//			if (!canTransfer())
-//				return FluidStack.empty();
-//			FluidStack drain = wrapped.drain(resource, action);
-//			if (!drain.isEmpty() && action.execute())
-//				keepAlive();
-//			return drain;
-//		}
-//
-//		@Override
-//		public FluidStack drain(int maxDrain, FluidAction action) {
-//			if (!canTransfer())
-//				return FluidStack.empty();
-//			FluidStack drain = wrapped.drain(maxDrain, action);
-//			if (!drain.isEmpty() && action.execute())
-//				keepAlive();
-//			return drain;
-//		}
-//
-//		public void keepAlive() {
-//			onContentTransferred();
-//		}
-//
-//	}
+	public class InterfaceFluidHandler implements IFluidHandler {
 
+		private IFluidHandler wrapped;
+
+		public InterfaceFluidHandler(IFluidHandler wrapped) {
+			this.wrapped = wrapped;
+		}
+
+		@Override
+		public int getTanks() {
+			return wrapped.getTanks();
+		}
+
+		@Override
+		public FluidStack getFluidInTank(int tank) {
+			return wrapped.getFluidInTank(tank);
+		}
+
+		@Override
+		public long getTankCapacity(int tank) {
+			return wrapped.getTankCapacity(tank);
+		}
+
+		@Override
+		public long fill(FluidStack resource, boolean sim) {
+			if (!isConnected())
+				return 0;
+			long fill = wrapped.fill(resource, sim);
+			if (fill > 0 && !sim)
+				keepAlive();
+			return fill;
+		}
+
+		@Override
+		public FluidStack drain(FluidStack resource, boolean sim) {
+			if (!canTransfer())
+				return FluidStack.empty();
+			FluidStack drain = wrapped.drain(resource, sim);
+			if (!drain.isEmpty() && !sim)
+				keepAlive();
+			return drain;
+		}
+
+		@Override
+		public FluidStack drain(long maxDrain, boolean sim) {
+			if (!canTransfer())
+				return FluidStack.empty();
+			FluidStack drain = wrapped.drain(maxDrain, sim);
+			if (!drain.isEmpty() && !sim)
+				keepAlive();
+			return drain;
+		}
+
+		public void keepAlive() {
+			onContentTransferred();
+		}
+
+	}
 }

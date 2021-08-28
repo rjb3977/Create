@@ -128,7 +128,7 @@ public class SawRenderer extends SafeTileEntityRenderer<SawTileEntity> {
 
 				ItemRenderer itemRenderer = Minecraft.getInstance()
 					.getItemRenderer();
-				BakedModel modelWithOverrides = itemRenderer.getModel(stack, te.getLevel(), null);
+				BakedModel modelWithOverrides = itemRenderer.getModel(stack, te.getLevel(), null, 0);
 				boolean blockItem = modelWithOverrides.isGui3d();
 
 				ms.translate(alongZ ? offset : .5, blockItem ? .925f : 13f / 16f, alongZ ? .5 : offset);
@@ -151,7 +151,7 @@ public class SawRenderer extends SafeTileEntityRenderer<SawTileEntity> {
 			.getAxis()
 			.isHorizontal())
 			return PartialBufferer.getFacing(AllBlockPartials.SHAFT_HALF,
-				state.rotate(te.getLevel(), te.getBlockPos(), Rotation.CLOCKWISE_180));
+				state.rotate(Rotation.CLOCKWISE_180));
 		return CreateClient.BUFFER_CACHE.renderBlockIn(KineticTileEntityRenderer.KINETIC_TILE,
 			getRenderedBlockState(te));
 	}

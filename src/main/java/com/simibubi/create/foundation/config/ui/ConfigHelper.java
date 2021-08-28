@@ -26,14 +26,14 @@ public class ConfigHelper {
 	public static final Pattern annotationPattern = Pattern.compile("\\[@cui:([^:]*)(?::(.*))?]");
 
 	public static final Map<String, ConfigChange> changes = new HashMap<>();
-	private static final LoadingCache<String, EnumMap<ModConfig.Type, ModConfig>> configCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build(
-			new CacheLoader<String, EnumMap<ModConfig.Type, ModConfig>>() {
-				@Override
-				public EnumMap<ModConfig.Type, ModConfig> load(@Nonnull String key) {
-					return findModConfigsUncached(key);
-				}
-			}
-	);
+//	private static final LoadingCache<String, EnumMap<ModConfig.Type, ModConfig>> configCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build(
+//			new CacheLoader<String, EnumMap<ModConfig.Type, ModConfig>>() {
+//				@Override
+//				public EnumMap<ModConfig.Type, ModConfig> load(@Nonnull String key) {
+//					return findModConfigsUncached(key);
+//				}
+//			}
+//	);
 
 //	private static EnumMap<ModConfig.Type, ModConfig> findModConfigsUncached(String modID) {
 //		ModContainer modContainer = ModList.get().getModContainerById(modID).orElseThrow(() -> new IllegalArgumentException("Unable to find ModContainer for id: " + modID));
@@ -66,10 +66,10 @@ public class ConfigHelper {
 		return null;
 	}
 
-	public static boolean hasAnyConfig(String modID) {
-		EnumMap<ModConfig.Type, ModConfig> map = configCache.getUnchecked(modID);
-		return map.entrySet().size() > 0;
-	}
+//	public static boolean hasAnyConfig(String modID) {
+//		EnumMap<ModConfig.Type, ModConfig> map = configCache.getUnchecked(modID);
+//		return map.entrySet().size() > 0;
+//	}
 
 	//Directly set a value
 	public static <T> void setConfigValue(ConfigPath path, String value) throws InvalidValueException {

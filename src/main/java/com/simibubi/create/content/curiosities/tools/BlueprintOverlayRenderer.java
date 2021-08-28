@@ -19,13 +19,13 @@ import com.simibubi.create.foundation.gui.GuiGameElement;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Pair;
 
-import com.simibubi.create.lib.lba.item.ItemHandlerHelper;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
-
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 import com.simibubi.create.lib.utility.Constants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.tags.SerializationTags;
@@ -279,8 +279,7 @@ public class BlueprintOverlayRenderer {
 					if (fromNBT instanceof ItemAttribute.InTag) {
 						ItemAttribute.InTag inTag = (ItemAttribute.InTag) fromNBT;
 						Tag<Item> itag = SerializationTags.getInstance()
-							.getItems()
-							.getTag(inTag.tagName);
+							.getTagOrThrow(Registry.ITEM_REGISTRY, inTag.tagName, location -> new RuntimeException("Failed to get tag: " + location.toString()));
 						if (itag != null)
 							return Ingredient.of(itag)
 								.getItems();

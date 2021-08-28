@@ -7,7 +7,9 @@ import com.simibubi.create.content.contraptions.relays.belt.transport.Transporte
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputBehaviour;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
+
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -23,7 +25,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import com.simibubi.create.lib.lba.item.ItemStackHandler;
 
 public class SharedDepotBlockMethods {
 

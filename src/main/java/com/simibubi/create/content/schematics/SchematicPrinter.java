@@ -56,7 +56,7 @@ public class SchematicPrinter {
 		if (clientPacket) {
 			schematicLoaded = false;
 			if (compound.contains("Anchor")) {
-				schematicAnchor = NBTUtil.readBlockPos(compound.getCompound("Anchor"));
+				schematicAnchor = NbtUtils.readBlockPos(compound.getCompound("Anchor"));
 				schematicLoaded = true;
 			}
 		}
@@ -72,7 +72,7 @@ public class SchematicPrinter {
 		if (currentPos != null)
 			compound.put("CurrentPos", NbtUtils.writeBlockPos(currentPos));
 		if (schematicAnchor != null)
-			compound.put("Anchor", NBTUtil.writeBlockPos(schematicAnchor));
+			compound.put("Anchor", NbtUtils.writeBlockPos(schematicAnchor));
 
 		compound.putInt("EntityProgress", printingEntityIndex);
 		compound.putString("PrintStage", printStage.name());

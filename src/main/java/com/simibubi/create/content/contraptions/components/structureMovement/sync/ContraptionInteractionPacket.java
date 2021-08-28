@@ -56,7 +56,7 @@ public class ContraptionInteractionPacket implements C2SPacket {
 				return;
 			AbstractContraptionEntity contraptionEntity = (AbstractContraptionEntity) entityByID;
 			double d = sender.getAttribute(ReachEntityAttributes.REACH).getValue() + 10;
-			if (!sender.canSee(entityByID))
+			if (!sender.hasLineOfSight(entityByID))
 				d -= 3;
 			d *= d;
 			if (sender.distanceToSqr(entityByID) > d) {

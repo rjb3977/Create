@@ -23,7 +23,7 @@ public class GogglesItemRenderer implements DynamicItemRenderer {
 		if (mode == TransformType.HEAD) {
 			model = AllBlockPartials.GOGGLES.get();
 		} else {
-			model = renderer.getModel(stack, null, null);
+			model = renderer.getModel(stack, null, null, 0);
 		}
 		RenderType layer = ItemBlockRenderTypes.getRenderType(stack, true);
 		VertexConsumer consumer = ItemRenderer.getFoilBufferDirect(vertexConsumers, layer, true, stack.hasFoil());

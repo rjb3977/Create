@@ -120,7 +120,7 @@ public class ConfigScreenList extends ObjectSelectionList<ConfigScreenList.Entry
 		ConfigScreen.cogSpin.bump(3, force);
 	}
 
-	public static abstract class Entry extends ObjectSelectionList.Entry<com.simibubi.create.foundation.config.ui.ConfigScreenList.Entry> {
+	public static abstract class Entry extends ObjectSelectionList.Entry<ConfigScreenList.Entry> {
 		protected List<GuiEventListener> listeners;
 		protected Map<String, String> annotations;
 		protected String path;
@@ -161,7 +161,7 @@ public class ConfigScreenList extends ObjectSelectionList<ConfigScreenList.Entry
 		}
 	}
 
-	public static class LabeledEntry extends com.simibubi.create.foundation.config.ui.ConfigScreenList.Entry {
+	public static class LabeledEntry extends ConfigScreenList.Entry {
 
 		protected static final float labelWidthMult = 0.4f;
 
@@ -262,6 +262,11 @@ public class ConfigScreenList extends ObjectSelectionList<ConfigScreenList.Entry
 
 		protected int getLabelWidth(int totalWidth) {
 			return totalWidth;
+		}
+
+		@Override
+		public Component getNarration() {
+			return label.getComponent();
 		}
 	}
 }

@@ -38,11 +38,6 @@ public class SingleItemStackContext implements ContainerItemContext {
 		return ObjectLists.EMPTY_LIST;
 	}
 
-	@Override
-	public Level getWorld() {
-		return level;
-	}
-
 	public static class OneSlotStorage extends SingleStackStorage {
 		protected ItemStack stack;
 		protected final SingleItemStackContext owner;

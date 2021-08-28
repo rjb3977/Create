@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.content.contraptions.components.actors.PortableFluidInterfaceTileEntity;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
@@ -227,9 +228,9 @@ public class FluidNetwork {
 						continue;
 					}
 
-					FluidStack divided = (FluidStack) transfer.copy();
+					FluidStack divided = transfer.copy();
 					divided.setAmount(toTransfer);
-					int fill = targetHandler.fill(divided, simulate);
+					long fill = targetHandler.fill(divided, simulate);
 					transfer.setAmount(transfer.getAmount() - fill);
 					if (fill < toTransfer)
 						iterator.remove();
@@ -258,11 +259,11 @@ public class FluidNetwork {
 
 	private void keepPortableFluidInterfaceEngaged() {
 		IFluidHandler handler = source.orElse(null);
-		if (!(handler instanceof InterfaceFluidHandler))
+		if (!(handler instanceof PortableFluidInterfaceTileEntity.InterfaceFluidHandler))
 			return;
 		if (frontier.isEmpty())
 			return;
-		((InterfaceFluidHandler) handler).keepAlive();
+		((PortableFluidInterfaceTileEntity.InterfaceFluidHandler) handler).keepAlive();
 	}
 
 	public void reset() {

@@ -58,7 +58,7 @@ public class ContraptionRenderDispatcher {
 	 * @return true if there was a renderer associated with the given contraption.
 	 */
 	public static boolean invalidate(Contraption contraption) {
-		World level = contraption.entity.level;
+		Level level = contraption.entity.level;
 
 		return WORLDS.get(level).invalidate(contraption);
 	}

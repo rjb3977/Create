@@ -4,7 +4,6 @@ import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.logistics.block.chute.ChuteBlock.Shape;
 import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer;
-import com.simibubi.create.foundation.utility.MatrixStacker;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;

@@ -69,13 +69,13 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 	}
 
 	public static void renderInLectern(ItemStack stack, LinkedControllerModel model,
-	  	PartialItemModelRenderer renderer, ItemCameraTransforms.TransformType transformType, MatrixStack ms,
+	  	PartialItemModelRenderer renderer, ItemTransforms.TransformType transformType, PoseStack ms,
   		int light, boolean active, boolean renderDepression) {
 		render(stack, model, renderer, transformType, ms, light, RenderType.LECTERN, active, renderDepression);
 	}
 
 	protected static void render(ItemStack stack, LinkedControllerModel model,
-	  	PartialItemModelRenderer renderer, ItemCameraTransforms.TransformType transformType, MatrixStack ms,
+	  	PartialItemModelRenderer renderer, ItemTransforms.TransformType transformType, PoseStack ms,
   		int light, RenderType renderType, boolean active, boolean renderDepression) {
 		float pt = AnimationTickHolder.getPartialTicks();
 		MatrixTransformStack msr = MatrixTransformStack.of(ms);
@@ -93,7 +93,6 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 			active = false;
 			boolean noControllerInMain = !AllItems.LINKED_CONTROLLER.isIn(mc.player.getMainHandItem());
 
-			boolean noControllerInMain = !AllItems.LINKED_CONTROLLER.isIn(mc.player.getMainHandItem());
 			if (transformType == mainHand || (transformType == offHand && noControllerInMain)) {
 				float equip = equipProgress.getValue(pt);
 				int handModifier = transformType == TransformType.FIRST_PERSON_LEFT_HAND ? -1 : 1;

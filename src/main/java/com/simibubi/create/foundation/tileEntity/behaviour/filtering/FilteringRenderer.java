@@ -15,14 +15,16 @@ import com.simibubi.create.foundation.tileEntity.behaviour.ValueBoxTransform.Sid
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.Pair;
+import com.simibubi.create.foundation.utility.VecHelper;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.entity.Entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -94,7 +96,7 @@ public class FilteringRenderer {
 			return;
 
 		Entity cameraEntity = Minecraft.getInstance().cameraEntity;
-		float max = AllConfigs.CLIENT.filterItemRenderDistance.getF();
+		float max = AllConfigs.CLIENT.filterItemRenderDistance.get();
 		if (!te.isVirtual() && cameraEntity != null && cameraEntity.position()
 			.distanceToSqr(VecHelper.getCenterOf(te.getBlockPos())) > (max * max))
 			return;

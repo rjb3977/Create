@@ -17,9 +17,9 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.entity.Entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -68,7 +68,7 @@ public class LinkRenderer {
 			return;
 
 		Entity cameraEntity = Minecraft.getInstance().cameraEntity;
-		float max = AllConfigs.CLIENT.filterItemRenderDistance.getF();
+		float max = AllConfigs.CLIENT.filterItemRenderDistance.get();
 		if (!te.isVirtual() && cameraEntity != null && cameraEntity.position()
 			.distanceToSqr(VecHelper.getCenterOf(te.getBlockPos())) > (max * max))
 			return;

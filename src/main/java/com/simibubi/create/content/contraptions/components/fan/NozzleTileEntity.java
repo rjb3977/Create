@@ -49,8 +49,8 @@ public class NozzleTileEntity extends SmartTileEntity {
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag( compound, clientPacket);
 		if (!clientPacket)
 			return;
 		range = compound.getFloat("Range");
@@ -174,7 +174,7 @@ public class NozzleTileEntity extends SmartTileEntity {
 			level.explode(null, center.x, center.y, center.z, 2, BlockInteraction.NONE);
 			for (Iterator<Entity> iterator = pushingEntities.iterator(); iterator.hasNext();) {
 				Entity entity = iterator.next();
-				entity.remove();
+				entity.remove(Entity.RemovalReason.DISCARDED);
 				iterator.remove();
 			}
 		}

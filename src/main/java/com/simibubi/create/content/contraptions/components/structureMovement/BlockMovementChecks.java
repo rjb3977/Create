@@ -2,9 +2,20 @@ package com.simibubi.create.content.contraptions.components.structureMovement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.simibubi.create.lib.utility.TagUtil;
+import com.tterrag.registrate.fabric.EnvExecutor;
+
+import net.fabricmc.api.EnvType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.network.ServerPlayerConnection;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BasePressurePlateBlock;
 import net.minecraft.world.level.block.BaseRailBlock;
@@ -191,7 +202,8 @@ public class BlockMovementChecks {
 			return true;
 		if (state.getDestroySpeed(world, pos) == -1)
 			return false;
-		if (state.getBlock().getTags().contains(NON_MOVABLE))
+
+		if (TagUtil.NON_MOVABLE.contains(state.getBlock()))
 			return false;
 		if (AllConfigs.SERVER.kinetics.spawnerMovement.get() == CKinetics.SpawnerMovementSetting.UNMOVABLE
 			&& block instanceof SpawnerBlock)

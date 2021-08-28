@@ -117,7 +117,7 @@ public class CartAssemblerBlock extends BaseRailBlock
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.CART_ASSEMBLER.create();
+		return AllTileEntities.CART_ASSEMBLER.create(pos, state);
 	}
 
 	@Override

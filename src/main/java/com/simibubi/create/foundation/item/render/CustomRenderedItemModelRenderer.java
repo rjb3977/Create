@@ -11,10 +11,10 @@ public abstract class CustomRenderedItemModelRenderer<M extends CustomRenderedIt
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void renderByItem(ItemStack stack, ItemTransforms.TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+	public void render(ItemStack stack, ItemTransforms.TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		M mainModel = ((M) Minecraft.getInstance()
 			.getItemRenderer()
-			.getModel(stack, null, null));
+			.getModel(stack, null, null, 0));
 		PartialItemModelRenderer renderer = PartialItemModelRenderer.of(stack, transformType, ms, buffer, overlay);
 
 		ms.pushPose();
