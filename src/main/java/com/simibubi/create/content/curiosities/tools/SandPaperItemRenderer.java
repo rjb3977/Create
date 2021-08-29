@@ -2,7 +2,7 @@ package com.simibubi.create.content.curiosities.tools;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
+import com.simibubi.create.foundation.item.render.CreateCustomRenderedItemModel;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry.DynamicItemRenderer;
@@ -79,7 +79,7 @@ public class SandPaperItemRenderer implements DynamicItemRenderer {
 		ms.popPose();
 	}
 
-	public static class SandPaperModel extends CustomRenderedItemModel {
+	public static class SandPaperModel extends CreateCustomRenderedItemModel {
 
 		public SandPaperModel(BakedModel template) {
 			super(template, "");

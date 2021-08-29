@@ -16,12 +16,14 @@ import net.minecraft.resources.ResourceLocation;
 
 public abstract class CustomRenderedItemModel extends ForwardingBakedModel {
 
+	protected String namespace;
 	protected String basePath;
 	protected Map<String, BakedModel> partials = new HashMap<>();
 	protected DynamicItemRenderer renderer;
 
-	public CustomRenderedItemModel(BakedModel template, String basePath) {
+	public CustomRenderedItemModel(BakedModel template, String namespace, String basePath) {
 		wrapped = template;
+		this.namespace = namespace;
 		this.basePath = basePath;
 		this.renderer = createRenderer();
 	}
@@ -62,7 +64,7 @@ public abstract class CustomRenderedItemModel extends ForwardingBakedModel {
 	}
 
 	private ResourceLocation getPartialModelLocation(String name) {
-		return new ResourceLocation(Create.ID, "item/" + basePath + "/" + name);
+		return new ResourceLocation(namespace, "item/" + basePath + "/" + name);
 	}
 
 	public BakedModel getPartial(String name) {

@@ -1,11 +1,11 @@
 package com.simibubi.create.content.curiosities.tools;
 
-import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
+import com.simibubi.create.foundation.item.render.CreateCustomRenderedItemModel;
 
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry.DynamicItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 
-public class ExtendoGripModel extends CustomRenderedItemModel {
+public class ExtendoGripModel extends CreateCustomRenderedItemModel {
 
 	public ExtendoGripModel(BakedModel template) {
 		super(template, "extendo_grip");
