@@ -13,7 +13,10 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.lib.helper.EntityRendererManagerHelper;
 import com.simibubi.create.lib.helper.LivingRendererHelper;
+import com.simibubi.create.lib.mixin.accessor.EntityRendererManagerAccessor;
+import com.simibubi.create.lib.mixin.accessor.LivingEntityRendererAccessor;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -35,6 +38,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
@@ -90,9 +94,9 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 	}
 
 	public static void registerOnAll(EntityRenderDispatcher renderManager) {
-		for (PlayerRenderer renderer : renderManager.getSkinMap().values())
+		for (EntityRenderer<? extends Player> renderer : ((EntityRendererManagerAccessor) renderManager).getPlayerRenderers().values())
 			registerOn(renderer);
-		for (EntityRenderer<?> renderer : renderManager.renderers.values())
+		for (EntityRenderer<?> renderer : EntityRendererManagerHelper.getRenderers(renderManager).values())
 			registerOn(renderer);
 	}
 
@@ -104,7 +108,7 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 		if (!(livingRenderer.getModel() instanceof HumanoidModel))
 			return;
 		CopperBacktankArmorLayer<?, ?> layer = new CopperBacktankArmorLayer<>(livingRenderer);
-		livingRenderer.addLayer((CopperBacktankArmorLayer) layer);
+		((LivingEntityRendererAccessor) livingRenderer).invokeAddLayer((CopperBacktankArmorLayer) layer);
 	}
 
 	public static void renderRemainingAirOverlay(PoseStack ms, BufferSource buffers, int light, int overlay, float pt) {

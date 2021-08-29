@@ -11,6 +11,7 @@ import com.simibubi.create.foundation.gui.ScreenOpener;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.lib.block.CanConnectRedstoneBlock;
 import com.simibubi.create.lib.extensions.BlockExtensions;
+import com.simibubi.create.lib.transfer.TransferUtil;
 import com.simibubi.create.lib.utility.LazyOptional;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
@@ -129,7 +130,7 @@ public class StockpileSwitchBlock extends HorizontalDirectionalBlock implements 
 			BlockEntity te = context.getLevel()
 				.getBlockEntity(context.getClickedPos()
 					.relative(face));
-			if (te != null && LazyOptional.of(() -> ItemAttributes.INSERTABLE.getFirstOrNull(te.getWorld(), te.getPos()))
+			if (te != null && TransferUtil.getItemHandler(te)
 				.isPresent())
 				if (preferredFacing == null)
 					preferredFacing = face;

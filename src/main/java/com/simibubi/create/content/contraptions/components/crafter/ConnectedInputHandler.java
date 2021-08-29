@@ -202,7 +202,7 @@ public class ConnectedInputHandler {
 			isController = nbt.getBoolean("Controller");
 			data.clear();
 			nbt.getList("Data", NBT.TAG_COMPOUND)
-				.forEach(inbt -> data.add(NBTUtil.readBlockPos((CompoundTag) inbt)));
+				.forEach(inbt -> data.add(NbtUtils.readBlockPos((CompoundTag) inbt)));
 		}
 
 	}

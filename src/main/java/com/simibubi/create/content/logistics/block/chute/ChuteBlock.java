@@ -47,7 +47,7 @@ public class ChuteBlock extends AbstractChuteBlock {
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.CHUTE.create();
+		return AllTileEntities.CHUTE.create(pos, state);
 	}
 
 	@Override

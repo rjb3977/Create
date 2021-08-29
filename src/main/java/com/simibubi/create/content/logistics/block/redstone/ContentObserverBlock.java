@@ -1,6 +1,9 @@
 package com.simibubi.create.content.logistics.block.redstone;
 
 import java.util.Random;
+
+import com.simibubi.create.lib.transfer.TransferUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -49,7 +52,7 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.CONTENT_OBSERVER.create();
+		return AllTileEntities.CONTENT_OBSERVER.create(pos, state);
 	}
 
 //	@Override
@@ -77,7 +80,7 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 
 			if (TileEntityBehaviour.get(tileEntity, TransportedItemStackHandlerBehaviour.TYPE) != null)
 				canDetect = true;
-			else if (tileEntity != null && LazyOptional.of(() -> ItemAttributes.INSERTABLE.getFirstOrNull(tileEntity.getWorld(), tileEntity.getPos()))
+			else if (tileEntity != null && TransferUtil.getItemHandler(tileEntity)
 				.isPresent())
 				canDetect = true;
 			else if (tileEntity instanceof FunnelTileEntity)

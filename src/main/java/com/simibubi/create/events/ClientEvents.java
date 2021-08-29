@@ -282,7 +282,7 @@ public class ClientEvents {
 
 	public static float getFogDensity(Camera info, float currentDensity) {
 //		ActiveRenderInfo info = event.getInfo();
-		FluidState fluidState = info.getFluidInCamera();
+		FluidState fluidState = info.getEntity().level.getFluidState(info.getBlockPosition());
 		if (fluidState.isEmpty())
 			return currentDensity;
 		Fluid fluid = fluidState.getType();
@@ -310,7 +310,7 @@ public class ClientEvents {
 
 	public static Vector3f getFogColor(Camera info, Vector3f currentColor) {
 //		ActiveRenderInfo info = event.getInfo();
-		FluidState fluidState = info.getFluidInCamera();
+		FluidState fluidState = info.getEntity().level.getFluidState(info.getBlockPosition());
 		if (fluidState.isEmpty())
 			return currentColor;
 		Fluid fluid = fluidState.getType();

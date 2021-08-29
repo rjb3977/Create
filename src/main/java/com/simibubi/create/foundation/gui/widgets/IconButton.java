@@ -1,6 +1,8 @@
 package com.simibubi.create.foundation.gui.widgets;
 
 import javax.annotation.Nonnull;
+
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -26,7 +28,7 @@ public class IconButton extends AbstractSimiWidget {
 			AllGuiTextures button = (pressed || !active) ? button = AllGuiTextures.BUTTON_DOWN
 				: (isHovered) ? AllGuiTextures.BUTTON_HOVER : AllGuiTextures.BUTTON;
 
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderFogColor(1.0F, 1.0F, 1.0F, 1.0F);
 			AllGuiTextures.BUTTON.bind();
 			blit(matrixStack, x, y, button.startX, button.startY, button.width, button.height);
 			icon.draw(matrixStack, this, x + 1, y + 1);

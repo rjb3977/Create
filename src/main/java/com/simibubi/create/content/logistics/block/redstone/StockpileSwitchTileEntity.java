@@ -2,6 +2,8 @@ package com.simibubi.create.content.logistics.block.redstone;
 
 import java.util.List;
 
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;

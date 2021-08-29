@@ -34,7 +34,7 @@ public class SpoutBlock extends Block implements IWrenchable, EntityBlock {
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.SPOUT.create();
+		return AllTileEntities.SPOUT.create(pos, state);
 	}
 
 	@Override

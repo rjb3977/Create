@@ -1,6 +1,9 @@
 package com.simibubi.create.content.logistics.block.funnel;
 
 import java.util.List;
+
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;

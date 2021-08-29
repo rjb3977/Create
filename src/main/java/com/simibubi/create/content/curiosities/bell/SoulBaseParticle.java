@@ -3,6 +3,8 @@ package com.simibubi.create.content.curiosities.bell;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.AllParticleTypes;
+import com.simibubi.create.lib.helper.ParticleHelper;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.SpriteSet;
@@ -22,7 +24,7 @@ public class SoulBaseParticle extends CustomRotationParticle {
 		this.loopLength = 16 + (int) (this.random.nextFloat() * 2f - 1f);
 		this.lifetime = (int) (90.0F / (this.random.nextFloat() * 0.36F + 0.64F));
 		this.selectSpriteLoopingWithAge(animatedSprite);
-		this.stoppedByCollision = true; // disable movement
+		ParticleHelper.setStoppedByCollision(this, true); // disable movement
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class SoulBaseParticle extends CustomRotationParticle {
 		selectSpriteLoopingWithAge(animatedSprite);
 
 		BlockPos pos = new BlockPos(x, y, z);
-		if (age++ >= lifetime || !SoulPulseEffect.canSpawnSoulAt(level, pos))
+		if (age++ >= lifetime || !SoulPulseEffect.isDark(level, pos))
 			remove();
 	}
 

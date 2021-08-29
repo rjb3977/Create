@@ -28,7 +28,7 @@ public class LecternControllerRenderer extends SafeTileEntityRenderer<LecternCon
 		TransformType transformType = TransformType.NONE;
 		LinkedControllerModel mainModel = (LinkedControllerModel) Minecraft.getInstance()
 			.getItemRenderer()
-			.getModel(stack, null, null);
+			.getModel(stack, null, null, 0);
 		PartialItemModelRenderer renderer = PartialItemModelRenderer.of(stack, transformType, ms, buffer, overlay);
 		boolean active = te.hasUser();
 		boolean renderDepression = te.isUsedBy(Minecraft.getInstance().player);

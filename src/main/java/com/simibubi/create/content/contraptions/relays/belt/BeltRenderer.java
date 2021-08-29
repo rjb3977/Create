@@ -238,7 +238,7 @@ public class BeltRenderer extends SafeTileEntityRenderer<BeltTileEntity> {
 			ItemRenderer itemRenderer = Minecraft.getInstance()
 				.getItemRenderer();
 			boolean renderUpright = BeltHelper.isItemUpright(transported.stack);
-			boolean blockItem = itemRenderer.getModel(transported.stack, te.getLevel(), null)
+			boolean blockItem = itemRenderer.getModel(transported.stack, te.getLevel(), null, 0)
 				.isGui3d();
 			int count = (int) (Mth.log2((int) (transported.stack.getCount()))) / 2;
 			Random r = new Random(transported.angle);

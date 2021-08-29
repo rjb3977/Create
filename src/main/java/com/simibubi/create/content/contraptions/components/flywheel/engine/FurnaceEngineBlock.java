@@ -47,7 +47,7 @@ public class FurnaceEngineBlock extends EngineBlock implements ITE<FurnaceEngine
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.FURNACE_ENGINE.create();
+		return AllTileEntities.FURNACE_ENGINE.create(pos, state);
 	}
 
 	@Override

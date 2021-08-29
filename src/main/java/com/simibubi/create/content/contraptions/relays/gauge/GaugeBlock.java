@@ -154,7 +154,7 @@ public class GaugeBlock extends DirectionalAxisKineticBlock {
 			if (!shouldRenderHeadOnFace(worldIn, pos, stateIn, face))
 				continue;
 
-			Vec3 rgb = ColorHelper.getRGB(color);
+			Vec3 rgb = Color.vectorFromRGB(color);
 			Vec3 faceVec = Vec3.atLowerCornerOf(face.getNormal());
 			Direction positiveFacing = Direction.get(AxisDirection.POSITIVE, face.getAxis());
 			Vec3 positiveFaceVec = Vec3.atLowerCornerOf(positiveFacing.getNormal());

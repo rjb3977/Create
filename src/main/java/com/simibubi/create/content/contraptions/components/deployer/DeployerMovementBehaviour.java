@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -185,7 +186,7 @@ public class DeployerMovementBehaviour extends MovementBehaviour {
 			return;
 
 		context.tileData.put("Inventory", player.getInventory().save(new ListTag()));
-		player.remove();
+		player.remove(Entity.RemovalReason.DISCARDED);
 	}
 
 	private void tryGrabbingItem(MovementContext context) {

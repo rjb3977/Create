@@ -115,4 +115,14 @@ public abstract class Matrix4fMixin implements Matrix4fExtensions {
 				m33,
 		};
 	}
+
+	public void create$setTranslation(float x, float y, float z) {
+		m00 = 1.0F;
+		m11 = 1.0F;
+		m22 = 1.0F;
+		m33 = 1.0F;
+		m03 = x;
+		m13 = y;
+		m23 = z;
+	}
 }

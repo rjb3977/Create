@@ -42,7 +42,7 @@ public class ExtendoGripRenderHandler {
 			return;
 		if (!Minecraft.getInstance()
 			.getItemRenderer()
-			.getModel(main, null, null)
+			.getModel(main, null, null, 0)
 			.isGui3d())
 			return;
 		pose = AllBlockPartials.DEPLOYER_HAND_HOLDING;
@@ -58,10 +58,10 @@ public class ExtendoGripRenderHandler {
 		if (notInOffhand && !AllItems.EXTENDO_GRIP.isIn(heldItem))
 			return false;
 
-		MatrixStacker msr = MatrixStacker.of(ms);
+		MatrixTransformStack msr = MatrixTransformStack.of(ms);
 		AbstractClientPlayer abstractclientplayerentity = mc.player;
 		mc.getTextureManager()
-			.bind(abstractclientplayerentity.getSkinTextureLocation());
+				.bindForSetup(abstractclientplayerentity.getSkinTextureLocation());
 
 		float flip = rightHand ? 1.0F : -1.0F;
 		boolean blockItem = heldItem.getItem() instanceof BlockItem;
@@ -106,11 +106,11 @@ public class ExtendoGripRenderHandler {
 				ms, vertexConsumers, light);
 
 			if (!notInOffhand) {
-				mc.getItemRenderer().getModel(offhandItem, null, null).getTransforms().getTransform(transform).apply(!rightHand, ms);
+				mc.getItemRenderer().getModel(offhandItem, null, null, 0).getTransforms().getTransform(transform).apply(!rightHand, ms);
 				ms.translate(flip * -.05f, .15f, -1.2f);
 				ms.translate(0, 0, -animation * 2.25f);
 				if (blockItem && mc.getItemRenderer()
-					.getModel(heldItem, null, null)
+					.getModel(heldItem, null, null, 0)
 					.isGui3d()) {
 					msr.rotateY(flip * 45);
 					ms.translate(flip * 0.15f, -0.15f, -.05f);

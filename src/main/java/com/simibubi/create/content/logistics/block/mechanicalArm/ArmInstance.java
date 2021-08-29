@@ -151,7 +151,7 @@ public class ArmInstance extends SingleRotatingInstance implements IDynamicInsta
 				.getItemRenderer();
 		boolean hasItem = !item.isEmpty();
 		boolean isBlockItem = hasItem && (item.getItem() instanceof BlockItem)
-				&& itemRenderer.getModel(item, Minecraft.getInstance().level, null)
+				&& itemRenderer.getModel(item, Minecraft.getInstance().level, null, 0)
 				.isGui3d();
 
 		for (int index : Iterate.zeroAndOne) {

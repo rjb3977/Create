@@ -3,6 +3,8 @@ package com.simibubi.create.content.logistics.item;
 import java.util.ArrayList;
 
 import javax.annotation.Nullable;
+
+import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -23,7 +25,7 @@ import com.simibubi.create.content.schematics.ISpecialBlockItemRequirement;
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.block.ITE;
 
-public class LecternControllerBlock extends LecternBlock implements ITE<LecternControllerTileEntity>, ISpecialBlockItemRequirement {
+public class LecternControllerBlock extends LecternBlock implements ITE<LecternControllerTileEntity>, ISpecialBlockItemRequirement, BlockPickInteractionAware {
 
 	public LecternControllerBlock(Properties properties) {
 		super(properties);
@@ -32,14 +34,8 @@ public class LecternControllerBlock extends LecternBlock implements ITE<LecternC
 
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter p_196283_1_) {
-		return null;
-	}
-
-	@Nullable
-	@Override
-	public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-		return AllTileEntities.LECTERN_CONTROLLER.create();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return AllTileEntities.LECTERN_CONTROLLER.create(pos, state);
 	}
 
 	@Override
@@ -94,8 +90,8 @@ public class LecternControllerBlock extends LecternBlock implements ITE<LecternC
 	}
 
 	@Override
-	public ItemStack getPickBlock(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player) {
-		return Blocks.LECTERN.getPickBlock(state, target, world, pos, player);
+	public ItemStack getPickedStack(BlockState state, BlockGetter view, BlockPos pos, @Nullable Player player, @Nullable HitResult result) {
+		return new ItemStack(Blocks.LECTERN.asItem());
 	}
 
 	@Override

@@ -50,7 +50,7 @@ public class DeployerFakePlayer extends FakePlayer {
 	ItemStack spawnedItemEffects;
 
 	public DeployerFakePlayer(ServerLevel world) {
-		super(world.getServer(), world, DEPLOYER_PROFILE, new ServerPlayerGameMode(world));
+		super(world.getServer(), world, DEPLOYER_PROFILE);
 		connection = new FakePlayNetHandler(world.getServer(), this);
 	}
 
@@ -105,7 +105,7 @@ public class DeployerFakePlayer extends FakePlayer {
 		if (trueSource != null && trueSource instanceof DeployerFakePlayer) {
 			DeployerFakePlayer fakePlayer = (DeployerFakePlayer) trueSource;
 			drops
-				.forEach(stack -> fakePlayer.inventory.placeItemBackInInventory(trueSource.level, stack.getItem()));
+				.forEach(stack -> fakePlayer.getInventory().placeItemBackInInventory(stack.getItem()));
 			return true;
 		}
 
@@ -113,13 +113,10 @@ public class DeployerFakePlayer extends FakePlayer {
 	}
 
 	@Override
-	protected void playEquipSound(ItemStack p_184606_1_) {}
-
-	@Override
-	public void remove() {
+	public void remove(RemovalReason reason) {
 		if (blockBreakingProgress != null && !level.isClientSide)
 			level.destroyBlockProgress(getId(), blockBreakingProgress.getKey(), -1);
-		super.remove();
+		super.remove(reason);
 	}
 
 	public static int deployerKillsDoNotSpawnXP(int i, Player player) {

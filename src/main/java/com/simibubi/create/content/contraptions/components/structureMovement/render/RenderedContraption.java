@@ -24,6 +24,8 @@ import com.simibubi.create.content.contraptions.components.structureMovement.Con
 import com.simibubi.create.foundation.render.CreateContexts;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
+import com.simibubi.create.lib.extensions.Matrix4fExtensions;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -164,7 +166,7 @@ public class RenderedContraption extends ContraptionRenderInfo {
 		float x = (float) (Mth.lerp(pt, entity.xOld, entity.getX()) - camX);
 		float y = (float) (Mth.lerp(pt, entity.yOld, entity.getY()) - camY);
 		float z = (float) (Mth.lerp(pt, entity.zOld, entity.getZ()) - camZ);
-		matrix.setTranslation(x, y, z);
+		((Matrix4fExtensions) (Object) matrix).create$setTranslation(x, y, z);
 		matrix.multiply(modelMatrix);
 	}
 

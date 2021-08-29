@@ -13,4 +13,6 @@ public interface Matrix4fExtensions {
 	void create$fromFloatArray(float[] floats);
 
 	float[] create$writeMatrix();
+
+	void create$setTranslation(float x, float y, float z);
 }

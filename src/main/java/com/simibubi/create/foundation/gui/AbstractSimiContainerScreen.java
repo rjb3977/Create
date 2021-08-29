@@ -80,11 +80,10 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 
-		RenderSystem.enableAlphaTest();
+//		RenderSystem.enableAlphaTest(); // alphaTest has vanished off the face of the earth lets hope it Just Works:tm:
 		RenderSystem.enableBlend();
-		RenderSystem.disableRescaleNormal();
-		Lighting.turnOff();
-		RenderSystem.disableLighting();
+//		RenderSystem.disableRescaleNormal(); // same for rescaleNormal :WHY:
+		Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
 		RenderSystem.disableDepthTest();
 		renderWindowForeground(matrixStack, mouseX, mouseY, partialTicks);
 	}
@@ -216,10 +215,10 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 		int yPosition, @Nullable String text, int textColor) {
 		if (!stack.isEmpty()) {
 			if (DurabilityBarUtil.showDurabilityBar(stack)) {
-				RenderSystem.disableLighting();
+				Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
 				RenderSystem.disableDepthTest();
 				RenderSystem.disableTexture();
-				RenderSystem.disableAlphaTest();
+//				RenderSystem.disableAlphaTest();
 				RenderSystem.disableBlend();
 				Tesselator tesselator = Tesselator.getInstance();
 				BufferBuilder bufferbuilder = tesselator.getBuilder();
@@ -230,15 +229,15 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 				this.draw(bufferbuilder, xPosition + 2, yPosition + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255,
 					255);
 				RenderSystem.enableBlend();
-				RenderSystem.enableAlphaTest();
+//				RenderSystem.enableAlphaTest();
 				RenderSystem.enableTexture();
-				RenderSystem.enableLighting();
+				Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 				RenderSystem.enableDepthTest();
 			}
 
 			if (stack.getCount() != 1 || text != null) {
 				String s = text == null ? String.valueOf(stack.getCount()) : text;
-				RenderSystem.disableLighting();
+				Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
 				RenderSystem.disableDepthTest();
 				RenderSystem.disableBlend();
 				matrixStack.pushPose();
@@ -255,7 +254,7 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 
 				matrixStack.popPose();
 				RenderSystem.enableBlend();
-				RenderSystem.enableLighting();
+				Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 				RenderSystem.enableDepthTest();
 				RenderSystem.enableBlend();
 			}

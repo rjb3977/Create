@@ -129,9 +129,9 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContai
 	}
 
 	@Override
-	public void tick() {
+	public void containerTick() {
 //		handleTooltips();
-		super.tick();
+		super.containerTick();
 
 		if (!menu.contentHolder.isEntityAlive())
 			minecraft.player.closeContainer();

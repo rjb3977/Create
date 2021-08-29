@@ -1,6 +1,8 @@
 package com.simibubi.create.content.logistics.block.depot;
 
 import java.util.Random;
+
+import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.content.contraptions.relays.belt.BeltHelper;
@@ -103,7 +105,7 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 		MatrixTransformStack msr = MatrixTransformStack.of(ms);
 		int count = (int) (Mth.log2((int) (itemStack.getCount()))) / 2;
 		boolean renderUpright = BeltHelper.isItemUpright(itemStack);
-		boolean blockItem = itemRenderer.getModel(itemStack, null, null)
+		boolean blockItem = itemRenderer.getModel(itemStack, null, null, 0)
 			.isGui3d();
 
 		ms.pushPose();

@@ -72,7 +72,7 @@ public class MechanicalCrafterRenderer extends SafeTileEntityRenderer<Mechanical
 				ms.translate(0, 0, -1 / 256f);
 				Minecraft.getInstance()
 					.getItemRenderer()
-					.renderStatic(stack, TransformType.FIXED, light, overlay, ms, buffer, (int) te.getBlockPos().asLong());
+					.renderStatic(stack, TransformType.FIXED, light, overlay, ms, buffer);
 				ms.popPose();
 			}
 		} else {

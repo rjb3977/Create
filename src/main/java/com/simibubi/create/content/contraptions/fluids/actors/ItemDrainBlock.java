@@ -7,6 +7,8 @@ import com.simibubi.create.content.contraptions.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.ITE;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.tileEntity.ComparatorUtil;
+import com.simibubi.create.lib.transfer.TransferUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
@@ -38,7 +40,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainT
 		ItemStack heldItem = player.getItemInHand(handIn);
 
 		if (heldItem.getItem() instanceof BlockItem
-				&& !heldItem.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
+				&& !TransferUtil.getFluidHandlerItem(heldItem, worldIn)
 				.isPresent())
 			return InteractionResult.PASS;
 
@@ -95,7 +97,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, ITE<ItemDrainT
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.ITEM_DRAIN.create();
+		return AllTileEntities.ITEM_DRAIN.create(pos, state);
 	}
 
 	@Override

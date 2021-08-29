@@ -37,8 +37,8 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 	}
 
 	@Override
-	protected void fromTag(BlockState state, CompoundTag compound, boolean clientPacket) {
-		super.fromTag(state, compound, clientPacket);
+	protected void fromTag(CompoundTag compound, boolean clientPacket) {
+		super.fromTag(compound, clientPacket);
 		if (!wasMoved)
 			isGenerator = compound.getBoolean("Generating");
 		if (clientPacket)
@@ -94,8 +94,7 @@ public class EncasedFanTileEntity extends GeneratingKineticTileEntity implements
 			return false;
 		BlockState checkState = level.getBlockState(worldPosition.below());
 
-		if (!checkState.getBlock()
-			.is(AllBlockTags.FAN_HEATERS.tag))
+		if (!checkState.is(AllBlockTags.FAN_HEATERS.tag))
 			return false;
 
 		if (checkState.hasProperty(BlazeBurnerBlock.HEAT_LEVEL) && !checkState.getValue(BlazeBurnerBlock.HEAT_LEVEL)

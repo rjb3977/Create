@@ -74,8 +74,8 @@ public class LinkedControllerScreen extends AbstractSimiContainerScreen<LinkedCo
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
+	public void containerTick() {
+		super.containerTick();
 		if (!ItemStackUtil.equals(menu.player.getMainHandItem(), menu.mainItem, false))
 			minecraft.player.closeContainer();
 	}

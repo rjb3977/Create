@@ -66,7 +66,7 @@ public class CrushingWheelControllerBlock extends DirectionalBlock
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.CRUSHING_WHEEL_CONTROLLER.create();
+		return AllTileEntities.CRUSHING_WHEEL_CONTROLLER.create(pos, state);
 	}
 
 	@Override

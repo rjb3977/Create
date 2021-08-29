@@ -43,7 +43,7 @@ public class DepotBlock extends Block implements ITE<DepotTileEntity>, IWrenchab
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.DEPOT.create();
+		return AllTileEntities.DEPOT.create(pos, state);
 	}
 
 	@Override

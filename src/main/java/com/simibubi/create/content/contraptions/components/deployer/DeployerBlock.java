@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -70,7 +71,7 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements ITE<De
 				if (te.player != null && !isMoving) {
 					te.player.getInventory().dropAll();
 					te.overflowItems.forEach(itemstack -> te.player.drop(itemstack, true, false));
-					te.player.remove();
+					te.player.remove(Entity.RemovalReason.DISCARDED);
 					te.player = null;
 				}
 			});

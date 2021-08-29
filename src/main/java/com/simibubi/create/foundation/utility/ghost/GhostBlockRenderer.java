@@ -8,6 +8,8 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.renderer.LevelRenderer;
+
 import org.lwjgl.system.MemoryStack;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -65,8 +67,8 @@ public abstract class GhostBlockRenderer {
 			BlockPos pos = params.pos;
 			ms.translate(pos.getX(), pos.getY(), pos.getZ());
 
-			VirtualRenderingStateManager.runVirtually(() -> dispatcher.getBlockModelRenderer()
-					.render(ms.peek(), vb, params.state, model, 1f, 1f, 1f, 0xF000F0, OverlayTexture.DEFAULT_UV));
+			VirtualRenderingStateManager.runVirtually(() -> dispatcher.getModelRenderer()
+					.render(ms.last(), vb, params.state, model, 1f, 1f, 1f, 0xF000F0, OverlayTexture.NO_OVERLAY));
 
 			ms.popPose();
 		}
@@ -100,8 +102,8 @@ public abstract class GhostBlockRenderer {
 
 			// dispatcher.getBlockModelRenderer().renderModel(ms.peek(), vb, params.state, model, 1f, 1f, 1f, 0xF000F0, OverlayTexture.DEFAULT_UV, VirtualEmptyModelData.INSTANCE);
 			VirtualRenderingStateManager.runVirtually(() ->
-				renderModel(params, ms.peek(), vb, params.state, model, 1f, 1f, 1f,
-					WorldRenderer.getLightmapCoordinates(mc.world, pos), OverlayTexture.DEFAULT_UV/*,
+				renderModel(params, ms.last(), vb, params.state, model, 1f, 1f, 1f,
+					LevelRenderer.getLightColor(mc.level, pos), OverlayTexture.NO_OVERLAY/*,
 				VirtualEmptyModelData.INSTANCE*/)
 			);
 

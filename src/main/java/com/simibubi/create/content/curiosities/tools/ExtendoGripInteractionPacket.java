@@ -62,7 +62,7 @@ public class ExtendoGripInteractionPacket implements C2SPacket {
 			Entity entityByID = sender.getLevel().getEntity(target);
 			if (entityByID != null && ExtendoGripItem.isHoldingExtendoGrip(sender)) {
 				double d = sender.getAttribute(ReachEntityAttributes.REACH).getValue();
-				if (!sender.canSee(entityByID))
+				if (!sender.hasLineOfSight(entityByID))
 					d -= 3;
 				d *= d;
 				if (sender.distanceToSqr(entityByID) > d) {

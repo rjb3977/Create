@@ -20,6 +20,10 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.VecHelper;
 
+import com.simibubi.create.lib.transfer.TransferUtil;
+
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;

@@ -52,7 +52,7 @@ public class BrassTunnelBlock extends BeltTunnelBlock {
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return AllTileEntities.BRASS_TUNNEL.create();
+		return AllTileEntities.BRASS_TUNNEL.create(pos, state);
 	}
 
 	@Override

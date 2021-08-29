@@ -1,6 +1,7 @@
 package com.simibubi.create.foundation.fluid;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -233,13 +235,15 @@ public abstract class FluidIngredient implements Predicate<FluidStack> {
 		@Override
 		protected void readInternal(JsonObject json) {
 			ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "fluidTag"));
-			Optional<? extends Tag.Named<Fluid>> optionalINamedTag = FluidTags.getWrappers()
-				.stream()
-				.filter(fluidINamedTag -> fluidINamedTag.getName()
-					.equals(id))
-				.findFirst(); // fixme
+			Optional<? extends Tag.Named<Fluid>> optionalINamedTag = (Optional<? extends Tag.Named<Fluid>>) FluidTags.getAllTags().getAllTags().entrySet()
+					.stream()
+					.filter(entry -> entry.getKey()
+							.equals(id))
+					.map(entry -> entry.getValue())
+					.findFirst(); // fixme
 			if (!optionalINamedTag.isPresent())
 				throw new JsonSyntaxException("Unknown fluid tag '" + id + "'");
+
 			tag = optionalINamedTag.get();
 		}
 
