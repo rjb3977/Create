@@ -91,7 +91,7 @@ public class BoxElement extends RenderElement {
 		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
-		RenderSystem.shadeModel(GL11.GL_SMOOTH);
+//		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
 		int f = borderOffset;
 		Color c1 = background.copy().scaleAlpha(alpha);
@@ -151,7 +151,7 @@ public class BoxElement extends RenderElement {
 
 		tessellator.end();
 
-		RenderSystem.shadeModel(GL11.GL_FLAT);
+//		RenderSystem.shadeModel(GL11.GL_FLAT);
 		RenderSystem.disableBlend();
 		RenderSystem.enableTexture();
 	}

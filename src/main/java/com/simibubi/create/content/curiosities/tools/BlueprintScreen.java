@@ -5,6 +5,8 @@ import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
@@ -80,13 +82,13 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintContai
 
 	@Override
 	protected void renderTooltip(PoseStack ms, int x, int y) {
-		if (!this.minecraft.player.getInventory().getCarried()
+		if (!getMenu().getCarried()
 			.isEmpty() || this.hoveredSlot == null || this.hoveredSlot.hasItem()
 			|| hoveredSlot.container == menu.playerInventory) {
 			super.renderTooltip(ms, x, y);
 			return;
 		}
-		renderTooltip(ms, addToTooltip(new LinkedList<>(), ((SlotAccessor) hoveredSlot).getSlotIndex(), true), x, y);
+		renderTooltip(ms, addToTooltip(new LinkedList<>(), ((SlotAccessor) hoveredSlot).getSlotIndex(), true), Optional.empty(), x, y);
 	}
 
 	@Override

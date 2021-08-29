@@ -24,14 +24,12 @@ public class CConfigureConfigPacket<T> implements C2SPacket {
 
 	@Override
 	public void read(FriendlyByteBuf buffer) {
-		this.modID = buffer.readUtf(32767);
 		this.path = buffer.readUtf(32767);
 		this.value = buffer.readUtf(32767);
 	}
 
 	@Override
 	public void write(FriendlyByteBuf buffer) {
-		buffer.writeUtf(modID);
 		buffer.writeUtf(path);
 		buffer.writeUtf(value);
 	}

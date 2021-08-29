@@ -30,7 +30,7 @@ public class HighlightCommand {
 				.then(Commands.argument("players", EntityArgument.players())
 					.executes(ctx -> {
 						Collection<ServerPlayer> players = EntityArgument.getPlayers(ctx, "players");
-						BlockPos pos = BlockPosArgument.getOrLoadBlockPos(ctx, "pos");
+						BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
 
 						for (ServerPlayer p : players) {
 							AllPackets.channel.sendToClient(new HighlightPacket(pos), p);

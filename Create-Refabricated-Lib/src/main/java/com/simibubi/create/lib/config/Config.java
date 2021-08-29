@@ -37,6 +37,14 @@ public class Config {
 		}
 	}
 
+	public Map<String, Object> valueMap() {
+		Map<String, Object> map = new HashMap<>();
+		for (ConfigValue<?> value : allValues) {
+			map.put(value.key, value.value);
+		}
+		return map;
+	}
+
 	public void set(ConfigValue value) {
 		if (allValues.contains(value)) {
 			allValues.set(allValues.indexOf(value), value);

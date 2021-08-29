@@ -75,8 +75,8 @@ public class PartialItemModelRenderer {
 			renderBakedItemModel(model, light, ms,
 				ItemRenderer.getFoilBufferDirect(buffer, type, true, stack.hasFoil()));
 		else
-			BlockEntityWithoutLevelRenderer.instance
-				.renderByItem(stack, transformType, ms, buffer, light, overlay);
+			Minecraft.getInstance().getItemRenderer()
+				.render(stack, transformType, false, ms, buffer, light, overlay, model);
 
 		ms.popPose();
 	}

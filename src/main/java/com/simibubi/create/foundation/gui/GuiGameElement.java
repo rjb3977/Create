@@ -19,6 +19,8 @@ import com.simibubi.create.lib.helper.ItemRendererHelper;
 
 import com.simibubi.create.lib.render.VirtualRenderingStateManager;
 
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
 import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -115,7 +117,7 @@ public class GuiGameElement {
 
 		protected void prepareMatrix(PoseStack matrixStack) {
 			matrixStack.pushPose();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			RenderSystem.alphaFunc(516, 0.1F);
 			RenderSystem.enableAlphaTest();
 			RenderSystem.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -195,11 +197,11 @@ public class GuiGameElement {
 			int color = Minecraft.getInstance()
 				.getBlockColors()
 				.getColor(blockState, null, null, 0);
-			Vec3 rgb = ColorHelper.getRGB(color == -1 ? this.color : color);
+			Color rgb = new Color(color == -1 ? this.color : color);
 			VirtualRenderingStateManager.runVirtually(() ->
-					blockRenderer.getBlockModelRenderer()
-						.render/*Model*/(ms.peek(), vb, blockState, blockModel, (float) rgb.x, (float) rgb.y, (float) rgb.z,
-					0xF000F0, OverlayTexture.DEFAULT_UV)
+					blockRenderer.getModelRenderer()
+						.renderModel(ms.last(), vb, blockState, blockModel, (float) rgb.getRed(), (float) rgb.getGreen(), (float) rgb.getBlue(),
+					0xF000F0, OverlayTexture.NO_OVERLAY)
 			);
 			buffer.endBatch();
 		}
@@ -220,9 +222,9 @@ public class GuiGameElement {
 			if (blockState.getBlock() instanceof FireBlock) {
 				Lighting.setupForFlatItems();
 				VirtualRenderingStateManager.runVirtually(() ->
-					blockRenderer.renderBlockAsEntity(blockState, ms, buffer, 0xF000F0, OverlayTexture.DEFAULT_UV)
+					blockRenderer.renderBlockAsEntity(blockState, ms, buffer, 0xF000F0, OverlayTexture.NO_OVERLAY)
 				);
-				Lighting.turnBackOn();
+				Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 				buffer.endBatch();
 				Lighting.setupFor3DItems();
 				return;
@@ -270,7 +272,7 @@ public class GuiGameElement {
 
 		public static void renderItemIntoGUI(PoseStack matrixStack, ItemStack stack, boolean useDefaultLighting) {
 			ItemRenderer renderer = Minecraft.getInstance().getItemRenderer();
-			BakedModel bakedModel = renderer.getModel(stack, null, null);
+			BakedModel bakedModel = renderer.getModel(stack, null, null, 0);
 
 			matrixStack.pushPose();
 			ItemRendererHelper.getTextureManager(renderer).bindTexture(TextureAtlas.LOCATION_BLOCKS);
@@ -281,7 +283,7 @@ public class GuiGameElement {
 			RenderSystem.defaultAlphaFunc();
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			matrixStack.translate(0, 0, 100.0F + renderer.blitOffset);
 			matrixStack.translate(8.0F, -8.0F, 0.0F);
 			matrixStack.scale(16.0F, 16.0F, 16.0F);

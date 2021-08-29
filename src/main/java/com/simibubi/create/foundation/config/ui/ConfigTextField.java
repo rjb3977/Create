@@ -4,15 +4,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.TextComponent;
 
-public class ConfigTextField extends EditBox {
-
-	protected Font font;
-	protected String unit;
-
-	public ConfigTextField(Font font, int x, int y, int width, int height, String unit) {
-		super(font, x, y, width, height, TextComponent.EMPTY);
-		this.font = font;
-		this.unit = unit;
+public class ConfigTextField extends HintableTextFieldWidget {
+	public ConfigTextField(Font font, int x, int y, int width, int height) {
+		super(font, x, y, width, height);
 	}
 
 	@Override

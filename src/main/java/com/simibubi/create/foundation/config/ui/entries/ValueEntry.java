@@ -83,10 +83,10 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 				.collect(Collectors.toList()));
 
 		if (annotations.containsKey(ConfigAnnotations.RequiresRelog.TRUE.getName()))
-			labelTooltip.addAll(TooltipHelper.cutTextComponent(new TextComponent("Changing this value will require a _relog_ to take full effect"), ChatFormatting.GRAY, TextFormatting.GOLD));
+			labelTooltip.addAll(TooltipHelper.cutTextComponent(new TextComponent("Changing this value will require a _relog_ to take full effect"), ChatFormatting.GRAY, ChatFormatting.GOLD));
 
 		if (annotations.containsKey(ConfigAnnotations.RequiresRestart.CLIENT.getName()))
-			labelTooltip.addAll(TooltipHelper.cutTextComponent(new TextComponent("Changing this value will require a _restart_ to take full effect"), ChatFormatting.GRAY, TextFormatting.RED));
+			labelTooltip.addAll(TooltipHelper.cutTextComponent(new TextComponent("Changing this value will require a _restart_ to take full effect"), ChatFormatting.GRAY, ChatFormatting.RED));
 
 		labelTooltip.add(new TextComponent(ConfigScreen.modID + ":" + path.get(path.size() - 1)).withStyle(ChatFormatting.DARK_GRAY));
 	}
@@ -119,20 +119,14 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 	}
 
 	public void setValue(@Nonnull T value) {
-		if (value.equals(this.value.get())) {
-			ConfigScreen.changes.remove(path);
-			onValueChange(value);
-			return;
-		}
-
-		ConfigScreen.changes.put(path, value, annotations);
+		ConfigHelper.setValue(path, this.value, value, annotations);
 		onValueChange(value);
 	}
 
 	@Nonnull
 	public T getValue() {
 		//noinspection unchecked
-		return (T) ConfigScreen.changes.getOrDefault(path, this.value.get());
+		return ConfigHelper.getValue(path, value);
 	}
 
 	protected boolean isCurrentValueDefault() {

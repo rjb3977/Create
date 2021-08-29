@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.config.ui.entries;
 
+import java.util.Locale;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;

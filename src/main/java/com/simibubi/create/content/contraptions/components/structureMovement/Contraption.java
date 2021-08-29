@@ -983,7 +983,7 @@ public abstract class Contraption {
 				});
 			});
 
-			world.markAndNotifyBlock(add, world.getChunkAt(add), block.state, Blocks.AIR.defaultBlockState(), flags, 512);
+			world.setBlock(add, Blocks.AIR.defaultBlockState(), flags, 512);
 			block.state.updateIndirectNeighbourShapes(world, add, flags & -2);
 		}
 	}

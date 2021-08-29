@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.simibubi.create.lib.mixin.accessor.ScreenAccessor;
+
 import org.lwjgl.glfw.GLFW;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -174,7 +176,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 
 					ConfirmationScreen confirm = new ConfirmationScreen()
 							.centered()
-							.withText(FormattedText.of("Saving " + changes.size() + " changed value" + (changes.size() != 1 ? "s" : "") + ""))
+							.withText(FormattedText.of("Saving " + ConfigHelper.changes.size() + " changed value" + (ConfigHelper.changes.size() != 1 ? "s" : "") + ""))
 							.withAction(success -> {
 								if (success)
 									saveChanges();
@@ -194,7 +196,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 
 					new ConfirmationScreen()
 							.centered()
-							.withText(FormattedText.of("Discarding " + changes.size() + " unsaved change" + (changes.size() != 1 ? "s" : "") + ""))
+							.withText(FormattedText.of("Discarding " + ConfigHelper.changes.size() + " unsaved change" + (ConfigHelper.changes.size() != 1 ? "s" : "") + ""))
 							.withAction(success -> {
 								if (success)
 									clearChanges();
@@ -219,7 +221,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 		list = new ConfigScreenList(minecraft, listWidth, height - 80, 35, height - 45, 40);
 		list.setLeftPos(this.width / 2 - ((AbstractListAccessor) list).getWidth() / 2);
 
-		children.add(list);
+		((ScreenAccessor) this).create$getChildren().add(list);
 
 		search = new ConfigTextField(font, width / 2 - listWidth / 2, height - 35, listWidth, 20);
 		search.setResponder(this::updateFilter);
@@ -227,8 +229,8 @@ public class SubMenuConfigScreen extends ConfigScreen {
 		search.moveCursorToStart();
 		widgets.add(search);
 
-		configGroup.valueMap().forEach((key, obj) -> {
-			String humanKey = toHumanReadable(key);
+		config.allValues.forEach(configValue -> {
+			String humanKey = toHumanReadable(configValue.key);
 
 //			if (obj instanceof AbstractConfig) {
 //				SubMenuEntry entry = new SubMenuEntry(this, humanKey, spec, (UnmodifiableConfig) obj);
@@ -251,13 +253,13 @@ public class SubMenuConfigScreen extends ConfigScreen {
 				} else if (value instanceof Enum) {
 					entry = new EnumEntry(humanKey, configValue);
 				} else if (value instanceof Number) {
-					entry = NumberEntry.create(value, humanKey, configValue, valueSpec);
+					entry = NumberEntry.create(value, humanKey, configValue);
 				}
 
 				if (entry == null)
 					entry = new LabeledEntry("Impl missing - " + configValue.get().getClass().getSimpleName() + "  " + humanKey + " : " + value);
 
-				if (highlights.contains(key))
+				if (highlights.contains(configValue.key))
 					entry.annotations.put("highlight", ":)");
 
 				list.children().add(entry);
@@ -322,7 +324,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 		super.renderWindow(ms, mouseX, mouseY, partialTicks);
 
 		int x = width / 2;
-		drawCenteredString(ms, minecraft.font, ConfigScreen.modID + " > " + type.toString().toLowerCase(Locale.ROOT) + " > " + title, x, 15, Theme.i(Theme.Key.TEXT));
+		drawCenteredString(ms, minecraft.font, ConfigScreen.modID + " > " + config.name + " > " + title, x, 15, Theme.i(Theme.Key.TEXT));
 
 		list.render(ms, mouseX, mouseY, partialTicks);
 	}
@@ -413,11 +415,10 @@ public class SubMenuConfigScreen extends ConfigScreen {
 	}
 
 	public void showLeavingPrompt(Consumer<ConfirmationScreen.Response> action) {
-		new ConfirmationScreen().centered()
-				.addText(FormattedText.of("Leaving with " + changes.size() + " unsaved change"
-						+ (changes.size() != 1 ? "s" : "") + " for this config"))
+		ConfirmationScreen screen = new ConfirmationScreen()
+				.centered()
 				.withThreeActions(action)
-				.addText(ITextProperties.of("Leaving with " + ConfigHelper.changes.size() + " unsaved change"
+				.addText(FormattedText.of("Leaving with " + ConfigHelper.changes.size() + " unsaved change"
 						+ (ConfigHelper.changes.size() != 1 ? "s" : "") + " for this config"));
 
 		addAnnotationsToConfirm(screen).open(this);
@@ -435,13 +436,13 @@ public class SubMenuConfigScreen extends ConfigScreen {
 		});
 
 		if (relog.get()) {
-			screen.addText(ITextProperties.of(" "));
-			screen.addText(ITextProperties.of("At least one changed value will require you to relog to take full effect"));
+			screen.addText(FormattedText.of(" "));
+			screen.addText(FormattedText.of("At least one changed value will require you to relog to take full effect"));
 		}
 
 		if (restart.get()) {
-			screen.addText(ITextProperties.of(" "));
-			screen.addText(ITextProperties.of("At least one changed value will require you to restart your game to take full effect"));
+			screen.addText(FormattedText.of(" "));
+			screen.addText(FormattedText.of("At least one changed value will require you to restart your game to take full effect"));
 		}
 
 		return screen;
