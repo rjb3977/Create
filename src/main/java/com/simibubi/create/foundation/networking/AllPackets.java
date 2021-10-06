@@ -19,6 +19,7 @@ import com.simibubi.create.content.curiosities.symmetry.SymmetryEffectPacket;
 import com.simibubi.create.content.curiosities.tools.BlueprintAssignCompleteRecipePacket;
 import com.simibubi.create.content.curiosities.tools.ExtendoGripInteractionPacket;
 import com.simibubi.create.content.curiosities.weapons.PotatoCannonPacket;
+import com.simibubi.create.content.curiosities.weapons.PotatoProjectileTypeManager;
 import com.simibubi.create.content.curiosities.zapper.ZapperBeamPacket;
 import com.simibubi.create.content.logistics.block.depot.EjectorElytraPacket;
 import com.simibubi.create.content.logistics.block.depot.EjectorPlacementPacket;
@@ -106,6 +107,7 @@ public enum AllPackets {
 	POTATO_CANNON(PotatoCannonPacket.class),
 	SOUL_PULSE(SoulPulseEffectPacket.class),
 	PERSISTENT_DATA(ISyncPersistentData.Packet.class),
+	SYNC_POTATO_PROJECTILE_TYPES(PotatoProjectileTypeManager.SyncPacket.class)
 
 	;
 

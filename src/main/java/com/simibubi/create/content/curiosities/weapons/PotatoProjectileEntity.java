@@ -39,17 +39,17 @@ import net.minecraft.world.phys.Vec3;
 
 public class PotatoProjectileEntity extends AbstractHurtingProjectile implements ExtraSpawnDataEntity {
 
-	PotatoCannonProjectileTypes type;
-	ItemStack stack = ItemStack.EMPTY;
+	protected PotatoCannonProjectileType type;
+	protected ItemStack stack = ItemStack.EMPTY;
 
-	Entity stuckEntity;
-	Vec3 stuckOffset;
-	PotatoProjectileRenderMode stuckRenderer;
-	double stuckFallSpeed;
+	protected Entity stuckEntity;
+	protected Vec3 stuckOffset;
+	protected PotatoProjectileRenderMode stuckRenderer;
+	protected double stuckFallSpeed;
 
-	float additionalDamageMult = 1;
-	float additionalKnockback = 0;
-	float recoveryChance = 0;
+	protected float additionalDamageMult = 1;
+	protected float additionalKnockback = 0;
+	protected float recoveryChance = 0;
 
 	public PotatoProjectileEntity(EntityType<? extends AbstractHurtingProjectile> type, Level world) {
 		super(type, world);
@@ -63,10 +63,10 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		this.stack = stack;
 	}
 
-	public PotatoCannonProjectileTypes getProjectileType() {
+	public PotatoCannonProjectileType getProjectileType() {
 		if (type == null)
-			type = PotatoCannonProjectileTypes.getProjectileTypeOf(stack)
-				.orElse(PotatoCannonProjectileTypes.FALLBACK);
+			type = PotatoProjectileTypeManager.getTypeForStack(stack)
+				.orElse(BuiltinPotatoProjectileTypes.FALLBACK);
 		return type;
 	}
 
@@ -128,7 +128,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	}
 
 	public void tick() {
-		PotatoCannonProjectileTypes projectileType = getProjectileType();
+		PotatoCannonProjectileType projectileType = getProjectileType();
 
 		Entity stuckEntity = getStuckEntity();
 		if (stuckEntity != null) {
@@ -174,7 +174,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 		Vec3 hit = ray.getLocation();
 		Entity target = ray.getEntity();
-		PotatoCannonProjectileTypes projectileType = getProjectileType();
+		PotatoCannonProjectileType projectileType = getProjectileType();
 		float damage = projectileType.getDamage() * additionalDamageMult;
 		float knockback = projectileType.getKnockback() + additionalKnockback;
 		Entity owner = this.getOwner();

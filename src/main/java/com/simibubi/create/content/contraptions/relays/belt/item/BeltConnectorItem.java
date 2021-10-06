@@ -31,6 +31,7 @@ import com.simibubi.create.content.contraptions.relays.elementary.AbstractShaftB
 import com.simibubi.create.content.contraptions.relays.elementary.ShaftBlock;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.config.AllConfigs;
+import com.simibubi.create.foundation.utility.VecHelper;
 
 public class BeltConnectorItem extends BlockItem {
 
@@ -116,6 +117,8 @@ public class BeltConnectorItem extends BlockItem {
 	}
 
 	public static void createBelts(Level world, BlockPos start, BlockPos end) {
+		world.playSound(null, new BlockPos(VecHelper.getCenterOf(start.offset(end))
+			.scale(.5f)), SoundEvents.WOOL_PLACE, SoundCategory.BLOCKS, 0.5F, 1F);
 
 		BeltSlope slope = getSlopeBetween(start, end);
 		Direction facing = getFacingFromTo(start, end);
@@ -150,8 +153,8 @@ public class BeltConnectorItem extends BlockItem {
 		if (diff.getX() == 0 && diff.getZ() == 0)
 			axisDirection = diff.getY() > 0 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE;
 		else
-			axisDirection = beltAxis.choose(diff.getX(), 0, diff.getZ()) > 0 ? AxisDirection.POSITIVE
-				: AxisDirection.NEGATIVE;
+			axisDirection =
+				beltAxis.choose(diff.getX(), 0, diff.getZ()) > 0 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE;
 
 		return Direction.get(axisDirection, beltAxis);
 	}
@@ -167,7 +170,8 @@ public class BeltConnectorItem extends BlockItem {
 		return BeltSlope.HORIZONTAL;
 	}
 
-	private static List<BlockPos> getBeltChainBetween(BlockPos start, BlockPos end, BeltSlope slope, Direction direction) {
+	private static List<BlockPos> getBeltChainBetween(BlockPos start, BlockPos end, BeltSlope slope,
+		Direction direction) {
 		List<BlockPos> positions = new LinkedList<>();
 		int limit = 1000;
 		BlockPos current = start;
@@ -247,7 +251,7 @@ public class BeltConnectorItem extends BlockItem {
 
 	}
 
-	protected static Integer maxLength() {
+	public static Integer maxLength() {
 		return AllConfigs.SERVER.kinetics.maxBeltLength.get();
 	}
 

@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 public class RainbowDebugStateProvider implements IBooleanStateProvider {
 
 	public static final RainbowDebugStateProvider INSTANCE = new RainbowDebugStateProvider();
-	public static final ResourceLocation NAME = new ResourceLocation(Create.ID, "rainbow_debug");
+	public static final ResourceLocation NAME = Create.asResource("rainbow_debug");
 
 	protected RainbowDebugStateProvider() {
 

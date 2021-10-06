@@ -24,14 +24,19 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.tags.ITag;
 import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraftforge.common.Tags;
 
 public class PaletteBlockPattern {
 
 	public static final PaletteBlockPattern
 
 		COBBLESTONE = create("cobblestone", SUFFIX, ALL_PARTIALS)
-//			.addRecipes(v -> (c, p) -> {
+//			.blockTags(Tags.Blocks.COBBLESTONE)
+			.itemTags(Tags.Items.COBBLESTONE)
+			.addRecipes(v -> (c, p) -> {
 //				DataIngredient ingredient = DataIngredient.items(c.get());
 //				Block result = v.getBaseBlock().get();
 //				CookingRecipeBuilder.smelting(ingredient, result, 0.1f, 200)
@@ -102,6 +107,8 @@ public class PaletteBlockPattern {
 	private String id;
 	private boolean isTranslucent;
 	private boolean hasFoliage;
+	private ITag.INamedTag<Block>[] blockTags;
+	private ITag.INamedTag<Item>[] itemTags;
 	private Optional<Function<PaletteStoneVariants, ConnectedTextureBehaviour>> ctBehaviour;
 
 //	private IPatternBlockStateGenerator blockStateGenerator;
@@ -138,6 +145,14 @@ public class PaletteBlockPattern {
 
 	public boolean hasFoliage() {
 		return hasFoliage;
+	}
+
+	public ITag.INamedTag<Block>[] getBlockTags() {
+		return blockTags;
+	}
+
+	public ITag.INamedTag<Item>[] getItemTags() {
+		return itemTags;
 	}
 
 	public NonNullFunction<FabricBlockSettings, ? extends Block> getBlockFactory() {
@@ -186,6 +201,18 @@ public class PaletteBlockPattern {
 
 	private PaletteBlockPattern withFoliage() {
 		hasFoliage = true;
+		return this;
+	}
+
+	@SafeVarargs
+	private final PaletteBlockPattern blockTags(ITag.INamedTag<Block>... tags) {
+		blockTags = tags;
+		return this;
+	}
+
+	@SafeVarargs
+	private final PaletteBlockPattern itemTags(ITag.INamedTag<Item>... tags) {
+		itemTags = tags;
 		return this;
 	}
 
@@ -291,7 +318,7 @@ public class PaletteBlockPattern {
 
 	// Textures with connectability, used by Spriteshifter
 
-	public static enum CTs {
+	public enum CTs {
 
 		POLISHED(CTType.OMNIDIRECTIONAL), LAYERED(CTType.HORIZONTAL)
 

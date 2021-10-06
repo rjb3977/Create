@@ -1,6 +1,8 @@
 package com.simibubi.create.content.palettes;
 
 import java.util.function.Supplier;
+import com.tterrag.registrate.util.nullness.NonNullSupplier;
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -18,15 +20,15 @@ public enum PaletteStoneVariants {
 
 	;
 
-	private Supplier<Supplier<Block>> baseBlock;
+	private NonNullSupplier<NonNullSupplier<Block>> baseBlock;
 	private Supplier<PalettesVariantEntry> variants;
 
-	private PaletteStoneVariants(Supplier<Supplier<Block>> baseBlock, Supplier<PalettesVariantEntry> variants) {
+	private PaletteStoneVariants(NonNullSupplier<NonNullSupplier<Block>> baseBlock, Supplier<PalettesVariantEntry> variants) {
 		this.baseBlock = baseBlock;
 		this.variants = variants;
 	}
 
-	public Supplier<Block> getBaseBlock() {
+	public NonNullSupplier<Block> getBaseBlock() {
 		return baseBlock.get();
 	}
 

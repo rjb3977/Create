@@ -21,8 +21,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.content.contraptions.relays.belt.transport.TransportedItemStack;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.CRecipes;
+import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
+import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour;
+import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour.TransportedResult;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.helper.BeaconTileEntityHelper;
@@ -163,6 +167,50 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 
 		BlockPos randomOffset = new BlockPos(VecHelper.offsetRandomly(positionVec, r, range));
 		BlockState state = world.getBlockState(randomOffset);
+
+		TransportedItemStackHandlerBehaviour behaviour =
+			TileEntityBehaviour.get(world, randomOffset, TransportedItemStackHandlerBehaviour.TYPE);
+
+		// Find a placed light source
+		if (behaviour == null) {
+			if (checkLight(stack, entity, world, itemData, positionVec, randomOffset, state))
+				world.destroyBlock(randomOffset, false);
+			return false;
+		}
+
+		// Find a light source from a depot/belt (chunk rebuild safe)
+		MutableBoolean success = new MutableBoolean(false);
+		behaviour.handleProcessingOnAllItems(ts -> {
+
+			ItemStack heldStack = ts.stack;
+			if (!(heldStack.getItem() instanceof BlockItem))
+				return TransportedResult.doNothing();
+
+			BlockItem blockItem = (BlockItem) heldStack.getItem();
+			if (blockItem.getBlock() == null)
+				return TransportedResult.doNothing();
+
+			BlockState stateToCheck = blockItem.getBlock()
+				.defaultBlockState();
+
+			if (!success.getValue()
+				&& checkLight(stack, entity, world, itemData, positionVec, randomOffset, stateToCheck)) {
+				success.setTrue();
+				if (ts.stack.getCount() == 1)
+					return TransportedResult.removeItem();
+				TransportedItemStack left = ts.copy();
+				left.stack.shrink(1);
+				return TransportedResult.convertTo(left);
+			}
+
+			return TransportedResult.doNothing();
+
+		});
+		return false;
+	}
+
+	public boolean checkLight(ItemStack stack, ItemEntity entity, World world, CompoundNBT itemData,
+		Vector3d positionVec, BlockPos randomOffset, BlockState state) {
 		if (state.getLightEmission() == 0)
 			return false;
 		if (state.getDestroySpeed(world, randomOffset) == -1)
@@ -170,13 +218,11 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 		if (state.getBlock() == Blocks.BEACON)
 			return false;
 
-		ClipContext context = new ClipContext(positionVec, VecHelper.getCenterOf(randomOffset),
-			Block.COLLIDER, Fluid.NONE, entity);
+		ClipContext context = new ClipContext(positionVec.add(new Vector3d(0, 0.5, 0)),
+			VecHelper.getCenterOf(randomOffset), Block.COLLIDER, Fluid.NONE, entity);
 		if (!randomOffset.equals(world.clip(context)
 			.getBlockPos()))
 			return false;
-
-		world.destroyBlock(randomOffset, false);
 
 		ItemStack newStack = stack.split(1);
 		newStack.getOrCreateTag()
@@ -188,8 +234,7 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 //		entity.lifespan = 6000; todo: see if this is actually needed
 		if (stack.isEmpty())
 			entity.remove(Entity.RemovalReason.DISCARDED);
-
-		return false;
+		return true;
 	}
 
 }

@@ -90,7 +90,9 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		if (GsonHelper.isValidNode(json, "heatRequirement"))
 			builder.requiresHeat(HeatCondition.deserialize(GsonHelper.getAsString(json, "heatRequirement")));
 
-		return builder.build();
+		T recipe = builder.build();
+		recipe.readAdditional(json);
+		return recipe;
 	}
 
 	protected void writeToBuffer(FriendlyByteBuf buffer, T recipe) {
@@ -112,6 +114,8 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		buffer.writeVarInt(recipe.getProcessingDuration());
 		buffer.writeVarInt(recipe.getRequiredHeat()
 			.ordinal());
+
+		recipe.writeAdditional(buffer);
 	}
 
 	protected T readFromBuffer(ResourceLocation recipeId, FriendlyByteBuf buffer) {
@@ -123,6 +127,7 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 		int size = buffer.readVarInt();
 		for (int i = 0; i < size; i++)
 			ingredients.add(Ingredient.fromNetwork(buffer));
+
 		size = buffer.readVarInt();
 		for (int i = 0; i < size; i++)
 			fluidIngredients.add(FluidIngredient.read(buffer));
@@ -135,13 +140,15 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> /*extends
 //		for (int i = 0; i < size; i++)
 //			fluidResults.add(FluidStack.readFromPacket(buffer));
 
-		return new ProcessingRecipeBuilder<>(factory, recipeId).withItemIngredients(ingredients)
+		T recipe = new ProcessingRecipeBuilder<>(factory, recipeId).withItemIngredients(ingredients)
 			.withItemOutputs(results)
 			.withFluidIngredients(fluidIngredients)
 			.withFluidOutputs(fluidResults)
 			.duration(buffer.readVarInt())
 			.requiresHeat(HeatCondition.values()[buffer.readVarInt()])
 			.build();
+		recipe.readAdditional(buffer);
+		return recipe;
 	}
 
 	public final void write(JsonObject json, T recipe) {

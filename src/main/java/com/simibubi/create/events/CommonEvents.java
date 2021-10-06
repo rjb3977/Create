@@ -26,6 +26,7 @@ import com.simibubi.create.content.curiosities.armor.DivingBootsItem;
 import com.simibubi.create.content.curiosities.armor.DivingHelmetItem;
 import com.simibubi.create.content.curiosities.symmetry.SymmetryHandler;
 import com.simibubi.create.content.curiosities.tools.ExtendoGripItem;
+import com.simibubi.create.content.curiosities.weapons.PotatoProjectileTypeManager;
 import com.simibubi.create.content.curiosities.zapper.ZapperInteractionHandler;
 import com.simibubi.create.content.curiosities.zapper.ZapperItem;
 import com.simibubi.create.content.logistics.block.funnel.FunnelItem;
@@ -142,6 +143,7 @@ public class CommonEvents {
 		listeners.add(RecipeFinder.LISTENER);
 		listeners.add(PotionMixingRecipeManager.LISTENER);
 		listeners.add(FluidTransferRecipes.LISTENER);
+		listeners.add(PotatoProjectileTypeManager.ReloadListener.INSTANCE);
 		return listeners;
 	}
 

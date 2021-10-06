@@ -31,7 +31,7 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class SuperGlueRenderer extends EntityRenderer<SuperGlueEntity> {
 
-	private ResourceLocation regular = new ResourceLocation(Create.ID, "textures/entity/super_glue/slime.png");
+	private ResourceLocation regular = Create.asResource("textures/entity/super_glue/slime.png");
 
 	private float[] insideQuad;
 	private float[] outsideQuad;

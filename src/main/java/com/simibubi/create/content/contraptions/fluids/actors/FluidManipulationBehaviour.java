@@ -94,6 +94,10 @@ public abstract class FluidManipulationBehaviour extends TileEntityBehaviour {
 		return AllConfigs.SERVER.fluids.hosePulleyBlockThreshold.get();
 	}
 
+	protected boolean fillInfinite() {
+		return AllConfigs.SERVER.fluids.fillInfinite.get();
+	}
+
 	public void reset() {
 		if (affectedArea != null)
 			scheduleUpdatesInAffectedArea();
@@ -112,7 +116,9 @@ public abstract class FluidManipulationBehaviour extends TileEntityBehaviour {
 
 	protected void scheduleUpdatesInAffectedArea() {
 		Level world = getWorld();
-		BlockPos.betweenClosedStream(new BlockPos(affectedArea.minX() - 1, affectedArea.minY() - 1, affectedArea.minZ() - 1), new BlockPos(affectedArea.maxX() + 1, affectedArea.maxY() + 1, affectedArea.maxZ() + 1))
+		BlockPos
+			.betweenClosedStream(new BlockPos(affectedArea.minX() - 1, affectedArea.minY() - 1, affectedArea.minZ() - 1),
+				new BlockPos(affectedArea.maxX() + 1, affectedArea.maxY() + 1, affectedArea.maxZ() + 1))
 			.forEach(pos -> {
 				FluidState nextFluidState = world.getFluidState(pos);
 				if (nextFluidState.isEmpty())
@@ -199,9 +205,9 @@ public abstract class FluidManipulationBehaviour extends TileEntityBehaviour {
 //			: fluid.getAttributes()
 //				.getEmptySound();
 		if (soundevent == null)
-			soundevent = fluid.is(FluidTags.LAVA)
-				? fillSound ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_EMPTY_LAVA
-				: fillSound ? SoundEvents.BUCKET_FILL : SoundEvents.BUCKET_EMPTY;
+			soundevent =
+				fluid.is(FluidTags.LAVA) ? fillSound ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_EMPTY_LAVA
+					: fillSound ? SoundEvents.BUCKET_FILL : SoundEvents.BUCKET_EMPTY;
 
 		world.playSound(null, splooshPos, soundevent, SoundSource.BLOCKS, 0.3F, 1.0F);
 		if (world instanceof ServerLevel)

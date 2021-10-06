@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 public class GlueCommand {
 	public static ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal("glue")
-				.requires(cs -> cs.hasPermission(0))
+				.requires(cs -> cs.hasPermission(2))
 				.then(Commands.argument("pos", BlockPosArgument.blockPos())
 						//.then(Commands.argument("direction", EnumArgument.enumArgument(Direction.class))
 								.executes(ctx -> {

@@ -82,6 +82,7 @@ public class PonderScene {
 	Vec3 pointOfInterest;
 	Vec3 chasingPointOfInterest;
 	WorldSectionElement baseWorldSection;
+	@Nullable
 	Entity renderViewEntity;
 
 	int basePlateOffsetX;
@@ -115,7 +116,7 @@ public class PonderScene {
 		basePlateSize = getBounds().getXSpan();
 		info = new SceneRenderInfo();
 		baseWorldSection = new WorldSectionElement();
-		renderViewEntity = new ArmorStand(world, 0, 0, 0);
+		renderViewEntity = world != null ? new ArmorStand(world, 0, 0, 0) : null;
 		keyframeTimes = new IntArrayList(4);
 		scaleFactor = 1;
 		yOffset = 0;
@@ -497,7 +498,8 @@ public class PonderScene {
 
 		public void updateSceneRVE(float pt) {
 			Vec3 v = screenToScene(width / 2, height / 2, 500, pt);
-			renderViewEntity.setPos(v.x, v.y, v.z);
+			if (renderViewEntity != null)
+				renderViewEntity.setPos(v.x, v.y, v.z);
 		}
 
 		public Vec3 screenToScene(double x, double y, int depth, float pt) {

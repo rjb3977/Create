@@ -28,6 +28,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.schematics.block.SchematicTableTileEntity;
+import com.simibubi.create.content.schematics.item.SchematicAndQuillItem;
 import com.simibubi.create.content.schematics.item.SchematicItem;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.CSchematics;
@@ -316,9 +317,10 @@ public class ServerSchematicLoader {
 			t.fillFromWorld(world, pos, bounds, true, Blocks.AIR);
 
 			try (OutputStream outputStream = Files.newOutputStream(path)) {
-				CompoundTag nbttagcompound = t.save(new CompoundTag());
-				NbtIo.writeCompressed(nbttagcompound, outputStream);
-				player.setItemInHand(InteractionHand.MAIN_HAND, SchematicItem.create(schematic, player.getGameProfile().getName()));
+				CompoundNBT nbttagcompound = t.save(new CompoundNBT());
+				SchematicAndQuillItem.replaceStructureVoidWithAir(nbttagcompound);
+				CompressedStreamTools.writeCompressed(nbttagcompound, outputStream);
+				player.setItemInHand(Hand.MAIN_HAND, SchematicItem.create(schematic, player.getGameProfile().getName()));
 
 			} catch (IOException e) {
 				e.printStackTrace();

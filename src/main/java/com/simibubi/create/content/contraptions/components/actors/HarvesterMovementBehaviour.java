@@ -80,9 +80,17 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 				return;
 		}
 
+		ItemStack item = ItemStack.EMPTY;
+		float effectChance = 1;
+
+		if (stateVisited.getBlock().is(BlockTags.LEAVES)) {
+			item = new ItemStack(Items.SHEARS);
+			effectChance = .45f;
+		}
+
 		MutableBoolean seedSubtracted = new MutableBoolean(notCropButCuttable);
 		BlockState state = stateVisited;
-		BlockHelper.destroyBlock(world, pos, 1, stack -> {
+		BlockHelper.destroyBlockAs(world, pos, null, item, effectChance, stack -> {
 			if (!seedSubtracted.getValue() && stack.sameItem(new ItemStack(state.getBlock()))) {
 				stack.shrink(1);
 				seedSubtracted.setTrue();
@@ -124,12 +132,12 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 			return false;
 		if (state.getBlock() instanceof SugarCaneBlock)
 			return true;
+		if (state.getBlock().is(BlockTags.LEAVES))
+			return true;
 
 		if (state.getCollisionShape(world, pos)
 			.isEmpty() || state.getBlock() instanceof CocoaBlock) {
-			if (state.getBlock() instanceof KelpPlantBlock)
-				return true;
-			if (state.getBlock() instanceof KelpBlock)
+			if (state.getBlock() instanceof AbstractPlantBlock)
 				return true;
 
 			for (Property<?> property : state.getProperties()) {
@@ -157,7 +165,7 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 		if (block == Blocks.SWEET_BERRY_BUSH) {
 			return state.setValue(BlockStateProperties.AGE_3, Integer.valueOf(1));
 		}
-		if (block == Blocks.SUGAR_CANE || block == Blocks.KELP) {
+		if (block == Blocks.SUGAR_CANE || block instanceof AbstractPlantBlock) {
 			if (state.getFluidState()
 					.isEmpty())
 				return Blocks.AIR.defaultBlockState();

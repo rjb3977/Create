@@ -11,7 +11,7 @@ public class FabulousWarningCommand {
 
 	public static ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal("dismissFabulousWarning")
-				.requires(AllCommands.sourceIsPlayer)
+				.requires(AllCommands.SOURCE_IS_PLAYER)
 				.executes(ctx -> {
 					ServerPlayer player = ctx.getSource()
 							.getPlayerOrException();

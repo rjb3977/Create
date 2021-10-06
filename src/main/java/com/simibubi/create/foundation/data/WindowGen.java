@@ -205,7 +205,7 @@ public class WindowGen {
 //			.loot((t, g) -> t.dropWhenSilkTouch(g))
 			.item()
 //			.tag(Tags.Items.GLASS_PANES)
-//			.model((c, p) -> p.withExistingParent(c.getName(), new ResourceLocation(Create.ID, "item/pane"))
+//			.model((c, p) -> p.withExistingParent(c.getName(), Create.asResource("item/pane"))
 //				.texture("pane", sideTexture)
 //				.texture("edge", topTexture))
 			.build()

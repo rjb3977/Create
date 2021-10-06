@@ -17,6 +17,7 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.base.HorizontalKineticBlock;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.processing.EmptyingByBasin;
+import com.simibubi.create.content.contraptions.relays.belt.BeltSlicer.Feedback;
 import com.simibubi.create.content.contraptions.relays.belt.BeltTileEntity.CasingType;
 import com.simibubi.create.content.contraptions.relays.belt.transport.BeltMovementHandler.TransportedEntityInfo;
 import com.simibubi.create.content.contraptions.relays.belt.transport.BeltTunnelInteractionHandler;
@@ -102,7 +103,8 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 
 	@Override
 	protected boolean areStatesKineticallyEquivalent(BlockState oldState, BlockState newState) {
-		return super.areStatesKineticallyEquivalent(oldState, newState) && oldState.getValue(PART) == newState.getValue(PART);
+		return super.areStatesKineticallyEquivalent(oldState, newState)
+			&& oldState.getValue(PART) == newState.getValue(PART);
 	}
 
 	@Override
@@ -110,7 +112,7 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 		if (face.getAxis() != getRotationAxis(state))
 			return false;
 		return getTileEntityOptional(world, pos).map(BeltTileEntity::hasPulley)
-				.orElse(false);
+			.orElse(false);
 	}
 
 	@Override
@@ -126,15 +128,6 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 	public ItemStack getPickedStack(BlockState state, BlockGetter world, BlockPos pos, Player player, HitResult target) {
 		return AllItems.BELT_CONNECTOR.asStack();
 	}
-
-	/*
-	 * FIXME
-	 *
-	 * @Override
-	 * public Material getMaterial(BlockState state) {
-	 * return state.get(CASING) ? Material.WOOD : Material.WOOL;
-	 * }
-	 */
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -245,6 +238,9 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 		if (player.isShiftKeyDown() || !player.mayBuild())
 			return InteractionResult.PASS;
 		ItemStack heldItem = player.getItemInHand(handIn);
+
+		boolean isWrench = AllItems.WRENCH.isIn(heldItem);
+		boolean isConnector = AllItems.BELT_CONNECTOR.isIn(heldItem);
 		boolean isShaft = AllBlocks.SHAFT.isIn(heldItem);
 		boolean isDye = TagUtil.isDye(heldItem.getItem());
 		boolean hasWater = EmptyingByBasin.emptyItem(world, heldItem, true)
@@ -258,6 +254,11 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 				withTileEntityDo(world, pos, te -> te.applyColor(TagUtil.getColorFromStack(heldItem)));
 			return InteractionResult.SUCCESS;
 		}
+
+		if (isConnector)
+			return BeltSlicer.useConnector(state, world, pos, player, handIn, hit, new Feedback());
+		if (isWrench)
+			return BeltSlicer.useWrench(state, world, pos, player, handIn, hit, new Feedback());
 
 		BeltTileEntity belt = BeltHelper.getSegmentTE(world, pos);
 		if (belt == null)
@@ -278,7 +279,7 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 				});
 			if (success.isTrue())
 				world.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f,
-						1f + Create.RANDOM.nextFloat());
+					1f + Create.RANDOM.nextFloat());
 		}
 
 		if (isShaft) {
@@ -333,7 +334,7 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 			return InteractionResult.SUCCESS;
 		}
 
-		return InteractionResult.FAIL;
+		return InteractionResult.PASS;
 	}
 
 	@Override
@@ -382,7 +383,8 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 				return BeltShapes.getCollisionShape(state);
 			return shape;
 
-		}).orElse(shape);
+		})
+			.orElse(shape);
 	}
 
 	@Override
@@ -503,8 +505,8 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction side, BlockState p_196271_3_, LevelAccessor world,
-		BlockPos pos, BlockPos p_196271_6_) {
+	public BlockState updateShape(BlockState state, Direction side, BlockState p_196271_3_, LevelAccessor world, BlockPos pos,
+		BlockPos p_196271_6_) {
 		if (side.getAxis()
 			.isHorizontal())
 			updateTunnelConnections(world, pos.above());
@@ -556,29 +558,6 @@ public class BeltBlock extends HorizontalKineticBlock implements ITE<BeltTileEnt
 	}
 
 	public static boolean canAccessFromSide(Direction facing, BlockState belt) {
-//		if (facing == null)
-//			return true;
-//		if (!belt.get(BeltBlock.CASING))
-//			return false;
-//		BeltPart part = belt.get(BeltBlock.PART);
-//		if (part != BeltPart.MIDDLE && facing.getAxis() == belt.get(HORIZONTAL_FACING)
-//			.rotateY()
-//			.getAxis())
-//			return false;
-//
-//		BeltSlope slope = belt.get(BeltBlock.SLOPE);
-//		if (slope != BeltSlope.HORIZONTAL) {
-//			if (slope == BeltSlope.DOWNWARD && part == BeltPart.END)
-//				return true;
-//			if (slope == BeltSlope.UPWARD && part == BeltPart.START)
-//				return true;
-//			Direction beltSide = belt.get(HORIZONTAL_FACING);
-//			if (slope == BeltSlope.DOWNWARD)
-//				beltSide = beltSide.getOpposite();
-//			if (beltSide == facing)
-//				return false;
-//		}
-
 		return true;
 	}
 

@@ -24,12 +24,12 @@ public class HighlightPacket implements S2CPacket {
 	}
 
 	public void read(FriendlyByteBuf buffer) {
-		this.pos = BlockPos.of(buffer.readLong());
+		this.pos = buffer.readBlockPos();
 	}
 
 	@Override
 	public void write(FriendlyByteBuf buffer) {
-		buffer.writeLong(pos.asLong());
+		buffer.writeBlockPos(pos);
 	}
 
 	@Override
@@ -53,6 +53,6 @@ public class HighlightPacket implements S2CPacket {
 				.colored(0xEeEeEe)
 				// .colored(0x243B50)
 				.withFaceTexture(AllSpecialTextures.SELECTION);
-
 	}
+
 }

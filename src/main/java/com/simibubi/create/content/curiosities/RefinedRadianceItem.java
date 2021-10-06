@@ -19,7 +19,7 @@ public class RefinedRadianceItem extends NoGravMagicalDohickyItem {
 	protected void onCreated(ItemEntity entity, CompoundTag persistentData) {
 		super.onCreated(entity, persistentData);
 		entity.setDeltaMovement(entity.getDeltaMovement()
-			.add(0, .15f, 0));
+			.add(0, .25f, 0));
 	}
 
 }

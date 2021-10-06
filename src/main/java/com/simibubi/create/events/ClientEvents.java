@@ -30,6 +30,7 @@ import com.simibubi.create.content.contraptions.components.turntable.TurntableHa
 import com.simibubi.create.content.contraptions.goggles.GoggleOverlayRenderer;
 import com.simibubi.create.content.contraptions.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.contraptions.itemAssembly.SequencedAssemblyRecipe;
+import com.simibubi.create.content.contraptions.relays.belt.BeltSlicer;
 import com.simibubi.create.content.contraptions.relays.belt.item.BeltConnectorHandler;
 import com.simibubi.create.content.curiosities.armor.CopperBacktankArmorLayer;
 import com.simibubi.create.content.curiosities.symmetry.SymmetryHandler;
@@ -103,8 +104,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class ClientEvents {
 
-	private static final String itemPrefix = "item." + Create.ID;
-	private static final String blockPrefix = "block." + Create.ID;
+	private static final String ITEM_PREFIX = "item." + Create.ID;
+	private static final String BLOCK_PREFIX = "block." + Create.ID;
 
 	public static void onTickStart(Minecraft client) {
 		LinkedControllerClientHandler.tick();
@@ -135,6 +136,7 @@ public class ClientEvents {
 		// ScreenOpener.tick();
 		ServerSpeedProvider.clientTick();
 		BeltConnectorHandler.tick();
+		BeltSlicer.tickHoveringInformation();
 		FilteringRenderer.tick();
 		LinkRenderer.tick();
 		ScrollValueRenderer.tick();
@@ -244,7 +246,7 @@ public class ClientEvents {
 		String translationKey = stack.getItem()
 			.getDescriptionId(stack);
 
-		if (translationKey.startsWith(itemPrefix) || translationKey.startsWith(blockPrefix))
+		if (translationKey.startsWith(ITEM_PREFIX) || translationKey.startsWith(BLOCK_PREFIX))
 			if (TooltipHelper.hasTooltip(stack, Minecraft.getInstance().player)) {
 				List<Component> toolTip = new ArrayList<>();
 				toolTip.add(itemTooltip.remove(0));

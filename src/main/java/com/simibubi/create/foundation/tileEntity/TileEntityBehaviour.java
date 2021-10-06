@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.tileEntity;
 
+import java.util.ConcurrentModificationException;
+
 import com.simibubi.create.content.schematics.ItemRequirement;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import net.minecraft.core.BlockPos;
@@ -8,8 +10,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.ConcurrentModificationException;
 
 public abstract class TileEntityBehaviour {
 

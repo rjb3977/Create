@@ -57,29 +57,98 @@ public class AllTags {
 
 		;
 
-		String id;
+		public final String id;
 
 		private NameSpace(String id) {
 			this.id = id;
 		}
+
 	}
 
-	public static enum AllItemTags {
-		CRUSHED_ORES(MOD),
-		SEATS(MOD),
-		VALVE_HANDLES(MOD),
-		UPRIGHT_ON_BELT(MOD),
-		SANDPAPER(MOD),
-		CREATE_INGOTS(MOD),
-		BEACON_PAYMENT(FORGE),
-		INGOTS(FORGE),
-		NUGGETS(FORGE),
-		PLATES(FORGE),
-		COBBLESTONE(FORGE)
+	public enum AllBlockTags {
+
+		BRITTLE,
+		FAN_HEATERS,
+		FAN_TRANSPARENT,
+		SAFE_NBT,
+		SAILS,
+		SEATS,
+		VALVE_HANDLES,
+		WINDMILL_SAILS,
+		WINDOWABLE,
+		WRENCH_PICKUP,
+
+		SLIMY_LOGS(TIC),
 
 		;
 
-		public Tag.Named<Item> tag;
+		public final ITag.INamedTag<Block> tag;
+
+		private AllBlockTags() {
+			this(MOD, "");
+		}
+
+		private AllBlockTags(NameSpace namespace) {
+			this(namespace, "");
+		}
+
+		private AllBlockTags(NameSpace namespace, String path) {
+			ResourceLocation id =
+				new ResourceLocation(namespace.id, (path.isEmpty() ? "" : path + "/") + Lang.asId(name()));
+			if (ModList.get()
+				.isLoaded(namespace.id)) {
+				tag = BlockTags.bind(id.toString());
+				REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag));
+			} else {
+				tag = new EmptyNamedTag<>(id);
+			}
+		}
+
+
+		public boolean matches(BlockState block) {
+			return tag.contains(block.getBlock());
+		}
+
+		public void add(Block... values) {
+			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag)
+				.add(values));
+		}
+
+		public void includeIn(ITag.INamedTag<Block> parent) {
+			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(parent)
+				.addTag(tag));
+		}
+
+		public void includeIn(AllBlockTags parent) {
+			includeIn(parent.tag);
+		}
+
+		public void includeAll(ITag.INamedTag<Block> child) {
+			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag)
+				.addTag(child));
+		}
+
+	}
+
+	public enum AllItemTags {
+
+		CREATE_INGOTS(),
+		CRUSHED_ORES(),
+		SANDPAPER(),
+		SEATS(),
+		UPRIGHT_ON_BELT(),
+		VALVE_HANDLES(),
+
+		BEACON_PAYMENT(FORGE),
+		PLATES(FORGE)
+
+		;
+
+		public final Tag.Named<Item> tag;
+
+		private AllItemTags() {
+			this(MOD, "");
+		}
 
 		private AllItemTags(NameSpace namespace) {
 			this(namespace, "");
@@ -101,19 +170,25 @@ public class AllTags {
 //					.add(values));
 		}
 
-		public void includeIn(AllItemTags parent) {
-//			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.tag(parent.tag)
-//					.addTag(tag));
+		public void includeIn(ITag.INamedTag<Item> parent) {
+//			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.tag(parent)
+//				.addTag(tag));
 		}
+
+		public void includeIn(AllItemTags parent) {
+//			includeIn(parent.tag);
+		}
+
 	}
 
 	public static enum AllFluidTags {
 		NO_INFINITE_DRAINING,
+
 		HONEY(FORGE)
 
 		;
 
-		public Tag.Named<Fluid> tag;
+		public final Tag.Named<Fluid> tag;
 
 		private AllFluidTags() {
 			this(MOD, "");
@@ -133,46 +208,7 @@ public class AllTags {
 			return fluid != null && fluid.is(tag);
 		}
 
-		static void loadClass() {}
-	}
-
-	public static enum AllBlockTags {
-		WINDMILL_SAILS,
-		FAN_HEATERS,
-		WINDOWABLE,
-		BRITTLE,
-		SEATS,
-		SAILS,
-		VALVE_HANDLES,
-		FAN_TRANSPARENT,
-		SAFE_NBT,
-		SLIMY_LOGS(TIC),
-		WRENCH_PICKUP,
-
-		;
-
-		public Tag.Named<Block> tag;
-
-		private AllBlockTags() {
-			this(MOD, "");
-		}
-
-		private AllBlockTags(NameSpace namespace) {
-			this(namespace, "");
-		}
-
-		private AllBlockTags(NameSpace namespace, String path) {
-			ResourceLocation id =
-					new ResourceLocation(namespace.id, (path.isEmpty() ? "" : path + "/") + Lang.asId(name()));
-			tag = TagUtil.getTagFromResourceLocation(id);
-//			if (ModList.get()
-//					.isLoaded(namespace.id)) {
-//				tag = BlockTags.bind(id.toString());
-//				REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag));
-//			} else {
-//				tag = new EmptyNamedTag<>(id);
-//			}
-		}
+		private static void loadClass() {}
 
 
 		public boolean matches(BlockState block) {
@@ -224,4 +260,5 @@ public class AllTags {
 //
 //		AllFluidTags.loadClass();
 	}
+
 }

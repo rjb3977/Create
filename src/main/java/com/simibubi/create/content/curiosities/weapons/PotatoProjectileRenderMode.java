@@ -20,6 +20,8 @@ public interface PotatoProjectileRenderMode {
 
 	public static class Billboard implements PotatoProjectileRenderMode {
 
+		public static final Billboard INSTANCE = new Billboard();
+
 		@Override
 		@Environment(EnvType.CLIENT)
 		public void transform(PoseStack ms, PotatoProjectileEntity entity, float pt) {
@@ -35,9 +37,12 @@ public interface PotatoProjectileRenderMode {
 				.rotateX(180
 					+ AngleHelper.deg(Mth.atan2(diff.y, -Mth.sqrt((float) (diff.x * diff.x + diff.z * diff.z)))));
 		}
+
 	}
 
 	public static class Tumble extends Billboard {
+
+		public static final Tumble INSTANCE = new Tumble();
 
 		@Override
 		@Environment(EnvType.CLIENT)
@@ -47,6 +52,7 @@ public interface PotatoProjectileRenderMode {
 				.rotateZ((entity.tickCount + pt) * 2 * entityRandom(entity, 16))
 				.rotateX((entity.tickCount + pt) * entityRandom(entity, 32));
 		}
+
 	}
 
 	public static class TowardMotion implements PotatoProjectileRenderMode {
