@@ -160,7 +160,7 @@ public class ArmTileEntity extends KineticTileEntity implements ITransformableTE
 
 //	@Override
 //	@Environment(EnvType.CLIENT)
-//	public AxisAlignedBB makeRenderBoundingBox() {
+//	public AABB makeRenderBoundingBox() {
 //		return super.makeRenderBoundingBox().inflate(3);
 //	}
 

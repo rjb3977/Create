@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -41,7 +42,7 @@ public class SchematicWorld extends WrappedWorld implements ServerLevelAccessor 
 	protected Map<BlockPos, BlockState> blocks;
 	protected Map<BlockPos, BlockEntity> tileEntities;
 	protected List<BlockEntity> renderedTileEntities;
-	protected List<Entity> entities;
+	protected SchematicWorldEntityGetter entityGetter;
 	protected BoundingBox bounds;
 
 	public BlockPos anchor;
@@ -57,7 +58,7 @@ public class SchematicWorld extends WrappedWorld implements ServerLevelAccessor 
 		this.tileEntities = new HashMap<>();
 		this.bounds = new BoundingBox(anchor);
 		this.anchor = anchor;
-		this.entities = new ArrayList<>();
+		this.entityGetter = new SchematicWorldEntityGetter();
 		this.renderedTileEntities = new ArrayList<>();
 	}
 
@@ -75,11 +76,11 @@ public class SchematicWorld extends WrappedWorld implements ServerLevelAccessor 
 				.forEach(stack -> stack.setTag(null));
 		}
 
-		return entities.add(entityIn);
+		return entityGetter.entities.add(entityIn);
 	}
 
-	public Stream<Entity> getEntities() {
-		return entities.stream();
+	public LevelEntityGetter<Entity> getEntities() {
+		return entityGetter;
 	}
 
 	@Override

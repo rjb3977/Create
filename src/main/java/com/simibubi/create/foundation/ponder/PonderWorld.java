@@ -84,27 +84,27 @@ public class PonderWorld extends SchematicWorld {
 		originalTileEntities.clear();
 		blocks.forEach((k, v) -> originalBlocks.put(k, v));
 		tileEntities.forEach(
-			(k, v) -> originalTileEntities.put(k, BlockEntity.loadStatic(blocks.get(k), v.save(new CompoundTag()))));
-		entities.forEach(e -> EntityType.create(NBTSerializer.serializeNBT(e), this)
+			(k, v) -> originalTileEntities.put(k, BlockEntity.loadStatic(k, blocks.get(k), v.save(new CompoundTag()))));
+		entityGetter.entities.forEach(e -> EntityType.create(NBTSerializer.serializeNBT(e), this)
 			.ifPresent(originalEntities::add));
 
 	}
 
 	public void restore() {
-		entities.clear();
+		entityGetter.entities.clear();
 		blocks.clear();
 		tileEntities.clear();
 		blockBreakingProgressions.clear();
 		renderedTileEntities.clear();
 		originalBlocks.forEach((k, v) -> blocks.put(k, v));
 		originalTileEntities.forEach((k, v) -> {
-			BlockEntity te = BlockEntity.loadStatic(originalBlocks.get(k), v.save(new CompoundTag()));
+			BlockEntity te = BlockEntity.loadStatic(k, originalBlocks.get(k), v.save(new CompoundTag()));
 			onTEadded(te, te.getBlockPos());
 			tileEntities.put(k, te);
 			renderedTileEntities.add(te);
 		});
 		originalEntities.forEach(e -> EntityType.create(NBTSerializer.serializeNBT(e), this)
-			.ifPresent(entities::add));
+			.ifPresent(entityGetter.entities::add));
 		particles.clearEffects();
 		fixControllerTileEntities();
 	}
@@ -114,7 +114,7 @@ public class PonderWorld extends SchematicWorld {
 			if (originalBlocks.containsKey(p))
 				blocks.put(p, originalBlocks.get(p));
 			if (originalTileEntities.containsKey(p)) {
-				BlockEntity te = BlockEntity.loadStatic(originalBlocks.get(p), originalTileEntities.get(p)
+				BlockEntity te = BlockEntity.loadStatic(p, originalBlocks.get(p), originalTileEntities.get(p)
 					.save(new CompoundTag()));
 				onTEadded(te, te.getBlockPos());
 				tileEntities.put(p, te);
@@ -167,7 +167,7 @@ public class PonderWorld extends SchematicWorld {
 		double d1 = Vector3d.y();
 		double d2 = Vector3d.z();
 
-		for (Entity entity : entities) {
+		for (Entity entity : entityGetter.entities) {
 			if (entity.tickCount == 0) {
 				entity.xOld = entity.getX();
 				entity.yOld = entity.getY();
@@ -187,7 +187,7 @@ public class PonderWorld extends SchematicWorld {
 		double d0 = Mth.lerp((double) pt, entity.xOld, entity.getX());
 		double d1 = Mth.lerp((double) pt, entity.yOld, entity.getY());
 		double d2 = Mth.lerp((double) pt, entity.zOld, entity.getZ());
-		float f = Mth.lerp(pt, entity.yRotO, entity.yRot);
+		float f = Mth.lerp(pt, entity.yRotO, entity.getYRot());
 		EntityRenderDispatcher renderManager = Minecraft.getInstance()
 			.getEntityRenderDispatcher();
 		int light = renderManager.getRenderer(entity)
@@ -202,7 +202,7 @@ public class PonderWorld extends SchematicWorld {
 	public void tick() {
 		particles.tick();
 
-		for (Iterator<Entity> iterator = entities.iterator(); iterator.hasNext();) {
+		for (Iterator<Entity> iterator = entityGetter.entities.iterator(); iterator.hasNext();) {
 			Entity entity = iterator.next();
 
 			entity.tickCount++;
@@ -212,7 +212,7 @@ public class PonderWorld extends SchematicWorld {
 			entity.tick();
 
 			if (entity.getY() <= -.5f)
-				entity.remove();
+				entity.remove(Entity.RemovalReason.DISCARDED);
 
 			if (!entity.isAlive())
 				iterator.remove();

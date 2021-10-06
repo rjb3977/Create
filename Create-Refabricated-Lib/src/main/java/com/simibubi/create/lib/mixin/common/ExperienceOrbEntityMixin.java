@@ -11,7 +11,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 
 @Mixin(ExperienceOrb.class)
 public abstract class ExperienceOrbEntityMixin {
-	@ModifyVariable(at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/block/Block;getSlipperiness()F"),
+	@ModifyVariable(at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/level/block/Block;getFriction()F"),
 			method = "tick()V")
 	public float create$setSlipperiness(float g) {
 		BlockPos create$pos = new BlockPos(

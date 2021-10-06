@@ -52,6 +52,11 @@ public class WrappedChunkProvider extends ChunkSource {
         return getChunk(x, z);
     }
 
+	@Override
+	public void tick(BooleanSupplier booleanSupplier) {
+
+	}
+
 	public ChunkAccess getChunk(int x, int z) {
         long pos = ChunkPos.asLong(x, z);
 
@@ -65,6 +70,11 @@ public class WrappedChunkProvider extends ChunkSource {
     public String gatherStats() {
         return "WrappedChunkProvider";
     }
+
+	@Override
+	public int getLoadedChunksCount() {
+		return 0;
+	}
 
 	@Override
     public LevelLightEngine getLightEngine() {

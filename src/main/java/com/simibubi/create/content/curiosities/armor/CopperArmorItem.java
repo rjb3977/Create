@@ -1,9 +1,13 @@
 package com.simibubi.create.content.curiosities.armor;
 
+import com.simibubi.create.Create;
+
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 
 public class CopperArmorItem extends ArmorItem {
 	public static final ResourceLocation TEXTURE = Create.asResource("textures/models/armor/copper.png");
@@ -21,9 +25,9 @@ public class CopperArmorItem extends ArmorItem {
 		return livingEntity.getItemBySlot(slot).getItem() == this;
 	}
 
-	@Override
-	public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
-		return TEXTURE_STRING;
-	}
 
+//	@Override // see HumanoidArmorLayerMixin
+//	public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
+//		return TEXTURE_STRING;
+//	}
 }

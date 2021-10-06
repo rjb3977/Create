@@ -369,7 +369,7 @@ public class PonderUI extends NavigatableSimiScreen {
 			PonderStoryBoardEntry sb = list.get(index);
 			StructureTemplate activeTemplate = PonderRegistry.loadSchematic(sb.getSchematicLocation());
 			PonderWorld world = new PonderWorld(BlockPos.ZERO, Minecraft.getInstance().level);
-			activeTemplate.placeInWorld(world, BlockPos.ZERO, new StructurePlaceSettings(), new Random());
+			activeTemplate.placeInWorld(world, BlockPos.ZERO, BlockPos.ZERO, new StructurePlaceSettings(), new Random(), 0);
 			world.createBackup();
 			scene = PonderRegistry.compileScene(index, sb, world);
 			scene.begin();
@@ -424,14 +424,12 @@ public class PonderUI extends NavigatableSimiScreen {
 		double diff = i - value;
 		double slide = Mth.lerp(diff * diff, 200, 600) * diff;
 
-		RenderSystem.enableAlphaTest();
+//		RenderSystem.enableAlphaTest();
 		RenderSystem.enableBlend();
 		RenderSystem.enableDepthTest();
 
-		RenderSystem.pushMatrix();
-
-		// has to be outside of MS transforms, important for vertex sorting
-		RenderSystem.translated(0, 0, 800);
+		// PORT: this cannot be done anymore -> has to be outside of MS transforms, important for vertex sorting
+		ms.translate(0, 0, 800);
 
 		ms.pushPose();
 		ms.translate(0, 0, -800);
@@ -532,7 +530,7 @@ public class PonderUI extends NavigatableSimiScreen {
 
 		ms.popPose();
 		ms.popPose();
-		RenderSystem.popMatrix();
+		ms.popPose();
 	}
 
 	protected void renderWidgets(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
@@ -619,8 +617,8 @@ public class PonderUI extends NavigatableSimiScreen {
 //					renderWrappedToolTip(ms, font.getSplitter().splitLines(text, width / 3, Style.EMPTY), 0, 0, font);
 					renderTooltip(ms, (Component) font.getSplitter().splitLines(text, width / 3, Style.EMPTY), 0, 0/*, textRenderer*/); // fixme
 					/*String tooltip = Lang
-						.createTranslationTextComponent(IDENTIFY_MODE, client.gameSettings.keyBindDrop.getBoundKeyLocalizedText().applyTextStyle(TextFormatting.WHITE))
-						.applyTextStyle(TextFormatting.GRAY)
+						.createTranslationTextComponent(IDENTIFY_MODE, client.gameSettings.keyBindDrop.getBoundKeyLocalizedText().applyTextStyle(ChatFormatting.WHITE))
+						.applyTextStyle(ChatFormatting.GRAY)
 						.getFormattedText();
 					renderTooltip(font.listFormattedStringToWidth(tooltip, width / 3), 0, 0);*/
 				} else

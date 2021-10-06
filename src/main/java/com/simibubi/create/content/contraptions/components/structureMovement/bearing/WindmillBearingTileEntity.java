@@ -2,6 +2,8 @@ package com.simibubi.create.content.contraptions.components.structureMovement.be
 
 import java.util.List;
 
+import com.simibubi.create.foundation.config.AllConfigs;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;

@@ -17,12 +17,12 @@ import com.simibubi.create.foundation.utility.Lang;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -94,7 +94,7 @@ public class DeployerApplicationRecipe extends ProcessingRecipe<Container> imple
 	@Override
 	public void readAdditional(JsonObject json) {
 		super.readAdditional(json);
-		keepHeldItem = JSONUtils.getAsBoolean(json, "keepHeldItem", false);
+		keepHeldItem = GsonHelper.getAsBoolean(json, "keepHeldItem", false);
 	}
 
 	@Override
@@ -105,13 +105,13 @@ public class DeployerApplicationRecipe extends ProcessingRecipe<Container> imple
 	}
 
 	@Override
-	public void readAdditional(PacketBuffer buffer) {
+	public void readAdditional(FriendlyByteBuf buffer) {
 		super.readAdditional(buffer);
 		keepHeldItem = buffer.readBoolean();
 	}
 
 	@Override
-	public void writeAdditional(PacketBuffer buffer) {
+	public void writeAdditional(FriendlyByteBuf buffer) {
 		super.writeAdditional(buffer);
 		buffer.writeBoolean(keepHeldItem);
 	}

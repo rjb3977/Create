@@ -1,34 +1,34 @@
 package com.simibubi.create.content.curiosities.weapons;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.networking.AllPackets;
-import com.simibubi.create.foundation.networking.SimplePacketBase;
 
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.registries.IRegistryDelegate;
+import me.pepperbell.simplenetworking.S2CPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class PotatoProjectileTypeManager {
 
 	private static final Map<ResourceLocation, PotatoCannonProjectileType> BUILTIN_TYPE_MAP = new HashMap<>();
 	private static final Map<ResourceLocation, PotatoCannonProjectileType> CUSTOM_TYPE_MAP = new HashMap<>();
-	private static final Map<IRegistryDelegate<Item>, PotatoCannonProjectileType> ITEM_TO_TYPE_MAP = new HashMap<>();
+	private static final Map<Item, PotatoCannonProjectileType> ITEM_TO_TYPE_MAP = new HashMap<>();
 
 	public static void registerBuiltinType(ResourceLocation id, PotatoCannonProjectileType type) {
 		synchronized (BUILTIN_TYPE_MAP) {
@@ -44,14 +44,14 @@ public class PotatoProjectileTypeManager {
 		return CUSTOM_TYPE_MAP.get(id);
 	}
 
-	public static PotatoCannonProjectileType getTypeForItem(IRegistryDelegate<Item> item) {
+	public static PotatoCannonProjectileType getTypeForItem(Item item) {
 		return ITEM_TO_TYPE_MAP.get(item);
 	}
 
 	public static Optional<PotatoCannonProjectileType> getTypeForStack(ItemStack item) {
 		if (item.isEmpty())
 			return Optional.empty();
-		return Optional.ofNullable(getTypeForItem(item.getItem().delegate));
+		return Optional.ofNullable(getTypeForItem(item.getItem()));
 	}
 
 	public static void clear() {
@@ -62,20 +62,20 @@ public class PotatoProjectileTypeManager {
 	public static void fillItemMap() {
 		for (Map.Entry<ResourceLocation, PotatoCannonProjectileType> entry : BUILTIN_TYPE_MAP.entrySet()) {
 			PotatoCannonProjectileType type = entry.getValue();
-			for (IRegistryDelegate<Item> delegate : type.getItems()) {
+			for (Item delegate : type.getItems()) {
 				ITEM_TO_TYPE_MAP.put(delegate, type);
 			}
 		}
 		for (Map.Entry<ResourceLocation, PotatoCannonProjectileType> entry : CUSTOM_TYPE_MAP.entrySet()) {
 			PotatoCannonProjectileType type = entry.getValue();
-			for (IRegistryDelegate<Item> delegate : type.getItems()) {
+			for (Item delegate : type.getItems()) {
 				ITEM_TO_TYPE_MAP.put(delegate, type);
 			}
 		}
-		ITEM_TO_TYPE_MAP.remove(AllItems.POTATO_CANNON.get().delegate);
+		ITEM_TO_TYPE_MAP.remove(AllItems.POTATO_CANNON.get());
 	}
 
-	public static void toBuffer(PacketBuffer buffer) {
+	public static void toBuffer(FriendlyByteBuf buffer) {
 		buffer.writeVarInt(CUSTOM_TYPE_MAP.size());
 		for (Map.Entry<ResourceLocation, PotatoCannonProjectileType> entry : CUSTOM_TYPE_MAP.entrySet()) {
 			buffer.writeResourceLocation(entry.getKey());
@@ -83,7 +83,7 @@ public class PotatoProjectileTypeManager {
 		}
 	}
 
-	public static void fromBuffer(PacketBuffer buffer) {
+	public static void fromBuffer(FriendlyByteBuf buffer) {
 		clear();
 
 		int size = buffer.readVarInt();
@@ -94,15 +94,15 @@ public class PotatoProjectileTypeManager {
 		fillItemMap();
 	}
 
-	public static void syncTo(ServerPlayerEntity player) {
-		AllPackets.channel.send(PacketDistributor.PLAYER.with(() -> player), new SyncPacket());
+	public static void syncTo(ServerPlayer player) {
+		AllPackets.channel.sendToClient(new SyncPacket(), player);
 	}
 
-	public static void syncToAll() {
-		AllPackets.channel.send(PacketDistributor.ALL.noArg(), new SyncPacket());
+	public static void syncToAll(List<ServerPlayer> players) {
+		AllPackets.channel.sendToClients(new SyncPacket(), players);
 	}
 
-	public static class ReloadListener extends JsonReloadListener {
+	public static class ReloadListener extends SimpleJsonResourceReloadListener {
 
 		private static final Gson GSON = new Gson();
 
@@ -113,7 +113,7 @@ public class PotatoProjectileTypeManager {
 		}
 
 		@Override
-		protected void apply(Map<ResourceLocation, JsonElement> map, IResourceManager resourceManager, IProfiler profiler) {
+		protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
 			clear();
 
 			for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
@@ -131,28 +131,27 @@ public class PotatoProjectileTypeManager {
 
 	}
 
-	public static class SyncPacket extends SimplePacketBase {
+	public static class SyncPacket implements S2CPacket {
 
-		private PacketBuffer buffer;
+		private FriendlyByteBuf buffer;
 
 		public SyncPacket() {
 		}
 
-		public SyncPacket(PacketBuffer buffer) {
+		public void read(FriendlyByteBuf buffer) {
 			this.buffer = buffer;
 		}
 
 		@Override
-		public void write(PacketBuffer buffer) {
+		public void write(FriendlyByteBuf buffer) {
 			toBuffer(buffer);
 		}
 
 		@Override
-		public void handle(Supplier<Context> context) {
-			context.get().enqueueWork(() -> {
+		public void handle(Minecraft client, ClientPacketListener handler, SimpleChannel.ResponseTarget responseTarget) {
+			client.execute(() -> {
 				fromBuffer(buffer);
 			});
-			context.get().setPacketHandled(true);
 		}
 
 	}

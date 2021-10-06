@@ -34,7 +34,7 @@ public abstract class BoatEntityMixin {
 			locals = LocalCapture.CAPTURE_FAILHARD,
 			method = "getGroundFriction()F")
 	public void create$getBoatGlide(CallbackInfoReturnable<Float> cir,
-									AABB axisAlignedBB, AABB axisAlignedBB2, int i, int j, int k,
+									AABB AABB, AABB AABB2, int i, int j, int k,
 									int l, int m, int n, VoxelShape shape, float f, int o, BlockPos.MutableBlockPos mutable,
 									int p, int q, int r, int s, BlockState blockState) {
 		create$state = blockState;

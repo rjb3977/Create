@@ -64,14 +64,12 @@ public class PonderWorldParticles {
 
 		lightTexture.turnOnLightLayer();
 		Runnable enable = () -> {
-			RenderSystem.enableAlphaTest();
-			RenderSystem.defaultAlphaFunc();
+//			RenderSystem.enableAlphaTest();
+//			RenderSystem.defaultAlphaFunc();
 			RenderSystem.enableDepthTest();
-			RenderSystem.enableFog();
+//			RenderSystem.enableFog();
 		};
-		RenderSystem.pushMatrix();
-		RenderSystem.multMatrix(ms.last()
-			.pose());
+		ms.pushPose();
 
 		for (ParticleRenderType iparticlerendertype : this.byType.keySet()) {
 			if (iparticlerendertype == ParticleRenderType.NO_RENDER)
@@ -79,7 +77,7 @@ public class PonderWorldParticles {
 			enable.run();
 			Iterable<Particle> iterable = this.byType.get(iparticlerendertype);
 			if (iterable != null) {
-				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 				Tesselator tessellator = Tesselator.getInstance();
 				BufferBuilder bufferbuilder = tessellator.getBuilder();
 				iparticlerendertype.begin(bufferbuilder, mc.getTextureManager());
@@ -91,13 +89,13 @@ public class PonderWorldParticles {
 			}
 		}
 
-		RenderSystem.popMatrix();
+		ms.popPose();
 		RenderSystem.depthMask(true);
 		RenderSystem.depthFunc(515);
 		RenderSystem.disableBlend();
-		RenderSystem.defaultAlphaFunc();
+//		RenderSystem.defaultAlphaFunc();
 		lightTexture.turnOffLightLayer();
-		RenderSystem.disableFog();
+//		RenderSystem.disableFog();
 	}
 
 	public void clearEffects() {

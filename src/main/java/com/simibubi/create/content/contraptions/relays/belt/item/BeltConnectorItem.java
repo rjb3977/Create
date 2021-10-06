@@ -11,6 +11,8 @@ import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -118,7 +120,7 @@ public class BeltConnectorItem extends BlockItem {
 
 	public static void createBelts(Level world, BlockPos start, BlockPos end) {
 		world.playSound(null, new BlockPos(VecHelper.getCenterOf(start.offset(end))
-			.scale(.5f)), SoundEvents.WOOL_PLACE, SoundCategory.BLOCKS, 0.5F, 1F);
+			.scale(.5f)), SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 0.5F, 1F);
 
 		BeltSlope slope = getSlopeBetween(start, end);
 		Direction facing = getFacingFromTo(start, end);

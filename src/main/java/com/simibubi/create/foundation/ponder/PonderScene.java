@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 
@@ -54,6 +55,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
 
 public class PonderScene {
 
@@ -180,7 +183,7 @@ public class PonderScene {
 		}
 
 //		pickBlock = blockState.getPickBlock(
-//			new BlockRayTraceResult(VecHelper.getCenterOf(selectedPos), Direction.UP, selectedPos, true), world,
+//			new BlockHitResult(VecHelper.getCenterOf(selectedPos), Direction.UP, selectedPos, true), world,
 //			selectedPos, Minecraft.getInstance().player);
 
 		return Pair.of(pickBlock, selectedPos);
@@ -362,7 +365,7 @@ public class PonderScene {
 	}
 
 	public <T extends Entity> void forEachWorldEntity(Class<T> type, Consumer<T> function) {
-		world.getEntities()
+		StreamSupport.stream(world.getEntities().getAll().spliterator(), false)
 			.filter(type::isInstance)
 			.map(type::cast)
 			.forEach(function);

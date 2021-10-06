@@ -68,7 +68,7 @@ public abstract class GhostBlockRenderer {
 			ms.translate(pos.getX(), pos.getY(), pos.getZ());
 
 			VirtualRenderingStateManager.runVirtually(() -> dispatcher.getModelRenderer()
-					.render(ms.last(), vb, params.state, model, 1f, 1f, 1f, 0xF000F0, OverlayTexture.NO_OVERLAY));
+					.renderModel(ms.last(), vb, params.state, model, 1f, 1f, 1f, 0xF000F0, OverlayTexture.NO_OVERLAY));
 
 			ms.popPose();
 		}

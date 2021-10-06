@@ -12,7 +12,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 
 public class AllCommands {
 
-	public static final Predicate<CommandSourceStack> sourceIsPlayer = (cs) -> cs.getEntity() instanceof Player;
+	public static final Predicate<CommandSourceStack> SOURCE_IS_PLAYER = (cs) -> cs.getEntity() instanceof Player;
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 

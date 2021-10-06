@@ -281,7 +281,7 @@ public class BeltRenderer extends SafeTileEntityRenderer<BeltTileEntity> {
 				}
 
 				ms.scale(.5f, .5f, .5f);
-				itemRenderer.renderStatic(transported.stack, TransformType.FIXED, stackLight, overlay, ms, buffer);
+				itemRenderer.renderStatic(transported.stack, TransformType.FIXED, stackLight, overlay, ms, buffer, 1);
 				ms.popPose();
 
 				if (!renderUpright) {

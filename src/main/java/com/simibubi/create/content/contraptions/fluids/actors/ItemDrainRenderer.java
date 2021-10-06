@@ -120,7 +120,7 @@ public class ItemDrainRenderer extends SmartTileEntityRenderer<ItemDrainTileEnti
 			ms.scale(.5f, .5f, .5f);
 			if (!blockItem && !renderUpright)
 				msr.rotateX(90);
-			itemRenderer.renderStatic(itemStack, TransformType.FIXED, light, overlay, ms, buffer);
+			itemRenderer.renderStatic(itemStack, TransformType.FIXED, light, overlay, ms, buffer, 1);
 			ms.popPose();
 
 			if (!renderUpright) {

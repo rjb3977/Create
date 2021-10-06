@@ -575,7 +575,7 @@ public abstract class KineticTileEntity extends SmartTileEntity
 		return cachedBoundingBox;
 	}
 
-//	protected AxisAlignedBB makeRenderBoundingBox() {
+//	protected AABB makeRenderBoundingBox() {
 //		return super.getRenderBoundingBox();
 //	}
 

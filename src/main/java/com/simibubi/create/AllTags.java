@@ -6,6 +6,7 @@ import static com.simibubi.create.AllTags.NameSpace.TIC;
 
 import java.util.function.Function;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -82,7 +83,7 @@ public class AllTags {
 
 		;
 
-		public final ITag.INamedTag<Block> tag;
+		public final Tag.Named<Block> tag;
 
 		private AllBlockTags() {
 			this(MOD, "");
@@ -93,15 +94,7 @@ public class AllTags {
 		}
 
 		private AllBlockTags(NameSpace namespace, String path) {
-			ResourceLocation id =
-				new ResourceLocation(namespace.id, (path.isEmpty() ? "" : path + "/") + Lang.asId(name()));
-			if (ModList.get()
-				.isLoaded(namespace.id)) {
-				tag = BlockTags.bind(id.toString());
-				REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag));
-			} else {
-				tag = new EmptyNamedTag<>(id);
-			}
+			tag = TagUtil.getTagFromResourceLocation(new ResourceLocation(namespace.id, (path.isEmpty() ? "" : path + "/") + Lang.asId(name())));
 		}
 
 
@@ -110,22 +103,22 @@ public class AllTags {
 		}
 
 		public void add(Block... values) {
-			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag)
-				.add(values));
+//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag)
+//				.add(values));
 		}
 
-		public void includeIn(ITag.INamedTag<Block> parent) {
-			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(parent)
-				.addTag(tag));
+		public void includeIn(Tag.Named<Block> parent) {
+//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(parent)
+//				.addTag(tag));
 		}
 
 		public void includeIn(AllBlockTags parent) {
 			includeIn(parent.tag);
 		}
 
-		public void includeAll(ITag.INamedTag<Block> child) {
-			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag)
-				.addTag(child));
+		public void includeAll(Tag.Named<Block> child) {
+//			REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, prov -> prov.tag(tag)
+//				.addTag(child));
 		}
 
 	}
@@ -170,7 +163,7 @@ public class AllTags {
 //					.add(values));
 		}
 
-		public void includeIn(ITag.INamedTag<Item> parent) {
+		public void includeIn(Tag.Named<Item> parent) {
 //			REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, prov -> prov.tag(parent)
 //				.addTag(tag));
 		}
@@ -212,7 +205,7 @@ public class AllTags {
 
 
 		public boolean matches(BlockState block) {
-			return tag.contains(block.getBlock());
+			return tag.contains(block.getFluidState().getType());
 		}
 
 		public void includeIn(AllBlockTags parent) {

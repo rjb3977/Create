@@ -64,12 +64,12 @@ public class ShadowRenderHelper {
 							f = 1.0F;
 						}
 
-						AABB axisalignedbb = voxelshape.bounds();
-						double d0 = (double) p_229092_3_.getX() + axisalignedbb.minX;
-						double d1 = (double) p_229092_3_.getX() + axisalignedbb.maxX;
-						double d2 = (double) p_229092_3_.getY() + axisalignedbb.minY;
-						double d3 = (double) p_229092_3_.getZ() + axisalignedbb.minZ;
-						double d4 = (double) p_229092_3_.getZ() + axisalignedbb.maxZ;
+						AABB AABB = voxelshape.bounds();
+						double d0 = (double) p_229092_3_.getX() + AABB.minX;
+						double d1 = (double) p_229092_3_.getX() + AABB.maxX;
+						double d2 = (double) p_229092_3_.getY() + AABB.minY;
+						double d3 = (double) p_229092_3_.getZ() + AABB.minZ;
+						double d4 = (double) p_229092_3_.getZ() + AABB.maxZ;
 						float f1 = (float) (d0 - p_229092_4_);
 						float f2 = (float) (d1 - p_229092_4_);
 						float f3 = (float) (d2 - p_229092_6_ + 0.015625D);

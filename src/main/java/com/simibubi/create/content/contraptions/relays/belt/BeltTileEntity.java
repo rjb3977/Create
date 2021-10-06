@@ -34,6 +34,7 @@ import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.lib.transfer.item.IItemHandler;
 import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 import com.simibubi.create.lib.transfer.item.ItemTransferable;
+import com.simibubi.create.lib.utility.LazyOptional;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
 import net.fabricmc.api.EnvType;
@@ -67,7 +68,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 
 	protected BlockPos controller;
 	protected BeltInventory inventory;
-	protected ItemStackHandler itemHandler;
+	protected LazyOptional<IItemHandler> itemHandler;
 
 	public CompoundTag trackerUpdateTag;
 
@@ -77,7 +78,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 	@Override
 	public IItemHandler getItemHandler(Direction direction) {
 		if (direction == Direction.UP || BeltBlock.canAccessFromSide(direction, getBlockState())) {
-			return itemHandler;
+			return itemHandler.getValueUnsafer();
 		}
 		return null;
 	}
@@ -158,7 +159,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 	}
 
 //	@Override
-//	public AxisAlignedBB makeRenderBoundingBox() {
+//	public AABB makeRenderBoundingBox() {
 //		if (!isController())
 //			return super.makeRenderBoundingBox();
 //		else
@@ -176,7 +177,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 		BeltInventory inventory = ((BeltTileEntity) te).getInventory();
 		if (inventory == null)
 			return;
-		itemHandler = new ItemHandlerBeltSegment(inventory, index);
+		itemHandler = LazyOptional.ofObject(new ItemHandlerBeltSegment(inventory, index));
 	}
 
 //	@Override

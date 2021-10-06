@@ -101,7 +101,7 @@ public class TooltipHelper {
 		for (String line : lines) {
 			String formattedLine = format + lineStart + line;
 			formattedLines.add(formattedLine);
-//			format = TextFormatting.getFormatString(formattedLine);
+//			format = ChatFormatting.getFormatString(formattedLine);
 		}
 		return formattedLines;
 	}
@@ -185,8 +185,8 @@ public class TooltipHelper {
 		return formattedLines;
 	}
 
-//	public static List<ITextComponent> cutTextComponentOld(ITextComponent c, TextFormatting defaultColor,
-//		TextFormatting highlightColor, int indent) {
+//	public static List<ITextComponent> cutTextComponentOld(ITextComponent c, ChatFormatting defaultColor,
+//		ChatFormatting highlightColor, int indent) {
 //		IFormattableTextComponent lineStart = StringTextComponent.EMPTY.copy();
 //		for (int i = 0; i < indent; i++)
 //			lineStart.append(" ");

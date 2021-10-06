@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import com.simibubi.create.lib.utility.BoundingBoxUtil;
 import com.simibubi.create.lib.utility.LoadedCheckUtil;
 
@@ -157,7 +158,6 @@ public class SchematicPrinter {
 
 		if (printStage == PrintStage.ENTITIES) {
 			Entity entity = blockReader.getEntities()
-				.collect(Collectors.toList())
 				.get(printingEntityIndex);
 			entityHandler.handle(target, entity);
 		} else {
@@ -215,7 +215,6 @@ public class SchematicPrinter {
 	public ItemRequirement getCurrentRequirement() {
 		if (printStage == PrintStage.ENTITIES)
 			return ItemRequirement.of(blockReader.getEntities()
-				.collect(Collectors.toList())
 				.get(printingEntityIndex));
 
 		BlockPos target = getCurrentTarget();
@@ -249,7 +248,7 @@ public class SchematicPrinter {
 	}
 
 	public void markAllEntityRequirements(MaterialChecklist checklist) {
-		blockReader.getEntities()
+		blockReader.getEntities().getAll()
 			.forEach(entity -> {
 				ItemRequirement requirement = ItemRequirement.of(entity);
 				if (requirement.isEmpty())
@@ -261,7 +260,7 @@ public class SchematicPrinter {
 	}
 
 	public boolean advanceCurrentPos() {
-		List<Entity> entities = blockReader.getEntities().collect(Collectors.toList());
+		List<Entity> entities = Lists.newArrayList(blockReader.getEntities().getAll());
 
 		do {
 			if (printStage == PrintStage.BLOCKS) {

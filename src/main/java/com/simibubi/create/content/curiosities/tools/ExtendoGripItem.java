@@ -127,7 +127,7 @@ public class ExtendoGripItem extends Item implements CustomDurabilityBarItem {
 //			return;
 //		if (!isHoldingExtendoGrip(player))
 //			return;
-//		if (mc.hitResult instanceof BlockRayTraceResult && mc.hitResult.getType() != Type.MISS)
+//		if (mc.hitResult instanceof BlockHitResult && mc.hitResult.getType() != Type.MISS)
 //			return;
 //
 //		// Modified version of GameRenderer#getMouseOver
@@ -138,11 +138,11 @@ public class ExtendoGripItem extends Item implements CustomDurabilityBarItem {
 //		Vector3d Vector3d = player.getEyePosition(AnimationTickHolder.getPartialTicks());
 //		Vector3d Vector3d1 = player.getViewVector(1.0F);
 //		Vector3d Vector3d2 = Vector3d.add(Vector3d1.x * d0, Vector3d1.y * d0, Vector3d1.z * d0);
-//		AxisAlignedBB axisalignedbb = player.getBoundingBox()
+//		AABB AABB = player.getBoundingBox()
 //			.expandTowards(Vector3d1.scale(d0))
 //			.inflate(1.0D, 1.0D, 1.0D);
 //		EntityRayTraceResult entityraytraceresult =
-//			ProjectileHelper.getEntityHitResult(player, Vector3d, Vector3d2, axisalignedbb, (e) -> {
+//			ProjectileHelper.getEntityHitResult(player, Vector3d, Vector3d2, AABB, (e) -> {
 //				return !e.isSpectator() && e.isPickable();
 //			}, d0 * d0);
 //		if (entityraytraceresult != null) {

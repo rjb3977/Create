@@ -2,6 +2,8 @@ package com.simibubi.create.foundation.renderState;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
 
+import com.simibubi.create.lib.mixin.accessor.RenderTypeAccessor;
+
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.simibubi.create.AllSpecialTextures;
@@ -17,21 +19,21 @@ public class RenderTypes extends RenderStateShard {
 		RenderType.CompositeState rendertype$state = RenderType.CompositeState.builder()
 			.setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
 			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setDiffuseLightingState(DIFFUSE_LIGHTING)
-			.setAlphaState(DEFAULT_ALPHA)
+//			.setDiffuseLightingState(DIFFUSE_LIGHTING)
+//			.setAlphaState(DEFAULT_ALPHA)
 			.setCullState(cull ? CULL : NO_CULL)
 			.setLightmapState(LIGHTMAP)
 			.setOverlayState(OVERLAY)
 			.createCompositeState(true);
-		return RenderType.create(createLayerName("outline_translucent" + (cull ? "_cull" : "")),
+		return RenderTypeAccessor.invokeCreate(createLayerName("outline_translucent" + (cull ? "_cull" : "")),
 			DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, rendertype$state);
 	}
 
 	private static final RenderType OUTLINE_SOLID =
-		RenderType.create(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true,
+		RenderTypeAccessor.invokeCreate(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true,
 			false, RenderType.CompositeState.builder()
 				.setTextureState(new RenderStateShard.TextureStateShard(AllSpecialTextures.BLANK.getLocation(), false, false))
-				.setDiffuseLightingState(DIFFUSE_LIGHTING)
+//				.setDiffuseLightingState(DIFFUSE_LIGHTING)
 				.setLightmapState(LIGHTMAP)
 				.setOverlayState(OVERLAY)
 				.createCompositeState(true));
@@ -42,7 +44,7 @@ public class RenderTypes extends RenderStateShard {
 			.setLightmapState(LIGHTMAP)
 			.setOverlayState(OVERLAY)
 			.createCompositeState(true);
-		return RenderType.create(createLayerName("glowing_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
+		return RenderTypeAccessor.invokeCreate(createLayerName("glowing_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
 			true, false, rendertype$state);
 	}
 
@@ -50,12 +52,12 @@ public class RenderTypes extends RenderStateShard {
 		RenderType.CompositeState rendertype$state = RenderType.CompositeState.builder()
 			.setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
 			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setAlphaState(DEFAULT_ALPHA)
+//			.setAlphaState(DEFAULT_ALPHA)
 			.setCullState(NO_CULL)
 			.setLightmapState(LIGHTMAP)
 			.setOverlayState(OVERLAY)
 			.createCompositeState(true);
-		return RenderType.create(createLayerName("glowing_translucent"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,
+		return RenderTypeAccessor.invokeCreate(createLayerName("glowing_translucent"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,
 			256, true, true, rendertype$state);
 	}
 
@@ -63,31 +65,31 @@ public class RenderTypes extends RenderStateShard {
 	private static final RenderType GLOWING_TRANSLUCENT = getGlowingTranslucent(InventoryMenu.BLOCK_ATLAS);
 
 	private static final RenderType ITEM_PARTIAL_SOLID =
-		RenderType.create(createLayerName("item_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true,
+		RenderTypeAccessor.invokeCreate(createLayerName("item_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true,
 			false, RenderType.CompositeState.builder()
 				.setTextureState(BLOCK_SHEET)
 				.setTransparencyState(NO_TRANSPARENCY)
-				.setDiffuseLightingState(DIFFUSE_LIGHTING)
+//				.setDiffuseLightingState(DIFFUSE_LIGHTING)
 				.setLightmapState(LIGHTMAP)
 				.setOverlayState(OVERLAY)
 				.createCompositeState(true));
 
-	private static final RenderType ITEM_PARTIAL_TRANSLUCENT = RenderType.create(createLayerName("item_translucent"),
+	private static final RenderType ITEM_PARTIAL_TRANSLUCENT = RenderTypeAccessor.invokeCreate(createLayerName("item_translucent"),
 		DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
 			.setTextureState(BLOCK_SHEET)
 			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setDiffuseLightingState(DIFFUSE_LIGHTING)
-			.setAlphaState(DEFAULT_ALPHA)
+//			.setDiffuseLightingState(DIFFUSE_LIGHTING)
+//			.setAlphaState(DEFAULT_ALPHA)
 			.setLightmapState(LIGHTMAP)
 			.setOverlayState(OVERLAY)
 			.createCompositeState(true));
 
-	private static final RenderType FLUID = RenderType.create(createLayerName("fluid"),
+	private static final RenderType FLUID = RenderTypeAccessor.invokeCreate(createLayerName("fluid"),
 		DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
 			.setTextureState(BLOCK_SHEET_MIPPED)
 			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setShadeModelState(SMOOTH_SHADE)
-			.setAlphaState(DEFAULT_ALPHA)
+//			.setShadeModelState(SMOOTH_SHADE)
+//			.setAlphaState(DEFAULT_ALPHA)
 			.setLightmapState(LIGHTMAP)
 			.setOverlayState(OVERLAY)
 			.createCompositeState(true));

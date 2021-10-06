@@ -5,12 +5,15 @@ import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 import javax.annotation.Nullable;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.GrowingPlantBlock;
 import net.minecraft.world.level.block.KelpBlock;
 import net.minecraft.world.level.block.KelpPlantBlock;
 import net.minecraft.world.level.block.SugarCaneBlock;
@@ -83,7 +86,7 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 		ItemStack item = ItemStack.EMPTY;
 		float effectChance = 1;
 
-		if (stateVisited.getBlock().is(BlockTags.LEAVES)) {
+		if (BlockTags.LEAVES.contains(stateVisited.getBlock())) {
 			item = new ItemStack(Items.SHEARS);
 			effectChance = .45f;
 		}
@@ -132,12 +135,12 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 			return false;
 		if (state.getBlock() instanceof SugarCaneBlock)
 			return true;
-		if (state.getBlock().is(BlockTags.LEAVES))
+		if (BlockTags.LEAVES.contains(state.getBlock()))
 			return true;
 
 		if (state.getCollisionShape(world, pos)
 			.isEmpty() || state.getBlock() instanceof CocoaBlock) {
-			if (state.getBlock() instanceof AbstractPlantBlock)
+			if (state.getBlock() instanceof GrowingPlantBlock)
 				return true;
 
 			for (Property<?> property : state.getProperties()) {
@@ -165,7 +168,7 @@ public class HarvesterMovementBehaviour extends MovementBehaviour {
 		if (block == Blocks.SWEET_BERRY_BUSH) {
 			return state.setValue(BlockStateProperties.AGE_3, Integer.valueOf(1));
 		}
-		if (block == Blocks.SUGAR_CANE || block instanceof AbstractPlantBlock) {
+		if (block == Blocks.SUGAR_CANE || block instanceof GrowingPlantBlock) {
 			if (state.getFluidState()
 					.isEmpty())
 				return Blocks.AIR.defaultBlockState();

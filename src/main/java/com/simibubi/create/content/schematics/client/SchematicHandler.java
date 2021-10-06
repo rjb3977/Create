@@ -132,11 +132,11 @@ public class SchematicHandler {
 		SchematicWorld wMirroredLR = new SchematicWorld(clientWorld);
 		StructurePlaceSettings placementSettings = new StructurePlaceSettings();
 
-		schematic.placeInWorldChunk(w, BlockPos.ZERO, placementSettings, w.getRandom());
+		schematic.placeInWorld(w, BlockPos.ZERO, BlockPos.ZERO, placementSettings, w.getRandom(), 0);
 		placementSettings.setMirror(Mirror.FRONT_BACK);
-		schematic.placeInWorldChunk(wMirroredFB, BlockPos.ZERO.east(size.getX() - 1), placementSettings, wMirroredFB.getRandom());
+		schematic.placeInWorld(wMirroredFB, BlockPos.ZERO.east(size.getX() - 1), BlockPos.ZERO.east(size.getX() - 1), placementSettings, wMirroredFB.getRandom(), 0);
 		placementSettings.setMirror(Mirror.LEFT_RIGHT);
-		schematic.placeInWorldChunk(wMirroredLR, BlockPos.ZERO.south(size.getZ() - 1), placementSettings, wMirroredFB.getRandom());
+		schematic.placeInWorld(wMirroredLR, BlockPos.ZERO.south(size.getZ() - 1), BlockPos.ZERO.south(size.getZ() - 1), placementSettings, wMirroredFB.getRandom(), 0);
 
 		renderers.get(0)
 			.display(w);

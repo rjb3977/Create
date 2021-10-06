@@ -168,7 +168,7 @@ public class ItemDescription {
 
 //			if (!isEngine && ((IRotate) block).showCapacityWithAnnotation())
 //				level +=
-//					" " + DARK_GRAY + TextFormatting.ITALIC + Lang.translate("tooltip.capacityProvided.asGenerator");
+//					" " + DARK_GRAY + ChatFormatting.ITALIC + Lang.translate("tooltip.capacityProvided.asGenerator");
 
 			list.add(Lang.translate("tooltip.capacityProvided")
 				.withStyle(GRAY));

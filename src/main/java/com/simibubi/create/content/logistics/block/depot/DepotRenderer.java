@@ -132,7 +132,7 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 				ms.translate(0, -3 / 16f, 0);
 				msr.rotateX(90);
 			}
-			itemRenderer.renderStatic(itemStack, TransformType.FIXED, light, overlay, ms, buffer);
+			itemRenderer.renderStatic(itemStack, TransformType.FIXED, light, overlay, ms, buffer, 1);
 			ms.popPose();
 
 			if (!renderUpright) {

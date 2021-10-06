@@ -33,7 +33,7 @@ public class PulleyTileEntity extends LinearActuatorTileEntity {
 	}
 
 //	@Override
-//	public AxisAlignedBB makeRenderBoundingBox() {
+//	public AABB makeRenderBoundingBox() {
 //		return super.makeRenderBoundingBox().expand(0, -offset, 0);
 //	}
 

@@ -14,7 +14,7 @@ import net.minecraft.world.level.material.LavaFluid;
 @Mixin(LavaFluid.class)
 public abstract class LavaFluidMixin {
 	@Redirect(method = "randomTick",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
 	private boolean create$randomTick(Level world, BlockPos pos, BlockState state) {
 		BlockState newState = FluidPlaceBlockCallback.EVENT.invoker().onFluidPlaceBlock(world, pos, state);
 
@@ -22,7 +22,7 @@ public abstract class LavaFluidMixin {
 	}
 
 	@Redirect(method = "spreadTo",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/IWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelAccessor;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
 	private boolean create$flowInto(LevelAccessor world, BlockPos pos, BlockState state, int flags) {
 		BlockState newState = FluidPlaceBlockCallback.EVENT.invoker().onFluidPlaceBlock(world, pos, state);
 

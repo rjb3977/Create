@@ -114,7 +114,7 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 
 //	@Override
 //	@Environment(EnvType.CLIENT)
-//	public AxisAlignedBB getRenderBoundingBox() {
+//	public AABB getRenderBoundingBox() {
 //		if (cachedBoundingBox == null) {
 //			cachedBoundingBox = super.getRenderBoundingBox().inflate(2);
 //		}

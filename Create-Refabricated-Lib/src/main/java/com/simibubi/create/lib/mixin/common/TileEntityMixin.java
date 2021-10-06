@@ -36,7 +36,7 @@ public abstract class TileEntityMixin implements TileEntityExtensions, NBTSerial
 	}
 
 	@Inject(method = "saveMetadata",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundNBT;putString(Ljava/lang/String;Ljava/lang/String;)V"))
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundTag;putString(Ljava/lang/String;Ljava/lang/String;)V"))
 	private void saveMetadata(CompoundTag compoundNBT, CallbackInfoReturnable<CompoundTag> cir) {
 		if (this.create$extraCustomData != null) {
 			compoundNBT.put(TileEntityHelper.EXTRA_DATA_KEY, this.create$extraCustomData);

@@ -112,8 +112,8 @@ public class MechanicalPressTileEntity extends BasinOperatingTileEntity {
 	}
 
 //	@Override
-//	public AxisAlignedBB makeRenderBoundingBox() {
-//		return new AxisAlignedBB(worldPosition).expandTowards(0, -1.5, 0)
+//	public AABB makeRenderBoundingBox() {
+//		return new AABB(worldPosition).expandTowards(0, -1.5, 0)
 //			.expandTowards(0, 1, 0);
 //	}
 

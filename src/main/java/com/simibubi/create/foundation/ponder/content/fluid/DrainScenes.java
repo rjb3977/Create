@@ -11,6 +11,10 @@ import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankB
 import com.simibubi.create.foundation.utility.Pointing;
 
 
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -55,8 +59,9 @@ public class DrainScenes {
 		scene.world.modifyTileEntity(drainPos, ItemDrainTileEntity.class, te -> {
 			te.getBehaviour(SmartFluidTankBehaviour.TYPE)
 				.allowInsertion();
-			te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-				.ifPresent(ifh -> ifh.fill(new FluidStack(Fluids.LAVA, 1000), FluidAction.EXECUTE));
+
+			TransferUtil.getFluidHandler(te)
+				.ifPresent(ifh -> ifh.fill(new FluidStack(Fluids.LAVA, FluidConstants.BUCKET), false));
 		});
 		scene.idle(10);
 
@@ -68,8 +73,8 @@ public class DrainScenes {
 		scene.idle(60);
 
 		scene.world.modifyTileEntity(drainPos, ItemDrainTileEntity.class,
-			te -> te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-				.ifPresent(ifh -> ifh.drain(500, FluidAction.EXECUTE)));
+			te -> TransferUtil.getFluidHandler(te)
+				.ifPresent(ifh -> ifh.drain(FluidConstants.BUCKET / 2, false)));
 
 		scene.world.moveSection(drainLink, util.vector.of(1, 0, 0), 7);
 		scene.world.showSection(largeCog, Direction.UP);

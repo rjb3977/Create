@@ -227,9 +227,9 @@ public class SchematicAndQuillHandler {
 		OutputStream outputStream = null;
 		try {
 			outputStream = Files.newOutputStream(path, StandardOpenOption.CREATE);
-			CompoundNBT nbttagcompound = t.save(new CompoundNBT());
+			CompoundTag nbttagcompound = t.save(new CompoundTag());
 			SchematicAndQuillItem.replaceStructureVoidWithAir(nbttagcompound);
-			CompressedStreamTools.writeCompressed(nbttagcompound, outputStream);
+			NbtIo.writeCompressed(nbttagcompound, outputStream);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

@@ -45,7 +45,7 @@ public class UIRenderHelper {
 	private static RenderTarget createFramebuffer(Window mainWindow) {
 		RenderTarget framebuffer = new TextureTarget(mainWindow.getWidth(), mainWindow.getHeight(), true, Minecraft.ON_OSX);
 		framebuffer.setClearColor(0, 0, 0, 0);
-		framebuffer.enableStencil();
+//		framebuffer.enableStencil(); // fixme stencil
 		return framebuffer;
 	}
 
@@ -122,11 +122,11 @@ public class UIRenderHelper {
 		double split1 = .5;
 		double split2 = .75;
 		Matrix4f model = ms.last().pose();
-		RenderSystem.disableAlphaTest();
+//		RenderSystem.disableAlphaTest();
 		GuiUtils.drawGradientRect(model, 0, -width, 0, width, (int) (split1 * height), c1, c2);
 		GuiUtils.drawGradientRect(model, 0, -width, (int) (split1 * height), width, (int) (split2 * height), c2, c3);
 		GuiUtils.drawGradientRect(model, 0, -width, (int) (split2 * height), width, height, c3, c4);
-		RenderSystem.enableAlphaTest();
+//		RenderSystem.enableAlphaTest();
 	}
 
 	/**
@@ -215,14 +215,14 @@ public class UIRenderHelper {
 		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 		RenderSystem.disableCull();
-		RenderSystem.disableAlphaTest();
+//		RenderSystem.disableAlphaTest();
 		RenderSystem.defaultBlendFunc();
-		RenderSystem.shadeModel(GL11.GL_SMOOTH);
+//		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
 		Tesselator tessellator = Tesselator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuilder();
 		Matrix4f model = ms.last().pose();
-		bufferbuilder.begin(GL11.GL_TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+		bufferbuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
 
 		bufferbuilder.vertex(model, x0, y0, 0).color(fc1.getRed(), fc1.getGreen(), fc1.getBlue(), fc1.getAlpha()).endVertex();
 		bufferbuilder.vertex(model, x1, y1, 0).color(fc2.getRed(), fc2.getGreen(), fc2.getBlue(), fc2.getAlpha()).endVertex();
@@ -249,10 +249,10 @@ public class UIRenderHelper {
 		bufferbuilder.vertex(model, x8, y8, 0).color(fc4.getRed(), fc4.getGreen(), fc4.getBlue(), fc4.getAlpha()).endVertex();
 
 		tessellator.end();
-		RenderSystem.shadeModel(GL11.GL_FLAT);
+//		RenderSystem.shadeModel(GL11.GL_FLAT);
 		RenderSystem.disableBlend();
 		RenderSystem.enableCull();
-		RenderSystem.enableAlphaTest();
+//		RenderSystem.enableAlphaTest();
 		RenderSystem.enableTexture();
 	}
 
@@ -278,7 +278,7 @@ public class UIRenderHelper {
 		bufferbuilder.vertex(m, (float) right, (float) top, (float) z).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).uv(u2, v1).endVertex();
 		bufferbuilder.vertex(m, (float) left , (float) top, (float) z).color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()).uv(u1, v1).endVertex();
 		bufferbuilder.end();
-		RenderSystem.enableAlphaTest();
+//		RenderSystem.enableAlphaTest();
 		BufferUploader.end(bufferbuilder);
 	}
 

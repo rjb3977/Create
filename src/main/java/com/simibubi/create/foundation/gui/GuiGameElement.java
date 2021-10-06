@@ -17,6 +17,7 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.helper.ItemRendererHelper;
 
 
+import com.simibubi.create.lib.mixin.accessor.ItemRendererAccessor;
 import com.simibubi.create.lib.render.VirtualRenderingStateManager;
 
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
@@ -118,12 +119,12 @@ public class GuiGameElement {
 		protected void prepareMatrix(PoseStack matrixStack) {
 			matrixStack.pushPose();
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			RenderSystem.alphaFunc(516, 0.1F);
-			RenderSystem.enableAlphaTest();
+//			RenderSystem.alphaFunc(516, 0.1F);
+//			RenderSystem.enableAlphaTest();
 			RenderSystem.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 			RenderSystem.enableBlend();
 			RenderSystem.enableDepthTest();
-			RenderSystem.enableRescaleNormal();
+//			RenderSystem.enableRescaleNormal();
 			prepareLighting(matrixStack);
 		}
 
@@ -141,8 +142,8 @@ public class GuiGameElement {
 
 		protected void cleanUpMatrix(PoseStack matrixStack) {
 			matrixStack.popPose();
-			RenderSystem.disableRescaleNormal();
-			RenderSystem.disableAlphaTest();
+//			RenderSystem.disableRescaleNormal();
+//			RenderSystem.disableAlphaTest();
 			cleanUpLighting(matrixStack);
 		}
 
@@ -222,7 +223,7 @@ public class GuiGameElement {
 			if (blockState.getBlock() instanceof FireBlock) {
 				Lighting.setupForFlatItems();
 				VirtualRenderingStateManager.runVirtually(() ->
-					blockRenderer.renderBlockAsEntity(blockState, ms, buffer, 0xF000F0, OverlayTexture.NO_OVERLAY)
+					blockRenderer.renderSingleBlock(blockState, ms, buffer, 0xF000F0, OverlayTexture.NO_OVERLAY)
 				);
 				Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 				buffer.endBatch();
@@ -275,15 +276,16 @@ public class GuiGameElement {
 			BakedModel bakedModel = renderer.getModel(stack, null, null, 0);
 
 			matrixStack.pushPose();
-			ItemRendererHelper.getTextureManager(renderer).bindTexture(TextureAtlas.LOCATION_BLOCKS);
-			ItemRendererHelper.getTextureManager(renderer).getTexture(TextureAtlas.LOCATION_BLOCKS).setBlurMipmapDirect(false, false);
-			RenderSystem.enableRescaleNormal();
-			RenderSystem.enableAlphaTest();
+			RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+
+			((ItemRendererAccessor) renderer).create$getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
+//			RenderSystem.enableRescaleNormal();
+//			RenderSystem.enableAlphaTest();
 			RenderSystem.enableCull();
-			RenderSystem.defaultAlphaFunc();
+//			RenderSystem.defaultAlphaFunc();
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+//			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			matrixStack.translate(0, 0, 100.0F + renderer.blitOffset);
 			matrixStack.translate(8.0F, -8.0F, 0.0F);
 			matrixStack.scale(16.0F, 16.0F, 16.0F);
@@ -304,8 +306,8 @@ public class GuiGameElement {
 				}
 			}
 
-			RenderSystem.disableAlphaTest();
-			RenderSystem.disableRescaleNormal();
+//			RenderSystem.disableAlphaTest();
+//			RenderSystem.disableRescaleNormal();
 			RenderSystem.enableCull();
 			matrixStack.popPose();
 		}

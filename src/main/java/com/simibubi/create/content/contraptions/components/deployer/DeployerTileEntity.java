@@ -386,7 +386,7 @@ public class DeployerTileEntity extends KineticTileEntity implements ItemTransfe
 	}
 
 //	@Override
-//	public AxisAlignedBB makeRenderBoundingBox() {
+//	public AABB makeRenderBoundingBox() {
 //		return super.makeRenderBoundingBox().inflate(3);
 //	}
 

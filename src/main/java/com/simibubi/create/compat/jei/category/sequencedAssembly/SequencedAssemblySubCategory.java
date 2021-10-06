@@ -19,7 +19,7 @@ package com.simibubi.create.compat.jei.category.sequencedAssembly;
 //
 //import mezz.jei.api.gui.ingredient.IGuiFluidStackGroup;
 //import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
-//import net.minecraft.util.text.TextFormatting;
+//import net.minecraft.util.text.ChatFormatting;
 //
 //public abstract class SequencedAssemblySubCategory {
 //
@@ -128,7 +128,7 @@ package com.simibubi.create.compat.jei.category.sequencedAssembly;
 //					if (slotIndex != index)
 //						return;
 //					tooltip.add(1, Lang.translate("recipe.deploying.not_consumed")
-//						.withStyle(TextFormatting.GOLD));
+//						.withStyle(ChatFormatting.GOLD));
 //				});
 //			}
 //

@@ -317,10 +317,10 @@ public class ServerSchematicLoader {
 			t.fillFromWorld(world, pos, bounds, true, Blocks.AIR);
 
 			try (OutputStream outputStream = Files.newOutputStream(path)) {
-				CompoundNBT nbttagcompound = t.save(new CompoundNBT());
+				CompoundTag nbttagcompound = t.save(new CompoundTag());
 				SchematicAndQuillItem.replaceStructureVoidWithAir(nbttagcompound);
-				CompressedStreamTools.writeCompressed(nbttagcompound, outputStream);
-				player.setItemInHand(Hand.MAIN_HAND, SchematicItem.create(schematic, player.getGameProfile().getName()));
+				NbtIo.writeCompressed(nbttagcompound, outputStream);
+				player.setItemInHand(InteractionHand.MAIN_HAND, SchematicItem.create(schematic, player.getGameProfile().getName()));
 
 			} catch (IOException e) {
 				e.printStackTrace();

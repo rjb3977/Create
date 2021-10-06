@@ -115,8 +115,8 @@ public class SchematicannonTileEntity extends SmartTileEntity implements MenuPro
 	public boolean firstRenderTick;
 
 //	@Override
-//	public AxisAlignedBB getRenderBoundingBox() {
-//		return new AxisAlignedBB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+//	public AABB getRenderBoundingBox() {
+//		return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 //	}
 
 	public SchematicannonTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

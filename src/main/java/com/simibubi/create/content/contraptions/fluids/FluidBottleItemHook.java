@@ -20,7 +20,7 @@ public class FluidBottleItemHook extends Item {
 //		RayTraceResult raytraceresult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
 //		if (raytraceresult.getType() != RayTraceResult.Type.BLOCK)
 //			return;
-//		BlockPos blockpos = ((BlockRayTraceResult) raytraceresult).getBlockPos();
+//		BlockPos blockpos = ((BlockHitResult) raytraceresult).getBlockPos();
 //		if (!world.mayInteract(player, blockpos))
 //			return;
 //

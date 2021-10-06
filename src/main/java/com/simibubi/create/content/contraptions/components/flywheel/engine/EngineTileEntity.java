@@ -31,7 +31,7 @@ public class EngineTileEntity extends SmartTileEntity implements IInstanceRender
 	protected AABB cachedBoundingBox;
 //	@Override
 //	@Environment(EnvType.CLIENT)
-//	public AxisAlignedBB getRenderBoundingBox() {
+//	public AABB getRenderBoundingBox() {
 //		if (cachedBoundingBox == null) {
 //			cachedBoundingBox = super.getRenderBoundingBox().inflate(1.5f);
 //		}

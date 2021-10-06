@@ -49,7 +49,7 @@ public class FlywheelTileEntity extends GeneratingKineticTileEntity {
 	}
 
 //	@Override
-//	public AxisAlignedBB makeRenderBoundingBox() {
+//	public AABB makeRenderBoundingBox() {
 //		return super.makeRenderBoundingBox().grow(2);
 //	}
 

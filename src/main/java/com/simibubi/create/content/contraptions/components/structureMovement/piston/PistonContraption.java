@@ -141,7 +141,7 @@ public class PistonContraption extends TranslatingContraption {
 			BlockPos relPos = pole.pos.relative(direction, -extensionsInFront);
 			BlockPos localPos = relPos.subtract(anchor);
 			getBlocks().put(localPos, new StructureBlockInfo(localPos, pole.state, null));
-			//pistonExtensionCollisionBox = pistonExtensionCollisionBox.union(new AxisAlignedBB(localPos));
+			//pistonExtensionCollisionBox = pistonExtensionCollisionBox.union(new AABB(localPos));
 		}
 
 		return true;

@@ -36,8 +36,8 @@ public class WaterWheelTileEntity extends GeneratingKineticTileEntity {
 	}
 
 //	@Override
-//	public AxisAlignedBB makeRenderBoundingBox() {
-//		return new AxisAlignedBB(pos).grow(1);
+//	public AABB makeRenderBoundingBox() {
+//		return new AABB(pos).grow(1);
 //	}
 
 	@Override

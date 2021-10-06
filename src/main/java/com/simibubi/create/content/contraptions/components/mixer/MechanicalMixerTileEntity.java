@@ -91,8 +91,8 @@ public class MechanicalMixerTileEntity extends BasinOperatingTileEntity {
 	}
 
 //	@Override
-//	public AxisAlignedBB makeRenderBoundingBox() {
-//		return new AxisAlignedBB(pos).expand(0, -1.5, 0);
+//	public AABB makeRenderBoundingBox() {
+//		return new AABB(pos).expand(0, -1.5, 0);
 //	}
 
 	@Override

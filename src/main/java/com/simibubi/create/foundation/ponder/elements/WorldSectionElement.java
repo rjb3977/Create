@@ -11,6 +11,12 @@ import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Vector3d;
 
+import net.minecraft.world.level.Level;
+
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+
+import net.minecraft.world.level.block.entity.BlockEntityType;
+
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -260,8 +266,13 @@ public class WorldSectionElement extends AnimatedSceneElement {
 		tickableTileEntities.removeIf(te -> scene.getWorld()
 			.getBlockEntity(te.getBlockPos()) != te);
 		tickableTileEntities.forEach(te -> {
-			if (te instanceof TickableBlockEntity)
-				((TickableBlockEntity) te).tick();
+			Level level = te.getLevel();
+			BlockPos pos = te.getBlockPos();
+			BlockState state = level.getBlockState(pos);
+			BlockEntityTicker<BlockEntity> ticker = state.getTicker(level, (BlockEntityType<BlockEntity>) te.getType());
+			if(ticker != null) {
+				ticker.tick(level, pos, state, te);
+			}
 		});
 	}
 
@@ -285,7 +296,6 @@ public class WorldSectionElement extends AnimatedSceneElement {
 				return;
 			tickableTileEntities.add(tileEntity);
 			renderedTileEntities.add(tileEntity);
-			tileEntity.clearCache();
 		});
 	}
 

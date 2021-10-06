@@ -1098,7 +1098,7 @@ package com.simibubi.create.foundation.data.recipe;
 //		return null;
 //	}
 //
-//	GeneratedRecipe blastMetalOre(Supplier<? extends IItemProvider> result, ITag.INamedTag<Item> ore) {
+//	GeneratedRecipe blastMetalOre(Supplier<? extends IItemProvider> result, Tag.Named<Item> ore) {
 //		return create(result::get).withSuffix("_from_ore")
 //			.viaCookingTag(() -> ore)
 //			.rewardXP(.1f)

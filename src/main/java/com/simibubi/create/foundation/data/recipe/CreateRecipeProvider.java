@@ -45,7 +45,7 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 
 	protected static class I {
 
-//		static ITag.INamedTag<Item> redstone() {
+//		static Tag.Named<Item> redstone() {
 //			return Tags.Items.DUSTS_REDSTONE;
 //		}
 
@@ -65,7 +65,7 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 			return AllTags.forgeItemTag("plates/gold");
 		}
 
-//		static ITag.INamedTag<Item> stone() {
+//		static Tag.Named<Item> stone() {
 //			return Tags.Items.STONE;
 //		}
 
@@ -97,7 +97,7 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 			return AllTags.forgeItemTag("plates/brass");
 		}
 
-//		static ITag.INamedTag<Item> iron() {
+//		static Tag.Named<Item> iron() {
 //			return Tags.Items.INGOTS_IRON;
 //		}
 

@@ -15,7 +15,7 @@ package com.simibubi.create.compat.jei.category;
 //import mezz.jei.api.gui.IRecipeLayout;
 //import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 //import mezz.jei.api.ingredients.IIngredients;
-//import net.minecraft.util.text.TextFormatting;
+//import net.minecraft.util.text.ChatFormatting;
 //
 //public class DeployingCategory extends CreateRecipeCategory<DeployerApplicationRecipe> {
 //
@@ -63,7 +63,7 @@ package com.simibubi.create.compat.jei.category;
 //				if (slotIndex != 1)
 //					return;
 //				tooltip.add(1, Lang.translate("recipe.deploying.not_consumed")
-//					.withStyle(TextFormatting.GOLD));
+//					.withStyle(ChatFormatting.GOLD));
 //			});
 //		}
 //

@@ -172,10 +172,10 @@ public abstract class NavigatableSimiScreen extends AbstractSimiScreen {
 			ms.translate(-dpx, -dpy, 0);
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
-			RenderSystem.disableAlphaTest();
+//			RenderSystem.disableAlphaTest();
 			UIRenderHelper.drawFramebuffer(1f - Math.abs(transitionValue));
 			RenderSystem.disableBlend();
-			RenderSystem.enableAlphaTest();
+//			RenderSystem.enableAlphaTest();
 			ms.popPose();
 		}
 

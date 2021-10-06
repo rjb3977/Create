@@ -26,7 +26,7 @@ package com.simibubi.create.compat.jei.category;
 //import net.minecraft.util.ResourceLocation;
 //import net.minecraft.util.text.ITextComponent;
 //import net.minecraft.util.text.StringTextComponent;
-//import net.minecraft.util.text.TextFormatting;
+//import net.minecraft.util.text.ChatFormatting;
 //import net.minecraftforge.fluids.FluidStack;
 //
 //public abstract class CreateRecipeCategory<T extends IRecipe<?>> implements IRecipeCategory<T> {
@@ -111,7 +111,7 @@ package com.simibubi.create.compat.jei.category;
 //			float chance = output.getChance();
 //			if (chance != 1)
 //				tooltip.add(1, Lang.translate("recipe.processing.chance", chance < 0.01 ? "<1" : (int) (chance * 100))
-//					.withStyle(TextFormatting.GOLD));
+//					.withStyle(ChatFormatting.GOLD));
 //		});
 //	}
 //
@@ -158,7 +158,7 @@ package com.simibubi.create.compat.jei.category;
 //			}
 //
 //			int amount = amounts.get(index != -1 ? 0 : slotIndex);
-//			ITextComponent text = (Lang.translate("generic.unit.millibuckets", amount)).withStyle(TextFormatting.GOLD);
+//			ITextComponent text = (Lang.translate("generic.unit.millibuckets", amount)).withStyle(ChatFormatting.GOLD);
 //			if (tooltip.isEmpty())
 //				tooltip.add(0, text);
 //			else {

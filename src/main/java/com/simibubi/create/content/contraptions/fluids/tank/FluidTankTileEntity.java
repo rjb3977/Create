@@ -302,7 +302,7 @@ public class FluidTankTileEntity extends SmartTileEntity implements IHaveGoggleI
 
 //	@Override
 //	@Environment(EnvType.CLIENT)
-//	public AxisAlignedBB getRenderBoundingBox() {
+//	public AABB getRenderBoundingBox() {
 //		if (renderBoundingBox == null) {
 //			renderBoundingBox = super.getRenderBoundingBox();
 //		}

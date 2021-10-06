@@ -107,7 +107,7 @@ package com.simibubi.create.compat.jei.category;
 //			float chance = recipe.getOutputChance();
 //			if (chance != 1)
 //				tooltip.add(1, Lang.translate("recipe.processing.chance", chance < 0.01 ? "<1" : (int) (chance * 100))
-//					.withStyle(TextFormatting.GOLD));
+//					.withStyle(ChatFormatting.GOLD));
 //		});
 //	}
 //

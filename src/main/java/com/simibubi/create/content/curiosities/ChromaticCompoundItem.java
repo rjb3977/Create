@@ -1,6 +1,9 @@
 package com.simibubi.create.content.curiosities;
 
 import java.util.Random;
+
+import com.mojang.math.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -8,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -34,6 +38,8 @@ import com.simibubi.create.lib.item.CustomDurabilityBarItem;
 import com.simibubi.create.lib.item.CustomMaxCountItem;
 import com.simibubi.create.lib.item.EntityTickListenerItem;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
+
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class ChromaticCompoundItem extends Item implements CustomDurabilityBarItem, CustomMaxCountItem, EntityTickListenerItem {
 
@@ -209,8 +215,8 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 		return false;
 	}
 
-	public boolean checkLight(ItemStack stack, ItemEntity entity, World world, CompoundNBT itemData,
-		Vector3d positionVec, BlockPos randomOffset, BlockState state) {
+	public boolean checkLight(ItemStack stack, ItemEntity entity, Level world, CompoundTag itemData,
+							  Vec3 positionVec, BlockPos randomOffset, BlockState state) {
 		if (state.getLightEmission() == 0)
 			return false;
 		if (state.getDestroySpeed(world, randomOffset) == -1)
@@ -218,7 +224,7 @@ public class ChromaticCompoundItem extends Item implements CustomDurabilityBarIt
 		if (state.getBlock() == Blocks.BEACON)
 			return false;
 
-		ClipContext context = new ClipContext(positionVec.add(new Vector3d(0, 0.5, 0)),
+		ClipContext context = new ClipContext(positionVec.add(new Vec3(0, 0.5, 0)),
 			VecHelper.getCenterOf(randomOffset), Block.COLLIDER, Fluid.NONE, entity);
 		if (!randomOffset.equals(world.clip(context)
 			.getBlockPos()))

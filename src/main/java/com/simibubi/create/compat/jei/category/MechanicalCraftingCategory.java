@@ -27,7 +27,7 @@ package com.simibubi.create.compat.jei.category;
 //import net.minecraft.item.crafting.ShapedRecipe;
 //import net.minecraft.util.NonNullList;
 //import net.minecraft.util.text.ITextComponent;
-//import net.minecraft.util.text.TextFormatting;
+//import net.minecraft.util.text.ChatFormatting;
 //import net.minecraft.util.text.TranslationTextComponent;
 //
 //public class MechanicalCraftingCategory extends CreateRecipeCategory<ICraftingRecipe> {
@@ -181,7 +181,7 @@ package com.simibubi.create.compat.jei.category;
 //			} catch (RuntimeException | LinkageError e) {
 //				List<ITextComponent> list = new ArrayList<>();
 //				TranslationTextComponent crash = new TranslationTextComponent("jei.tooltip.error.crash");
-//				list.add(crash.withStyle(TextFormatting.RED));
+//				list.add(crash.withStyle(ChatFormatting.RED));
 //				return list;
 //			}
 //		}

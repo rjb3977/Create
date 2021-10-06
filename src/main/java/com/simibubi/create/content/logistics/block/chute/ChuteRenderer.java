@@ -47,7 +47,7 @@ public class ChuteRenderer extends SafeTileEntityRenderer<ChuteTileEntity> {
 		ms.scale(itemScale, itemScale, itemScale);
 		msr.rotateX(itemPosition * 180);
 		msr.rotateY(itemPosition * 180);
-		itemRenderer.renderStatic(te.item, TransformType.FIXED, light, overlay, ms, buffer);
+		itemRenderer.renderStatic(te.item, TransformType.FIXED, light, overlay, ms, buffer, 1);
 		ms.popPose();
 	}
 

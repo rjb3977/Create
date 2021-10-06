@@ -119,7 +119,7 @@ public class ConfigModListScreen extends ConfigScreen {
 //				button.updateColorsFromState();
 //				button.modifyElement(e -> ((DelegatedStencilElement) e).withElementRenderer(BaseConfigScreen.DISABLED_RENDERER));
 //				labelTooltip.add(new StringTextComponent(toHumanReadable(id)));
-//				labelTooltip.addAll(TooltipHelper.cutTextComponent(new StringTextComponent("This Mod does not have any configs registered or is not using Forge's config system"), TextFormatting.GRAY, TextFormatting.GRAY));
+//				labelTooltip.addAll(TooltipHelper.cutTextComponent(new StringTextComponent("This Mod does not have any configs registered or is not using Forge's config system"), ChatFormatting.GRAY, ChatFormatting.GRAY));
 //			}
 //
 //			listeners.add(button);

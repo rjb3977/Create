@@ -6,7 +6,6 @@
   "refmap": "create.refmap.json",
   "mixins": [
     "ChunkStatusMixin",
-    "MinecraftMixin",
     "PlayerListMixin"
   ],
   "client": [

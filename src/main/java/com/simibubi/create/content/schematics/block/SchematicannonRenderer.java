@@ -171,7 +171,7 @@ public class SchematicannonRenderer extends SafeTileEntityRenderer<Schematicanno
 			if (launched instanceof ForEntity) {
 				float scale = 1.2f;
 				ms.scale(scale, scale, scale);
-				Minecraft.getInstance().getItemRenderer().renderStatic(launched.stack, TransformType.GROUND, light, overlay, ms, buffer);
+				Minecraft.getInstance().getItemRenderer().renderStatic(launched.stack, TransformType.GROUND, light, overlay, ms, buffer, 1);
 			}
 
 			ms.popPose();

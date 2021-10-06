@@ -22,6 +22,7 @@
     "accessor.MinecraftServerAccessor",
     "accessor.PlayerEntityAccessor",
     "accessor.RailStateAccessor",
+    "accessor.RenderTypeAccessor",
     "accessor.ServerPlayerEntityAccessor",
     "accessor.ServerPlayerGameModeAccessor",
     "accessor.ServerPlayNetHandlerAccessor",

@@ -11,7 +11,6 @@ import java.util.function.Function;
 
 import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.Create;
-import com.simibubi.create.content.palettes.PaletteBlockPattern.PatternNameType;
 import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 import com.simibubi.create.foundation.block.connected.CTSpriteShifter.CTType;
 import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
@@ -23,11 +22,10 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
 import net.minecraft.world.level.block.RotatedPillarBlock;
-import net.minecraftforge.common.Tags;
 
 public class PaletteBlockPattern {
 
@@ -35,8 +33,8 @@ public class PaletteBlockPattern {
 
 		COBBLESTONE = create("cobblestone", SUFFIX, ALL_PARTIALS)
 //			.blockTags(Tags.Blocks.COBBLESTONE)
-			.itemTags(Tags.Items.COBBLESTONE)
-			.addRecipes(v -> (c, p) -> {
+//			.itemTags(Tags.Items.COBBLESTONE)
+//			.addRecipes(v -> (c, p) -> {
 //				DataIngredient ingredient = DataIngredient.items(c.get());
 //				Block result = v.getBaseBlock().get();
 //				CookingRecipeBuilder.smelting(ingredient, result, 0.1f, 200)
@@ -107,8 +105,8 @@ public class PaletteBlockPattern {
 	private String id;
 	private boolean isTranslucent;
 	private boolean hasFoliage;
-	private ITag.INamedTag<Block>[] blockTags;
-	private ITag.INamedTag<Item>[] itemTags;
+	private Tag.Named<Block>[] blockTags;
+	private Tag.Named<Item>[] itemTags;
 	private Optional<Function<PaletteStoneVariants, ConnectedTextureBehaviour>> ctBehaviour;
 
 //	private IPatternBlockStateGenerator blockStateGenerator;
@@ -147,11 +145,11 @@ public class PaletteBlockPattern {
 		return hasFoliage;
 	}
 
-	public ITag.INamedTag<Block>[] getBlockTags() {
+	public Tag.Named<Block>[] getBlockTags() {
 		return blockTags;
 	}
 
-	public ITag.INamedTag<Item>[] getItemTags() {
+	public Tag.Named<Item>[] getItemTags() {
 		return itemTags;
 	}
 
@@ -205,13 +203,13 @@ public class PaletteBlockPattern {
 	}
 
 	@SafeVarargs
-	private final PaletteBlockPattern blockTags(ITag.INamedTag<Block>... tags) {
+	private final PaletteBlockPattern blockTags(Tag.Named<Block>... tags) {
 		blockTags = tags;
 		return this;
 	}
 
 	@SafeVarargs
-	private final PaletteBlockPattern itemTags(ITag.INamedTag<Item>... tags) {
+	private final PaletteBlockPattern itemTags(Tag.Named<Item>... tags) {
 		itemTags = tags;
 		return this;
 	}

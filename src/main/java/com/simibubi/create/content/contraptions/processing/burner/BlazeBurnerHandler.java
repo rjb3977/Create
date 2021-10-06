@@ -16,7 +16,7 @@ package com.simibubi.create.content.contraptions.processing.burner;
 //import net.minecraft.util.SoundCategory;
 //import net.minecraft.util.SoundEvents;
 //import net.minecraft.util.math.BlockPos;
-//import net.minecraft.util.math.BlockRayTraceResult;
+//import net.minecraft.util.math.BlockHitResult;
 //import net.minecraft.util.math.MathHelper;
 //import net.minecraft.util.math.RayTraceResult;
 //import net.minecraft.util.math.vector.Vector3d;
@@ -87,7 +87,7 @@ package com.simibubi.create.content.contraptions.processing.burner;
 //		ItemStack stack = entity.getItem();
 //		Potion potion = PotionUtils.getPotion(stack);
 //		if (potion == Potions.WATER && PotionUtils.getMobEffects(stack).isEmpty()) {
-//			BlockRayTraceResult result = (BlockRayTraceResult) event.getRayTraceResult();
+//			BlockHitResult result = (BlockHitResult) event.getRayTraceResult();
 //			World world = entity.level;
 //			Direction face = result.getDirection();
 //			BlockPos pos = result.getBlockPos().relative(face);

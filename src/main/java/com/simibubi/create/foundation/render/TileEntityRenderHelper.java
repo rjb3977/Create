@@ -14,6 +14,8 @@ import com.simibubi.create.Create;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.worldWrappers.PlacementSimulationWorld;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -51,7 +53,7 @@ public class TileEntityRenderHelper {
 			if (Backend.getInstance().canUseInstancing(renderWorld) && InstancedRenderRegistry.getInstance()
 					.shouldSkipRender(tileEntity)) continue;
 
-			BlockEntityRenderer<BlockEntity> renderer = BlockEntityRenderDispatcher.instance.getRenderer(tileEntity);
+			BlockEntityRenderer<BlockEntity> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(tileEntity);
 			if (renderer == null) {
 				iterator.remove();
 				continue;

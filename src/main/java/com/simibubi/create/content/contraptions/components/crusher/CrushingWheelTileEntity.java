@@ -35,8 +35,8 @@ public class CrushingWheelTileEntity extends KineticTileEntity {
 	}
 
 //	@Override
-//	public AxisAlignedBB makeRenderBoundingBox() {
-//		return new AxisAlignedBB(worldPosition).inflate(1);
+//	public AABB makeRenderBoundingBox() {
+//		return new AABB(worldPosition).inflate(1);
 //	}
 
 	@Override

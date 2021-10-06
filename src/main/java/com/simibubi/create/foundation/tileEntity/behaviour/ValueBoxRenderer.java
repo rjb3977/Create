@@ -20,13 +20,13 @@ public class ValueBoxRenderer {
 
 	public static void renderItemIntoValueBox(ItemStack filter, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-		BakedModel modelWithOverrides = itemRenderer.getModel(filter, Minecraft.getInstance().level, null);
+		BakedModel modelWithOverrides = itemRenderer.getModel(filter, Minecraft.getInstance().level, null, 1);
 		boolean blockItem = modelWithOverrides.isGui3d();
 		float scale = (!blockItem ? .5f : 1f) - 1 / 64f;
 		float zOffset = (!blockItem ? -.225f : 0) + customZOffset(filter.getItem());
 		ms.scale(scale, scale, scale);
 		ms.translate(0, 0, zOffset);
-		itemRenderer.renderStatic(filter, TransformType.FIXED, light, overlay, ms, buffer);
+		itemRenderer.renderStatic(filter, TransformType.FIXED, light, overlay, ms, buffer, 1);
 	}
 
 	private static float customZOffset(Item item) {
@@ -39,7 +39,7 @@ public class ValueBoxRenderer {
 				return NUDGE;
 			if (block instanceof FenceBlock)
 				return NUDGE;
-			if (block.is(BlockTags.BUTTONS))
+			if (BlockTags.BUTTONS.contains(block))
 				return NUDGE;
 			if (block == Blocks.END_ROD)
 				return NUDGE;

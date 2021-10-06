@@ -76,7 +76,7 @@ public class EjectorRenderer extends KineticTileEntityRenderer {
 			msr.translateBack(itemRotOffset);
 			Minecraft.getInstance()
 				.getItemRenderer()
-				.renderStatic(intAttached.getValue(), TransformType.GROUND, light, overlay, ms, buffer);
+				.renderStatic(intAttached.getValue(), TransformType.GROUND, light, overlay, ms, buffer, 1);
 			ms.popPose();
 		}
 

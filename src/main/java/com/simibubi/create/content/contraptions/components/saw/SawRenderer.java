@@ -137,7 +137,7 @@ public class SawRenderer extends SafeTileEntityRenderer<SawTileEntity> {
 				if (alongZ)
 					ms.mulPose(Vector3f.YP.rotationDegrees(90));
 				ms.mulPose(Vector3f.XP.rotationDegrees(90));
-				itemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, ms, buffer);
+				itemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, ms, buffer, 1);
 				break;
 			}
 

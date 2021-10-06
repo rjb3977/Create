@@ -352,9 +352,9 @@ public class SuperGlueEntity extends Entity implements ExtraSpawnDataEntity, ISp
 		for (InteractionHand handIn : InteractionHand.values()) {
 			ItemStack itemstack = cPlayer.getItemInHand(handIn);
 			int countBefore = itemstack.getCount();
-			InteractionResult actionResultType =
+			InteractionResult InteractionResult =
 				mc.gameMode.useItemOn(cPlayer, (ClientLevel) cPlayer.level, handIn, blockRay);
-			if (actionResultType != InteractionResult.SUCCESS)
+			if (InteractionResult != InteractionResult.SUCCESS)
 				return;
 
 			cPlayer.swing(handIn);

@@ -9,10 +9,12 @@ import com.simibubi.create.foundation.utility.ColorHandlers;
 import com.simibubi.create.foundation.utility.Lang;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.builders.ItemBuilder;
-import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
 public class PalettesVariantEntry {
@@ -38,11 +40,11 @@ public class PalettesVariantEntry {
 			ItemBuilder<BlockItem, ? extends BlockBuilder<? extends Block, CreateRegistrate>> itemBuilder =
 				builder.item();
 
-			ITag.INamedTag<Block>[] blockTags = pattern.getBlockTags();
+			Tag.Named<Block>[] blockTags = pattern.getBlockTags();
 			if (blockTags != null) {
 				builder.tag(blockTags);
 			}
-			ITag.INamedTag<Item>[] itemTags = pattern.getItemTags();
+			Tag.Named<Item>[] itemTags = pattern.getItemTags();
 			if (itemTags != null) {
 				itemBuilder.tag(itemTags);
 			}
@@ -54,7 +56,7 @@ public class PalettesVariantEntry {
 				itemBuilder.color(() -> ColorHandlers::getGrassyItem);
 			}
 			pattern.createCTBehaviour(variant)
-				.ifPresent(b -> builder.onRegister(connectedTextures(b))); // this is from upstream and it somehow compiles?
+				.ifPresent(b -> builder.onRegister(connectedTextures(b))); // this error is from upstream and it somehow compiles?
 
 //			builder.recipe((c, p) -> {
 //				p.stonecutting(DataIngredient.items(variant.getBaseBlock()
