@@ -4,7 +4,7 @@
   "package": "com.simibubi.create.lib.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "accessor.AbstractList$AbstractListEntryAccessor",
+    "accessor.AbstractSelectionList$EntryAccessor",
     "accessor.AbstractSelectionListAccessor",
     "accessor.AbstractMinecartAccessor",
     "accessor.BaseSpawnerAccessor",
@@ -57,7 +57,6 @@
     "common.Matrix3fMixin",
     "common.Matrix4fMixin",
     "common.MobMixin",
-    "common.PacketBufferMixin",
     "common.PlayerMixin",
     "common.RailStateMixin",
     "common.RedStoneWireBlockMixin",
