@@ -1,7 +1,7 @@
 package com.simibubi.create.lib.helper;
 
 import com.simibubi.create.lib.extensions.AbstractMinecartEntityExtensions;
-import com.simibubi.create.lib.mixin.accessor.AbstractMinecartEntityAccessor;
+import com.simibubi.create.lib.mixin.accessor.AbstractMinecartAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
@@ -17,7 +17,7 @@ public final class AbstractMinecartEntityHelper {
 	}
 
 	public static double getMaximumSpeed(AbstractMinecart entity) {
-		return ((AbstractMinecartEntityAccessor) MixinHelper.cast(entity)).create$getMaxSpeed();
+		return ((AbstractMinecartAccessor) MixinHelper.cast(entity)).create$getMaxSpeed();
 	}
 
 	public static float getMaximumSpeedF(AbstractMinecart entity) {

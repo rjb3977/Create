@@ -1,9 +1,7 @@
 package com.simibubi.create.foundation.config.ui;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -14,7 +12,7 @@ import javax.annotation.Nullable;
 import com.simibubi.create.lib.mixin.accessor.ScreenAccessor;
 
 import org.lwjgl.glfw.GLFW;
-import com.google.common.collect.Lists;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.ui.ConfigScreenList.LabeledEntry;
@@ -37,7 +35,7 @@ import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.lib.config.Config;
 import com.simibubi.create.lib.config.ConfigValue;
-import com.simibubi.create.lib.mixin.accessor.AbstractListAccessor;
+import com.simibubi.create.lib.mixin.accessor.AbstractSelectionListAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -219,7 +217,7 @@ public class SubMenuConfigScreen extends ConfigScreen {
 		widgets.add(goBack);
 
 		list = new ConfigScreenList(minecraft, listWidth, height - 80, 35, height - 45, 40);
-		list.setLeftPos(this.width / 2 - ((AbstractListAccessor) list).getWidth() / 2);
+		list.setLeftPos(this.width / 2 - ((AbstractSelectionListAccessor) list).getWidth() / 2);
 
 		((ScreenAccessor) this).create$getChildren().add(list);
 

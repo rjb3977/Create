@@ -19,7 +19,7 @@ import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.linked.LinkBehaviour;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.lib.mixin.accessor.KeyBindingAccessor;
+import com.simibubi.create.lib.mixin.accessor.KeyMappingAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -115,7 +115,7 @@ public class LinkedControllerClientHandler {
 		return InputConstants.isKeyDown(Minecraft.getInstance()
 			.getWindow()
 			.getWindow(),
-				((KeyBindingAccessor) kb).create$key()
+				((KeyMappingAccessor) kb).create$key()
 				.getValue());
 	}
 

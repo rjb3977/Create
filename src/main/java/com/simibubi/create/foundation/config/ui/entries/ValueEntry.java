@@ -15,9 +15,7 @@ import com.simibubi.create.foundation.config.ui.ConfigHelper;
 import com.simibubi.create.foundation.utility.Pair;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
-import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.base.Predicates;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,7 +26,7 @@ import com.simibubi.create.foundation.gui.DelegatedStencilElement;
 import com.simibubi.create.foundation.gui.widgets.BoxWidget;
 import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.lib.config.ConfigValue;
-import com.simibubi.create.lib.mixin.accessor.AbstractList$AbstractListEntryAccessor;
+import com.simibubi.create.lib.mixin.accessor.AbstractSelectionList$EntryAccessor;
 
 public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 
@@ -147,7 +145,7 @@ public class ValueEntry<T> extends ConfigScreenList.LabeledEntry {
 
 	protected void bumpCog() {bumpCog(10f);}
 	protected void bumpCog(float force) {
-		if (((AbstractList$AbstractListEntryAccessor) this).getList() != null && ((AbstractList$AbstractListEntryAccessor) this).getList() instanceof ConfigScreenList)
-			((ConfigScreenList) ((AbstractList$AbstractListEntryAccessor) this).getList()).bumpCog(force);
+		if (((AbstractSelectionList$EntryAccessor) this).getList() != null && ((AbstractSelectionList$EntryAccessor) this).getList() instanceof ConfigScreenList)
+			((ConfigScreenList) ((AbstractSelectionList$EntryAccessor) this).getList()).bumpCog(force);
 	}
 }

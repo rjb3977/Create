@@ -28,6 +28,7 @@ public abstract class FogRendererMixin {
 
 	@Shadow
 	private static float fogBlue;
+
 //TODO: Move this idk where
 //	@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;clearColor(FFFF)V"),
 //			method = "render(Lnet/minecraft/client/renderer/ActiveRenderInfo;FLnet/minecraft/client/world/ClientWorld;IF)V")

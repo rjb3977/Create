@@ -92,7 +92,7 @@ public abstract class LivingEntityMixin extends Entity {
 				.onEntitySwing(stack, (LivingEntity) (Object) this)) ci.cancel();
 	}
 
-	@Inject(method = "tick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;tick()V"))
+	@Inject(method = "tick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;tick()V"))
 	private void create$tick(CallbackInfo ci) {
 		LivingEntityEvents.TICK.invoker().onLivingEntityTick((LivingEntity) (Object) this);
 	}
@@ -110,7 +110,7 @@ public abstract class LivingEntityMixin extends Entity {
 		return LivingEntityEvents.EXPERIENCE_DROP.invoker().onLivingEntityExperienceDrop(i, lastHurtByPlayer);
 	}
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/server/ServerWorld;spawnParticle(Lnet/minecraft/particles/IParticleData;DDDIDDDD)I", shift = At.Shift.BEFORE),
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I", shift = At.Shift.BEFORE),
 			locals = LocalCapture.CAPTURE_FAILHARD,
 			method = "checkFallDamage", cancellable = true)
 	protected void create$updateFallState(double d, boolean bl, BlockState blockState, BlockPos blockPos, CallbackInfo ci,
@@ -122,7 +122,7 @@ public abstract class LivingEntityMixin extends Entity {
 	}
 
 	// TODO Make this less :concern: when fabric's mixin fork updates
-	@ModifyVariable(at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/block/Block;getSlipperiness()F"),
+	@ModifyVariable(at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/level/block/Block;getFriction()F"),
 			method = "travel",
 			index = 7)
 	public float create$setSlipperiness(float t) {
@@ -130,7 +130,7 @@ public abstract class LivingEntityMixin extends Entity {
 				.create$getSlipperiness(MixinHelper.<LivingEntity>cast(this).level, getBlockPosBelowThatAffectsMyMovement(), MixinHelper.<LivingEntity>cast(this));
 	}
 
-	//Moved from MobEntityMixin
+	//Moved from MobMixin
 	@Inject(at = @At("HEAD"), method = "getEquipmentSlotForItem", cancellable = true)
 	private static void create$getSlotForItemStack(ItemStack itemStack, CallbackInfoReturnable<EquipmentSlot> cir) {
 		if (itemStack.getItem() instanceof EquipmentItem) {

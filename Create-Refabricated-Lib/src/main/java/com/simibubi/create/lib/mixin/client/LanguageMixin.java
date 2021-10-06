@@ -19,18 +19,18 @@ import net.minecraft.client.resources.language.LanguageInfo;
 @Environment(EnvType.CLIENT)
 @Mixin(LanguageInfo.class)
 public abstract class LanguageMixin implements LanguageExtensions {
+
 	@Shadow
 	@Final
-	private String languageCode;
-
+	private String code;
 	@Unique
 	private Locale create$javaLocale;
 
 	@Inject(at = @At("TAIL"), method = "<init>")
 	private void create$addLocale(String string, String string2, String string3, boolean bl, CallbackInfo ci) {
-		String[] splitLangCode = languageCode.split("_", 2);
+		String[] splitLangCode = code.split("_", 2);
 		if (splitLangCode.length == 1) { // Vanilla has some languages without underscores
-			this.create$javaLocale = new Locale(languageCode);
+			this.create$javaLocale = new Locale(code);
 		} else {
 			this.create$javaLocale = new Locale(splitLangCode[0], splitLangCode[1]);
 		}

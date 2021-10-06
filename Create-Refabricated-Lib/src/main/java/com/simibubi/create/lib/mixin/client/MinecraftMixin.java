@@ -1,5 +1,6 @@
 package com.simibubi.create.lib.mixin.client;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,16 +27,18 @@ import net.minecraft.client.player.LocalPlayer;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 	@Shadow
-	public ClientLevel world;
-	@Shadow
 	public LocalPlayer player;
 
-	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;particles:Lnet/minecraft/client/particle/ParticleManager;", shift = Shift.AFTER), method = "<init>")
+	@Shadow
+	@Nullable
+	public ClientLevel level;
+
+	@Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;particleEngine:Lnet/minecraft/client/particle/ParticleEngine;", shift = Shift.AFTER), method = "<init>")
 	public void create$registerParticleManagers(GameConfig gameConfiguration, CallbackInfo ci) {
 		ParticleManagerRegistrationCallback.EVENT.invoker().onParticleManagerRegistration();
 	}
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/resources/SimpleReloadableResourceManager;<init>(Lnet/minecraft/resources/ResourcePackType;)V"),
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/SimpleReloadableResourceManager;<init>(Lnet/minecraft/server/packs/PackType;)V"),
 			method = "<init>")
 	// should inject to right after the initialization of resourceManager
 	public void create$instanceRegistration(GameConfig args, CallbackInfo ci) {
@@ -44,22 +47,22 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	public void create$onHeadJoinWorld(ClientLevel world, CallbackInfo ci) {
-		if (this.world != null) {
-			ClientWorldEvents.UNLOAD.invoker().onWorldUnload((Minecraft) (Object) this, this.world);
+		if (this.level != null) {
+			ClientWorldEvents.UNLOAD.invoker().onWorldUnload((Minecraft) (Object) this, this.level);
 		}
 	}
 
 	@Inject(at = @At(value = "JUMP", opcode = Opcodes.IFNULL, ordinal = 1, shift = Shift.AFTER), method = "clearLevel(Lnet/minecraft/client/gui/screens/Screen;)V")
 	public void create$onDisconnect(Screen screen, CallbackInfo ci) {
-		ClientWorldEvents.UNLOAD.invoker().onWorldUnload((Minecraft) (Object) this, this.world);
+		ClientWorldEvents.UNLOAD.invoker().onWorldUnload((Minecraft) (Object) this, this.level);
 	}
 
-	@Inject(method = "startAttack()V", at = @At(value = "FIELD", ordinal = 2, target = "Lnet/minecraft/client/Minecraft;player:Lnet/minecraft/client/entity/player/ClientPlayerEntity;"))
+	@Inject(method = "startAttack()V", at = @At(value = "FIELD", ordinal = 2, target = "Lnet/minecraft/client/Minecraft;player:Lnet/minecraft/client/player/LocalPlayer;"))
 	private void create$onClickMouse(CallbackInfo ci) {
 		LeftClickAirCallback.EVENT.invoker().onLeftClickAir(player);
 	}
 
-	@Inject(method = "runTick(Z)V", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gui/toasts/ToastGui;draw(Lcom/mojang/blaze3d/matrix/MatrixStack;)V"))
+	@Inject(method = "runTick(Z)V", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gui/components/toasts/ToastComponent;render(Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
 	private void create$renderTickStart(CallbackInfo ci) {
 		RenderTickStartCallback.EVENT.invoker().tick();
 	}

@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.helper;
 
-import com.simibubi.create.lib.mixin.accessor.SPlayerAbilitiesPacketAccessor;
+import com.simibubi.create.lib.mixin.accessor.ClientboundPlayerAbilitiesPacketAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 
@@ -9,7 +9,7 @@ public final class SPlayerAbilitiesPacketHelper {
 		get(sPlayerAbilitiesPacket).create$flySpeed(speed);
 	}
 
-	private static SPlayerAbilitiesPacketAccessor get(ClientboundPlayerAbilitiesPacket sPlayerAbilitiesPacket) {
+	private static ClientboundPlayerAbilitiesPacketAccessor get(ClientboundPlayerAbilitiesPacket sPlayerAbilitiesPacket) {
 		return MixinHelper.cast(sPlayerAbilitiesPacket);
 	}
 

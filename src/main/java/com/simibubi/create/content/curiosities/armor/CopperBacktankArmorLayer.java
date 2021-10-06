@@ -12,8 +12,7 @@ import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.lib.helper.EntityRendererManagerHelper;
-import com.simibubi.create.lib.helper.LivingRendererHelper;
-import com.simibubi.create.lib.mixin.accessor.EntityRendererManagerAccessor;
+import com.simibubi.create.lib.mixin.accessor.EntityRenderDispatcherAccessor;
 import com.simibubi.create.lib.mixin.accessor.LivingEntityRendererAccessor;
 import com.simibubi.create.lib.utility.ExtraDataUtil;
 
@@ -30,7 +29,6 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -94,7 +92,7 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 	}
 
 	public static void registerOnAll(EntityRenderDispatcher renderManager) {
-		for (EntityRenderer<? extends Player> renderer : ((EntityRendererManagerAccessor) renderManager).getPlayerRenderers().values())
+		for (EntityRenderer<? extends Player> renderer : ((EntityRenderDispatcherAccessor) renderManager).getPlayerRenderers().values())
 			registerOn(renderer);
 		for (EntityRenderer<?> renderer : EntityRendererManagerHelper.getRenderers(renderManager).values())
 			registerOn(renderer);
@@ -108,7 +106,7 @@ public class CopperBacktankArmorLayer<T extends LivingEntity, M extends EntityMo
 		if (!(livingRenderer.getModel() instanceof HumanoidModel))
 			return;
 		CopperBacktankArmorLayer<?, ?> layer = new CopperBacktankArmorLayer<>(livingRenderer);
-		((LivingEntityRendererAccessor) livingRenderer).invokeAddLayer((CopperBacktankArmorLayer) layer);
+		((LivingEntityRendererAccessor) livingRenderer).create$addLayer(layer);
 	}
 
 	public static void renderRemainingAirOverlay(PoseStack ms, BufferSource buffers, int light, int overlay, float pt) {

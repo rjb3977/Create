@@ -7,7 +7,7 @@ import com.simibubi.create.foundation.gui.Theme;
 import com.simibubi.create.foundation.gui.UIRenderHelper;
 import com.simibubi.create.foundation.gui.widgets.BoxWidget;
 import com.simibubi.create.lib.config.ConfigValue;
-import com.simibubi.create.lib.mixin.accessor.WidgetAccessor;
+import com.simibubi.create.lib.mixin.accessor.AbstractWidgetAccessor;
 
 public class BooleanEntry extends ValueEntry<Boolean> {
 
@@ -53,7 +53,7 @@ public class BooleanEntry extends ValueEntry<Boolean> {
 		button.x = x + width - 80 - resetWidth;
 		button.y = y + 10;
 		button.setWidth(35);
-		((WidgetAccessor) button).setHeight(height - 20);
+		((AbstractWidgetAccessor) button).setHeight(height - 20);
 		button.render(ms, mouseX, mouseY, partialTicks);
 	}
 

@@ -7,7 +7,7 @@ import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.DelegatedStencilElement;
 import com.simibubi.create.foundation.gui.ScreenOpener;
 import com.simibubi.create.foundation.gui.widgets.BoxWidget;
-import com.simibubi.create.lib.mixin.accessor.WidgetAccessor;
+import com.simibubi.create.lib.mixin.accessor.AbstractWidgetAccessor;
 
 public class SubMenuEntry extends ConfigScreenList.LabeledEntry {
 
@@ -36,7 +36,7 @@ public class SubMenuEntry extends ConfigScreenList.LabeledEntry {
 
 		button.x = x + width - 108;
 		button.y = y + 10;
-		((WidgetAccessor) button).setHeight(height - 20);
+		((AbstractWidgetAccessor) button).setHeight(height - 20);
 		button.render(ms, mouseX, mouseY, partialTicks);
 	}
 

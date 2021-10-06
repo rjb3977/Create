@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.helper;
 
-import com.simibubi.create.lib.mixin.accessor.FontRendererAccessor;
+import com.simibubi.create.lib.mixin.accessor.FontAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.fabricmc.api.EnvType;
@@ -16,7 +16,7 @@ public final class FontRendererHelper {
 		return get(renderer).create$getFontSet(location);
 	}
 
-	private static FontRendererAccessor get(Font renderer) {
+	private static FontAccessor get(Font renderer) {
 		return MixinHelper.cast(renderer);
 	}
 

@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.helper;
 
-import com.simibubi.create.lib.mixin.accessor.ServerPlayNetHandlerAccessor;
+import com.simibubi.create.lib.mixin.accessor.ServerGamePacketListenerImplAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
@@ -13,7 +13,7 @@ public final class ServerPlayNetHandlerHelper {
 		get(handler).create$floatingTickCount(floatingTickCount);
 	}
 
-	private static ServerPlayNetHandlerAccessor get(ServerGamePacketListenerImpl handler) {
+	private static ServerGamePacketListenerImplAccessor get(ServerGamePacketListenerImpl handler) {
 		return MixinHelper.cast(handler);
 	}
 

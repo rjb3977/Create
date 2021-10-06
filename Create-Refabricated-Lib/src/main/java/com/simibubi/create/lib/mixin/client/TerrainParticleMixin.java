@@ -1,0 +1,48 @@
+package com.simibubi.create.lib.mixin.client;
+
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+
+import com.simibubi.create.lib.extensions.DiggingParticleExtensions;
+import com.simibubi.create.lib.utility.MixinHelper;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.TerrainParticle;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Environment(EnvType.CLIENT)
+@Mixin(TerrainParticle.class)
+public abstract class TerrainParticleMixin extends TextureSheetParticle implements DiggingParticleExtensions {
+	@Unique
+	private BlockState create$state;
+
+	private TerrainParticleMixin(ClientLevel clientWorld, double d, double e, double f) {
+		super(clientWorld, d, e, f);
+		throw new AssertionError("Create Refabricated's TerrainParticleMixin dummy constructor called!");
+	}
+
+	@Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/client/multiplayer/ClientLevel;DDDDDDLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V")
+	private void create$init(ClientLevel clientLevel, double d, double e, double f, double g, double h, double i, BlockState blockState, BlockPos blockPos, CallbackInfo ci) {
+		this.create$state = blockState;
+	}
+
+	@Override
+	@Unique
+	public Particle create$updateSprite(BlockPos pos) {
+		if (pos != null)
+			this.setSprite(Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(create$state));
+		return MixinHelper.cast(this);
+	}
+}

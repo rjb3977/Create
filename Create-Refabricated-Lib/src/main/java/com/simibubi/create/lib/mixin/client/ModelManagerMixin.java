@@ -23,16 +23,17 @@ import net.minecraft.util.profiling.ProfilerFiller;
 @Environment(EnvType.CLIENT)
 @Mixin(ModelManager.class)
 public abstract class ModelManagerMixin implements ModelManagerExtensions {
-	@Shadow
-	private Map<ResourceLocation, BakedModel> modelRegistry;
 
-	@Inject(at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/profiler/IProfiler;endStartSection(Ljava/lang/String;)V", args = "ldc=cache", shift = At.Shift.BEFORE), method = "apply")
+	@Shadow
+	private Map<ResourceLocation, BakedModel> bakedRegistry;
+
+	@Inject(at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = "ldc=cache", shift = At.Shift.BEFORE), method = "apply")
 	public void create$onModelBake(ModelBakery modelLoader, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
-		ModelsBakedCallback.EVENT.invoker().onModelsBaked((ModelManager) (Object) this, modelRegistry, modelLoader);
+		ModelsBakedCallback.EVENT.invoker().onModelsBaked((ModelManager) (Object) this, bakedRegistry, modelLoader);
 	}
 
 	@Override
 	public BakedModel create$getModel(ResourceLocation id) {
-		return modelRegistry.get(id);
+		return bakedRegistry.get(id);
 	}
 }

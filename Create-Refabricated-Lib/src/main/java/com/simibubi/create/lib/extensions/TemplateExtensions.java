@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
 import com.google.common.collect.Lists;
-import com.simibubi.create.lib.mixin.accessor.TemplateAccessor;
+import com.simibubi.create.lib.mixin.accessor.StructureTemplateAccessor;
 
 public interface TemplateExtensions {
 	List<StructureTemplate.StructureEntityInfo> create$getEntities();
@@ -55,7 +55,7 @@ public interface TemplateExtensions {
 				listnbt.add(DoubleTag.valueOf(vector3d1.z));
 				compoundnbt.put("Pos", listnbt);
 				compoundnbt.remove("UUID");
-				TemplateAccessor.createEntityIgnoreException(world, compoundnbt).ifPresent((entity) -> {
+				StructureTemplateAccessor.createEntityIgnoreException(world, compoundnbt).ifPresent((entity) -> {
 					float f = entity.mirror(settings.getMirror());
 					f = f + (entity.getYRot() - entity.rotate(settings.getRotation()));
 					entity.moveTo(vector3d1.x, vector3d1.y, vector3d1.z, f, entity.getXRot());

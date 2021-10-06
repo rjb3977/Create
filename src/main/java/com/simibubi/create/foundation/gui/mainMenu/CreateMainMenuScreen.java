@@ -31,7 +31,7 @@ import com.simibubi.create.foundation.ponder.content.PonderTagIndexScreen;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 
-import com.simibubi.create.lib.mixin.accessor.MainMenuScreenAccessor;
+import com.simibubi.create.lib.mixin.accessor.TitleScreenAccessor;
 
 public class CreateMainMenuScreen extends AbstractSimiScreen {
 
@@ -51,7 +51,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		this.parent = parent;
 		returnOnClose = true;
 		if (parent instanceof TitleScreen)
-			vanillaPanorama = ((MainMenuScreenAccessor) parent).getPanorama();
+			vanillaPanorama = ((TitleScreenAccessor) parent).getPanorama();
 	}
 
 	@Override

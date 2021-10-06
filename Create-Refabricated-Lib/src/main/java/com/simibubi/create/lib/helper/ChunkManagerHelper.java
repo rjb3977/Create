@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.helper;
 
-import com.simibubi.create.lib.mixin.accessor.ChunkManagerAccessor;
+import com.simibubi.create.lib.mixin.accessor.ChunkMapAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -24,7 +24,7 @@ public final class ChunkManagerHelper {
 		get(chunkManager).create$scheduleUnload(l, chunkHolder);
 	}
 
-	private static ChunkManagerAccessor get(ChunkMap chunkManager) {
+	private static ChunkMapAccessor get(ChunkMap chunkManager) {
 		return MixinHelper.cast(chunkManager);
 	}
 

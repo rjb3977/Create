@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.helper;
 
-import com.simibubi.create.lib.mixin.accessor.AbstractSpawnerAccessor;
+import com.simibubi.create.lib.mixin.accessor.BaseSpawnerAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.minecraft.util.random.WeightedRandomList;
@@ -16,7 +16,7 @@ public final class AbstractSpawnerHelper {
 		return get(abstractSpawner).create$nextSpawnData();
 	}
 
-	private static AbstractSpawnerAccessor get(BaseSpawner abstractSpawner) {
+	private static BaseSpawnerAccessor get(BaseSpawner abstractSpawner) {
 		return MixinHelper.cast(abstractSpawner);
 	}
 

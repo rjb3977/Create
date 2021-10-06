@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.helper;
 
-import com.simibubi.create.lib.mixin.accessor.ClientPlayNetHandlerAccessor;
+import com.simibubi.create.lib.mixin.accessor.ClientPacketListenerAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 
@@ -10,7 +10,7 @@ public final class ClientPlayNetHandlerHelper {
 		return get(clientPlayNetHandler).create$viewDistance();
 	}
 
-	private static ClientPlayNetHandlerAccessor get(ClientPacketListener clientPlayNetHandler) {
+	private static ClientPacketListenerAccessor get(ClientPacketListener clientPlayNetHandler) {
 		return MixinHelper.cast(clientPlayNetHandler);
 	}
 

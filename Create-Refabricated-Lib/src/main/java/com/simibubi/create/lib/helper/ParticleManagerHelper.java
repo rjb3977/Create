@@ -1,7 +1,7 @@
 package com.simibubi.create.lib.helper;
 
 import com.simibubi.create.lib.extensions.ParticleManagerExtensions;
-import com.simibubi.create.lib.mixin.accessor.ParticleManagerAccessor;
+import com.simibubi.create.lib.mixin.accessor.ParticleEngineAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -26,7 +26,7 @@ public final class ParticleManagerHelper {
 	}
 
 	public static Int2ObjectMap<ParticleProvider<?>> getFactories(ParticleEngine manager) {
-		return ((ParticleManagerAccessor) manager).getProviders();
+		return ((ParticleEngineAccessor) manager).getProviders();
 	}
 
 	private static ParticleManagerExtensions get(ParticleEngine manager) {

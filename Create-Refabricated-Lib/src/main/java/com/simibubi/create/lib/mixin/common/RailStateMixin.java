@@ -57,7 +57,7 @@ public abstract class RailStateMixin {
 	@Shadow
 	protected abstract boolean hasConnection(BlockPos blockPos);
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/RailState;reset(Lnet/minecraft/state/properties/RailShape;)V", shift = At.Shift.BEFORE),
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/RailState;updateConnections(Lnet/minecraft/world/level/block/state/properties/RailShape;)V", shift = At.Shift.BEFORE),
 			method = "<init>")
 	public void create$RailState(Level world, BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
 		create$canMakeSlopes = true;
