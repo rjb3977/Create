@@ -100,6 +100,7 @@ public class FluidValveBlock extends DirectionalAxisKineticBlock implements IAxi
 
 	@Override
 	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
+		super.onPlace(state, world, pos, oldState, isMoving);
 		if (world.isClientSide)
 			return;
 		if (state != oldState)

@@ -155,6 +155,7 @@ public class ClientEvents {
 		CreateClient.GHOST_BLOCKS.tickGhosts();
 		ContraptionRenderDispatcher.tick(world);
 		BlueprintOverlayRenderer.tick();
+		ToolboxHandlerClient.clientTick();
 	}
 
 	public static void onJoin(ClientPacketListener handler, PacketSender sender, Minecraft client) {
@@ -230,6 +231,7 @@ public class ClientEvents {
 		LinkedControllerClientHandler.renderOverlay(ms, buffer, light, overlay, partialTicks);
 		BlueprintOverlayRenderer.renderOverlay(ms, buffer, light, overlay, partialTicks);
 		GoggleOverlayRenderer.renderOverlay(ms, buffer, light, overlay, partialTicks);
+		ToolboxHandlerClient.renderOverlay(ms, buffer, light, overlay, partialTicks);
 	}
 
 	public static RenderTooltipBorderColorCallback.BorderColorEntry getItemTooltipColor(ItemStack stack,

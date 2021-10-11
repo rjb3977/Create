@@ -12,6 +12,7 @@ public enum AllKeys {
 	TOOL_MENU("toolmenu", GLFW.GLFW_KEY_LEFT_ALT),
 	// TODO maybe one day we can set things up so it doesn't overwrite the sprint keybind when on left ctrl
 	ACTIVATE_TOOL("", GLFW.GLFW_KEY_RIGHT_CONTROL),
+	TOOLBELT("toolbelt", GLFW.GLFW_KEY_LEFT_ALT),
 
 	;
 

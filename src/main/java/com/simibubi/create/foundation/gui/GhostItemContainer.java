@@ -3,69 +3,31 @@ package com.simibubi.create.foundation.gui;
 import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
 import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+public abstract class GhostItemContainer<T> extends ContainerBase<T> implements IClearableContainer {
 
-public abstract class GhostItemContainer<T> extends AbstractContainerMenu implements IClearableContainer {
-
-	public Player player;
-	public Inventory playerInventory;
 	public ItemStackHandler ghostInventory;
-	public T contentHolder;
 
 	protected GhostItemContainer(MenuType<?> type, int id, Inventory inv, FriendlyByteBuf extraData) {
-		super(type, id);
-		init(inv, createOnClient(extraData));
+		super(type, id, inv, extraData);
 	}
 
 	protected GhostItemContainer(MenuType<?> type, int id, Inventory inv, T contentHolder) {
-		super(type, id);
-		init(inv, contentHolder);
+		super(type, id, inv, contentHolder);
 	}
-
-	@Environment(EnvType.CLIENT)
-	protected abstract T createOnClient(FriendlyByteBuf extraData);
-
-	protected abstract void addSlots();
 
 	protected abstract ItemStackHandler createGhostInventory();
 
-	protected abstract void readData(T contentHolder);
-
-	protected abstract void saveData(T contentHolder);
-
 	protected abstract boolean allowRepeats();
 
-	protected void init(Inventory inv, T contentHolder) {
-		player = inv.player;
-		playerInventory = inv;
-		this.contentHolder = contentHolder;
+	@Override
+	protected void initAndReadInventory(T contentHolder) {
 		ghostInventory = createGhostInventory();
-		readData(contentHolder);
-		addSlots();
-		broadcastChanges();
 	}
 
 	@Override
 	public void clearContents() {
 		for (int i = 0; i < ghostInventory.getSlots(); i++)
 			ghostInventory.setStackInSlot(i, ItemStack.EMPTY);
-	}
-
-	protected void addPlayerSlots(int x, int y) {
-		for (int hotbarSlot = 0; hotbarSlot < 9; ++hotbarSlot)
-			this.addSlot(new Slot(playerInventory, hotbarSlot, x + hotbarSlot * 18, y + 58));
-		for (int row = 0; row < 3; ++row)
-			for (int col = 0; col < 9; ++col)
-				this.addSlot(new Slot(playerInventory, col + row * 9 + 9, x + col * 18, y + row * 18));
 	}
 
 	@Override
@@ -135,10 +97,6 @@ public abstract class GhostItemContainer<T> extends AbstractContainerMenu implem
 		return ItemStack.EMPTY;
 	}
 
-	@Override
-	public void removed(Player playerIn) {
-		super.removed(playerIn);
-		saveData(contentHolder);
-	}
+
 
 }

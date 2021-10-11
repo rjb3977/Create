@@ -177,11 +177,6 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements MenuPr
 		return Lang.translate("gui.adjustable_crate.title");
 	}
 
-	public void sendToContainer(FriendlyByteBuf buffer) {
-		buffer.writeBlockPos(getBlockPos());
-		buffer.writeNbt(getUpdateTag());
-	}
-
 	@Override
 	public void setRemoved() {
 		super.setRemoved();

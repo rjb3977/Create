@@ -10,6 +10,7 @@ import com.simibubi.create.CreateClient;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.Lang;
+import com.simibubi.create.foundation.utility.NBTHelper;
 import com.simibubi.create.foundation.utility.NBTProcessors;
 import com.simibubi.create.lib.extensions.ItemExtensions;
 import com.simibubi.create.lib.item.EntitySwingListenerItem;
@@ -93,7 +94,7 @@ public abstract class ZapperItem extends Item implements EntitySwingListenerItem
 			.isShiftKeyDown()) {
 			if (context.getLevel().isClientSide) {
 				EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> {
-					openHandgunGUI(context.getItemInHand(), context.getHand() == InteractionHand.OFF_HAND);
+					openHandgunGUI(context.getItemInHand(), context.getHand());
 				});
 				context.getPlayer()
 					.getCooldowns()
@@ -115,7 +116,7 @@ public abstract class ZapperItem extends Item implements EntitySwingListenerItem
 		if (player.isShiftKeyDown()) {
 			if (world.isClientSide) {
 				EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> {
-					openHandgunGUI(item, hand == InteractionHand.OFF_HAND);
+					openHandgunGUI(item, hand);
 				});
 				player.getCooldowns()
 					.addCooldown(item.getItem(), 10);
@@ -190,7 +191,7 @@ public abstract class ZapperItem extends Item implements EntitySwingListenerItem
 		BlockHitResult raytrace, CompoundTag data);
 
 	@Environment(EnvType.CLIENT)
-	protected abstract void openHandgunGUI(ItemStack item, boolean b);
+	protected abstract void openHandgunGUI(ItemStack item, Hand hand);
 
 	protected abstract int getCooldownDelay(ItemStack item);
 
@@ -213,6 +214,11 @@ public abstract class ZapperItem extends Item implements EntitySwingListenerItem
 	@Override
 	public UseAnim getUseAnimation(ItemStack stack) {
 		return UseAnim.NONE;
+	}
+
+	public static void configureSettings(ItemStack stack, PlacementPatterns pattern) {
+		CompoundNBT nbt = stack.getOrCreateTag();
+		NBTHelper.writeEnum(nbt, "Pattern", pattern);
 	}
 
 	public static void setTileData(Level world, BlockPos pos, BlockState state, CompoundTag data, Player player) {

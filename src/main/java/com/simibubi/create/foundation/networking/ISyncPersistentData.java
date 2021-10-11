@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.networking;
 
-import java.util.Iterator;
+import java.util.HashSet;
 
 import com.simibubi.create.lib.helper.EntityHelper;
 
@@ -49,17 +49,16 @@ public interface ISyncPersistentData {
 		public void handle(Minecraft client, ClientPacketListener handler, SimpleChannel.ResponseTarget responseTarget) {
 			client
 					.execute(() -> {
-						Entity entityByID = Minecraft.getInstance().level.getEntity(entityId);
-						if (!(entityByID instanceof ISyncPersistentData))
-							return;
+					Entity entityByID = Minecraft.getInstance().level.getEntity(entityId);
 						CompoundTag data = EntityHelper.getExtraCustomData(entityByID);
-						for (Iterator<String> iterator = data.getAllKeys()
-								.iterator(); iterator.hasNext(); ) {
-							data.remove(iterator.next());
-						}
-						data.merge(readData);
-						((ISyncPersistentData) entityByID).onPersistentDataUpdated();
-					});
+					new HashSet<>(data.getAllKeys()).forEach(data::remove);
+					data.merge(readData);
+					if (!(entityByID instanceof ISyncPersistentData))
+						return;
+					((ISyncPersistentData) entityByID).onPersistentDataUpdated();
+				});
+			context.get()
+				.setPacketHandled(true);
 		}
 	}
 

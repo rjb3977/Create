@@ -82,6 +82,7 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements ITE<Wate
 
 	@Override
 	public void onPlace(BlockState state, Level worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
+		super.onPlace(state, worldIn, pos, oldState, isMoving);
 		updateAllSides(state, worldIn, pos);
 	}
 

@@ -61,6 +61,7 @@ import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerResources;
 import net.minecraft.server.level.ServerPlayer;
@@ -73,6 +74,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -92,6 +94,12 @@ public class CommonEvents {
 		CapabilityMinecartController.onChunkUnloaded(world, chunk);
 	}
 
+	@SubscribeEvent
+	public static void playerLoggedIn(PlayerLoggedInEvent event) {
+		PlayerEntity player = event.getPlayer();
+		ToolboxHandler.playerLogin(player);
+	}
+
 	public static BlockState whenFluidsMeet(LevelAccessor world, BlockPos pos, BlockState state) {
 		FluidState fluidState = state.getFluidState();
 
@@ -99,7 +107,8 @@ public class CommonEvents {
 			return null;
 
 		for (Direction direction : Iterate.directions) {
-			FluidState metFluidState = fluidState.isSource() ? fluidState : world.getFluidState(pos.relative(direction));
+			FluidState metFluidState =
+				fluidState.isSource() ? fluidState : world.getFluidState(pos.relative(direction));
 			if (!metFluidState.is(FluidTags.WATER))
 				continue;
 			BlockState lavaInteraction = AllFluids.getLavaInteraction(metFluidState);
@@ -123,6 +132,7 @@ public class CommonEvents {
 		if (world == null)
 			return;
 		ContraptionHandler.entitiesWhoJustDismountedGetSentToTheRightLocation(entityLiving, world);
+		ToolboxHandler.entityTick(entityLiving, world);
 	}
 
 	public static void onEntityAdded(Entity entity, Level world) {

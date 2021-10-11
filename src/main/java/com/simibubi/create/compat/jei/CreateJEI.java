@@ -40,7 +40,8 @@ package com.simibubi.create.compat.jei;
 //import com.simibubi.create.content.contraptions.components.saw.SawTileEntity;
 //import com.simibubi.create.content.contraptions.fluids.recipe.PotionMixingRecipeManager;
 //import com.simibubi.create.content.contraptions.processing.BasinRecipe;
-//import com.simibubi.create.content.curiosities.tools.BlueprintScreen;
+//import com.simibubi.create.content.curiosities.toolbox.ToolboxScreen;
+import com.simibubi.create.content.curiosities.tools.BlueprintScreen;
 //import com.simibubi.create.content.logistics.block.inventories.AdjustableCrateScreen;
 //import com.simibubi.create.content.logistics.item.LinkedControllerScreen;
 //import com.simibubi.create.content.logistics.item.filter.AbstractFilterScreen;
@@ -254,6 +255,7 @@ package com.simibubi.create.compat.jei;
 //		registration.addGuiContainerHandler(AttributeFilterScreen.class, slotMover);
 //		registration.addGuiContainerHandler(BlueprintScreen.class, slotMover);
 //		registration.addGuiContainerHandler(LinkedControllerScreen.class, slotMover);
+		registration.addGuiContainerHandler(ToolboxScreen.class, slotMover);
 //
 //		registration.addGhostIngredientHandler(AbstractFilterScreen.class, new GhostIngredientHandler());
 //		registration.addGhostIngredientHandler(BlueprintScreen.class, new GhostIngredientHandler());

@@ -15,12 +15,16 @@ import com.simibubi.create.content.contraptions.components.structureMovement.tra
 import com.simibubi.create.content.contraptions.fluids.actors.FluidSplashPacket;
 import com.simibubi.create.content.contraptions.relays.advanced.sequencer.ConfigureSequencedGearshiftPacket;
 import com.simibubi.create.content.curiosities.bell.SoulPulseEffectPacket;
+import com.simibubi.create.content.curiosities.symmetry.ConfigureSymmetryWandPacket;
 import com.simibubi.create.content.curiosities.symmetry.SymmetryEffectPacket;
+import com.simibubi.create.content.curiosities.toolbox.ToolboxDisposeAllPacket;
+import com.simibubi.create.content.curiosities.toolbox.ToolboxEquipPacket;
 import com.simibubi.create.content.curiosities.tools.BlueprintAssignCompleteRecipePacket;
 import com.simibubi.create.content.curiosities.tools.ExtendoGripInteractionPacket;
 import com.simibubi.create.content.curiosities.weapons.PotatoCannonPacket;
 import com.simibubi.create.content.curiosities.weapons.PotatoProjectileTypeManager;
 import com.simibubi.create.content.curiosities.zapper.ZapperBeamPacket;
+import com.simibubi.create.content.curiosities.zapper.terrainzapper.ConfigureWorldshaperPacket;
 import com.simibubi.create.content.logistics.block.depot.EjectorElytraPacket;
 import com.simibubi.create.content.logistics.block.depot.EjectorPlacementPacket;
 import com.simibubi.create.content.logistics.block.depot.EjectorTriggerPacket;
@@ -58,7 +62,6 @@ import net.minecraft.server.level.ServerLevel;
 public enum AllPackets {
 
 	// Client to Server
-	NBT(NbtPacket.class),
 	CONFIGURE_SCHEMATICANNON(ConfigureSchematicannonPacket.class),
 	CONFIGURE_FLEXCRATE(ConfigureFlexcratePacket.class),
 	CONFIGURE_STOCKSWITCH(ConfigureStockswitchPacket.class),
@@ -86,6 +89,10 @@ public enum AllPackets {
 	C_CONFIGURE_CONFIG(CConfigureConfigPacket.class),
 	SUBMIT_GHOST_ITEM(GhostItemSubmitPacket.class),
 	BLUEPRINT_COMPLETE_RECIPE(BlueprintAssignCompleteRecipePacket.class),
+	CONFIGURE_SYMMETRY_WAND(ConfigureSymmetryWandPacket.class),
+	CONFIGURE_WORLDSHAPER(ConfigureWorldshaperPacket.class),
+	TOOLBOX_EQUIP(ToolboxEquipPacket.class),
+	TOOLBOX_DISPOSE_ALL(ToolboxDisposeAllPacket.class)
 
 	// Server to Client
 	SYMMETRY_EFFECT(SymmetryEffectPacket.class),

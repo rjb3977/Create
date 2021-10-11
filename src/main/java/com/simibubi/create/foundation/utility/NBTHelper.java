@@ -13,6 +13,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import com.simibubi.create.lib.utility.NBTSerializer;
+import net.minecraftforge.common.util.Constants.NBT;
 
 public class NBTHelper {
 
@@ -22,13 +23,15 @@ public class NBTHelper {
 
 	public static <T extends Enum<?>> T readEnum(CompoundTag nbt, String key, Class<T> enumClass) {
 		T[] enumConstants = enumClass.getEnumConstants();
-		String name = nbt.getString(key);
 		if (enumConstants == null)
-			throw new IllegalArgumentException("Non-Enum class passed to readEnum(): " + enumClass.getName());
-		for (T t : enumConstants) {
-			if (t.name()
-				.equals(name))
-				return t;
+			throw new IllegalArgumentException("Non-Enum class passed to readEnum: " + enumClass.getName());
+		if (nbt.contains(key, NBT.TAG_STRING)) {
+			String name = nbt.getString(key);
+			for (T t : enumConstants) {
+				if (t.name()
+					.equals(name))
+					return t;
+			}
 		}
 		return enumConstants[0];
 	}
@@ -53,7 +56,7 @@ public class NBTHelper {
 		listNBT.forEach(inbt -> consumer.accept((CompoundTag) inbt));
 	}
 
-	public static ListTag writeItemList(List<ItemStack> stacks) {
+	public static ListTag writeItemList(Iterable<ItemStack> stacks) {
 		return writeCompoundList(stacks, NBTSerializer::serializeNBT);
 	}
 

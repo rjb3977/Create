@@ -1,6 +1,7 @@
 package com.simibubi.create.events;
 
 import com.simibubi.create.CreateClient;
+import com.simibubi.create.content.curiosities.toolbox.ToolboxHandlerClient;
 import com.simibubi.create.content.logistics.item.LinkedControllerClientHandler;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringHandler;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueHandler;
@@ -19,6 +20,7 @@ public class InputEvents {
 			return;
 
 		CreateClient.SCHEMATIC_HANDLER.onKeyInput(key, pressed);
+		ToolboxHandlerClient.onKeyInput(key, pressed);
 	}
 
 	public static boolean onMouseScrolled(double delta) {
@@ -46,6 +48,12 @@ public class InputEvents {
 	public static void onClickInput(int button, int action, int mods) {
 		if (Minecraft.getInstance().screen != null)
 			return;
+		
+		if (event.getKeyBinding() == Minecraft.getInstance().options.keyPickItem) {
+			if (ToolboxHandlerClient.onPickItem())
+				event.setCanceled(true);
+			return;
+		}
 
 		if (button == 1)
 			LinkedControllerClientHandler.deactivateInLectern();

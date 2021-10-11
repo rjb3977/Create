@@ -210,10 +210,15 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 
 	@Override
 	public boolean canPlayerUse(Player player) {
-		if (level == null || level.getBlockEntity(worldPosition) != this) {
+		if (level == null || level.getBlockEntity(worldPosition) != this)
 			return false;
-		}
-		return player.distanceToSqr(worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D) <= 64.0D;
+		return player.distanceToSqr(worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D,
+			worldPosition.getZ() + 0.5D) <= 64.0D;
+	}
+
+	public void sendToContainer(PacketBuffer buffer) {
+		buffer.writeBlockPos(getBlockPos());
+		buffer.writeNbt(getUpdateTag());
 	}
 
 	public Level getWorld() {

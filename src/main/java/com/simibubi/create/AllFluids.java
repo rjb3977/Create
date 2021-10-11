@@ -43,6 +43,9 @@ public class AllFluids {
 							.levelDecreasePerBlock(3)
 							.blastResistance(100f))
 //					.tag(AllFluidTags.HONEY.tag)
+					.bucket()
+					.tag(AllTags.forgeItemTag("buckets/honey"))
+					.build()
 					.register();
 
 	public static final FluidEntry<SimpleFlowableFluid.Flowing> CHOCOLATE =
