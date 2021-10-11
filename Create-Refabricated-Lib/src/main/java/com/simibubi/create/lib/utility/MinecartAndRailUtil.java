@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
-import com.simibubi.create.lib.extensions.AbstractMinecartEntityExtensions;
+import com.simibubi.create.lib.extensions.AbstractMinecartExtensions;
 import com.simibubi.create.lib.helper.AbstractMinecartEntityHelper;
 import com.simibubi.create.lib.helper.AbstractRailBlockHelper;
 
@@ -57,6 +57,6 @@ public class MinecartAndRailUtil {
 	}
 
 	public static MinecartController getController(AbstractMinecart cart) {
-		return ((AbstractMinecartEntityExtensions) cart).create$getController();
+		return ((AbstractMinecartExtensions) cart).create$getController();
 	}
 }

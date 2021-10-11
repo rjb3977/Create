@@ -1,40 +1,38 @@
 package com.simibubi.create.content.curiosities.zapper;
 
-import java.util.function.Supplier;
+import me.pepperbell.simplenetworking.C2SPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 
-import com.simibubi.create.foundation.networking.SimplePacketBase;
+public abstract class ConfigureZapperPacket implements C2SPacket {
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Hand;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
-
-public abstract class ConfigureZapperPacket extends SimplePacketBase {
-
-	protected Hand hand;
+	protected InteractionHand hand;
 	protected PlacementPatterns pattern;
 
-	public ConfigureZapperPacket(Hand hand, PlacementPatterns pattern) {
+	public ConfigureZapperPacket(InteractionHand hand, PlacementPatterns pattern) {
 		this.hand = hand;
 		this.pattern = pattern;
 	}
 
-	public ConfigureZapperPacket(PacketBuffer buffer) {
-		hand = buffer.readEnum(Hand.class);
+	public void read(FriendlyByteBuf buffer) {
+		hand = buffer.readEnum(InteractionHand.class);
 		pattern = buffer.readEnum(PlacementPatterns.class);
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeEnum(hand);
 		buffer.writeEnum(pattern);
 	}
 
 	@Override
-	public void handle(Supplier<Context> context) {
-		context.get().enqueueWork(() -> {
-			ServerPlayerEntity player = context.get().getSender();
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, SimpleChannel.ResponseTarget responseTarget) {
+		server.execute(() -> {
 			if (player == null) {
 				return;
 			}
@@ -43,7 +41,6 @@ public abstract class ConfigureZapperPacket extends SimplePacketBase {
 				configureZapper(stack);
 			}
 		});
-		context.get().setPacketHandled(true);
 	}
 
 	public abstract void configureZapper(ItemStack stack);

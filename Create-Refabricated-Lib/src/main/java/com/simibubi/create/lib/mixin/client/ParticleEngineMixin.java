@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.simibubi.create.lib.extensions.BlockStateExtensions;
-import com.simibubi.create.lib.extensions.ParticleManagerExtensions;
+import com.simibubi.create.lib.extensions.ParticleEngineExtensions;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.fabricmc.api.EnvType;
@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ParticleEngine.class)
-public abstract class ParticleEngineMixin implements ParticleManagerExtensions {
+public abstract class ParticleEngineMixin implements ParticleEngineExtensions {
 	@Shadow
 	protected ClientLevel level;
 

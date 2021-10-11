@@ -50,6 +50,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 
@@ -139,8 +140,8 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	/* Palettes */
 
 	public <T extends Block> BlockBuilder<T, CreateRegistrate> paletteStoneBlock(String name,
-		NonNullFunction<Properties, T> factory, NonNullSupplier<Block> propertiesFrom, boolean worldGenStone) {
-		BlockBuilder<T, CreateRegistrate> builder = super.block(name, factory).initialProperties(propertiesFrom)
+																				 NonNullFunction<FabricBlockSettings, T> factory, NonNullSupplier<Block> propertiesFrom, boolean worldGenStone) {
+		BlockBuilder<T, CreateRegistrate> builder = super.block(name, factory).initialProperties(propertiesFrom);
 //			.blockstate((c, p) -> {
 //				final String location = "block/palettes/" + c.getName() + "/plain";
 //				p.simpleBlock(c.get(), p.models()

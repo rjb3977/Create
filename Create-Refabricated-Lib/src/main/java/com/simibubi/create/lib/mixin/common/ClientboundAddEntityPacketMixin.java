@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.simibubi.create.lib.entity.ExtraSpawnDataEntity;
-import com.simibubi.create.lib.extensions.SSpawnObjectPacketExtensions;
+import com.simibubi.create.lib.extensions.ClientboundAddEntityPacketExtensions;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 @Mixin(ClientboundAddEntityPacket.class)
-public abstract class ClientboundAddEntityPacketMixin implements SSpawnObjectPacketExtensions {
+public abstract class ClientboundAddEntityPacketMixin implements ClientboundAddEntityPacketExtensions {
 	@Unique
 	private FriendlyByteBuf create$extraDataBuf;
 

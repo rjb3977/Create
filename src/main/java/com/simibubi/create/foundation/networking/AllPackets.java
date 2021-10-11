@@ -92,7 +92,7 @@ public enum AllPackets {
 	CONFIGURE_SYMMETRY_WAND(ConfigureSymmetryWandPacket.class),
 	CONFIGURE_WORLDSHAPER(ConfigureWorldshaperPacket.class),
 	TOOLBOX_EQUIP(ToolboxEquipPacket.class),
-	TOOLBOX_DISPOSE_ALL(ToolboxDisposeAllPacket.class)
+	TOOLBOX_DISPOSE_ALL(ToolboxDisposeAllPacket.class),
 
 	// Server to Client
 	SYMMETRY_EFFECT(SymmetryEffectPacket.class),

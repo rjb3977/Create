@@ -4,14 +4,17 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.world.InteractionResult;
 
 @Environment(EnvType.CLIENT)
 public interface MouseButtonCallback {
-	public static final Event<MouseButtonCallback> EVENT = EventFactory.createArrayBacked(MouseButtonCallback.class, callbacks -> (button, action, mods) -> {
+	Event<MouseButtonCallback> EVENT = EventFactory.createArrayBacked(MouseButtonCallback.class, callbacks -> (button, action, mods) -> {
 		for (MouseButtonCallback callback : callbacks) {
-			callback.onMouseButton(button, action, mods);
+			InteractionResult result = callback.onMouseButton(button, action, mods);
+			if (result != InteractionResult.PASS) return result;
 		}
+		return InteractionResult.PASS;
 	});
 
-	void onMouseButton(int button, int action, int mods);
+	InteractionResult onMouseButton(int button, int action, int mods);
 }

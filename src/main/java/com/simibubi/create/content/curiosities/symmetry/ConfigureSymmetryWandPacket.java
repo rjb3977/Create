@@ -2,40 +2,42 @@ package com.simibubi.create.content.curiosities.symmetry;
 
 import java.util.function.Supplier;
 
+
 import com.simibubi.create.content.curiosities.symmetry.mirror.SymmetryMirror;
-import com.simibubi.create.foundation.networking.SimplePacketBase;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Hand;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import me.pepperbell.simplenetworking.C2SPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 
-public class ConfigureSymmetryWandPacket extends SimplePacketBase {
+public class ConfigureSymmetryWandPacket implements C2SPacket {
 
-	protected Hand hand;
+	protected InteractionHand hand;
 	protected SymmetryMirror mirror;
 
-	public ConfigureSymmetryWandPacket(Hand hand, SymmetryMirror mirror) {
+	public ConfigureSymmetryWandPacket(InteractionHand hand, SymmetryMirror mirror) {
 		this.hand = hand;
 		this.mirror = mirror;
 	}
 
-	public ConfigureSymmetryWandPacket(PacketBuffer buffer) {
-		hand = buffer.readEnum(Hand.class);
+	public void read(FriendlyByteBuf buffer) {
+		hand = buffer.readEnum(InteractionHand.class);
 		mirror = SymmetryMirror.fromNBT(buffer.readNbt());
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeEnum(hand);
 		buffer.writeNbt(mirror.writeToNbt());
 	}
 
 	@Override
-	public void handle(Supplier<Context> context) {
-		context.get().enqueueWork(() -> {
-			ServerPlayerEntity player = context.get().getSender();
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, SimpleChannel.ResponseTarget responseTarget) {
+		server.execute(() -> {
 			if (player == null) {
 				return;
 			}
@@ -44,7 +46,5 @@ public class ConfigureSymmetryWandPacket extends SimplePacketBase {
 				SymmetryWandItem.configureSettings(stack, mirror);
 			}
 		});
-		context.get().setPacketHandled(true);
 	}
-
 }

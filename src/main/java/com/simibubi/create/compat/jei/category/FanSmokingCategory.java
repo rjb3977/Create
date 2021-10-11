@@ -6,7 +6,7 @@ package com.simibubi.create.compat.jei.category;
 //
 //import net.minecraft.block.Blocks;
 //import net.minecraft.item.Items;
-//import net.minecraft.item.crafting.SmokingRecipe;
+//import net.minecraft.item.Crafting.SmokingRecipe;
 //
 //public class FanSmokingCategory extends ProcessingViaFanCategory<SmokingRecipe> {
 //

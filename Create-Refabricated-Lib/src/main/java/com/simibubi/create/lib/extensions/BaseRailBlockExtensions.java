@@ -7,7 +7,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
 
-public interface AbstractRailBlockExtensions {
+public interface BaseRailBlockExtensions {
 	RailShape create$getRailDirection(BlockState state, BlockGetter world, BlockPos pos, @Nullable AbstractMinecart cart);
 
 	RailShape create$getRailDirection(BlockState state);

@@ -7,7 +7,7 @@ import net.minecraft.core.particles.ParticleType;
 import org.jetbrains.annotations.ApiStatus;
 
 @Deprecated
-public interface ParticleManagerExtensions {
+public interface ParticleEngineExtensions {
 	@ApiStatus.Internal
 	<T extends ParticleOptions> void create$registerFactory0(ParticleType<T> particleType, ParticleEngine.SpriteParticleRegistration<T> spriteAwareFactory);
 

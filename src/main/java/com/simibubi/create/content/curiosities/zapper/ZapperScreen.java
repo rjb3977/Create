@@ -22,11 +22,11 @@ import com.simibubi.create.foundation.utility.NBTHelper;
 
 public abstract class ZapperScreen extends AbstractSimiScreen {
 
-	protected final ITextComponent patternSection = Lang.translate("gui.terrainzapper.patternSection");
+	protected final Component patternSection = Lang.translate("gui.terrainzapper.patternSection");
 
 	protected AllGuiTextures background;
 	protected ItemStack zapper;
-	protected Hand hand;
+	protected InteractionHand hand;
 
 	protected float animationProgress;
 
@@ -38,7 +38,7 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 
 	protected PlacementPatterns currentPattern;
 
-	public ZapperScreen(AllGuiTextures background, ItemStack zapper, Hand hand) {
+	public ZapperScreen(AllGuiTextures background, ItemStack zapper, InteractionHand hand) {
 		this.background = background;
 		this.zapper = zapper;
 		this.hand = hand;
@@ -46,7 +46,7 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 		brightColor = 0xFEFEFE;
 		fontColor = AllGuiTextures.FONT_COLOR;
 
-		CompoundNBT nbt = zapper.getOrCreateTag();
+		CompoundTag nbt = zapper.getOrCreateTag();
 		currentPattern = NBTHelper.readEnum(nbt, "Pattern", PlacementPatterns.class);
 	}
 

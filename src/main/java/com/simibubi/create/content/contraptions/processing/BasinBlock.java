@@ -15,7 +15,7 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.DirectBeltInputBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
-import com.simibubi.create.lib.extensions.EntitySelectionContextExtensions;
+import com.simibubi.create.lib.extensions.EntityCollisionContextExtensions;
 
 import com.simibubi.create.lib.transfer.TransferUtil;
 
@@ -181,7 +181,7 @@ public class BasinBlock extends Block implements ITE<BasinTileEntity>, IWrenchab
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockGetter reader, BlockPos pos, CollisionContext ctx) {
 		if (ctx instanceof EntityCollisionContext) {
-			if (((EntitySelectionContextExtensions) ((EntityCollisionContext) ctx)).create$getCachedEntity() instanceof ItemEntity)
+			if (((EntityCollisionContextExtensions) ((EntityCollisionContext) ctx)).create$getCachedEntity() instanceof ItemEntity)
 				return AllShapes.BASIN_COLLISION_SHAPE;
 		}
 		return getShape(state, reader, pos, ctx);

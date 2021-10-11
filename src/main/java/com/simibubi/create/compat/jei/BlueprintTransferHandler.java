@@ -8,7 +8,7 @@ package com.simibubi.create.compat.jei;
 //import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 //import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 //import net.minecraft.entity.player.PlayerEntity;
-//import net.minecraft.item.crafting.IRecipe;
+//import net.minecraft.item.Crafting.IRecipe;
 //
 //public class BlueprintTransferHandler implements IRecipeTransferHandler<BlueprintContainer> {
 //

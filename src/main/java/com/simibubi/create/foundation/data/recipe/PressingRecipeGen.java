@@ -5,7 +5,7 @@ package com.simibubi.create.foundation.data.recipe;
 //
 //import net.minecraft.data.DataGenerator;
 //import net.minecraft.item.Items;
-//import net.minecraft.item.crafting.Ingredient;
+//import net.minecraft.item.Crafting.Ingredient;
 //
 //public class PressingRecipeGen extends ProcessingRecipeGen {
 //

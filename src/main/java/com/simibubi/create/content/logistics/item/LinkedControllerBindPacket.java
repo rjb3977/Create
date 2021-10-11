@@ -17,18 +17,11 @@ public class LinkedControllerBindPacket extends LinkedControllerPacketBase {
 	private int button;
 	private BlockPos linkLocation;
 
-	protected LinkedControllerBindPacket() {}
-
 	public LinkedControllerBindPacket(int button, BlockPos linkLocation) {
-		super((BlockPos) null);
+		super(null);
 		this.button = button;
 		this.linkLocation = linkLocation;
 	}
-
-//	public LinkedControllerBindPacket(PacketBuffer buffer) {
-//		this.button = buffer.readVarInt();
-//		this.linkLocation = buffer.readBlockPos();
-//	}
 
 	@Override
 	public void read(FriendlyByteBuf buf) {

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.simibubi.create.lib.extensions.TileEntityExtensions;
+import com.simibubi.create.lib.extensions.BlockEntityExtensions;
 import com.simibubi.create.lib.helper.TileEntityHelper;
 import com.simibubi.create.lib.utility.MixinHelper;
 import com.simibubi.create.lib.utility.NBTSerializable;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(BlockEntity.class)
-public abstract class BlockEntityMixin implements TileEntityExtensions, NBTSerializable {
+public abstract class BlockEntityMixin implements BlockEntityExtensions, NBTSerializable {
 	@Unique
 	private CompoundTag create$extraCustomData;
 

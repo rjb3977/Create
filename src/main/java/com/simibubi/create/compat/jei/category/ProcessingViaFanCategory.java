@@ -18,7 +18,7 @@ package com.simibubi.create.compat.jei.category;
 //import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 //import mezz.jei.api.ingredients.IIngredients;
 //import net.minecraft.item.ItemStack;
-//import net.minecraft.item.crafting.IRecipe;
+//import net.minecraft.item.Crafting.IRecipe;
 //import net.minecraft.util.math.vector.Vector3f;
 //
 //public abstract class ProcessingViaFanCategory<T extends IRecipe<?>> extends CreateRecipeCategory<T> {

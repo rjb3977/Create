@@ -1,6 +1,6 @@
 package com.simibubi.create.lib.helper;
 
-import com.simibubi.create.lib.extensions.ParticleManagerExtensions;
+import com.simibubi.create.lib.extensions.ParticleEngineExtensions;
 import com.simibubi.create.lib.mixin.accessor.ParticleEngineAccessor;
 import com.simibubi.create.lib.utility.MixinHelper;
 
@@ -29,7 +29,7 @@ public final class ParticleManagerHelper {
 		return ((ParticleEngineAccessor) manager).getProviders();
 	}
 
-	private static ParticleManagerExtensions get(ParticleEngine manager) {
+	private static ParticleEngineExtensions get(ParticleEngine manager) {
 		return MixinHelper.cast(manager);
 	}
 

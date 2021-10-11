@@ -10,6 +10,7 @@ import com.simibubi.create.lib.event.MouseButtonCallback;
 import com.simibubi.create.lib.event.MouseScrolledCallback;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionResult;
 
 public class InputEvents {
 
@@ -45,18 +46,19 @@ public class InputEvents {
 		CreateClient.SCHEMATIC_AND_QUILL_HANDLER.onMouseInput(button, pressed);
 	}
 
-	public static void onClickInput(int button, int action, int mods) {
+	public static InteractionResult onClickInput(int button, int action, int mods) {
 		if (Minecraft.getInstance().screen != null)
-			return;
-		
-		if (event.getKeyBinding() == Minecraft.getInstance().options.keyPickItem) {
+			return InteractionResult.PASS;
+
+		if (Minecraft.getInstance().options.keyPickItem.matchesMouse(button)) {
 			if (ToolboxHandlerClient.onPickItem())
-				event.setCanceled(true);
-			return;
+				return InteractionResult.SUCCESS;
+			return InteractionResult.PASS;
 		}
 
 		if (button == 1)
 			LinkedControllerClientHandler.deactivateInLectern();
+		return InteractionResult.PASS;
 	}
 
 	public static void register() {

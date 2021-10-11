@@ -10,6 +10,7 @@ import com.simibubi.create.api.event.TileEntityBehaviourEvent;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -216,7 +217,7 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 			worldPosition.getZ() + 0.5D) <= 64.0D;
 	}
 
-	public void sendToContainer(PacketBuffer buffer) {
+	public void sendToContainer(FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(getBlockPos());
 		buffer.writeNbt(getUpdateTag());
 	}

@@ -23,13 +23,13 @@ public abstract class ShapedRecipeMixin implements ShapedRecipeExtensions {
 	@ModifyConstant(method = "patternFromJson(Lcom/google/gson/JsonArray;)[Ljava/lang/String;",
 			constant = @Constant(intValue = 3, ordinal = 0))
 	private static int modifyMaxHeight(int original) {
-		return Constants.crafting.HEIGHT;
+		return Constants.Crafting.HEIGHT;
 	}
 
 	@ModifyConstant(method = "patternFromJson(Lcom/google/gson/JsonArray;)[Ljava/lang/String;",
 			constant = @Constant(intValue = 3, ordinal = 1))
 	private static int modifyMaxWidth(int original) {
-		return Constants.crafting.WIDTH;
+		return Constants.Crafting.WIDTH;
 	}
 
 	private static void warn() {
@@ -65,7 +65,7 @@ public abstract class ShapedRecipeMixin implements ShapedRecipeExtensions {
 
 	@Override
 	public void setCraftingSize(int width, int height) {
-		if (Constants.crafting.WIDTH < width) Constants.crafting.WIDTH = width;
-		if (Constants.crafting.HEIGHT < height) Constants.crafting.HEIGHT = height;
+		if (Constants.Crafting.WIDTH < width) Constants.Crafting.WIDTH = width;
+		if (Constants.Crafting.HEIGHT < height) Constants.Crafting.HEIGHT = height;
 	}
 }

@@ -2,6 +2,9 @@ package com.simibubi.create.lib.mixin.common;
 
 import java.util.Map;
 import java.util.Random;
+
+import com.simibubi.create.lib.extensions.BlockStateExtensions;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -28,7 +31,6 @@ public abstract class FireBlockMixin extends BaseFireBlock implements FireBlockE
 	@Final
 	private static Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION;
 
-
 	@Shadow
 	protected abstract int getBurnOdd(BlockState blockState);
 
@@ -36,7 +38,12 @@ public abstract class FireBlockMixin extends BaseFireBlock implements FireBlockE
 		super(properties, f);
 	}
 
-	public int doFunc_220274_q(BlockState state) {
+	@Override
+	public boolean canCatchFire(BlockGetter world, BlockPos pos, Direction face) {
+		return ((BlockStateExtensions) world.getBlockState(pos)).create$isFlammable(world, pos, face);
+	}
+
+	public int invokeGetBurnOdd(BlockState state) {
 		return getBurnOdd(state);
 	}
 

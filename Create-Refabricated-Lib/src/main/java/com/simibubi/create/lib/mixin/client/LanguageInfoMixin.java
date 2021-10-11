@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.simibubi.create.lib.extensions.LanguageExtensions;
+import com.simibubi.create.lib.extensions.LanguageInfoExtensions;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -18,7 +18,7 @@ import net.minecraft.client.resources.language.LanguageInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(LanguageInfo.class)
-public abstract class LanguageMixin implements LanguageExtensions {
+public abstract class LanguageInfoMixin implements LanguageInfoExtensions {
 
 	@Shadow
 	@Final

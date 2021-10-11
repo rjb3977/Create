@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import com.simibubi.create.lib.block.CustomDataPacketHandlingTileEntity;
 import com.simibubi.create.lib.entity.ClientSpawnHandlerEntity;
 import com.simibubi.create.lib.entity.ExtraSpawnDataEntity;
-import com.simibubi.create.lib.extensions.SSpawnObjectPacketExtensions;
+import com.simibubi.create.lib.extensions.ClientboundAddEntityPacketExtensions;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -65,7 +65,7 @@ public abstract class ClientPacketListenerMixin {
 			locals = LocalCapture.CAPTURE_FAILHARD)
 	public void create$afterAddEntity(ClientboundAddEntityPacket packet, CallbackInfo ci, double x, double y, double z, Entity entity) {
 		if (entity instanceof ExtraSpawnDataEntity) {
-			FriendlyByteBuf extraData = ((SSpawnObjectPacketExtensions) packet).create$getExtraDataBuf();
+			FriendlyByteBuf extraData = ((ClientboundAddEntityPacketExtensions) packet).create$getExtraDataBuf();
 			if (extraData != null) {
 				((ExtraSpawnDataEntity) entity).readSpawnData(extraData);
 			}

@@ -145,12 +145,14 @@ import com.simibubi.create.foundation.data.ModelGen;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.utility.ColorHandlers;
+import com.simibubi.create.foundation.utility.DyeHelper;
 import com.simibubi.create.foundation.worldgen.OxidizingBlock;
 import com.tterrag.registrate.util.entry.BlockEntry;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.DyeColor;
@@ -161,6 +163,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.PistonType;
 import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 public class AllBlocks {
 
@@ -560,8 +564,8 @@ public class AllBlocks {
 			.addLayer(() -> RenderType::cutoutMipped)
 //			.blockstate((c, p) -> BlockStateGen.axisBlock(c, p, s -> p.models()
 //				.getExistingFile(
-					p.modLoc("block/fluid_pipe/window" + (s.getValue(GlassFluidPipeBlock.ALT) ? "_alt" : "")))))
-			.onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::new))
+//					p.modLoc("block/fluid_pipe/window" + (s.getValue(GlassFluidPipeBlock.ALT) ? "_alt" : "")))))
+//			.onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::new))
 //			.loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
 			.register();
 
@@ -608,7 +612,7 @@ public class AllBlocks {
 //						.define('#', DyeHelper.getTagOfDye(colour))
 //						.define('-', AllItemTags.VALVE_HANDLES.tag)
 //						.unlockedBy("has_valve", RegistrateRecipeProvider.hasItem(AllItemTags.VALVE_HANDLES.tag))
-//						.save(p, Create.asResource("crafting/kinetics/" + c.getName() + "_from_other_valve_handle")))
+//						.save(p, Create.asResource("Crafting/kinetics/" + c.getName() + "_from_other_valve_handle")))
 				.register();
 	});
 
@@ -948,14 +952,14 @@ public class AllBlocks {
 //							.define('#', DyeHelper.getWoolOfDye(colour))
 //							.define('-', ItemTags.WOODEN_SLABS)
 //							.unlockedBy("has_wool", RegistrateRecipeProvider.hasItem(ItemTags.WOOL))
-//							.save(p, Create.asResource("crafting/kinetics/" + c.getName()));
+//							.save(p, Create.asResource("Crafting/kinetics/" + c.getName()));
 //					ShapedRecipeBuilder.shaped(c.get())
 //							.pattern("#")
 //							.pattern("-")
 //							.define('#', DyeHelper.getTagOfDye(colour))
 //							.define('-', AllItemTags.SEATS.tag)
 //							.unlockedBy("has_seat", RegistrateRecipeProvider.hasItem(AllItemTags.SEATS.tag))
-//							.save(p, Create.asResource("crafting/kinetics/" + c.getName() + "_from_other_seat"));
+//							.save(p, Create.asResource("Crafting/kinetics/" + c.getName() + "_from_other_seat"));
 //				})
 				.onRegisterAfter(Item.class, v -> TooltipHelper.referTo(v, "block.create.brown_seat"))
 //				.tag(AllBlockTags.SEATS.tag)
@@ -1311,39 +1315,39 @@ public class AllBlocks {
 		String colourName = colour.getSerializedName();
 		return REGISTRATE.block(colourName + "_toolbox", p -> new ToolboxBlock(p, colour))
 			.initialProperties(SharedProperties::wooden)
-			.properties(p -> p.sound(SoundType.WOOD))
+			.properties(p -> (FabricBlockSettings) p.sound(SoundType.WOOD))
 			.addLayer(() -> RenderType::cutoutMipped)
-			.loot((lt, block) -> {
-				Builder builder = LootTable.lootTable();
-				IBuilder survivesExplosion = SurvivesExplosion.survivesExplosion();
-				lt.add(block, builder.withPool(LootPool.lootPool()
-					.when(survivesExplosion)
-					.setRolls(ConstantRange.exactly(1))
-					.add(ItemLootEntry.lootTableItem(block)
-						.apply(CopyName.copyName(CopyName.Source.BLOCK_ENTITY))
-						.apply(CopyNbt.copyData(CopyNbt.Source.BLOCK_ENTITY)
-							.copy("Inventory", "Inventory")))));
-			})
-			.blockstate((c, p) -> {
-				p.horizontalBlock(c.get(), p.models()
-					.withExistingParent(colourName + "_toolbox", p.modLoc("block/toolbox/block"))
-					.texture("0", p.modLoc("block/toolbox/" + colourName)));
-			})
-			.recipe((c, p) -> {
-				ShapedRecipeBuilder.shaped(c.get())
-					.pattern("#")
-					.pattern("-")
-					.define('#', DyeHelper.getTagOfDye(colour))
-					.define('-', AllItemTags.TOOLBOXES.tag)
-					.unlockedBy("has_toolbox", RegistrateRecipeProvider.hasItem(AllItemTags.TOOLBOXES.tag))
-					.save(p, Create.asResource("crafting/kinetics/" + c.getName() + "_from_other_toolbox"));
-			})
+//			.loot((lt, block) -> {
+//				Builder builder = LootTable.lootTable();
+//				IBuilder survivesExplosion = SurvivesExplosion.survivesExplosion();
+//				lt.add(block, builder.withPool(LootPool.lootPool()
+//					.when(survivesExplosion)
+//					.setRolls(ConstantRange.exactly(1))
+//					.add(ItemLootEntry.lootTableItem(block)
+//						.apply(CopyName.copyName(CopyName.Source.BLOCK_ENTITY))
+//						.apply(CopyNbt.copyData(CopyNbt.Source.BLOCK_ENTITY)
+//							.copy("Inventory", "Inventory")))));
+//			})
+//			.blockstate((c, p) -> {
+//				p.horizontalBlock(c.get(), p.models()
+//					.withExistingParent(colourName + "_toolbox", p.modLoc("block/toolbox/block"))
+//					.texture("0", p.modLoc("block/toolbox/" + colourName)));
+//			})
+//			.recipe((c, p) -> {
+//				ShapedRecipeBuilder.shaped(c.get())
+//					.pattern("#")
+//					.pattern("-")
+//					.define('#', DyeHelper.getTagOfDye(colour))
+//					.define('-', AllItemTags.TOOLBOXES.tag)
+//					.unlockedBy("has_toolbox", RegistrateRecipeProvider.hasItem(AllItemTags.TOOLBOXES.tag))
+//					.save(p, Create.asResource("Crafting/kinetics/" + c.getName() + "_from_other_toolbox"));
+//			})
 			.onRegisterAfter(Item.class, v -> TooltipHelper.referTo(v, "block.create.toolbox"))
-			.tag(AllBlockTags.TOOLBOXES.tag)
+			.tag(AllTags.AllBlockTags.TOOLBOXES.tag)
 			.item()
-			.model((c, p) -> p.withExistingParent(colourName + "_toolbox", p.modLoc("block/toolbox/item"))
-				.texture("0", p.modLoc("block/toolbox/" + colourName)))
-			.tag(AllItemTags.TOOLBOXES.tag)
+//			.model((c, p) -> p.withExistingParent(colourName + "_toolbox", p.modLoc("block/toolbox/item"))
+//				.texture("0", p.modLoc("block/toolbox/" + colourName)))
+			.tag(AllTags.AllItemTags.TOOLBOXES.tag)
 			.build()
 			.register();
 	});

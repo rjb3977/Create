@@ -6,9 +6,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface FireBlockExtensions {
-	default boolean canCatchFire(BlockGetter world, BlockPos pos, Direction face) {
-		return ((BlockStateExtensions) world.getBlockState(pos)).create$isFlammable(world, pos, face);
-	}
+	boolean canCatchFire(BlockGetter world, BlockPos pos, Direction face);
 
-	int doFunc_220274_q(BlockState state);
+	int invokeGetBurnOdd(BlockState state);
 }

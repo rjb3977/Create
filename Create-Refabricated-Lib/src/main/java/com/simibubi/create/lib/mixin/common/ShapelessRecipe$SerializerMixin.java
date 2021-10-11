@@ -12,6 +12,6 @@ public abstract class ShapelessRecipe$SerializerMixin {
 	@ModifyConstant(method = "fromJson",
 			constant = @Constant(intValue = 9))
 	private static int modifyMaxItemsInRecipe(int original) {
-		return Constants.crafting.HEIGHT * Constants.crafting.WIDTH;
+		return Constants.Crafting.HEIGHT * Constants.Crafting.WIDTH;
 	}
 }

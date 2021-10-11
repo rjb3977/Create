@@ -15,7 +15,7 @@ import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.config.CKinetics;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.NBTHelper;
-import com.simibubi.create.lib.extensions.AbstractRailBlockExtensions;
+import com.simibubi.create.lib.extensions.BaseRailBlockExtensions;
 import com.simibubi.create.lib.helper.AbstractRailBlockHelper;
 import com.simibubi.create.lib.utility.NBTSerializer;
 import net.minecraft.ChatFormatting;
@@ -143,7 +143,7 @@ public class MinecartContraptionItem extends Item {
 			ItemStack itemstack = context.getItemInHand();
 			if (!world.isClientSide) {
 				RailShape railshape = blockstate.getBlock() instanceof BaseRailBlock
-					? ((AbstractRailBlockExtensions) ((BaseRailBlock) blockstate.getBlock())).create$getRailDirection(blockstate, world, blockpos, null)
+					? ((BaseRailBlockExtensions) ((BaseRailBlock) blockstate.getBlock())).create$getRailDirection(blockstate, world, blockpos, null)
 					: RailShape.NORTH_SOUTH;
 				double d0 = 0.0D;
 				if (railshape.isAscending()) {

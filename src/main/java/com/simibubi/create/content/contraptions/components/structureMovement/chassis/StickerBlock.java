@@ -8,8 +8,8 @@ import com.simibubi.create.foundation.block.ProperDirectionalBlock;
 import com.simibubi.create.lib.block.WeakPowerCheckingBlock;
 
 import com.simibubi.create.lib.extensions.BlockExtensions;
-import com.simibubi.create.lib.extensions.BlockParticleDataExtensions;
-import com.simibubi.create.lib.extensions.BlockStateExtensions;
+import com.simibubi.create.lib.extensions.BlockParticleOptionExtensions;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -156,7 +156,7 @@ public class StickerBlock extends ProperDirectionalBlock implements ITE<StickerT
 		if (state.getValue(FACING) == Direction.UP) {
 			Vec3 Vector3d = entity.getDeltaMovement();
 			world.addParticle(
-				((BlockParticleDataExtensions) new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SLIME_BLOCK.defaultBlockState())).create$setPos(pos),
+				((BlockParticleOptionExtensions) new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SLIME_BLOCK.defaultBlockState())).create$setPos(pos),
 				entity.getX() + ((double) world.random.nextFloat() - 0.5D) * (double) entity.getBbWidth(),
 				entity.getY() + 0.1D,
 				entity.getZ() + ((double) world.random.nextFloat() - 0.5D) * (double) entity.getBbWidth(), Vector3d.x * -4.0D,

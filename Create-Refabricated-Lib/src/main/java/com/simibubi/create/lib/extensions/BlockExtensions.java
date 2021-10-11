@@ -41,7 +41,7 @@ public interface BlockExtensions {
 	}
 
 	default int create$getFlammability(BlockState state, BlockGetter world, BlockPos pos, Direction face) {
-		return ((FireBlockExtensions) Blocks.FIRE).doFunc_220274_q(state);
+		return ((FireBlockExtensions) Blocks.FIRE).invokeGetBurnOdd(state);
 	}
 
 	default SoundType create$getSoundType(BlockState state, LevelReader world, BlockPos pos, @Nullable Entity entity) {

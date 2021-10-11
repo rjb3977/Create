@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.gui.AbstractSimiContainerScreen;
@@ -18,12 +18,16 @@ import com.simibubi.create.foundation.networking.AllPackets;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 
-import net.minecraft.client.renderer.Rectangle2d;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
+import com.simibubi.create.lib.extensions.AbstractContainerScreenExtensions;
+import com.simibubi.create.lib.mixin.accessor.AbstractContainerScreenAccessor;
+import com.simibubi.create.lib.mixin.accessor.ScreenAccessor;
+
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 
 public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer> {
 
@@ -34,9 +38,9 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 	private IconButton disposeButton;
 	private DyeColor color;
 
-	private List<Rectangle2d> extraAreas = Collections.emptyList();
+	private List<Rect2i> extraAreas = Collections.emptyList();
 
-	public ToolboxScreen(ToolboxContainer container, PlayerInventory inv, ITextComponent title) {
+	public ToolboxScreen(ToolboxContainer container, Inventory inv, Component title) {
 		super(container, inv, title);
 		init();
 	}
@@ -46,18 +50,19 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 		super.init();
 		widgets.clear();
 		setWindowSize(BG.width, 256);
-		confirmButton = new IconButton(getGuiLeft() + BG.width - 23, getGuiTop() + BG.height - 24, AllIcons.I_CONFIRM);
-		disposeButton = new IconButton(getGuiLeft() + 91, getGuiTop() + 69, AllIcons.I_TOOLBOX);
+		AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) this;
+		confirmButton = new IconButton(accessor.getGuiLeft() + BG.width - 23, accessor.getGuiTop() + BG.height - 24, AllIcons.I_CONFIRM);
+		disposeButton = new IconButton(accessor.getGuiLeft() + 91, accessor.getGuiTop() + 69, AllIcons.I_TOOLBOX);
 		disposeButton.setToolTip(Lang.translate("toolbox.depositBox"));
 		widgets.add(confirmButton);
 		widgets.add(disposeButton);
 		color = menu.contentHolder.getColor();
 
-		extraAreas = ImmutableList.of(new Rectangle2d(118, 155, 80, 100), new Rectangle2d(308, 125, 100, 70));
+		extraAreas = ImmutableList.of(new Rect2i(118, 155, 80, 100), new Rect2i(308, 125, 100, 70));
 	}
 
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		menu.renderPass = true;
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		menu.renderPass = false;
@@ -69,10 +74,11 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 	}
 
 	@Override
-	protected void renderWindow(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		BG.draw(ms, this, leftPos + 10, topPos);
 		PLAYER.draw(ms, this, leftPos + (BG.width - PLAYER.width) / 2 - 26, topPos + imageHeight - PLAYER.height);
 		font.draw(ms, title, leftPos + 24, topPos + 4, 0x442000);
+		Inventory inventory = ((AbstractContainerScreenExtensions) this).create$getInventory();
 		font.draw(ms, inventory.getDisplayName(), leftPos - 13, topPos + 154, 0x404040);
 
 		renderToolbox(ms, mouseX, mouseY, partialTicks);
@@ -94,7 +100,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 				setBlitOffset(100);
 				itemRenderer.blitOffset = 100.0F;
 				RenderSystem.enableDepthTest();
-				itemRenderer.renderAndDecorateItem(minecraft.player, itemstack, i, j);
+				itemRenderer.renderAndDecorateItem(minecraft.player, itemstack, i, j, 1);
 				itemRenderer.renderGuiItemDecorations(font, itemstack, i, j, s);
 				setBlitOffset(0);
 				itemRenderer.blitOffset = 0.0F;
@@ -104,7 +110,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 				hoveredToolboxSlot = slot;
 				RenderSystem.disableDepthTest();
 				RenderSystem.colorMask(true, true, true, false);
-				int slotColor = this.getSlotColor(baseIndex);
+				int slotColor = 0x80FFFFFF;// default in forge, never overridden. // this.getSlotColor(baseIndex);
 				fillGradient(ms, i, j, i + 16, j + 16, slotColor, slotColor);
 				RenderSystem.colorMask(true, true, true, true);
 				RenderSystem.enableDepthTest();
@@ -112,7 +118,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 		}
 	}
 
-	private void renderToolbox(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+	private void renderToolbox(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		ms.pushPose();
 		ms.translate(397, 190, 100);
 		MatrixTransformStack.of(ms)
@@ -145,7 +151,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 	}
 
 	@Override
-	protected void renderWindowForeground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindowForeground(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		if (hoveredToolboxSlot != null)
 			hoveredSlot = hoveredToolboxSlot;
 		super.renderWindowForeground(matrixStack, mouseX, mouseY, partialTicks);
@@ -170,7 +176,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 	}
 
 	@Override
-	public List<Rectangle2d> getExtraAreas() {
+	public List<Rect2i> getExtraAreas() {
 		return extraAreas;
 	}
 

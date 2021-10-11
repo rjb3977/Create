@@ -15,12 +15,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 import com.simibubi.create.lib.block.CustomDataPacketHandlingTileEntity;
-import com.simibubi.create.lib.extensions.TileEntityExtensions;
+import com.simibubi.create.lib.extensions.BlockEntityExtensions;
 import com.simibubi.create.lib.utility.NBTSerializable;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class SyncedTileEntity extends BlockEntity implements TileEntityExtensions, CustomDataPacketHandlingTileEntity, NBTSerializable, CreateBlockEntity {
+public abstract class SyncedTileEntity extends BlockEntity implements BlockEntityExtensions, CustomDataPacketHandlingTileEntity, NBTSerializable, CreateBlockEntity {
 
 	public SyncedTileEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
 		super(tileEntityTypeIn, pos, state);
@@ -28,7 +28,7 @@ public abstract class SyncedTileEntity extends BlockEntity implements TileEntity
 
 	@Override
 	public CompoundTag create$getExtraCustomData() {
-		return ((TileEntityExtensions) this).create$getExtraCustomData();
+		return ((BlockEntityExtensions) this).create$getExtraCustomData();
 	}
 
 	@Override

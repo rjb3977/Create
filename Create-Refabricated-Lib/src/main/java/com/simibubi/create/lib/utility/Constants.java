@@ -22,7 +22,7 @@ public class Constants {
 		public static final int DEFAULT_AND_RERENDER = DEFAULT | RERENDER_MAIN_THREAD; // 11
 	}
 
-	public static class crafting {
+	public static class Crafting {
 		public static int HEIGHT = 3;
 		public static int WIDTH = 3;
 	}

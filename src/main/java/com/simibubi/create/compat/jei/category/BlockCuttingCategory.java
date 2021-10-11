@@ -17,9 +17,9 @@ package com.simibubi.create.compat.jei.category;
 //import mezz.jei.api.ingredients.IIngredients;
 //import net.minecraft.item.Item;
 //import net.minecraft.item.ItemStack;
-//import net.minecraft.item.crafting.IRecipe;
-//import net.minecraft.item.crafting.Ingredient;
-//import net.minecraft.item.crafting.StonecuttingRecipe;
+//import net.minecraft.item.Crafting.IRecipe;
+//import net.minecraft.item.Crafting.Ingredient;
+//import net.minecraft.item.Crafting.StonecuttingRecipe;
 //import net.minecraft.util.ResourceLocation;
 //
 //public class BlockCuttingCategory extends CreateRecipeCategory<CondensedBlockCuttingRecipe> {

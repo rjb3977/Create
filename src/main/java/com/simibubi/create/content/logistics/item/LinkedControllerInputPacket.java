@@ -15,8 +15,6 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 	private Collection<Integer> activatedButtons;
 	private boolean press;
 
-	protected LinkedControllerInputPacket() {}
-
 	public LinkedControllerInputPacket(Collection<Integer> activatedButtons, boolean press) {
 		this(activatedButtons, press, null);
 	}
@@ -26,14 +24,6 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 		this.activatedButtons = activatedButtons;
 		this.press = press;
 	}
-
-//	public LinkedControllerInputPacket(PacketBuffer buffer) {
-//		activatedButtons = new ArrayList<>();
-//		press = buffer.readBoolean();
-//		int size = buffer.readVarInt();
-//		for (int i = 0; i < size; i++)
-//			activatedButtons.add(buffer.readVarInt());
-//	}
 
 	@Override
 	public void read(FriendlyByteBuf buf) {

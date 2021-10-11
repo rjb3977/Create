@@ -7,8 +7,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class LinkedControllerStopLecternPacket extends LinkedControllerPacketBase {
 
-	public LinkedControllerStopLecternPacket(FriendlyByteBuf buffer) {
-		super(buffer);
+	public void read(FriendlyByteBuf buffer) {
+		super.read(buffer);
 	}
 
 	public LinkedControllerStopLecternPacket(BlockPos lecternPos) {

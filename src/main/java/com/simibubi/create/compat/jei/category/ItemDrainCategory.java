@@ -24,7 +24,7 @@ package com.simibubi.create.compat.jei.category;
 //import net.minecraft.item.ItemStack;
 //import net.minecraft.item.Items;
 //import net.minecraft.item.PotionItem;
-//import net.minecraft.item.crafting.Ingredient;
+//import net.minecraft.item.Crafting.Ingredient;
 //import net.minecraft.util.ResourceLocation;
 //
 //public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {

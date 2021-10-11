@@ -1,21 +1,22 @@
 package com.simibubi.create.content.curiosities.toolbox;
 
-import java.util.function.Supplier;
+import com.simibubi.create.lib.helper.EntityHelper;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
 
-import com.simibubi.create.foundation.networking.SimplePacketBase;
+import me.pepperbell.simplenetworking.C2SPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
-import net.minecraftforge.items.ItemHandlerHelper;
-
-public class ToolboxEquipPacket extends SimplePacketBase {
+public class ToolboxEquipPacket implements C2SPacket {
 
 	private BlockPos toolboxPos;
 	private int slot;
@@ -27,7 +28,7 @@ public class ToolboxEquipPacket extends SimplePacketBase {
 		this.hotbarSlot = hotbarSlot;
 	}
 
-	public ToolboxEquipPacket(PacketBuffer buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		if (buffer.readBoolean())
 			toolboxPos = buffer.readBlockPos();
 		slot = buffer.readVarInt();
@@ -35,7 +36,7 @@ public class ToolboxEquipPacket extends SimplePacketBase {
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		buffer.writeBoolean(toolboxPos != null);
 		if (toolboxPos != null)
 			buffer.writeBlockPos(toolboxPos);
@@ -44,11 +45,9 @@ public class ToolboxEquipPacket extends SimplePacketBase {
 	}
 
 	@Override
-	public void handle(Supplier<Context> context) {
-		Context ctx = context.get();
-		ctx.enqueueWork(() -> {
-			ServerPlayerEntity player = ctx.getSender();
-			World world = player.level;
+	public void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, SimpleChannel.ResponseTarget responseTarget) {
+		server.execute(() -> {
+			Level world = player.level;
 
 			if (toolboxPos == null) {
 				ToolboxHandler.unequip(player, hotbarSlot, false);
@@ -56,11 +55,11 @@ public class ToolboxEquipPacket extends SimplePacketBase {
 				return;
 			}
 
-			TileEntity blockEntity = world.getBlockEntity(toolboxPos);
+			BlockEntity blockEntity = world.getBlockEntity(toolboxPos);
 
 			double maxRange = ToolboxHandler.getMaxRange(player);
 			if (player.distanceToSqr(toolboxPos.getX() + 0.5, toolboxPos.getY(), toolboxPos.getZ() + 0.5) > maxRange
-				* maxRange)
+					* maxRange)
 				return;
 			if (!(blockEntity instanceof ToolboxTileEntity))
 				return;
@@ -74,35 +73,33 @@ public class ToolboxEquipPacket extends SimplePacketBase {
 
 			ToolboxTileEntity toolboxTileEntity = (ToolboxTileEntity) blockEntity;
 
-			ItemStack playerStack = player.inventory.getItem(hotbarSlot);
+			ItemStack playerStack = player.getInventory().getItem(hotbarSlot);
 			if (!playerStack.isEmpty() && !ToolboxInventory.canItemsShareCompartment(playerStack,
-				toolboxTileEntity.inventory.filters.get(slot))) {
+					toolboxTileEntity.inventory.filters.get(slot))) {
 				toolboxTileEntity.inventory.inLimitedMode(inventory -> {
 					ItemStack remainder = ItemHandlerHelper.insertItemStacked(inventory, playerStack, false);
 					if (!remainder.isEmpty())
-						remainder = ItemHandlerHelper.insertItemStacked(new ItemReturnInvWrapper(player.inventory),
-							remainder, false);
+						remainder = ItemHandlerHelper.insertItemStacked(new ItemReturnInvWrapper(player.getInventory()),
+								remainder, false);
 					if (remainder.getCount() != playerStack.getCount())
-						player.inventory.setItem(hotbarSlot, remainder);
+						player.getInventory().setItem(hotbarSlot, remainder);
 				});
 			}
 
-			CompoundNBT compound = player.getPersistentData()
-				.getCompound("CreateToolboxData");
+			CompoundTag compound = EntityHelper.getExtraCustomData(player)
+					.getCompound("CreateToolboxData");
 			String key = String.valueOf(hotbarSlot);
 
-			CompoundNBT data = new CompoundNBT();
+			CompoundTag data = new CompoundTag();
 			data.putInt("Slot", slot);
-			data.put("Pos", NBTUtil.writeBlockPos(toolboxPos));
+			data.put("Pos", NbtUtils.writeBlockPos(toolboxPos));
 			compound.put(key, data);
 
-			player.getPersistentData()
-				.put("CreateToolboxData", compound);
+			EntityHelper.getExtraCustomData(player)
+					.put("CreateToolboxData", compound);
 
 			toolboxTileEntity.connectPlayer(slot, player, hotbarSlot);
 			ToolboxHandler.syncData(player);
 		});
-		ctx.setPacketHandled(true);
 	}
-
 }

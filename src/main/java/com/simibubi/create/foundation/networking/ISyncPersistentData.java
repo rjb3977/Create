@@ -57,8 +57,6 @@ public interface ISyncPersistentData {
 						return;
 					((ISyncPersistentData) entityByID).onPersistentDataUpdated();
 				});
-			context.get()
-				.setPacketHandled(true);
 		}
 	}
 

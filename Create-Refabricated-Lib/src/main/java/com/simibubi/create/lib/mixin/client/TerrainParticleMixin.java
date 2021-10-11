@@ -1,11 +1,9 @@
 package com.simibubi.create.lib.mixin.client;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.simibubi.create.lib.extensions.DiggingParticleExtensions;
+import com.simibubi.create.lib.extensions.TerrainParticleExtensions;
 import com.simibubi.create.lib.utility.MixinHelper;
 
 import net.fabricmc.api.EnvType;
@@ -24,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(TerrainParticle.class)
-public abstract class TerrainParticleMixin extends TextureSheetParticle implements DiggingParticleExtensions {
+public abstract class TerrainParticleMixin extends TextureSheetParticle implements TerrainParticleExtensions {
 	@Unique
 	private BlockState create$state;
 

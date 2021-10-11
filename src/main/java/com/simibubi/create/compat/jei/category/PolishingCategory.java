@@ -15,7 +15,7 @@ package com.simibubi.create.compat.jei.category;
 //import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 //import mezz.jei.api.ingredients.IIngredients;
 //import net.minecraft.item.ItemStack;
-//import net.minecraft.item.crafting.Ingredient;
+//import net.minecraft.item.Crafting.Ingredient;
 //import net.minecraft.nbt.CompoundNBT;
 //import net.minecraft.util.NonNullList;
 //

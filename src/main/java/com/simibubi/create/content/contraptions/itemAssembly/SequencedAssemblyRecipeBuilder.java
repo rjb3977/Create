@@ -18,8 +18,8 @@ package com.simibubi.create.content.contraptions.itemAssembly;
 //import net.minecraft.tags.Tag;
 //import net.minecraft.world.item.Item;
 //import net.minecraft.world.item.ItemStack;
-//import net.minecraft.world.item.crafting.Ingredient;
-//import net.minecraft.world.item.crafting.RecipeSerializer;
+//import net.minecraft.world.item.Crafting.Ingredient;
+//import net.minecraft.world.item.Crafting.RecipeSerializer;
 //import net.minecraft.world.level.ItemLike;
 //
 //public class SequencedAssemblyRecipeBuilder {

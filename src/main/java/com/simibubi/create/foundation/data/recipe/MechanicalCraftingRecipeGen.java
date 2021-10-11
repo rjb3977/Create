@@ -9,7 +9,7 @@ package com.simibubi.create.foundation.data.recipe;
 //
 //import net.minecraft.block.Blocks;
 //import net.minecraft.data.DataGenerator;
-//import net.minecraft.item.crafting.Ingredient;
+//import net.minecraft.item.Crafting.Ingredient;
 //import net.minecraft.tags.ItemTags;
 //import net.minecraft.util.IItemProvider;
 //import net.minecraft.util.ResourceLocation;

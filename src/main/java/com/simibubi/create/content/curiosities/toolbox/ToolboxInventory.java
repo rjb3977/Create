@@ -10,11 +10,13 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.foundation.utility.NBTHelper;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraftforge.common.util.Constants.NBT;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import com.simibubi.create.lib.transfer.item.ItemHandlerHelper;
+import com.simibubi.create.lib.transfer.item.ItemStackHandler;
+
+import com.simibubi.create.lib.utility.Constants;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 public class ToolboxInventory extends ItemStackHandler {
 
@@ -128,8 +130,8 @@ public class ToolboxInventory extends ItemStackHandler {
 	}
 
 	@Override
-	public CompoundNBT serializeNBT() {
-		CompoundNBT compound = super.serializeNBT();
+	public CompoundTag serializeNBT() {
+		CompoundTag compound = super.serializeNBT();
 		compound.put("Compartments", NBTHelper.writeItemList(filters));
 		return compound;
 	}
@@ -142,8 +144,8 @@ public class ToolboxInventory extends ItemStackHandler {
 	}
 
 	@Override
-	public void deserializeNBT(CompoundNBT nbt) {
-		filters = NBTHelper.readItemList(nbt.getList("Compartments", NBT.TAG_COMPOUND));
+	public void deserializeNBT(CompoundTag nbt) {
+		filters = NBTHelper.readItemList(nbt.getList("Compartments", Constants.NBT.TAG_COMPOUND));
 		if (filters.size() != 8) {
 			filters.clear();
 			for (int i = 0; i < 8; i++)

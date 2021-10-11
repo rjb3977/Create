@@ -34,6 +34,7 @@ import com.simibubi.create.content.contraptions.relays.belt.BeltSlicer;
 import com.simibubi.create.content.contraptions.relays.belt.item.BeltConnectorHandler;
 import com.simibubi.create.content.curiosities.armor.CopperBacktankArmorLayer;
 import com.simibubi.create.content.curiosities.symmetry.SymmetryHandler;
+import com.simibubi.create.content.curiosities.toolbox.ToolboxHandlerClient;
 import com.simibubi.create.content.curiosities.tools.BlueprintOverlayRenderer;
 import com.simibubi.create.content.curiosities.tools.ExtendoGripRenderHandler;
 import com.simibubi.create.content.curiosities.zapper.ZapperItem;

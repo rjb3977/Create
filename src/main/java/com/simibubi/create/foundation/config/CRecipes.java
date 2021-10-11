@@ -38,11 +38,11 @@ public class CRecipes extends ConfigBase {
 		static String bulkPressing = "Allow the Mechanical Press to process entire stacks at a time.";
 		static String bulkCutting = "Allow the Mechanical Saw to process entire stacks at a time.";
 		static String allowShapelessInMixer =
-			"Allow allows any shapeless crafting recipes to be processed by a Mechanical Mixer + Basin.";
+			"Allow allows any shapeless Crafting recipes to be processed by a Mechanical Mixer + Basin.";
 		static String allowShapedSquareInPress =
-			"Allow any single-ingredient 2x2 or 3x3 crafting recipes to be processed by a Mechanical Press + Basin.";
+			"Allow any single-ingredient 2x2 or 3x3 Crafting recipes to be processed by a Mechanical Press + Basin.";
 		static String allowRegularCraftingInCrafter =
-			"Allow any standard crafting recipes to be processed by Mechanical Crafters.";
+			"Allow any standard Crafting recipes to be processed by Mechanical Crafters.";
 		static String allowBiggerFireworksInCrafter =
 			"Allow Firework Rockets with more than 9 ingredients to be crafted using Mechanical Crafters.";
 		static String allowStonecuttingOnSaw =

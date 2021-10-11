@@ -2,6 +2,6 @@ package com.simibubi.create.lib.extensions;
 
 import java.util.Locale;
 
-public interface LanguageExtensions {
+public interface LanguageInfoExtensions {
 	Locale create$getJavaLocale();
 }

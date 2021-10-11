@@ -3,9 +3,9 @@ package com.simibubi.create.content.curiosities.zapper.terrainzapper;
 import com.simibubi.create.content.curiosities.zapper.ConfigureZapperPacket;
 import com.simibubi.create.content.curiosities.zapper.PlacementPatterns;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Hand;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 
 public class ConfigureWorldshaperPacket extends ConfigureZapperPacket {
 
@@ -16,7 +16,7 @@ public class ConfigureWorldshaperPacket extends ConfigureZapperPacket {
 	protected TerrainTools tool;
 	protected PlacementOptions placement;
 
-	public ConfigureWorldshaperPacket(Hand hand, PlacementPatterns pattern, TerrainBrushes brush, int brushParamX, int brushParamY, int brushParamZ, TerrainTools tool, PlacementOptions placement) {
+	public ConfigureWorldshaperPacket(InteractionHand hand, PlacementPatterns pattern, TerrainBrushes brush, int brushParamX, int brushParamY, int brushParamZ, TerrainTools tool, PlacementOptions placement) {
 		super(hand, pattern);
 		this.brush = brush;
 		this.brushParamX = brushParamX;
@@ -26,8 +26,8 @@ public class ConfigureWorldshaperPacket extends ConfigureZapperPacket {
 		this.placement = placement;
 	}
 
-	public ConfigureWorldshaperPacket(PacketBuffer buffer) {
-		super(buffer);
+	public void read(FriendlyByteBuf buffer) {
+		super.read(buffer);
 		brush = buffer.readEnum(TerrainBrushes.class);
 		brushParamX = buffer.readVarInt();
 		brushParamY = buffer.readVarInt();
@@ -37,7 +37,7 @@ public class ConfigureWorldshaperPacket extends ConfigureZapperPacket {
 	}
 
 	@Override
-	public void write(PacketBuffer buffer) {
+	public void write(FriendlyByteBuf buffer) {
 		super.write(buffer);
 		buffer.writeEnum(brush);
 		buffer.writeVarInt(brushParamX);

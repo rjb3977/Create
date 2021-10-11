@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.simibubi.create.lib.extensions.AbstractRailBlockExtensions;
+import com.simibubi.create.lib.extensions.BaseRailBlockExtensions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.level.BlockGetter;
@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.RailShape;
 
 @Mixin(BaseRailBlock.class)
-public abstract class BaseRailBlockMixin implements AbstractRailBlockExtensions {
+public abstract class BaseRailBlockMixin implements BaseRailBlockExtensions {
 	@Shadow
 	public abstract Property<RailShape> getShapeProperty();
 

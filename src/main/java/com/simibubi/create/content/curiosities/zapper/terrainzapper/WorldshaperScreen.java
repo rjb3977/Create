@@ -16,14 +16,15 @@ import com.simibubi.create.foundation.gui.widgets.SelectionScrollInput;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.NBTHelper;
 
+import com.simibubi.create.lib.utility.Constants;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.util.Hand;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.Constants;
 
 public class WorldshaperScreen extends ZapperScreen {
 
@@ -51,15 +52,15 @@ public class WorldshaperScreen extends ZapperScreen {
 	protected TerrainTools currentTool;
 	protected PlacementOptions currentPlacement;
 
-	public WorldshaperScreen(ItemStack zapper, Hand hand) {
+	public WorldshaperScreen(ItemStack zapper, InteractionHand hand) {
 		super(AllGuiTextures.TERRAINZAPPER, zapper, hand);
 		fontColor = 0x767676;
 		title = zapper.getHoverName();
 
-		CompoundNBT nbt = zapper.getOrCreateTag();
+		CompoundTag nbt = zapper.getOrCreateTag();
 		currentBrush = NBTHelper.readEnum(nbt, "Brush", TerrainBrushes.class);
 		if (nbt.contains("BrushParams", Constants.NBT.TAG_COMPOUND)) {
-			BlockPos paramsData = NBTUtil.readBlockPos(nbt.getCompound("BrushParams"));
+			BlockPos paramsData = NbtUtils.readBlockPos(nbt.getCompound("BrushParams"));
 			currentBrushParams[0] = paramsData.getX();
 			currentBrushParams[1] = paramsData.getY();
 			currentBrushParams[2] = paramsData.getZ();

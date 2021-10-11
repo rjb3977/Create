@@ -191,7 +191,7 @@ public abstract class ZapperItem extends Item implements EntitySwingListenerItem
 		BlockHitResult raytrace, CompoundTag data);
 
 	@Environment(EnvType.CLIENT)
-	protected abstract void openHandgunGUI(ItemStack item, Hand hand);
+	protected abstract void openHandgunGUI(ItemStack item, InteractionHand hand);
 
 	protected abstract int getCooldownDelay(ItemStack item);
 
@@ -217,7 +217,7 @@ public abstract class ZapperItem extends Item implements EntitySwingListenerItem
 	}
 
 	public static void configureSettings(ItemStack stack, PlacementPatterns pattern) {
-		CompoundNBT nbt = stack.getOrCreateTag();
+		CompoundTag nbt = stack.getOrCreateTag();
 		NBTHelper.writeEnum(nbt, "Pattern", pattern);
 	}
 

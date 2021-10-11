@@ -23,8 +23,8 @@ public class PotatoCannonPacket extends ShootGadgetPacket {
 		this.pitch = pitch;
 	}
 
-	public PotatoCannonPacket(FriendlyByteBuf buffer) {
-		super(buffer);
+	public void read(FriendlyByteBuf buffer) {
+		super.read(buffer);
 	}
 
 	@Override

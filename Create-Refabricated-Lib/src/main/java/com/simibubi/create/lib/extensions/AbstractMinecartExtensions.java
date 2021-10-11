@@ -4,7 +4,7 @@ import com.simibubi.create.lib.utility.MinecartController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 
-public interface AbstractMinecartEntityExtensions {
+public interface AbstractMinecartExtensions {
 	void create$moveMinecartOnRail(BlockPos pos);
 
 	ItemStack create$getCartItem();

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.simibubi.create.lib.block.MinecartPassHandlerBlock;
-import com.simibubi.create.lib.extensions.AbstractMinecartEntityExtensions;
+import com.simibubi.create.lib.extensions.AbstractMinecartExtensions;
 import com.simibubi.create.lib.utility.MinecartController;
 import com.simibubi.create.lib.utility.MixinHelper;
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(AbstractMinecart.class)
-public abstract class AbstractMinecartMixin extends Entity implements AbstractMinecartEntityExtensions {
+public abstract class AbstractMinecartMixin extends Entity implements AbstractMinecartExtensions {
 	public boolean create$canUseRail = true;
 	public MinecartController create$controller = null;
 

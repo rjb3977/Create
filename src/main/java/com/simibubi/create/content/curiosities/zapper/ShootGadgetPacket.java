@@ -23,7 +23,7 @@ public abstract class ShootGadgetPacket implements S2CPacket {
 		this.self = self;
 	}
 
-	public ShootGadgetPacket(FriendlyByteBuf buffer) {
+	public void read(FriendlyByteBuf buffer) {
 		hand = buffer.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 		self = buffer.readBoolean();
 		location = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());

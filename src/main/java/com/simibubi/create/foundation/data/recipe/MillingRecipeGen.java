@@ -11,8 +11,8 @@ package com.simibubi.create.foundation.data.recipe;
 //import net.minecraft.item.Item;
 //import net.minecraft.item.Items;
 //import net.minecraft.tags.ItemTags;
-//import net.minecraftforge.common.crafting.conditions.NotCondition;
-//import net.minecraftforge.common.crafting.conditions.TagEmptyCondition;
+//import net.minecraftforge.common.Crafting.conditions.NotCondition;
+//import net.minecraftforge.common.Crafting.conditions.TagEmptyCondition;
 //
 //public class MillingRecipeGen extends ProcessingRecipeGen {
 //

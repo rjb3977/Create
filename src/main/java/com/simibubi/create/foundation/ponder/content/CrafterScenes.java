@@ -192,7 +192,7 @@ public class CrafterScenes {
 
 		scene.overlay.showText(80)
 			.attachKeyFrame()
-			.text("Once every slot of a path contains an Item, the crafting process will begin")
+			.text("Once every slot of a path contains an Item, the Crafting process will begin")
 			.pointAt(util.vector.blockSurface(util.grid.at(1, 3, 2), Direction.WEST))
 			.placeNearTarget();
 		scene.idle(180);

@@ -28,7 +28,7 @@ import com.simibubi.create.content.contraptions.components.structureMovement.Abs
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionCollider;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionHandler;
-import com.simibubi.create.lib.extensions.BlockParticleDataExtensions;
+import com.simibubi.create.lib.extensions.BlockParticleOptionExtensions;
 import com.simibubi.create.lib.extensions.BlockStateExtensions;
 
 @Mixin(Entity.class)
@@ -113,7 +113,7 @@ public abstract class EntityContraptionInteractionMixin {
 			if (!((BlockStateExtensions) blockstate).create$addRunningEffects(self.level, blockpos, self)
 				&& blockstate.getRenderShape() != RenderShape.INVISIBLE) {
 				Vec3 vec3d = self.getDeltaMovement();
-				self.level.addParticle(((BlockParticleDataExtensions) new BlockParticleOption(ParticleTypes.BLOCK, blockstate)).create$setPos(pos),
+				self.level.addParticle(((BlockParticleOptionExtensions) new BlockParticleOption(ParticleTypes.BLOCK, blockstate)).create$setPos(pos),
 					self.getX() + ((double) random.nextFloat() - 0.5D) * (double) self.getBbWidth(), self.getY() + 0.1D,
 					self.getZ() + ((double) random.nextFloat() - 0.5D) * (double) self.getBbWidth(), vec3d.x * -4.0D, 1.5D,
 					vec3d.z * -4.0D);

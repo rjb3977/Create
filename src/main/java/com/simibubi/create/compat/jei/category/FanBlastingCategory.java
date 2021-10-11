@@ -6,7 +6,7 @@ package com.simibubi.create.compat.jei.category;
 //
 //import net.minecraft.fluid.Fluids;
 //import net.minecraft.item.Items;
-//import net.minecraft.item.crafting.AbstractCookingRecipe;
+//import net.minecraft.item.Crafting.AbstractCookingRecipe;
 //
 //public class FanBlastingCategory extends ProcessingViaFanCategory<AbstractCookingRecipe> {
 //

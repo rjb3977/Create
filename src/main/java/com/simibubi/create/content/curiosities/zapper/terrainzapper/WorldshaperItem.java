@@ -13,8 +13,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.util.Hand;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ public class WorldshaperItem extends ZapperItem {
 
 	@Override
 	@Environment(value = EnvType.CLIENT)
-	protected void openHandgunGUI(ItemStack item, Hand hand) {
+	protected void openHandgunGUI(ItemStack item, InteractionHand hand) {
 		ScreenOpener.open(new WorldshaperScreen(item, hand));
 	}
 
@@ -84,9 +84,9 @@ public class WorldshaperItem extends ZapperItem {
 
 	public static void configureSettings(ItemStack stack, PlacementPatterns pattern, TerrainBrushes brush, int brushParamX, int brushParamY, int brushParamZ, TerrainTools tool, PlacementOptions placement) {
 		ZapperItem.configureSettings(stack, pattern);
-		CompoundNBT nbt = stack.getOrCreateTag();
+		CompoundTag nbt = stack.getOrCreateTag();
 		NBTHelper.writeEnum(nbt, "Brush", brush);
-		nbt.put("BrushParams", NBTUtil.writeBlockPos(new BlockPos(brushParamX, brushParamY, brushParamZ)));
+		nbt.put("BrushParams", NbtUtils.writeBlockPos(new BlockPos(brushParamX, brushParamY, brushParamZ)));
 		nbt.putString("Tool", tool.name());
 		nbt.putString("Placement", placement.name());
 	}

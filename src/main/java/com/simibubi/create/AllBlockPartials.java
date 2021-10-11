@@ -10,6 +10,8 @@ import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlo
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.Lang;
 
+import net.minecraft.world.item.DyeColor;
+
 public class AllBlockPartials {
 
 	public static final PartialModel SCHEMATICANNON_CONNECTOR = get("schematicannon/connector"),

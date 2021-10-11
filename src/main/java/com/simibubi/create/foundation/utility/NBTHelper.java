@@ -6,6 +6,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
+
+import com.simibubi.create.lib.utility.Constants;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
@@ -13,7 +16,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import com.simibubi.create.lib.utility.NBTSerializer;
-import net.minecraftforge.common.util.Constants.NBT;
 
 public class NBTHelper {
 
@@ -25,7 +27,7 @@ public class NBTHelper {
 		T[] enumConstants = enumClass.getEnumConstants();
 		if (enumConstants == null)
 			throw new IllegalArgumentException("Non-Enum class passed to readEnum: " + enumClass.getName());
-		if (nbt.contains(key, NBT.TAG_STRING)) {
+		if (nbt.contains(key, Constants.NBT.TAG_STRING)) {
 			String name = nbt.getString(key);
 			for (T t : enumConstants) {
 				if (t.name()
