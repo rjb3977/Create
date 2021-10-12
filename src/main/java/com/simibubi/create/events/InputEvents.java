@@ -36,14 +36,15 @@ public class InputEvents {
 		return cancelled;
 	}
 
-	public static void onMouseInput(int button, int action, int mods) {
+	public static InteractionResult onMouseInput(int button, int action, int mods) {
 		if (Minecraft.getInstance().screen != null)
-			return;
+			return InteractionResult.PASS;
 
 		boolean pressed = action != 0;
 
 		CreateClient.SCHEMATIC_HANDLER.onMouseInput(button, pressed);
 		CreateClient.SCHEMATIC_AND_QUILL_HANDLER.onMouseInput(button, pressed);
+		return InteractionResult.PASS;
 	}
 
 	public static InteractionResult onClickInput(int button, int action, int mods) {

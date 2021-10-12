@@ -10,6 +10,7 @@ import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.Color;
 import com.simibubi.create.foundation.utility.Iterate;
 
+import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import net.fabricmc.api.EnvType;
@@ -127,9 +128,9 @@ public class FluidRenderer {
 				ms.pushPose();
 
 				if (side.getAxisDirection() == AxisDirection.NEGATIVE)
-					msr.translate(center)
+					msr.translate(VecHelper.toVec3d(center))
 						.rotateY(180)
-						.translateBack(center);
+						.translateBack(VecHelper.toVec3d(center));
 
 				boolean X = side.getAxis() == Axis.X;
 				int darkColor = Color.mixColors(color, 0xff000011, 1 / 4f);

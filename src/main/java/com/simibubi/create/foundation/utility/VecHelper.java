@@ -124,6 +124,10 @@ public class VecHelper {
 		return axisAlingedPlaneOf(Vec3.atLowerCornerOf(face.getNormal()));
 	}
 
+	public static Vector3d toVec3d(Vec3 old) {
+		return new Vector3d(old.x, old.y, old.z);
+	}
+
 	public static ListTag writeNBT(Vec3 vec) {
 		ListTag listnbt = new ListTag();
 		listnbt.add(DoubleTag.valueOf(vec.x));

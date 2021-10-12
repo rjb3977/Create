@@ -3,6 +3,7 @@ package com.simibubi.create.content.contraptions.processing;
 import java.util.Random;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3d;
 import com.simibubi.create.foundation.fluid.FluidRenderer;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
@@ -131,9 +132,9 @@ public class BasinRenderer extends SmartTileEntityRenderer<BasinTileEntity> {
 
 			ms.pushPose();
 			MatrixTransformStack.of(ms)
-				.translate(outVec)
-				.translate(new Vec3(0, Math.max(-.55f, -(progress * progress * 2)), 0))
-				.translate(directionVec.scale(progress * .5f))
+				.translate(VecHelper.toVec3d(outVec))
+				.translate(new Vector3d(0, Math.max(-.55f, -(progress * progress * 2)), 0))
+				.translate(VecHelper.toVec3d(directionVec.scale(progress * .5f)))
 				.rotateY(AngleHelper.horizontalAngle(direction))
 				.rotateX(progress * 180);
 			renderItem(ms, buffer, light, overlay, intAttached.getValue());

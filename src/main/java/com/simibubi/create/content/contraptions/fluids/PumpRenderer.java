@@ -2,6 +2,7 @@ package com.simibubi.create.content.contraptions.fluids;
 
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3d;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
 import com.simibubi.create.content.contraptions.base.KineticTileEntityRenderer;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -29,7 +31,7 @@ public class PumpRenderer extends KineticTileEntityRenderer {
 		if (!(te instanceof PumpTileEntity))
 			return;
 		PumpTileEntity pump = (PumpTileEntity) te;
-		Vec3 rotationOffset = new Vec3(.5, 14 / 16f, .5);
+		Vector3d rotationOffset = new Vector3d(.5, 14 / 16f, .5);
 		BlockState blockState = te.getBlockState();
 		float angle = Mth.lerp(pump.arrowDirection.getValue(partialTicks), 0, 90) - 90;
 		for (float yRot : new float[] { 0, 90 }) {

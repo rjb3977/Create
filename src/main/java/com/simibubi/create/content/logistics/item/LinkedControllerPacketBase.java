@@ -20,6 +20,7 @@ public abstract class LinkedControllerPacketBase implements C2SPacket {
 		this.lecternPos = lecternPos;
 	}
 
+	@Override
 	public void read(FriendlyByteBuf buffer) {
 		if (buffer.readBoolean()) {
 			lecternPos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());

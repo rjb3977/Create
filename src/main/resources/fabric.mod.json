@@ -48,10 +48,8 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
-    "minecraft": "1.16.x",
+    "minecraft": "1.17.x",
     "create_lib": "*",
-    "registrate": "*",
-    "libblockattributes_items": "*",
-    "libblockattributes_fluids": "*"
+    "registrate": "*"
   }
 }

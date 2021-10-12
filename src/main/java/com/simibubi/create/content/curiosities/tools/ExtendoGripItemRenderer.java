@@ -2,6 +2,7 @@ package com.simibubi.create.content.curiosities.tools;
 
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3d;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
@@ -15,8 +16,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class ExtendoGripItemRenderer extends CustomRenderedItemModelRenderer<ExtendoGripModel> {
 
-	private static final Vec3 rotationOffset = new Vec3(0, 1 / 2f, 1 / 2f);
-	private static final Vec3 cogRotationOffset = new Vec3(0, 1 / 16f, 0);
+	private static final Vector3d rotationOffset = new Vector3d(0, 1 / 2f, 1 / 2f);
+	private static final Vector3d cogRotationOffset = new Vector3d(0, 1 / 16f, 0);
 
 	@Override
 	protected void render(ItemStack stack, ExtendoGripModel model, PartialItemModelRenderer renderer, TransformType transformType,

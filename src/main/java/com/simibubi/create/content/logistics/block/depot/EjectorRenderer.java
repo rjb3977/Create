@@ -68,12 +68,12 @@ public class EjectorRenderer extends KineticTileEntityRenderer {
 
 			ms.pushPose();
 			Vec3 launchedItemLocation = ejector.getLaunchedItemLocation(time);
-			msr.translate(launchedItemLocation.subtract(Vec3.atLowerCornerOf(te.getBlockPos())));
+			msr.translate(VecHelper.toVec3d(launchedItemLocation.subtract(Vec3.atLowerCornerOf(te.getBlockPos()))));
 			Vec3 itemRotOffset = VecHelper.voxelSpace(0, 3, 0);
-			msr.translate(itemRotOffset);
+			msr.translate(VecHelper.toVec3d(itemRotOffset));
 			msr.rotateY(AngleHelper.horizontalAngle(ejector.getFacing()));
 			msr.rotateX(time * 40);
-			msr.translateBack(itemRotOffset);
+			msr.translateBack(VecHelper.toVec3d(itemRotOffset));
 			Minecraft.getInstance()
 				.getItemRenderer()
 				.renderStatic(intAttached.getValue(), TransformType.GROUND, light, overlay, ms, buffer, 1);
@@ -103,9 +103,9 @@ public class EjectorRenderer extends KineticTileEntityRenderer {
 			.rotateY(180 + AngleHelper.horizontalAngle(te.getBlockState()
 				.getValue(EjectorBlock.HORIZONTAL_FACING)))
 			.unCentre()
-			.translate(rotationOffset)
+			.translate(VecHelper.toVec3d(rotationOffset))
 			.rotateX(-angle)
-			.translateBack(rotationOffset);
+			.translateBack(VecHelper.toVec3d(rotationOffset));
 	}
 
 	@Override

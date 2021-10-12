@@ -19,7 +19,10 @@ public class ZapperBeamPacket extends ShootGadgetPacket {
 	}
 
 	public void read(FriendlyByteBuf buffer) {
-		super.read(buffer);
+		hand = buffer.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+		self = buffer.readBoolean();
+		location = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
+		readAdditional(buffer);
 	}
 
 	@Override

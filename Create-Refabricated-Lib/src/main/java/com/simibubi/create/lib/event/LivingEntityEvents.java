@@ -58,7 +58,7 @@ public class LivingEntityEvents {
 
 	@FunctionalInterface
 	public interface KnockBackStrength {
-		float onLivingEntityTakeKnockback(float strength, Player player);
+		double onLivingEntityTakeKnockback(double strength, Player player);
 	}
 
 	@FunctionalInterface

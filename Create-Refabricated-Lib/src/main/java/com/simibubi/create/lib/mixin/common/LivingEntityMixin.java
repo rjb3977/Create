@@ -98,16 +98,11 @@ public abstract class LivingEntityMixin extends Entity {
 	}
 
 	@ModifyVariable(method = "knockback", at = @At("STORE"), ordinal = 0)
-	private float create$takeKnockback(float f) {
+	private double create$takeKnockback(double f) {
 		if (lastHurtByPlayer != null)
 			return LivingEntityEvents.KNOCKBACK_STRENGTH.invoker().onLivingEntityTakeKnockback(f, lastHurtByPlayer);
 
 		return f;
-	}
-
-	@ModifyVariable(method = "dropExperience", at = @At("STORE"), ordinal = 0)
-	private int create$dropXp(int i) {
-		return LivingEntityEvents.EXPERIENCE_DROP.invoker().onLivingEntityExperienceDrop(i, lastHurtByPlayer);
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I", shift = At.Shift.BEFORE),

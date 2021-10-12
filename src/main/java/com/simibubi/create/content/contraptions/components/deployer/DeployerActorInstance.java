@@ -97,7 +97,7 @@ public class DeployerActorInstance extends ActorInstance {
         MatrixTransformStack msr = MatrixTransformStack.of(ms);
 
         msr.translate(context.localPos)
-           .translate(offset);
+           .translate(VecHelper.toVec3d(offset));
 
         transformModel(msr, pole, hand, yRot, zRot, zRotPole);
     }

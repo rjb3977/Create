@@ -81,9 +81,9 @@ public class HarvesterActorInstance extends ActorInstance {
            .centre()
            .rotateY(horizontalAngle)
            .unCentre()
-           .translate(rotOffset)
+           .translate(VecHelper.toVec3d(rotOffset))
            .rotateX(getRotation())
-           .translateBack(rotOffset);
+           .translateBack(VecHelper.toVec3d(rotOffset));
 
         harvester.setTransform(ms);
     }

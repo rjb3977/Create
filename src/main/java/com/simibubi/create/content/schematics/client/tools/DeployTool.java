@@ -6,6 +6,7 @@ import com.simibubi.create.AllKeys;
 import com.simibubi.create.content.schematics.client.SchematicTransformation;
 import com.simibubi.create.foundation.renderState.SuperRenderTypeBuffer;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
+import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.outliner.AABBOutline;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NbtUtils;
@@ -59,11 +60,11 @@ public class DeployTool extends PlacementToolBase {
 
 		ms.translate(x - centerX, y, z - centerZ);
 		MatrixTransformStack.of(ms)
-			.translate(origin)
-			.translate(rotationOffset)
+			.translate(VecHelper.toVec3d(origin))
+			.translate(VecHelper.toVec3d(rotationOffset))
 			.rotateY(transformation.getCurrentRotation())
-			.translateBack(rotationOffset)
-			.translateBack(origin);
+			.translateBack(VecHelper.toVec3d(rotationOffset))
+			.translateBack(VecHelper.toVec3d(origin));
 
 		AABBOutline outline = schematicHandler.getOutline();
 		outline.render(ms, buffer, pt);

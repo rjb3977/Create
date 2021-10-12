@@ -68,9 +68,9 @@ public class FunnelRenderer extends SmartTileEntityRenderer<FunnelTileEntity> {
 			if (f > 0)
 				flapAngle *= .5f;
 
-			msr.translate(pivot)
+			msr.translate(VecHelper.toVec3d(pivot))
 				.rotateX(flapAngle)
-				.translateBack(pivot);
+				.translateBack(VecHelper.toVec3d(pivot));
 
 			flapBuffer.light(light)
 				.renderInto(ms, vb);
