@@ -5,6 +5,9 @@ import java.util.Optional;
 import java.util.Random;
 
 import javax.annotation.Nullable;
+
+import com.mojang.math.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -45,38 +48,9 @@ import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.Iterate;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.block.SixWayBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.network.DebugPacketSender;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockDisplayReader;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.TickPriority;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.phys.Vec3;
 
-public class FluidPipeBlock extends SixWayBlock implements SimpleWaterloggedBlock, IWrenchableWithBracket, EntityBlock {
+public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock, IWrenchableWithBracket, EntityBlock {
 
 	public FluidPipeBlock(Properties properties) {
 		super(4 / 16f, properties);
@@ -94,14 +68,14 @@ public class FluidPipeBlock extends SixWayBlock implements SimpleWaterloggedBloc
 
 		Axis axis = getAxis(world, pos, state);
 		if (axis == null) {
-			Vector3d clickLocation = context.getClickLocation()
+			Vec3 clickLocation = context.getClickLocation()
 				.subtract(pos.getX(), pos.getY(), pos.getZ());
 			double closest = Float.MAX_VALUE;
 			Direction argClosest = Direction.UP;
 			for (Direction direction : Iterate.directions) {
 				if (clickedFace.getAxis() == direction.getAxis())
 					continue;
-				Vector3d centerOf = Vector3d.atCenterOf(direction.getNormal());
+				Vec3 centerOf = Vec3.atCenterOf(direction.getNormal());
 				double distance = centerOf.distanceToSqr(clickLocation);
 				if (distance < closest) {
 					closest = distance;
@@ -112,7 +86,7 @@ public class FluidPipeBlock extends SixWayBlock implements SimpleWaterloggedBloc
 		}
 
 		if (clickedFace.getAxis() == axis)
-			return ActionResultType.PASS;
+			return InteractionResult.PASS;
 		if (!world.isClientSide) {
 			FluidTransportBehaviour.cacheFlows(world, pos);
 			world.setBlockAndUpdate(pos, AllBlocks.GLASS_FLUID_PIPE.getDefaultState()

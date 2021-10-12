@@ -21,7 +21,7 @@ public class ValueBoxRenderer {
 	public static void renderItemIntoValueBox(ItemStack filter, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 		BakedModel modelWithOverrides = itemRenderer.getModel(filter, Minecraft.getInstance().level, null, 1);
-		boolean blockItem = modelWithOverrides.isGui3d() && !(modelWithOverrides instanceof ItemMultiLayerBakedModel);
+		boolean blockItem = modelWithOverrides.isGui3d();// && !(modelWithOverrides instanceof ItemMultiLayerBakedModel); FIXME: PORT
 		float scale = (!blockItem ? .5f : 1f) - 1 / 64f;
 		float zOffset = (!blockItem ? -.225f : 0) + customZOffset(filter.getItem());
 		ms.scale(scale, scale, scale);

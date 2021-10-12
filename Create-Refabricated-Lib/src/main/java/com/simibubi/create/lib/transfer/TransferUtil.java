@@ -73,6 +73,14 @@ public class TransferUtil {
 
 	// Helpers
 
+	public static LazyOptional<?> getHandler(BlockEntity be, Direction direction, Class<?> handler) {
+		if (handler == IItemHandler.class) {
+			return getItemHandler(be, direction);
+		} else if (handler == IFluidHandler.class) {
+			return getFluidHandler(be, direction);
+		} else throw new RuntimeException("Handler class must be IItemHandler or IFluidHandler");
+	}
+
 	/**
 	 * Returns either an IFluidHandler or an IItemHandler, wrapped in a LazyOptional.
 	 */

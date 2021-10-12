@@ -2,6 +2,8 @@ package com.simibubi.create.content.logistics.block.redstone;
 
 import java.util.List;
 
+import com.simibubi.create.lib.transfer.fluid.FluidStack;
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
 import com.simibubi.create.lib.transfer.item.IItemHandler;
 
 import net.minecraft.core.BlockPos;
@@ -99,8 +101,8 @@ public class StockpileSwitchTileEntity extends SmartTileEntity {
 				IFluidHandler tank = observedTank.getInventory();
 				for (int slot = 0; slot < tank.getTanks(); slot++) {
 					FluidStack stackInSlot = tank.getFluidInTank(slot);
-					int space = tank.getTankCapacity(slot);
-					int count = stackInSlot.getAmount();
+					long space = tank.getTankCapacity(slot);
+					long count = stackInSlot.getAmount();
 					if (space == 0)
 						continue;
 

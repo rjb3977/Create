@@ -4,6 +4,9 @@ import java.util.Random;
 
 import com.simibubi.create.lib.transfer.TransferUtil;
 
+import com.simibubi.create.lib.transfer.fluid.IFluidHandler;
+import com.simibubi.create.lib.transfer.item.IItemHandler;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -70,8 +73,6 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		BlockState state = defaultBlockState();
-		Capability<IItemHandler> itemCap = CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
-		Capability<IFluidHandler> fluidCap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
 
 		Direction preferredFacing = null;
 		for (Direction face : Iterate.horizontalDirections) {
@@ -87,7 +88,7 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 				canDetect = true;
 			else if (tileEntity != null && (TransferUtil.getItemHandler(tileEntity)
 				.isPresent()
-				|| TransferUtil.getItemHandler(tileEntity)
+				|| TransferUtil.getFluidHandler(tileEntity)
 					.isPresent()))
 				canDetect = true;
 			else if (tileEntity instanceof FunnelTileEntity)

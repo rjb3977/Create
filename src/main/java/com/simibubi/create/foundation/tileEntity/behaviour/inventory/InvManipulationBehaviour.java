@@ -52,8 +52,8 @@ public class InvManipulationBehaviour extends CapManipulationBehaviourBase<IItem
 	}
 
 	@Override
-	protected Capability<IItemHandler> capability() {
-		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+	protected Class<IItemHandler> capability() {
+		return IItemHandler.class;
 	}
 
 	public ItemStack extract() {

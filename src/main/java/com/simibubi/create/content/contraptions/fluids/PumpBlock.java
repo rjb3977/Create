@@ -54,7 +54,7 @@ public class PumpBlock extends DirectionalKineticBlock implements SimpleWaterlog
 	}
 
 	@Override
-	public BlockState updateAfterWrenched(BlockState newState, ItemUseContext context) {
+	public BlockState updateAfterWrenched(BlockState newState, UseOnContext context) {
 		return super.updateAfterWrenched(newState, context);
 	}
 
@@ -128,7 +128,7 @@ public class PumpBlock extends DirectionalKineticBlock implements SimpleWaterlog
 
 		if (isPump(state) && isPump(oldState) && state.getValue(FACING) == oldState.getValue(FACING)
 			.getOpposite()) {
-			TileEntity tileEntity = world.getBlockEntity(pos);
+			BlockEntity tileEntity = world.getBlockEntity(pos);
 			if (!(tileEntity instanceof PumpTileEntity))
 				return;
 			PumpTileEntity pump = (PumpTileEntity) tileEntity;

@@ -1,6 +1,11 @@
 package com.simibubi.create.content.logistics.block.redstone;
 
 import java.util.List;
+
+import com.simibubi.create.content.contraptions.fluids.FluidTransportBehaviour;
+
+import com.simibubi.create.content.contraptions.fluids.PipeConnection;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -74,7 +79,7 @@ public class ContentObserverTileEntity extends SmartTileEntity {
 			TileEntityBehaviour.get(level, targetPos, FluidTransportBehaviour.TYPE);
 		if (fluidBehaviour != null) {
 			for (Direction side : Iterate.directions) {
-				Flow flow = fluidBehaviour.getFlow(side);
+				PipeConnection.Flow flow = fluidBehaviour.getFlow(side);
 				if (flow == null || !flow.inbound || !flow.complete)
 					continue;
 				if (!filtering.test(flow.fluid))

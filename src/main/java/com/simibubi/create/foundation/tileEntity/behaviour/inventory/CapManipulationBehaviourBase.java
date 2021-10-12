@@ -6,14 +6,15 @@ import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.utility.BlockFace;
+import com.simibubi.create.lib.transfer.TransferUtil;
+import com.simibubi.create.lib.utility.LazyOptional;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public abstract class CapManipulationBehaviourBase<T, S extends CapManipulationBehaviourBase<?, ?>>
 	extends TileEntityBehaviour {
@@ -33,7 +34,7 @@ public abstract class CapManipulationBehaviourBase<T, S extends CapManipulationB
 		bypassSided = false;
 	}
 
-	protected abstract Capability<T> capability();
+	protected abstract Class<T> capability();
 
 	@Override
 	public void initialize() {
@@ -103,7 +104,7 @@ public abstract class CapManipulationBehaviourBase<T, S extends CapManipulationB
 	}
 
 	public void findNewCapability() {
-		World world = getWorld();
+		Level world = getWorld();
 		BlockFace targetBlockFace = target.getTarget(world, tileEntity.getBlockPos(), tileEntity.getBlockState())
 			.getOpposite();
 		BlockPos pos = targetBlockFace.getPos();
@@ -112,12 +113,12 @@ public abstract class CapManipulationBehaviourBase<T, S extends CapManipulationB
 
 		if (!world.isLoaded(pos))
 			return;
-		TileEntity invTE = world.getBlockEntity(pos);
+		BlockEntity invTE = world.getBlockEntity(pos);
 		if (invTE == null)
 			return;
-		Capability<T> capability = capability();
+		Class<T> capability = capability();
 		targetCapability =
-			bypassSided ? invTE.getCapability(capability) : invTE.getCapability(capability, targetBlockFace.getFace());
+			bypassSided ? (LazyOptional<T>) TransferUtil.getHandler(invTE, Direction.UP, capability) : (LazyOptional<T>) TransferUtil.getHandler(invTE, targetBlockFace.getFace(), capability);
 		if (targetCapability.isPresent())
 			targetCapability.addListener(this::onHandlerInvalidated);
 	}
@@ -137,7 +138,7 @@ public abstract class CapManipulationBehaviourBase<T, S extends CapManipulationB
 					: s.getValue(BlockStateProperties.HORIZONTAL_FACING)).getOpposite());
 		}
 
-		public BlockFace getTarget(World world, BlockPos pos, BlockState blockState);
+		public BlockFace getTarget(Level world, BlockPos pos, BlockState blockState);
 	}
 
 }
