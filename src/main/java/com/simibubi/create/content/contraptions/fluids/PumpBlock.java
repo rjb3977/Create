@@ -54,19 +54,8 @@ public class PumpBlock extends DirectionalKineticBlock implements SimpleWaterlog
 	}
 
 	@Override
-	public BlockState updateAfterWrenched(BlockState newState, UseOnContext context) {
-		BlockState state = super.updateAfterWrenched(newState, context);
-		Level world = context.getLevel();
-		BlockPos pos = context.getClickedPos();
-		if (world.isClientSide)
-			return state;
-		BlockEntity tileEntity = world.getBlockEntity(pos);
-		if (!(tileEntity instanceof PumpTileEntity))
-			return state;
-		PumpTileEntity pump = (PumpTileEntity) tileEntity;
-		pump.sidesToUpdate.forEach(MutableBoolean::setTrue);
-		pump.reversed = !pump.reversed;
-		return state;
+	public BlockState updateAfterWrenched(BlockState newState, ItemUseContext context) {
+		return super.updateAfterWrenched(newState, context);
 	}
 
 	@Override
@@ -92,22 +81,6 @@ public class PumpBlock extends DirectionalKineticBlock implements SimpleWaterlog
 			return;
 		world.getBlockTicks()
 			.scheduleTick(pos, this, 1, TickPriority.HIGH);
-//		if (world.isRemote)
-//			return;
-//		if (otherBlock instanceof FluidPipeBlock)
-//			return;
-//		TileEntity tileEntity = world.getTileEntity(pos);
-//		if (!(tileEntity instanceof PumpTileEntity))
-//			return;
-//		PumpTileEntity pump = (PumpTileEntity) tileEntity;
-//		Direction facing = state.get(FACING);
-//		for (boolean front : Iterate.trueAndFalse) {
-//			Direction side = front ? facing : facing.getOpposite();
-//			if (!pos.offset(side)
-//				.equals(neighborPos))
-//				continue;
-//			pump.updatePipesOnSide(side);
-//		}
 	}
 
 	@Override
@@ -123,8 +96,8 @@ public class PumpBlock extends DirectionalKineticBlock implements SimpleWaterlog
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState,
-		LevelAccessor world, BlockPos pos, BlockPos neighbourPos) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState, LevelAccessor world,
+		BlockPos pos, BlockPos neighbourPos) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
 			world.getLiquidTicks()
 				.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
@@ -152,6 +125,15 @@ public class PumpBlock extends DirectionalKineticBlock implements SimpleWaterlog
 		if (state != oldState)
 			world.getBlockTicks()
 				.scheduleTick(pos, this, 1, TickPriority.HIGH);
+
+		if (isPump(state) && isPump(oldState) && state.getValue(FACING) == oldState.getValue(FACING)
+			.getOpposite()) {
+			TileEntity tileEntity = world.getBlockEntity(pos);
+			if (!(tileEntity instanceof PumpTileEntity))
+				return;
+			PumpTileEntity pump = (PumpTileEntity) tileEntity;
+			pump.pressureUpdate = true;
+		}
 	}
 
 	public static boolean isOpenAt(BlockState state, Direction d) {

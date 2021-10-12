@@ -2,6 +2,7 @@ package com.simibubi.create.content.curiosities.toolbox;
 
 import java.util.Optional;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.foundation.block.ITE;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -177,6 +179,11 @@ public class ToolboxBlock extends HorizontalDirectionalBlock implements SimpleWa
 
 	public DyeColor getColor() {
 		return color;
+	}
+
+	public static Ingredient getMainBox() {
+		return Ingredient.of(AllBlocks.TOOLBOXES.get(DyeColor.BROWN)
+			.get());
 	}
 
 }

@@ -24,6 +24,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
+import com.simibubi.create.content.contraptions.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.contraptions.wrench.IWrenchable;
 import com.simibubi.create.content.logistics.block.funnel.FunnelTileEntity;
 import com.simibubi.create.foundation.block.ITE;
@@ -69,6 +70,8 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		BlockState state = defaultBlockState();
+		Capability<IItemHandler> itemCap = CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+		Capability<IFluidHandler> fluidCap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
 
 		Direction preferredFacing = null;
 		for (Direction face : Iterate.horizontalDirections) {
@@ -80,8 +83,12 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 
 			if (TileEntityBehaviour.get(tileEntity, TransportedItemStackHandlerBehaviour.TYPE) != null)
 				canDetect = true;
-			else if (tileEntity != null && TransferUtil.getItemHandler(tileEntity)
-				.isPresent())
+			else if (TileEntityBehaviour.get(tileEntity, FluidTransportBehaviour.TYPE) != null)
+				canDetect = true;
+			else if (tileEntity != null && (TransferUtil.getItemHandler(tileEntity)
+				.isPresent()
+				|| TransferUtil.getItemHandler(tileEntity)
+					.isPresent()))
 				canDetect = true;
 			else if (tileEntity instanceof FunnelTileEntity)
 				canDetect = true;
@@ -135,7 +142,7 @@ public class ContentObserverBlock extends HorizontalDirectionalBlock implements 
 
 	@Override
 	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
-			boolean isMoving) {
+		boolean isMoving) {
 		InvManipulationBehaviour behaviour = TileEntityBehaviour.get(worldIn, pos, InvManipulationBehaviour.TYPE);
 		if (behaviour != null)
 			behaviour.onNeighborChanged(fromPos);

@@ -1,5 +1,5 @@
 {
-	"_": "Missing Localizations: 26",
+	"_": "Missing Localizations: 39",
 
 	"_": "->------------------------]  Game Elements  [------------------------<-",
 
@@ -798,6 +798,7 @@
 	"create.action.discard": "Descartar",
 
 	"create.keyinfo.toolmenu": "Menú de la Herramienta de Enfoque",
+	"create.keyinfo.toolbelt": "UNLOCALIZED: Access Nearby Toolboxes",
 	"create.keyinfo.scrollup": "Simular usar la rueda del ratón hacia arriba (en el mundo)",
 	"create.keyinfo.scrolldown": "Simular usar la rueda del ratón hacia abajo (en el mundo)",
 
@@ -1422,6 +1423,15 @@
 	"block.create.turntable.tooltip": "PLATAFORMA GIRATORIA",
 	"block.create.turntable.tooltip.summary": "Convierte la _fuerza rotacional_ en un refinado mareo.",
 
+	"block.create.toolbox.tooltip": "UNLOCALIZED: TOOLBOX",
+	"block.create.toolbox.tooltip.summary": "UNLOCALIZED: Every Inventors' dearest Companion. Conveniently _holds_ a large amount of _8 Different_ item types.",
+	"block.create.toolbox.tooltip.condition1": "UNLOCALIZED: When Picked Up",
+	"block.create.toolbox.tooltip.behaviour1": "UNLOCALIZED: _Retains_ Inventory _Contents_.",
+	"block.create.toolbox.tooltip.condition2": "UNLOCALIZED: When placed in Range",
+	"block.create.toolbox.tooltip.behaviour2": "UNLOCALIZED: _Nearby_ _Players_ can hold the _Toolbox_ _Keybind_ to access its contents _Remotely_.",
+	"block.create.toolbox.tooltip.condition3": "UNLOCALIZED: When R-Clicked",
+	"block.create.toolbox.tooltip.behaviour3": "UNLOCALIZED: Opens the _Container Interface_.",
+
 	"block.create.stockpile_switch.tooltip": "INTERRUPTOR DE ACOPIO",
 	"block.create.stockpile_switch.tooltip.summary": "Activa una señal de redstone en función de la cantidad de _objetos almacenados_ en el _contenedor_ adjunto. Viene con un práctico filtro. A diferencia de un _comparador, el _interruptor de acopio_ permite la configuración de _umbrales_, a partir de los cuales se invierten las señales.",
 	"block.create.stockpile_switch.tooltip.condition1": "Cuando se hace clic derecho",
@@ -1429,6 +1439,10 @@
 
 	"block.create.content_observer.tooltip": "OBSERVADOR DE CONTENIDO",
 	"block.create.content_observer.tooltip.summary": "_Detecta objetos_ dentro de _contenedores_ y _transportadores_ que coincidan con un _filtro_ configurado. Mientras el _inventario_, la _cinta_ o la _canaleta_ observados _contengan_ un objeto que coincida, este componente emitirá una _señal de redstone_. Cuando un embudo observado _transfiere_ un objeto coincidente, este componente emitirá un _pulso de redstone_.",
+	"block.create.content_observer.tooltip.condition1": "UNLOCALIZED: When observing a Container",
+	"block.create.content_observer.tooltip.behaviour1": "UNLOCALIZED: Emits a _Redstone Signal_ while the observed container has _matching_ _content_.",
+	"block.create.content_observer.tooltip.condition2": "UNLOCALIZED: When observing a Funnel",
+	"block.create.content_observer.tooltip.behaviour2": "UNLOCALIZED: Emits a _Redstone Pulse_ when a _matching_ Item is _transferred_.",
 
 	"block.create.adjustable_crate.tooltip": "CAJA AJUSTABLE",
 	"block.create.adjustable_crate.tooltip.summary": "Este _contenedor de objetos_ permite el control manual de su capacidad. Puede contener hasta _16 pilas_ de cualquier objeto. Soporta _comparadores de redstone_.",

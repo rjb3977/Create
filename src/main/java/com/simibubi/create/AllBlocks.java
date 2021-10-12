@@ -1340,7 +1340,15 @@ public class AllBlocks {
 //					.define('#', DyeHelper.getTagOfDye(colour))
 //					.define('-', AllItemTags.TOOLBOXES.tag)
 //					.unlockedBy("has_toolbox", RegistrateRecipeProvider.hasItem(AllItemTags.TOOLBOXES.tag))
-//					.save(p, Create.asResource("Crafting/kinetics/" + c.getName() + "_from_other_toolbox"));
+//					.save(p, Create.asResource("crafting/curiosities/" + c.getName() + "_from_other_toolbox"));
+//
+//				ShapedRecipeBuilder.shaped(c.get())
+//					.pattern("#")
+//					.pattern("-")
+//					.define('#', DyeHelper.getTagOfDye(colour))
+//					.define('-', ToolboxBlock.getMainBox())
+//					.unlockedBy("has_toolbox", RegistrateRecipeProvider.hasItem(AllItemTags.TOOLBOXES.tag))
+//					.save(p, Create.asResource("crafting/curiosities/" + c.getName() + "_from_main_toolbox"));
 //			})
 			.onRegisterAfter(Item.class, v -> TooltipHelper.referTo(v, "block.create.toolbox"))
 			.tag(AllTags.AllBlockTags.TOOLBOXES.tag)

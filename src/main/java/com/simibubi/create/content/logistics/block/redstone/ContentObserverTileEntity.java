@@ -12,14 +12,17 @@ import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.belt.TransportedItemStackHandlerBehaviour.TransportedResult;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
+import com.simibubi.create.foundation.tileEntity.behaviour.inventory.CapManipulationBehaviourBase.InterfaceProvider;
 import com.simibubi.create.foundation.tileEntity.behaviour.inventory.InvManipulationBehaviour;
-import com.simibubi.create.foundation.tileEntity.behaviour.inventory.InvManipulationBehaviour.InterfaceProvider;
+import com.simibubi.create.foundation.tileEntity.behaviour.inventory.TankManipulationBehaviour;
+import com.simibubi.create.foundation.utility.Iterate;
 
 public class ContentObserverTileEntity extends SmartTileEntity {
 
 	private static final int DEFAULT_DELAY = 6;
 	private FilteringBehaviour filtering;
 	private InvManipulationBehaviour observedInventory;
+	private TankManipulationBehaviour observedTank;
 	public int turnOffTicks = 0;
 
 	public ContentObserverTileEntity(BlockEntityType<? extends ContentObserverTileEntity> type, BlockPos pos, BlockState state) {
@@ -32,8 +35,9 @@ public class ContentObserverTileEntity extends SmartTileEntity {
 		filtering = new FilteringBehaviour(this, new FilteredDetectorFilterSlot()).moveText(new Vec3(0, 5, 0));
 		behaviours.add(filtering);
 
-		observedInventory = new InvManipulationBehaviour(this, InterfaceProvider.towardBlockFacing()).bypassSidedness();
-		behaviours.add(observedInventory);
+		InterfaceProvider towardBlockFacing = InterfaceProvider.towardBlockFacing();
+		behaviours.add(observedInventory = new InvManipulationBehaviour(this, towardBlockFacing).bypassSidedness());
+		behaviours.add(observedTank = new TankManipulationBehaviour(this, towardBlockFacing).bypassSidedness());
 	}
 
 	@Override
@@ -53,21 +57,42 @@ public class ContentObserverTileEntity extends SmartTileEntity {
 		Direction facing = state.getValue(ContentObserverBlock.FACING);
 		BlockPos targetPos = worldPosition.relative(facing);
 
+		// Detect items on belt
 		TransportedItemStackHandlerBehaviour behaviour =
 			TileEntityBehaviour.get(level, targetPos, TransportedItemStackHandlerBehaviour.TYPE);
 		if (behaviour != null) {
 			behaviour.handleCenteredProcessingOnAllItems(.45f, stack -> {
 				if (!filtering.test(stack.stack) || turnOffTicks == 6)
 					return TransportedResult.doNothing();
-
 				activate();
 				return TransportedResult.doNothing();
 			});
 			return;
 		}
-
+// Detect fluids in pipe
+		FluidTransportBehaviour fluidBehaviour =
+			TileEntityBehaviour.get(level, targetPos, FluidTransportBehaviour.TYPE);
+		if (fluidBehaviour != null) {
+			for (Direction side : Iterate.directions) {
+				Flow flow = fluidBehaviour.getFlow(side);
+				if (flow == null || !flow.inbound || !flow.complete)
+					continue;
+				if (!filtering.test(flow.fluid))
+					continue;
+				activate();
+				return;
+			}
+			return;
+		}
 		if (!observedInventory.simulate()
 			.extract()
+			.isEmpty()) {
+			activate();
+			return;
+		}
+
+		if (!observedTank.simulate()
+			.extractAny()
 			.isEmpty()) {
 			activate();
 			return;

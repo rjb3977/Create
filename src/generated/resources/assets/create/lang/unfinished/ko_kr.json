@@ -1,5 +1,5 @@
 {
-	"_": "Missing Localizations: 50",
+	"_": "Missing Localizations: 63",
 
 	"_": "->------------------------]  Game Elements  [------------------------<-",
 
@@ -798,6 +798,7 @@
 	"create.action.discard": "삭제",
 
 	"create.keyinfo.toolmenu": "메뉴 세부정보 보기",
+	"create.keyinfo.toolbelt": "UNLOCALIZED: Access Nearby Toolboxes",
 	"create.keyinfo.scrollup": "마우스 휠을 위로 이동 (인게임에서)",
 	"create.keyinfo.scrolldown": "마우스 휠을 아래로 이동 (인게임에서)",
 
@@ -1422,6 +1423,15 @@
 	"block.create.turntable.tooltip": "TURNTABLE",
 	"block.create.turntable.tooltip.summary": "_동력_으로 _멀미_를 일으킵니다.",
 
+	"block.create.toolbox.tooltip": "UNLOCALIZED: TOOLBOX",
+	"block.create.toolbox.tooltip.summary": "UNLOCALIZED: Every Inventors' dearest Companion. Conveniently _holds_ a large amount of _8 Different_ item types.",
+	"block.create.toolbox.tooltip.condition1": "UNLOCALIZED: When Picked Up",
+	"block.create.toolbox.tooltip.behaviour1": "UNLOCALIZED: _Retains_ Inventory _Contents_.",
+	"block.create.toolbox.tooltip.condition2": "UNLOCALIZED: When placed in Range",
+	"block.create.toolbox.tooltip.behaviour2": "UNLOCALIZED: _Nearby_ _Players_ can hold the _Toolbox_ _Keybind_ to access its contents _Remotely_.",
+	"block.create.toolbox.tooltip.condition3": "UNLOCALIZED: When R-Clicked",
+	"block.create.toolbox.tooltip.behaviour3": "UNLOCALIZED: Opens the _Container Interface_.",
+
 	"block.create.stockpile_switch.tooltip": "stockpile_switch",
 	"block.create.stockpile_switch.tooltip.summary": "붙어있는 _보관함_에 들어있는 아이템을 기반으로 레드스톤 신호를 보냅니다. 필터도 제공됩니다. _비교기_와 반대로, 수량 스위치는 신호가 반전되는 _임계점_을 조절할 수 있습니다.",
 	"block.create.stockpile_switch.tooltip.condition1": "우클릭",
@@ -1429,6 +1439,10 @@
 
 	"block.create.content_observer.tooltip": "CONTENT OBSERVER",
 	"block.create.content_observer.tooltip.summary": "보관함이나 벨트의 아이템을 등록된 _필터_를 이용해 _탐지_합니다. _보관함, 벨트, 슈트_ 안에 해당 아이템을 탐지하는 동안, 레드스톤 신호를 보냅니다. _퍼널_가 해당 아이템을 수송하면, _1틱_의 레드스톤 신호를 보냅니다.",
+	"block.create.content_observer.tooltip.condition1": "UNLOCALIZED: When observing a Container",
+	"block.create.content_observer.tooltip.behaviour1": "UNLOCALIZED: Emits a _Redstone Signal_ while the observed container has _matching_ _content_.",
+	"block.create.content_observer.tooltip.condition2": "UNLOCALIZED: When observing a Funnel",
+	"block.create.content_observer.tooltip.behaviour2": "UNLOCALIZED: Emits a _Redstone Pulse_ when a _matching_ Item is _transferred_.",
 
 	"block.create.adjustable_crate.tooltip": "ADJUSTABLE CRATE",
 	"block.create.adjustable_crate.tooltip.summary": "이 보관함는 용량을 _직접_ _정할_ 수 있습니다. 아무아이템이나 최대 16스택씩 담을 수 있습니다. 레드스톤 비교기와 호환됩니다.",

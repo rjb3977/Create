@@ -19,25 +19,17 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import com.google.common.base.Predicates;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
-import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.tileEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.utility.BlockFace;
 import com.simibubi.create.lib.utility.LazyOptional;
 
-
-public class InvManipulationBehaviour extends TileEntityBehaviour {
+public class InvManipulationBehaviour extends CapManipulationBehaviourBase<IItemHandler, InvManipulationBehaviour> {
 
 	// Extra types available for multibehaviour
 	public static BehaviourType<InvManipulationBehaviour>
 
 	TYPE = new BehaviourType<>(), EXTRACT = new BehaviourType<>(), INSERT = new BehaviourType<>();
-
-	protected InterfaceProvider target;
-	protected LazyOptional<IItemHandler> targetCapability;
-	protected boolean simulateNext;
-	protected boolean bypassSided;
-	private boolean findNewNextTick;
 
 	private BehaviourType<InvManipulationBehaviour> behaviourType;
 
@@ -55,35 +47,13 @@ public class InvManipulationBehaviour extends TileEntityBehaviour {
 
 	private InvManipulationBehaviour(BehaviourType<InvManipulationBehaviour> type, SmartTileEntity te,
 		InterfaceProvider target) {
-		super(te);
+		super(te, target);
 		behaviourType = type;
-		setLazyTickRate(5);
-		this.target = target;
-		this.targetCapability = LazyOptional.empty();
-		simulateNext = false;
-		bypassSided = false;
 	}
 
-	public InvManipulationBehaviour bypassSidedness() {
-		bypassSided = true;
-		return this;
-	}
-
-	/**
-	 * Only simulate the upcoming operation
-	 */
-	public InvManipulationBehaviour simulate() {
-		simulateNext = true;
-		return this;
-	}
-
-	public boolean hasInventory() {
-		return targetCapability.isPresent();
-	}
-
-	@Nullable
-	public IItemHandler getInventory() {
-		return targetCapability.orElse(null);
+	@Override
+	protected Capability<IItemHandler> capability() {
+		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 	}
 
 	public ItemStack extract() {
@@ -118,7 +88,7 @@ public class InvManipulationBehaviour extends TileEntityBehaviour {
 	}
 
 	private static ItemStack extractAmountOrThresh(IItemHandler inventory, Predicate<ItemStack> test, int amount,
-												   Function<ItemStack, Integer> amountThreshold, boolean shouldSimulate) {
+		Function<ItemStack, Integer> amountThreshold, boolean shouldSimulate) {
 		if (amount == -1)
 			return ItemHelper.extract(inventory, test, amountThreshold, shouldSimulate);
 		return ItemHelper.extract(inventory, test, amount, shouldSimulate);
@@ -142,86 +112,8 @@ public class InvManipulationBehaviour extends TileEntityBehaviour {
 	}
 
 	@Override
-	public void initialize() {
-		super.initialize();
-		findNewNextTick = true;
-	}
-
-	@Override
-	public void onNeighborChanged(BlockPos neighborPos) {
-		BlockFace targetBlockFace = target.getTarget(getWorld(), tileEntity.getBlockPos(), tileEntity.getBlockState());
-		if (targetBlockFace.getConnectedPos().equals(neighborPos))
-			onHandlerInvalidated(targetCapability);
-	}
-
-	protected void onHandlerInvalidated(LazyOptional<IItemHandler> handler) {
-		findNewNextTick = true;
-		targetCapability = LazyOptional.empty();
-	}
-
-	@Override
-	public void lazyTick() {
-		super.lazyTick();
-		if (!targetCapability.isPresent())
-			findNewCapability();
-	}
-
-	@Override
-	public void tick() {
-		super.tick();
-		if (findNewNextTick || getWorld().getGameTime() % 64 == 0) {
-			findNewNextTick = false;
-			findNewCapability();
-		}
-	}
-
-	public int getAmountFromFilter() {
-		int amount = -1;
-		FilteringBehaviour filter = tileEntity.getBehaviour(FilteringBehaviour.TYPE);
-		if (filter != null && !filter.anyAmount())
-			amount = filter.getAmount();
-		return amount;
-	}
-
-	public void findNewCapability() {
-		BlockFace targetBlockFace = target.getTarget(getWorld(), tileEntity.getBlockPos(), tileEntity.getBlockState())
-			.getOpposite();
-		BlockPos pos = targetBlockFace.getPos();
-		Level world = getWorld();
-
-		targetCapability = LazyOptional.empty();
-
-		if (!world.isLoaded(pos))
-			return;
-		BlockEntity invTE = world.getBlockEntity(pos);
-		if (invTE == null)
-			return;
-		targetCapability = bypassSided ? TransferUtil.getItemHandler(invTE)
-				: TransferUtil.getItemHandler(invTE, targetBlockFace.getFace());
-		if (targetCapability.isPresent())
-			targetCapability.addListener(this::onHandlerInvalidated);
-	}
-
-	@Override
 	public BehaviourType<?> getType() {
 		return behaviourType;
-	}
-
-	@FunctionalInterface
-	public interface InterfaceProvider {
-
-		public static InterfaceProvider towardBlockFacing() {
-			return (w, p, s) -> new BlockFace(p, s.hasProperty(BlockStateProperties.FACING) ? s.getValue(BlockStateProperties.FACING)
-				: s.getValue(BlockStateProperties.HORIZONTAL_FACING));
-		}
-
-		public static InterfaceProvider oppositeOfBlockFacing() {
-			return (w, p, s) -> new BlockFace(p,
-				(s.hasProperty(BlockStateProperties.FACING) ? s.getValue(BlockStateProperties.FACING)
-					: s.getValue(BlockStateProperties.HORIZONTAL_FACING)).getOpposite());
-		}
-
-		public BlockFace getTarget(Level world, BlockPos pos, BlockState blockState);
 	}
 
 }

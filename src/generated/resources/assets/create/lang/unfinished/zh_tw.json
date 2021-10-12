@@ -1,5 +1,5 @@
 {
-	"_": "Missing Localizations: 45",
+	"_": "Missing Localizations: 58",
 
 	"_": "->------------------------]  Game Elements  [------------------------<-",
 
@@ -798,6 +798,7 @@
 	"create.action.discard": "放棄",
 
 	"create.keyinfo.toolmenu": "選單",
+	"create.keyinfo.toolbelt": "UNLOCALIZED: Access Nearby Toolboxes",
 	"create.keyinfo.scrollup": "(遊戲中)向上滑鼠滾輪",
 	"create.keyinfo.scrolldown": "（遊戲中）向下滑鼠滾輪",
 
@@ -1422,6 +1423,15 @@
 	"block.create.turntable.tooltip": "轉盤",
 	"block.create.turntable.tooltip.summary": "讓旋轉機械給你帶來一場刺激的旋轉風車體驗。",
 
+	"block.create.toolbox.tooltip": "UNLOCALIZED: TOOLBOX",
+	"block.create.toolbox.tooltip.summary": "UNLOCALIZED: Every Inventors' dearest Companion. Conveniently _holds_ a large amount of _8 Different_ item types.",
+	"block.create.toolbox.tooltip.condition1": "UNLOCALIZED: When Picked Up",
+	"block.create.toolbox.tooltip.behaviour1": "UNLOCALIZED: _Retains_ Inventory _Contents_.",
+	"block.create.toolbox.tooltip.condition2": "UNLOCALIZED: When placed in Range",
+	"block.create.toolbox.tooltip.behaviour2": "UNLOCALIZED: _Nearby_ _Players_ can hold the _Toolbox_ _Keybind_ to access its contents _Remotely_.",
+	"block.create.toolbox.tooltip.condition3": "UNLOCALIZED: When R-Clicked",
+	"block.create.toolbox.tooltip.behaviour3": "UNLOCALIZED: Opens the _Container Interface_.",
+
 	"block.create.stockpile_switch.tooltip": "存量偵測器",
 	"block.create.stockpile_switch.tooltip.summary": "根據連接的容器_儲存空間_的占用情況切換紅石訊號強度。",
 	"block.create.stockpile_switch.tooltip.condition1": "低於_下線_或高於_上線_時",
@@ -1429,6 +1439,10 @@
 
 	"block.create.content_observer.tooltip": "物品偵測器",
 	"block.create.content_observer.tooltip.summary": "偵測_容器_和_輸送帶_中過濾器匹配的物品。當觀察到包含匹配的物品時，此組件將發出_紅石訊號_。當觀察到的漏斗_轉移匹配的物品_時，此組件將發出_紅石脈沖_。",
+	"block.create.content_observer.tooltip.condition1": "UNLOCALIZED: When observing a Container",
+	"block.create.content_observer.tooltip.behaviour1": "UNLOCALIZED: Emits a _Redstone Signal_ while the observed container has _matching_ _content_.",
+	"block.create.content_observer.tooltip.condition2": "UNLOCALIZED: When observing a Funnel",
+	"block.create.content_observer.tooltip.behaviour2": "UNLOCALIZED: Emits a _Redstone Pulse_ when a _matching_ Item is _transferred_.",
 
 	"block.create.adjustable_crate.tooltip": "可調節板條箱",
 	"block.create.adjustable_crate.tooltip.summary": "這個箱子可以調整容量，最大可以收納_16組_物品。",

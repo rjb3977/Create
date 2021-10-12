@@ -1,5 +1,5 @@
 {
-	"_": "Missing Localizations: 1412",
+	"_": "Missing Localizations: 1425",
 
 	"_": "->------------------------]  Game Elements  [------------------------<-",
 
@@ -798,6 +798,7 @@
 	"create.action.discard": "Annuler",
 
 	"create.keyinfo.toolmenu": "Focus sur le menu de l'outil",
+	"create.keyinfo.toolbelt": "UNLOCALIZED: Access Nearby Toolboxes",
 	"create.keyinfo.scrollup": "UNLOCALIZED: Simulate Mousewheel Up (inworld)",
 	"create.keyinfo.scrolldown": "UNLOCALIZED: Simulate Mousewheel Down (inworld)",
 
@@ -1422,6 +1423,15 @@
 	"block.create.turntable.tooltip": "PLAQUE TOURNANTE",
 	"block.create.turntable.tooltip.summary": "Transforme la _force_ _de_ _rotation_ en énergie cinétique.",
 
+	"block.create.toolbox.tooltip": "UNLOCALIZED: TOOLBOX",
+	"block.create.toolbox.tooltip.summary": "UNLOCALIZED: Every Inventors' dearest Companion. Conveniently _holds_ a large amount of _8 Different_ item types.",
+	"block.create.toolbox.tooltip.condition1": "UNLOCALIZED: When Picked Up",
+	"block.create.toolbox.tooltip.behaviour1": "UNLOCALIZED: _Retains_ Inventory _Contents_.",
+	"block.create.toolbox.tooltip.condition2": "UNLOCALIZED: When placed in Range",
+	"block.create.toolbox.tooltip.behaviour2": "UNLOCALIZED: _Nearby_ _Players_ can hold the _Toolbox_ _Keybind_ to access its contents _Remotely_.",
+	"block.create.toolbox.tooltip.condition3": "UNLOCALIZED: When R-Clicked",
+	"block.create.toolbox.tooltip.behaviour3": "UNLOCALIZED: Opens the _Container Interface_.",
+
 	"block.create.stockpile_switch.tooltip": "DÉTÉCTEUR DE STOCKAGE",
 	"block.create.stockpile_switch.tooltip.summary": "Bascule un signal Redstone basé sur _l'espace_ _de_ _stockage_ dans le conteneur attaché.",
 	"block.create.stockpile_switch.tooltip.condition1": "Lorsqu'en dessous de la limite de stockage minimum",
@@ -1429,6 +1439,10 @@
 
 	"block.create.content_observer.tooltip": "OBSERVATEUR DE CONTENU",
 	"block.create.content_observer.tooltip.summary": "_Détecte les objets_ à l'intérieur des _conteneurs_ et des _transporteurs_ correspondant à un _filtre_ configuré. Tant que l'_inventaire_, le _tapis roulant_ ou la _glissière_ observé _contient_ un objet correspondant, ce composant émet un _signal de redstone_. Quand un _entonnoir_ observé _transfère_ un objet correspondant, ce composant émet une _impulsion de redstone_.",
+	"block.create.content_observer.tooltip.condition1": "UNLOCALIZED: When observing a Container",
+	"block.create.content_observer.tooltip.behaviour1": "UNLOCALIZED: Emits a _Redstone Signal_ while the observed container has _matching_ _content_.",
+	"block.create.content_observer.tooltip.condition2": "UNLOCALIZED: When observing a Funnel",
+	"block.create.content_observer.tooltip.behaviour2": "UNLOCALIZED: Emits a _Redstone Pulse_ when a _matching_ Item is _transferred_.",
 
 	"block.create.adjustable_crate.tooltip": "CAISSE AJUSTABLE",
 	"block.create.adjustable_crate.tooltip.summary": "Ce _conteneur_ _de_ _stockage_ permet un contrôle manuel de sa capacité. Il peut contenir jusqu'à _16_ _piles_ de n'importe quel objet. Prend en charge les _comparateurs_ _de_ _redstone_.",

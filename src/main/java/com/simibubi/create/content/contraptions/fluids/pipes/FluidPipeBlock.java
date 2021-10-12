@@ -45,7 +45,38 @@ import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.Iterate;
 
-public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock, IWrenchableWithBracket, EntityBlock {
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.IWaterLoggable;
+import net.minecraft.block.SixWayBlock;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.network.DebugPacketSender;
+import net.minecraft.pathfinding.PathType;
+import net.minecraft.state.StateContainer.Builder;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
+import net.minecraft.util.Direction.AxisDirection;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.TickPriority;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+
+public class FluidPipeBlock extends SixWayBlock implements SimpleWaterloggedBlock, IWrenchableWithBracket, EntityBlock {
 
 	public FluidPipeBlock(Properties properties) {
 		super(4 / 16f, properties);
@@ -59,12 +90,29 @@ public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock,
 
 		Level world = context.getLevel();
 		BlockPos pos = context.getClickedPos();
+		Direction clickedFace = context.getClickedFace();
+
 		Axis axis = getAxis(world, pos, state);
-		if (axis == null)
-			return InteractionResult.PASS;
-		if (context.getClickedFace()
-			.getAxis() == axis)
-			return InteractionResult.PASS;
+		if (axis == null) {
+			Vector3d clickLocation = context.getClickLocation()
+				.subtract(pos.getX(), pos.getY(), pos.getZ());
+			double closest = Float.MAX_VALUE;
+			Direction argClosest = Direction.UP;
+			for (Direction direction : Iterate.directions) {
+				if (clickedFace.getAxis() == direction.getAxis())
+					continue;
+				Vector3d centerOf = Vector3d.atCenterOf(direction.getNormal());
+				double distance = centerOf.distanceToSqr(clickLocation);
+				if (distance < closest) {
+					closest = distance;
+					argClosest = direction;
+				}
+			}
+			axis = argClosest.getAxis();
+		}
+
+		if (clickedFace.getAxis() == axis)
+			return ActionResultType.PASS;
 		if (!world.isClientSide) {
 			FluidTransportBehaviour.cacheFlows(world, pos);
 			world.setBlockAndUpdate(pos, AllBlocks.GLASS_FLUID_PIPE.getDefaultState()
@@ -154,16 +202,18 @@ public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock,
 		return state.getBlock() instanceof FluidPipeBlock;
 	}
 
-	public static boolean canConnectTo(BlockAndTintGetter world, BlockPos neighbourPos, BlockState neighbour, Direction direction) {
+	public static boolean canConnectTo(BlockAndTintGetter world, BlockPos neighbourPos, BlockState neighbour,
+		Direction direction) {
 		if (FluidPropagator.hasFluidCapability(world, neighbourPos, direction.getOpposite()))
 			return true;
 		if (neighbour.hasProperty(BlockStateProperties.LEVEL_HONEY))
 			return true;
 		FluidTransportBehaviour transport = TileEntityBehaviour.get(world, neighbourPos, FluidTransportBehaviour.TYPE);
-		BracketedTileEntityBehaviour bracket = TileEntityBehaviour.get(world, neighbourPos, BracketedTileEntityBehaviour.TYPE);
+		BracketedTileEntityBehaviour bracket =
+			TileEntityBehaviour.get(world, neighbourPos, BracketedTileEntityBehaviour.TYPE);
 		if (isPipe(neighbour))
 			return bracket == null || !bracket.isBracketPresent()
-					|| FluidPropagator.getStraightPipeAxis(neighbour) == direction.getAxis();
+				|| FluidPropagator.getStraightPipeAxis(neighbour) == direction.getAxis();
 		if (transport == null)
 			return false;
 		return transport.canHaveFlowToward(neighbour, direction.getOpposite());
@@ -227,8 +277,8 @@ public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock,
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState,
-		LevelAccessor world, BlockPos pos, BlockPos neighbourPos) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState, LevelAccessor world,
+		BlockPos pos, BlockPos neighbourPos) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED))
 			world.getLiquidTicks()
 				.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
@@ -247,9 +297,9 @@ public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock,
 
 		BlockState prevState = state;
 		int prevStateSides = (int) Arrays.stream(Iterate.directions)
-				.map(PROPERTY_BY_DIRECTION::get)
-				.filter(prevState::getValue)
-				.count();
+			.map(PROPERTY_BY_DIRECTION::get)
+			.filter(prevState::getValue)
+			.count();
 
 		// Update sides that are not ignored
 		for (Direction d : Iterate.directions)
@@ -278,7 +328,7 @@ public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock,
 
 		// Use preferred
 		return state.setValue(PROPERTY_BY_DIRECTION.get(preferredDirection), true)
-				.setValue(PROPERTY_BY_DIRECTION.get(preferredDirection.getOpposite()), true);
+			.setValue(PROPERTY_BY_DIRECTION.get(preferredDirection.getOpposite()), true);
 	}
 
 	@Override

@@ -36,8 +36,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.items.IItemHandler;
 
 public class StockpileSwitchBlock extends HorizontalDirectionalBlock implements ITE<StockpileSwitchTileEntity>, IWrenchable, CanConnectRedstoneBlock, EntityBlock, BlockExtensions {
 
@@ -87,11 +91,12 @@ public class StockpileSwitchBlock extends HorizontalDirectionalBlock implements 
 
 	@Override
 	public int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
-		if (side == blockState.getValue(FACING).getOpposite())
+		if (side == blockState.getValue(FACING)
+			.getOpposite())
 			return 0;
 		return getTileEntityOptional(blockAccess, pos).filter(StockpileSwitchTileEntity::isPowered)
-				.map($ -> 15)
-				.orElse(0);
+			.map($ -> 15)
+			.orElse(0);
 	}
 
 	@Override
@@ -124,14 +129,18 @@ public class StockpileSwitchBlock extends HorizontalDirectionalBlock implements 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		BlockState state = defaultBlockState();
+		Capability<IItemHandler> itemCap = CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+		Capability<IFluidHandler> fluidCap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
 
 		Direction preferredFacing = null;
 		for (Direction face : Iterate.horizontalDirections) {
 			BlockEntity te = context.getLevel()
 				.getBlockEntity(context.getClickedPos()
 					.relative(face));
-			if (te != null && TransferUtil.getItemHandler(te)
-				.isPresent())
+			if (te != null && (TransferUtil.getItemHandler(te)
+				.isPresent()
+				|| TransferUtil.getFluidHandler(te)
+					.isPresent()))
 				if (preferredFacing == null)
 					preferredFacing = face;
 				else {
