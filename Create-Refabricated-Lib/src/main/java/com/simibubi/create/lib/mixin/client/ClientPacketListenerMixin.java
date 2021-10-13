@@ -1,5 +1,7 @@
 package com.simibubi.create.lib.mixin.client;
 
+import net.minecraft.world.level.Level;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
@@ -11,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -45,9 +48,10 @@ public abstract class ClientPacketListenerMixin {
 	@Unique
 	private boolean create$tileEntityHandled;
 
-	@ModifyVariable(at = @At(value = "JUMP", opcode = Opcodes.IFNULL, ordinal = 3, shift = Shift.BEFORE),
+	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/EntityType;create(Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/entity/Entity;"),
 			method = "handleAddEntity")
-	public Entity create$replaceNullEntity(Entity entity, ClientboundAddEntityPacket packet) {
+	public Entity create$replaceNullEntity(EntityType<?> instance, Level level, ClientboundAddEntityPacket packet) {
+		Entity entity = instance.create(this.level);
 		if (entity == null) {
 			EntityType<?> type = packet.getType();
 			if (type != null) {
@@ -63,7 +67,7 @@ public abstract class ClientPacketListenerMixin {
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;putNonPlayerEntity(ILnet/minecraft/world/entity/Entity;)V", shift = Shift.AFTER),
 			method = "handleAddEntity",
 			locals = LocalCapture.CAPTURE_FAILHARD)
-	public void create$afterAddEntity(ClientboundAddEntityPacket packet, CallbackInfo ci, double x, double y, double z, Entity entity) {
+	public void create$afterAddEntity(ClientboundAddEntityPacket packet, CallbackInfo ci, EntityType<?> entityType, Entity entity) {
 		if (entity instanceof ExtraSpawnDataEntity) {
 			FriendlyByteBuf extraData = ((ClientboundAddEntityPacketExtensions) packet).create$getExtraDataBuf();
 			if (extraData != null) {

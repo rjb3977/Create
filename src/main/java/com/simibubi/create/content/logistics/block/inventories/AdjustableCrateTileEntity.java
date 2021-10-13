@@ -182,16 +182,4 @@ public class AdjustableCrateTileEntity extends CrateTileEntity implements MenuPr
 		super.setRemoved();
 		invHandler.invalidate();
 	}
-
-	// fixme does this need an equivalent in the port? My pea brain says it probably does -Platy (this also serves as a marker so we know to come back)
-//	@Override
-//	public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction facing) {
-//		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-//			AdjustableCrateTileEntity mainCrate = getMainCrate();
-//			if (mainCrate != null && mainCrate.invHandler != null && mainCrate.invHandler.isPresent())
-//				return mainCrate.invHandler.cast();
-//		}
-//		return super.getCapability(capability, facing);
-//	}
-
 }
