@@ -14,14 +14,12 @@ import com.jozufozu.flywheel.core.instancing.ConditionalInstance;
 import com.jozufozu.flywheel.core.materials.OrientedData;
 import com.jozufozu.flywheel.core.model.IModel;
 import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3d;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllStitchedTextures;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.utility.AngleHelper;
 import com.simibubi.create.foundation.utility.VecHelper;
 
-import net.fabricmc.loader.util.sat4j.core.Vec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
