@@ -7,19 +7,14 @@ import com.simibubi.create.content.contraptions.components.structureMovement.Con
 
 public class AnchoredLighter extends ContraptionLighter<Contraption> {
 
-    public AnchoredLighter(Contraption contraption) {
-        super(contraption);
-    }
-
-    @Override
-    public GridAlignedBB getContraptionBounds() {
-        GridAlignedBB bb = GridAlignedBB.from(contraption.bounds);
-        bb.translate(contraption.anchor);
-        return bb;
-    }
+	public AnchoredLighter(Contraption contraption) {
+		super(contraption);
+	}
 
 	@Override
-	public ListenerStatus status() { // FIXME PORT
-		return ListenerStatus.OKAY;
+	public GridAlignedBB getContraptionBounds() {
+		GridAlignedBB bb = GridAlignedBB.from(contraption.bounds);
+		bb.translate(contraption.anchor);
+		return bb;
 	}
 }

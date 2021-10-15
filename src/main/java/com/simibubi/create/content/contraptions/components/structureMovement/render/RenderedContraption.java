@@ -106,7 +106,7 @@ public class RenderedContraption extends ContraptionRenderInfo {
 	void setup(ContraptionProgram shader) {
 		if (!modelViewPartialReady || lightBox == null) return;
 		shader.bind(modelViewPartial, lightBox);
-//		lighter.lightVolume.bind(); FIXME PORT: is this needed?
+		lighter.lightVolume.bind();
 	}
 
 	public void invalidate() {

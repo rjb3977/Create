@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.shaders.Program;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 import org.lwjgl.opengl.GL20;
 
@@ -18,8 +19,8 @@ public class ContraptionProgram extends WorldProgram {
 
 	protected int uLightVolume;
 
-	public ContraptionProgram(Program program, List<IProgramExtension> extensions) {
-		super(program, extensions);
+	public ContraptionProgram(ResourceLocation name, int handle, List<IProgramExtension> extensions) {
+		super(name, handle, extensions);
 		uLightBoxSize = getUniformLocation("uLightBoxSize");
 		uLightBoxMin = getUniformLocation("uLightBoxMin");
 		uModel = getUniformLocation("uModel");

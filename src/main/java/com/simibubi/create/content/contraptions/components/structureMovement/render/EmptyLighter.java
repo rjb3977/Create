@@ -16,9 +16,4 @@ public class EmptyLighter extends ContraptionLighter<Contraption> {
 	public GridAlignedBB getContraptionBounds() {
 		return new GridAlignedBB(0, 0, 0, 1, 1, 1);
 	}
-
-	@Override
-	public ListenerStatus status() {
-		return ListenerStatus.OKAY; // FIXME PORT
-	}
 }

@@ -28,11 +28,6 @@ public class ActorData extends InstanceData {
 
     private float speed;
 
-    public ActorData(Instancer<?> owner) {
-//		super(owner); // FIXME PORT
-	}
-
-
     public ActorData setPosition(BlockPos pos) {
         this.x = pos.getX();
         this.y = pos.getY();

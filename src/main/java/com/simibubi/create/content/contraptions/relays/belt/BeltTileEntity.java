@@ -537,13 +537,17 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 	}
 
 	@Override
-	public ImmutableBox getVolume() { // FIXME PORT
-		return GridAlignedBB.from(getRenderBoundingBox());
+	public GridAlignedBB getVolume() {
+		BlockPos endPos = BeltHelper.getPositionForOffset(this, beltLength - 1);
+
+		GridAlignedBB bb = GridAlignedBB.from(worldPosition, endPos);
+		bb.fixMinMax();
+		return bb;
 	}
 
 	@Override
-	public ListenerStatus status() { // FIXME PORT
-		return ListenerStatus.OKAY;
+	public ListenerStatus status() {
+		return remove ? ListenerStatus.REMOVE : ListenerStatus.OKAY;
 	}
 
 	@Override
