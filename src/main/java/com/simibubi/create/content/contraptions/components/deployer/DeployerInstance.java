@@ -7,7 +7,7 @@ import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.ITickableInstance;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
-import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.jozufozu.flywheel.core.materials.oriented.OrientedData;
 import com.mojang.math.Quaternion;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
@@ -35,7 +35,7 @@ public class DeployerInstance extends ShaftInstance implements IDynamicInstance,
     float progress;
     private boolean newHand = false;
 
-    public DeployerInstance(MaterialManager<?> dispatcher, KineticTileEntity tile) {
+    public DeployerInstance(MaterialManager dispatcher, KineticTileEntity tile) {
         super(dispatcher, tile);
 
         this.tile = (DeployerTileEntity) super.tile;
@@ -118,7 +118,7 @@ public class DeployerInstance extends ShaftInstance implements IDynamicInstance,
                 : currentHand == AllBlockPartials.DEPLOYER_HAND_HOLDING ? 4 / 16f : 3 / 16f;
         float distance = Math.min(Mth.clamp(progress, 0, 1) * (tile.reach + handLength), 21 / 16f);
         Vec3i facingVec = facing.getNormal();
-        BlockPos blockPos = getInstancePosition();
+        BlockPos blockPos = getWorldPosition();
 
         float x = blockPos.getX() + ((float) facingVec.getX()) * distance;
         float y = blockPos.getY() + ((float) facingVec.getY()) * distance;

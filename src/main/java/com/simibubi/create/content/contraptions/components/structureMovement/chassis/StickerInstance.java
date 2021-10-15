@@ -1,9 +1,9 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.chassis;
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
-import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.core.materials.ModelData;
+import com.jozufozu.flywheel.core.materials.model.ModelData;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
-public class StickerInstance extends BlockEntityInstance<StickerTileEntity> implements IDynamicInstance {
+public class StickerInstance extends TileEntityInstance<StickerTileEntity> implements IDynamicInstance {
 
     float lastOffset = Float.NaN;
     final Direction facing;
@@ -23,7 +23,7 @@ public class StickerInstance extends BlockEntityInstance<StickerTileEntity> impl
 
     private final ModelData head;
 
-    public StickerInstance(MaterialManager<?> modelManager, StickerTileEntity tile) {
+    public StickerInstance(MaterialManager modelManager, StickerTileEntity tile) {
         super(modelManager, tile);
 
         head = getTransformMaterial().getModel(AllBlockPartials.STICKER_HEAD, blockState).createInstance();
@@ -53,7 +53,7 @@ public class StickerInstance extends BlockEntityInstance<StickerTileEntity> impl
     private void animateHead(float offset) {
         PoseStack stack = new PoseStack();
         MatrixTransformStack.of(stack)
-                     .translate(getInstancePosition())
+                     .translate(getWorldPosition())
                      .nudge(tile.hashCode())
                      .centre()
                      .rotateY(AngleHelper.horizontalAngle(facing))

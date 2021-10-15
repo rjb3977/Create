@@ -21,7 +21,7 @@ public class ContraptionInstanceManager extends TileInstanceManager {
 
     private final WeakReference<RenderedContraption> contraption;
 
-    ContraptionInstanceManager(RenderedContraption contraption, MaterialManager<?> materialManager) {
+    ContraptionInstanceManager(RenderedContraption contraption, MaterialManager materialManager) {
 		super(materialManager);
 		this.contraption = new WeakReference<>(contraption);
 	}

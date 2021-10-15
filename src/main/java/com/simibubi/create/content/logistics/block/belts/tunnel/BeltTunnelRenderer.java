@@ -59,9 +59,9 @@ public class BeltTunnelRenderer extends SmartTileEntityRenderer<BeltTunnelTileEn
 				if (f > 0)
 					flapAngle *= .5f;
 
-				msr.translate(VecHelper.toVec3d(pivot))
+				msr.translate(pivot)
 					.rotateX(flapAngle)
-					.translateBack(VecHelper.toVec3d(pivot));
+					.translateBack(pivot);
 				flapBuffer.light(light)
 					.renderInto(ms, vb);
 

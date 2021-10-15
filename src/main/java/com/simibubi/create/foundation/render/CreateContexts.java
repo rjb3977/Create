@@ -5,13 +5,13 @@ import java.util.stream.Stream;
 import com.jozufozu.flywheel.backend.Backend;
 import com.jozufozu.flywheel.backend.SpecMetaRegistry;
 import com.jozufozu.flywheel.backend.gl.shader.ShaderType;
-import com.jozufozu.flywheel.backend.loading.ModelTemplate;
 import com.jozufozu.flywheel.core.WorldContext;
 import com.jozufozu.flywheel.event.GatherContextEvent;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionProgram;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.data.models.model.ModelTemplate;
 import net.minecraft.resources.ResourceLocation;
 
 @Environment(EnvType.CLIENT)

@@ -63,9 +63,9 @@ public class SchematicTransformation {
 		float rot = rotation.get(pt) + ((fb < 0 && lr < 0) ? 180 : 0);
 		ms.translate(xOrigin, 0, zOrigin);
 		MatrixTransformStack.of(ms)
-			.translate(VecHelper.toVec3d(rotationOffset))
+			.translate(rotationOffset)
 			.rotateY(rot)
-			.translateBack(VecHelper.toVec3d(rotationOffset));
+			.translateBack(rotationOffset);
 		ms.scale(abs(fb), 1, abs(lr));
 		ms.translate(-xOrigin, 0, -zOrigin);
 

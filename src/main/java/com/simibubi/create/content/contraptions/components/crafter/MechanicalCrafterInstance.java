@@ -14,7 +14,7 @@ import com.simibubi.create.content.contraptions.base.SingleRotatingInstance;
 
 public class MechanicalCrafterInstance extends SingleRotatingInstance {
 
-    public MechanicalCrafterInstance(MaterialManager<?> modelManager, KineticTileEntity tile) {
+    public MechanicalCrafterInstance(MaterialManager modelManager, KineticTileEntity tile) {
         super(modelManager, tile);
     }
 

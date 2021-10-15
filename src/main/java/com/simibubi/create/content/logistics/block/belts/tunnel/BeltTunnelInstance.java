@@ -4,24 +4,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
+
+import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LightLayer;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.logistics.block.FlapData;
 import com.simibubi.create.foundation.gui.widgets.InterpolatedValue;
 import com.simibubi.create.foundation.render.AllMaterialSpecs;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
-public class BeltTunnelInstance extends BlockEntityInstance<BeltTunnelTileEntity> implements IDynamicInstance {
+public class BeltTunnelInstance extends TileEntityInstance<BeltTunnelTileEntity> implements IDynamicInstance {
 
     private final Map<Direction, ArrayList<FlapData>> tunnelFlaps;
 
-    public BeltTunnelInstance(MaterialManager<?> modelManager, BeltTunnelTileEntity tile) {
+    public BeltTunnelInstance(MaterialManager modelManager, BeltTunnelTileEntity tile) {
         super(modelManager, tile);
 
         tunnelFlaps = new EnumMap<>(Direction.class);
@@ -49,7 +51,7 @@ public class BeltTunnelInstance extends BlockEntityInstance<BeltTunnelTileEntity
 
                 FlapData key = model.createInstance();
 
-                key.setPosition(getInstancePosition())
+                key.setPosition(getWorldPosition())
                    .setSegmentOffset(segmentOffset, 0, 0)
                    .setBlockLight(blockLight)
                    .setSkyLight(skyLight)

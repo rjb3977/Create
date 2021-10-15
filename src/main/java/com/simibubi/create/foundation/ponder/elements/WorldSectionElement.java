@@ -243,14 +243,14 @@ public class WorldSectionElement extends AnimatedSceneElement {
 				.rotateX(rotX)
 				.rotateZ(rotZ)
 				.rotateY(rotY)
-				.translateBack(new Vector3d(centerOfRotation.x(), centerOfRotation.y(), centerOfRotation.z()));
+				.translateBack(centerOfRotation);
 			if (stabilizationAnchor != null) {
 				MatrixTransformStack.of(ms)
 					.translate(stabilizationAnchor.x(), stabilizationAnchor.y(), stabilizationAnchor.z())
 					.rotateX(-rotX)
 					.rotateZ(-rotZ)
 					.rotateY(-rotY)
-					.translateBack(new Vector3d(stabilizationAnchor.x(), stabilizationAnchor.y(), stabilizationAnchor.z()));
+					.translateBack(stabilizationAnchor);
 			}
 		}
 	}

@@ -1,22 +1,22 @@
 package com.simibubi.create.content.logistics.block.diodes;
 
 import com.jozufozu.flywheel.backend.instancing.ITickableInstance;
-import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.Materials;
-import com.jozufozu.flywheel.core.materials.ModelData;
+import com.jozufozu.flywheel.core.materials.model.ModelData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.foundation.utility.Color;
 
-public class AdjustableRepeaterInstance extends BlockEntityInstance<AdjustableRepeaterTileEntity> implements ITickableInstance {
+public class AdjustableRepeaterInstance extends TileEntityInstance<AdjustableRepeaterTileEntity> implements ITickableInstance {
 
     protected final ModelData indicator;
 
     protected int previousState;
 
-    public AdjustableRepeaterInstance(MaterialManager<?> modelManager, AdjustableRepeaterTileEntity tile) {
+    public AdjustableRepeaterInstance(MaterialManager modelManager, AdjustableRepeaterTileEntity tile) {
         super(modelManager, tile);
 
         indicator = modelManager.defaultSolid()
@@ -24,7 +24,7 @@ public class AdjustableRepeaterInstance extends BlockEntityInstance<AdjustableRe
                 .getModel(AllBlockPartials.FLEXPEATER_INDICATOR, blockState).createInstance();
 
         PoseStack ms = new PoseStack();
-        MatrixTransformStack.of(ms).translate(getInstancePosition());
+        MatrixTransformStack.of(ms).translate(getWorldPosition());
 
         indicator
                  .setTransform(ms)

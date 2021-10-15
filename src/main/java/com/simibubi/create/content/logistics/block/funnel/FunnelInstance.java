@@ -2,7 +2,7 @@ package com.simibubi.create.content.logistics.block.funnel;
 
 import java.util.ArrayList;
 
-import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
+import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LightLayer;
@@ -16,11 +16,11 @@ import com.simibubi.create.content.logistics.block.FlapData;
 import com.simibubi.create.foundation.render.AllMaterialSpecs;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
-public class FunnelInstance extends BlockEntityInstance<FunnelTileEntity> implements IDynamicInstance {
+public class FunnelInstance extends TileEntityInstance<FunnelTileEntity> implements IDynamicInstance {
 
     private final ArrayList<FlapData> flaps;
 
-    public FunnelInstance(MaterialManager<?> modelManager, FunnelTileEntity tile) {
+    public FunnelInstance(MaterialManager modelManager, FunnelTileEntity tile) {
         super(modelManager, tile);
 
         flaps = new ArrayList<>(4);
@@ -47,7 +47,7 @@ public class FunnelInstance extends BlockEntityInstance<FunnelTileEntity> implem
 
             FlapData key = model.createInstance();
 
-            key.setPosition(getInstancePosition())
+            key.setPosition(getWorldPosition())
                .setSegmentOffset(segmentOffset, 0, -tile.getFlapOffset())
                .setBlockLight(blockLight)
                .setSkyLight(skyLight)

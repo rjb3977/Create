@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.components.press;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.Materials;
-import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.jozufozu.flywheel.core.materials.oriented.OrientedData;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
@@ -16,7 +16,7 @@ public class PressInstance extends ShaftInstance implements IDynamicInstance {
     private final OrientedData pressHead;
     private final MechanicalPressTileEntity press;
 
-    public PressInstance(MaterialManager<?> dispatcher, MechanicalPressTileEntity tile) {
+    public PressInstance(MaterialManager dispatcher, MechanicalPressTileEntity tile) {
         super(dispatcher, tile);
         press = tile;
 
@@ -43,7 +43,7 @@ public class PressInstance extends ShaftInstance implements IDynamicInstance {
     private void transformModels() {
         float renderedHeadOffset = getRenderedHeadOffset(press);
 
-        pressHead.setPosition(getInstancePosition())
+        pressHead.setPosition(getWorldPosition())
                 .nudge(0, -renderedHeadOffset, 0);
     }
 

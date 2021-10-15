@@ -100,7 +100,7 @@ public class CouplingRenderer {
 		int meanSkyLight = (((l1 >> 20) & 0xf) + ((l2 >> 20) & 0xf)) / 2;
 
 		ms.pushPose();
-		msr.translate(VecHelper.toVec3d(firstEndpoint))
+		msr.translate(firstEndpoint)
 			.rotateY(connectorYaw)
 			.rotateZ(connectorPitch);
 		ms.scale((float) endPointDiff.length(), 1, 1);

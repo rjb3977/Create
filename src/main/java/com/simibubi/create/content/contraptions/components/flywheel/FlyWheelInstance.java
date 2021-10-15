@@ -4,6 +4,10 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 
 import java.util.Collections;
 import java.util.List;
+
+import com.jozufozu.flywheel.backend.material.Material;
+import com.jozufozu.flywheel.core.materials.model.ModelData;
+
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Rotation;
@@ -12,9 +16,7 @@ import com.google.common.collect.Lists;
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.material.InstanceMaterial;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.core.materials.ModelData;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
@@ -43,7 +45,7 @@ public class FlyWheelInstance extends KineticTileInstance<FlywheelTileEntity> im
 
     protected float lastAngle = Float.NaN;
 
-    public FlyWheelInstance(MaterialManager<?> modelManager, FlywheelTileEntity tile) {
+    public FlyWheelInstance(MaterialManager modelManager, FlywheelTileEntity tile) {
 		super(modelManager, tile);
 
 		facing = blockState.getValue(HORIZONTAL_FACING);
@@ -61,7 +63,7 @@ public class FlyWheelInstance extends KineticTileInstance<FlywheelTileEntity> im
 
 			connectorAngleMult = flipAngle ? -1 : 1;
 
-			InstanceMaterial<ModelData> mat = getTransformMaterial();
+			Material<ModelData> mat = getTransformMaterial();
 
 			upperRotating = mat.getModel(AllBlockPartials.FLYWHEEL_UPPER_ROTATING, blockState).createInstance();
 			lowerRotating = mat.getModel(AllBlockPartials.FLYWHEEL_LOWER_ROTATING, blockState).createInstance();
@@ -95,7 +97,7 @@ public class FlyWheelInstance extends KineticTileInstance<FlywheelTileEntity> im
         PoseStack ms = new PoseStack();
         MatrixTransformStack msr = MatrixTransformStack.of(ms);
 
-        msr.translate(getInstancePosition());
+        msr.translate(getWorldPosition());
 
         if (connection != null) {
             float rotation = angle * connectorAngleMult;

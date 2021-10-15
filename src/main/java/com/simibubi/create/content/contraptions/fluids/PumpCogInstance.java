@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class PumpCogInstance extends SingleRotatingInstance {
 
-    public PumpCogInstance(MaterialManager<?> modelManager, KineticTileEntity tile) {
+    public PumpCogInstance(MaterialManager modelManager, KineticTileEntity tile) {
         super(modelManager, tile);
     }
 

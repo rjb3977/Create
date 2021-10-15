@@ -16,8 +16,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class ExtendoGripItemRenderer extends CustomRenderedItemModelRenderer<ExtendoGripModel> {
 
-	private static final Vector3d rotationOffset = new Vector3d(0, 1 / 2f, 1 / 2f);
-	private static final Vector3d cogRotationOffset = new Vector3d(0, 1 / 16f, 0);
+	private static final Vec3 rotationOffset = new Vec3(0, 1 / 2f, 1 / 2f);
+	private static final Vec3 cogRotationOffset = new Vec3(0, 1 / 16f, 0);
 
 	@Override
 	protected void render(ItemStack stack, ExtendoGripModel model, PartialItemModelRenderer renderer, TransformType transformType,

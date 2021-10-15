@@ -2,13 +2,15 @@ package com.simibubi.create.content.contraptions.relays.gearbox;
 
 import java.util.EnumMap;
 import java.util.Map;
+
+import com.jozufozu.flywheel.backend.material.Material;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
-import com.jozufozu.flywheel.backend.material.InstanceMaterial;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.simibubi.create.AllBlockPartials;
 import com.simibubi.create.content.contraptions.base.KineticTileInstance;
@@ -20,7 +22,7 @@ public class GearboxInstance extends KineticTileInstance<GearboxTileEntity> {
     protected final EnumMap<Direction, RotatingData> keys;
     protected Direction sourceFacing;
 
-    public GearboxInstance(MaterialManager<?> modelManager, GearboxTileEntity tile) {
+    public GearboxInstance(MaterialManager modelManager, GearboxTileEntity tile) {
         super(modelManager, tile);
 
         keys = new EnumMap<>(Direction.class);
@@ -31,7 +33,7 @@ public class GearboxInstance extends KineticTileInstance<GearboxTileEntity> {
         int skyLight = world.getBrightness(LightLayer.SKY, pos);
         updateSourceFacing();
 
-        InstanceMaterial<RotatingData> rotatingMaterial = getRotatingMaterial();
+        Material<RotatingData> rotatingMaterial = getRotatingMaterial();
 
         for (Direction direction : Iterate.directions) {
 			final Direction.Axis axis = direction.getAxis();
@@ -45,7 +47,7 @@ public class GearboxInstance extends KineticTileInstance<GearboxTileEntity> {
 			key.setRotationAxis(Direction.get(Direction.AxisDirection.POSITIVE, axis).step())
 					.setRotationalSpeed(getSpeed(direction))
 					.setRotationOffset(getRotationOffset(axis)).setColor(tile)
-					.setPosition(getInstancePosition())
+					.setPosition(getWorldPosition())
 					.setBlockLight(blockLight)
 					.setSkyLight(skyLight);
 

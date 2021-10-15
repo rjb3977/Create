@@ -56,8 +56,8 @@ public abstract class ContraptionLighter<C extends Contraption> implements ILigh
 
     protected GridAlignedBB contraptionBoundsToVolume(GridAlignedBB bounds) {
         bounds.grow(2); // so we have at least enough data on the edges to avoid artifacts and have smooth lighting
-        bounds.minY = Math.max(bounds.minY, 0);
-        bounds.maxY = Math.min(bounds.maxY, 255);
+        bounds.setMinY(Math.max(bounds.getMinY(), 0));
+        bounds.setMaxY(Math.min(bounds.getMaxY(), 255));
 
         return bounds;
     }

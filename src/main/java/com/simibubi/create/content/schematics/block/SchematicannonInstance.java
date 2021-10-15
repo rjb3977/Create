@@ -1,10 +1,10 @@
 package com.simibubi.create.content.schematics.block;
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
-import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
-import com.jozufozu.flywheel.backend.material.InstanceMaterial;
+import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+import com.jozufozu.flywheel.backend.material.Material;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.core.materials.ModelData;
+import com.jozufozu.flywheel.core.materials.model.ModelData;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
@@ -12,15 +12,15 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
 import net.minecraft.core.Direction;
 
-public class SchematicannonInstance extends BlockEntityInstance<SchematicannonTileEntity> implements IDynamicInstance {
+public class SchematicannonInstance extends TileEntityInstance<SchematicannonTileEntity> implements IDynamicInstance {
 
     private final ModelData connector;
     private final ModelData pipe;
 
-    public SchematicannonInstance(MaterialManager<?> modelManager, SchematicannonTileEntity tile) {
+    public SchematicannonInstance(MaterialManager modelManager, SchematicannonTileEntity tile) {
         super(modelManager, tile);
 
-        InstanceMaterial<ModelData> mat = getTransformMaterial();
+        Material<ModelData> mat = getTransformMaterial();
 
         connector = mat.getModel(AllBlockPartials.SCHEMATICANNON_CONNECTOR, blockState).createInstance();
         pipe = mat.getModel(AllBlockPartials.SCHEMATICANNON_PIPE, blockState).createInstance();
@@ -42,7 +42,7 @@ public class SchematicannonInstance extends BlockEntityInstance<SchematicannonTi
         PoseStack ms = new PoseStack();
         MatrixTransformStack msr = MatrixTransformStack.of(ms);
 
-        msr.translate(getInstancePosition());
+        msr.translate(getWorldPosition());
 
         ms.pushPose();
         msr.centre();

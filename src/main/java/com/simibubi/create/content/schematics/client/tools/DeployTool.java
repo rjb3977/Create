@@ -60,11 +60,11 @@ public class DeployTool extends PlacementToolBase {
 
 		ms.translate(x - centerX, y, z - centerZ);
 		MatrixTransformStack.of(ms)
-			.translate(VecHelper.toVec3d(origin))
-			.translate(VecHelper.toVec3d(rotationOffset))
+			.translate(origin)
+			.translate(rotationOffset)
 			.rotateY(transformation.getCurrentRotation())
-			.translateBack(VecHelper.toVec3d(rotationOffset))
-			.translateBack(VecHelper.toVec3d(origin));
+			.translateBack(rotationOffset)
+			.translateBack(origin);
 
 		AABBOutline outline = schematicHandler.getOutline();
 		outline.render(ms, buffer, pt);

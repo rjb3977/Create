@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.components.structureMovement.be
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.PartialModel;
-import com.jozufozu.flywheel.core.materials.OrientedData;
+import com.jozufozu.flywheel.core.materials.oriented.OrientedData;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.AllBlockPartials;
@@ -22,7 +22,7 @@ public class BearingInstance<B extends KineticTileEntity & IBearingTileEntity> e
 	final Vector3f rotationAxis;
 	final Quaternion blockOrientation;
 
-	public BearingInstance(MaterialManager<?> modelManager, B tile) {
+	public BearingInstance(MaterialManager modelManager, B tile) {
 		super(modelManager, tile);
 		this.bearing = tile;
 
@@ -36,7 +36,7 @@ public class BearingInstance<B extends KineticTileEntity & IBearingTileEntity> e
 
 		topInstance = getOrientedMaterial().getModel(top, blockState).createInstance();
 
-		topInstance.setPosition(getInstancePosition()).setRotation(blockOrientation);
+		topInstance.setPosition(getWorldPosition()).setRotation(blockOrientation);
 	}
 
 	@Override

@@ -3,11 +3,12 @@ package com.simibubi.create.content.contraptions.components.deployer;
 import static com.simibubi.create.content.contraptions.base.DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE;
 import static com.simibubi.create.content.contraptions.base.DirectionalKineticBlock.FACING;
 
-import com.jozufozu.flywheel.backend.material.InstanceMaterial;
+import com.jozufozu.flywheel.backend.material.Material;
+import com.jozufozu.flywheel.backend.material.MaterialImpl;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.Materials;
 import com.jozufozu.flywheel.core.PartialModel;
-import com.jozufozu.flywheel.core.materials.ModelData;
+import com.jozufozu.flywheel.core.materials.model.ModelData;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlockPartials;
@@ -41,10 +42,10 @@ public class DeployerActorInstance extends ActorInstance {
     ModelData hand;
     RotatingData shaft;
 
-    public DeployerActorInstance(MaterialManager<?> materialManager, PlacementSimulationWorld simulationWorld, MovementContext context) {
+    public DeployerActorInstance(MaterialManager materialManager, PlacementSimulationWorld simulationWorld, MovementContext context) {
         super(materialManager, simulationWorld, context);
 
-		InstanceMaterial<ModelData> mat = materialManager.defaultSolid()
+		Material<ModelData> mat = materialManager.defaultSolid()
 				.material(Materials.TRANSFORMED);
 
         BlockState state = context.state;
@@ -97,7 +98,7 @@ public class DeployerActorInstance extends ActorInstance {
         MatrixTransformStack msr = MatrixTransformStack.of(ms);
 
         msr.translate(context.localPos)
-           .translate(VecHelper.toVec3d(offset));
+           .translate(offset);
 
         transformModel(msr, pole, hand, yRot, zRot, zRotPole);
     }

@@ -1,7 +1,7 @@
 package com.simibubi.create.content.contraptions.base;
 
-import com.jozufozu.flywheel.backend.instancing.tile.BlockEntityInstance;
-import com.jozufozu.flywheel.backend.material.InstanceMaterial;
+import com.jozufozu.flywheel.backend.instancing.tile.TileEntityInstance;
+import com.jozufozu.flywheel.backend.material.Material;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.relays.elementary.ICogWheel;
@@ -10,11 +10,11 @@ import com.simibubi.create.foundation.render.AllMaterialSpecs;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class KineticTileInstance<T extends KineticTileEntity> extends BlockEntityInstance<T> {
+public abstract class KineticTileInstance<T extends KineticTileEntity> extends TileEntityInstance<T> {
 
     protected final Direction.Axis axis;
 
-    public KineticTileInstance(MaterialManager<?> modelManager, T tile) {
+    public KineticTileInstance(MaterialManager modelManager, T tile) {
         super(modelManager, tile);
 
         axis = ((IRotate) blockState.getBlock()).getRotationAxis(blockState);
@@ -56,7 +56,7 @@ public abstract class KineticTileInstance<T extends KineticTileEntity> extends B
                 .setRotationalSpeed(speed)
                 .setRotationOffset(getRotationOffset(axis))
                 .setColor(tile)
-                .setPosition(getInstancePosition());
+                .setPosition(getWorldPosition());
 
         return key;
     }
@@ -83,7 +83,7 @@ public abstract class KineticTileInstance<T extends KineticTileEntity> extends B
         return shaft(getRotationAxis());
     }
 
-    protected InstanceMaterial<RotatingData> getRotatingMaterial() {
+    protected Material<RotatingData> getRotatingMaterial() {
 		return materialManager.defaultSolid()
 				.material(AllMaterialSpecs.ROTATING);
 	}

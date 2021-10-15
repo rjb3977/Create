@@ -132,9 +132,9 @@ public class BasinRenderer extends SmartTileEntityRenderer<BasinTileEntity> {
 
 			ms.pushPose();
 			MatrixTransformStack.of(ms)
-				.translate(VecHelper.toVec3d(outVec))
-				.translate(new Vector3d(0, Math.max(-.55f, -(progress * progress * 2)), 0))
-				.translate(VecHelper.toVec3d(directionVec.scale(progress * .5f)))
+				.translate(outVec)
+				.translate(new Vec3(0, Math.max(-.55f, -(progress * progress * 2)), 0))
+				.translate(directionVec.scale(progress * .5f))
 				.rotateY(AngleHelper.horizontalAngle(direction))
 				.rotateX(progress * 180);
 			renderItem(ms, buffer, light, overlay, intAttached.getValue());

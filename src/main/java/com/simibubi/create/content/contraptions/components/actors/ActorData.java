@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.components.actors;
 
 import com.jozufozu.flywheel.backend.gl.buffer.MappedBuffer;
+import com.jozufozu.flywheel.backend.gl.buffer.VecBuffer;
 import com.jozufozu.flywheel.backend.instancing.InstanceData;
 import com.jozufozu.flywheel.backend.instancing.Instancer;
 import com.mojang.math.Quaternion;
@@ -100,7 +101,7 @@ public class ActorData extends InstanceData {
 	}
 
 	@Override
-	public void write(MappedBuffer buf) {
+	public void write(VecBuffer buf) {
 		buf.putVec3(x, y, z);
 		buf.putVec2(blockLight, skyLight);
 		buf.putFloat(rotationOffset);

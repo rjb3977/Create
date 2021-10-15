@@ -67,7 +67,7 @@ public abstract class MovementBehaviour {
 
 	@Environment(EnvType.CLIENT)
 	@Nullable
-	public ActorInstance createInstance(MaterialManager<?> materialManager, PlacementSimulationWorld simulationWorld, MovementContext context) {
+	public ActorInstance createInstance(MaterialManager materialManager, PlacementSimulationWorld simulationWorld, MovementContext context) {
 		return null;
 	}
 

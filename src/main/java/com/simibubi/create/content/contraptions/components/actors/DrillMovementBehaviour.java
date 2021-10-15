@@ -47,7 +47,7 @@ public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 
 	@Nullable
 	@Override
-	public ActorInstance createInstance(MaterialManager<?> materialManager, PlacementSimulationWorld simulationWorld, MovementContext context) {
+	public ActorInstance createInstance(MaterialManager materialManager, PlacementSimulationWorld simulationWorld, MovementContext context) {
 		return new DrillActorInstance(materialManager, simulationWorld, context);
 	}
 

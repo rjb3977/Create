@@ -33,7 +33,7 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
     protected ArrayList<BeltData> keys;
     protected RotatingData pulleyKey;
 
-    public BeltInstance(MaterialManager<?> materialManager, BeltTileEntity tile) {
+    public BeltInstance(MaterialManager materialManager, BeltTileEntity tile) {
         super(materialManager, tile);
 
         if (!AllBlocks.BELT.has(blockState))
@@ -166,7 +166,7 @@ public class BeltInstance extends KineticTileInstance<BeltTileEntity> {
 				.setRotationalSpeed(getScrollSpeed())
 				.setRotationOffset(bottom ? 0.5f : 0f)
                 .setColor(tile)
-                .setPosition(getInstancePosition())
+                .setPosition(getWorldPosition())
                 .setBlockLight(world.getBrightness(LightLayer.BLOCK, pos))
                 .setSkyLight(world.getBrightness(LightLayer.SKY, pos));
 

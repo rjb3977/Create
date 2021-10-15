@@ -1,10 +1,12 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.render;
 
 import java.util.List;
+
+import com.mojang.blaze3d.shaders.Program;
+
 import net.minecraft.world.phys.AABB;
 import org.lwjgl.opengl.GL20;
 
-import com.jozufozu.flywheel.backend.loading.Program;
 import com.jozufozu.flywheel.core.shader.WorldProgram;
 import com.jozufozu.flywheel.core.shader.extension.IProgramExtension;
 import com.mojang.math.Matrix4f;

@@ -2,7 +2,7 @@ package com.simibubi.create.content.contraptions.components.structureMovement.ga
 
 import com.jozufozu.flywheel.backend.instancing.IDynamicInstance;
 import com.jozufozu.flywheel.backend.material.MaterialManager;
-import com.jozufozu.flywheel.core.materials.ModelData;
+import com.jozufozu.flywheel.core.materials.model.ModelData;
 import com.jozufozu.flywheel.util.transform.MatrixTransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
@@ -28,7 +28,7 @@ public class GantryCarriageInstance extends ShaftInstance implements IDynamicIns
 
     private float lastAngle = Float.NaN;
 
-    public GantryCarriageInstance(MaterialManager<?> dispatcher, KineticTileEntity tile) {
+    public GantryCarriageInstance(MaterialManager dispatcher, KineticTileEntity tile) {
         super(dispatcher, tile);
 
         gantryCogs = getTransformMaterial()
@@ -64,7 +64,7 @@ public class GantryCarriageInstance extends ShaftInstance implements IDynamicIns
     private void animateCogs(float cogAngle) {
         PoseStack ms = new PoseStack();
         MatrixTransformStack.of(ms)
-                     .translate(getInstancePosition())
+                     .translate(getWorldPosition())
                      .centre()
                      .rotateY(AngleHelper.horizontalAngle(facing))
                      .rotateX(facing == Direction.UP ? 0 : facing == Direction.DOWN ? 180 : 90)

@@ -1,6 +1,9 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.pulley;
 
 import java.util.Arrays;
+
+import com.jozufozu.flywheel.core.materials.oriented.OrientedData;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -12,7 +15,6 @@ import com.jozufozu.flywheel.backend.material.MaterialManager;
 import com.jozufozu.flywheel.core.instancing.ConditionalInstance;
 import com.jozufozu.flywheel.core.instancing.GroupInstance;
 import com.jozufozu.flywheel.core.instancing.SelectInstance;
-import com.jozufozu.flywheel.core.materials.OrientedData;
 import com.jozufozu.flywheel.light.GridAlignedBB;
 import com.jozufozu.flywheel.light.ILightUpdateListener;
 import com.jozufozu.flywheel.light.LightUpdater;
@@ -35,7 +37,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 	private byte[] sLight = new byte[1];
 	private GridAlignedBB volume;
 
-	public AbstractPulleyInstance(MaterialManager<?> dispatcher, KineticTileEntity tile) {
+	public AbstractPulleyInstance(MaterialManager dispatcher, KineticTileEntity tile) {
 		super(dispatcher, tile);
 
 		rotatingAbout = Direction.get(Direction.AxisDirection.POSITIVE, axis);
@@ -43,7 +45,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 
 		coil = getCoilModel()
 				.createInstance()
-				.setPosition(getInstancePosition());
+				.setPosition(getWorldPosition());
 
 		magnet = new SelectInstance<>(this::getMagnetModelIndex);
 		magnet.addModel(getMagnetModel())
@@ -68,7 +70,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 		magnet.update().get().ifPresent(data ->
 				{
 					int index = Math.max(0, Mth.floor(offset));
-					data.setPosition(getInstancePosition())
+					data.setPosition(getWorldPosition())
 							.nudge(0, -offset, 0)
 							.setBlockLight(bLight[index])
 							.setSkyLight(sLight[index]);
@@ -79,7 +81,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 			float f = offset % 1;
 			float halfRopeNudge = f > .75f ? f - 1 : f;
 
-			rope.setPosition(getInstancePosition())
+			rope.setPosition(getWorldPosition())
 					.nudge(0, -halfRopeNudge, 0)
 					.setBlockLight(bLight[0])
 					.setSkyLight(sLight[0]);
@@ -89,7 +91,7 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 			int size = rope.size();
 			for (int i = 0; i < size; i++) {
 				rope.get(i)
-						.setPosition(getInstancePosition())
+						.setPosition(getWorldPosition())
 						.nudge(0, -offset + i + 1, 0)
 						.setBlockLight(bLight[size - i])
 						.setSkyLight(sLight[size - i]);

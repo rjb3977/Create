@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class HorizontalHalfShaftInstance extends HalfShaftInstance {
 
-    public HorizontalHalfShaftInstance(MaterialManager<?> modelManager, KineticTileEntity tile) {
+    public HorizontalHalfShaftInstance(MaterialManager modelManager, KineticTileEntity tile) {
         super(modelManager, tile);
     }
 
