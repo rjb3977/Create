@@ -4,6 +4,10 @@ import java.util.Arrays;
 
 import com.jozufozu.flywheel.core.materials.oriented.OrientedData;
 
+import com.jozufozu.flywheel.light.BasicProvider;
+import com.jozufozu.flywheel.light.ImmutableBox;
+import com.jozufozu.flywheel.light.LightProvider;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -143,9 +147,9 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 			bLight = Arrays.copyOf(bLight, length + 1);
 			sLight = Arrays.copyOf(sLight, length + 1);
 
-			initLight(world, volume);
+			initLight(BasicProvider.get(world), volume);
 
-			LightUpdater.getInstance().startListening(volume, this);
+			LightUpdater.get(world).addListener(this);
 		}
 	}
 
@@ -176,21 +180,19 @@ public abstract class AbstractPulleyInstance extends ShaftInstance implements ID
 	}
 
 	@Override
-	public boolean onLightUpdate(BlockAndTintGetter world, LightLayer type, GridAlignedBB changed) {
-		changed.intersectAssign(volume);
+	public void onLightUpdate(LightProvider world, LightLayer type, ImmutableBox changed) {
+		changed.intersect(volume);
 
 		initLight(world, changed);
-
-		return false;
 	}
 
-	private void initLight(BlockAndTintGetter world, GridAlignedBB changed) {
+	private void initLight(LightProvider world, ImmutableBox changed) {
 		int top = this.pos.getY();
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		changed.forEachContained((x, y, z) -> {
 			pos.set(x, y, z);
-			byte block = (byte) world.getBrightness(LightLayer.BLOCK, pos);
-			byte sky = (byte) world.getBrightness(LightLayer.SKY, pos);
+			byte block = (byte) world.getLight(LightLayer.BLOCK, pos.getX(), pos.getY(), pos.getZ());
+			byte sky = (byte) world.getLight(LightLayer.SKY, pos.getX(), pos.getY(), pos.getZ());
 
 			int i = top - y;
 

@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.render;
 
 import com.jozufozu.flywheel.light.GridAlignedBB;
+import com.jozufozu.flywheel.light.ImmutableBox;
+import com.jozufozu.flywheel.light.ListenerStatus;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionLighter;
 
@@ -13,5 +15,10 @@ public class EmptyLighter extends ContraptionLighter<Contraption> {
 	@Override
 	public GridAlignedBB getContraptionBounds() {
 		return new GridAlignedBB(0, 0, 0, 1, 1, 1);
+	}
+
+	@Override
+	public ListenerStatus status() {
+		return ListenerStatus.OKAY; // FIXME PORT
 	}
 }

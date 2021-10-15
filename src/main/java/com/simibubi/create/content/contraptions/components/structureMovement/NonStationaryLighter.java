@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.components.structureMovement;
 
+import com.jozufozu.flywheel.light.BasicProvider;
 import com.jozufozu.flywheel.light.GridAlignedBB;
+import com.jozufozu.flywheel.light.ListenerStatus;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.RenderedContraption;
 
 public class NonStationaryLighter<C extends Contraption> extends ContraptionLighter<C> {
@@ -14,7 +16,7 @@ public class NonStationaryLighter<C extends Contraption> extends ContraptionLigh
         GridAlignedBB contraptionBounds = getContraptionBounds();
 
         if (!contraptionBounds.sameAs(bounds)) {
-            lightVolume.move(contraption.entity.level, contraptionBoundsToVolume(contraptionBounds));
+            lightVolume.move(BasicProvider.get(contraption.entity.level), contraptionBoundsToVolume(contraptionBounds));
             bounds = contraptionBounds;
 
             startListening();
@@ -29,4 +31,9 @@ public class NonStationaryLighter<C extends Contraption> extends ContraptionLigh
 
         return bb;
     }
+
+	@Override
+	public ListenerStatus status() { // FIXME PORT
+		return ListenerStatus.OKAY;
+	}
 }

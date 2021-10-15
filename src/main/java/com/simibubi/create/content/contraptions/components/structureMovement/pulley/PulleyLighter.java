@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.pulley;
 
 import com.jozufozu.flywheel.light.GridAlignedBB;
+import com.jozufozu.flywheel.light.ListenerStatus;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionLighter;
 import net.minecraft.core.BlockPos;
@@ -28,4 +29,9 @@ public class PulleyLighter extends ContraptionLighter<PulleyContraption> {
 
         return bounds;
     }
+
+	@Override
+	public ListenerStatus status() { // FIXME PORT
+		return ListenerStatus.OKAY;
+	}
 }

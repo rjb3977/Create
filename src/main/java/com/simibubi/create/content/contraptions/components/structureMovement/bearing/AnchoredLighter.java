@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.bearing;
 
 import com.jozufozu.flywheel.light.GridAlignedBB;
+import com.jozufozu.flywheel.light.ListenerStatus;
 import com.simibubi.create.content.contraptions.components.structureMovement.Contraption;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionLighter;
 
@@ -16,4 +17,9 @@ public class AnchoredLighter extends ContraptionLighter<Contraption> {
         bb.translate(contraption.anchor);
         return bb;
     }
+
+	@Override
+	public ListenerStatus status() { // FIXME PORT
+		return ListenerStatus.OKAY;
+	}
 }

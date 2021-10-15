@@ -32,7 +32,7 @@ public class FlapData extends InstanceData implements IFlatLight<FlapData> {
 	private float flapness;
 
 	public FlapData(Instancer<?> owner) {
-		super(owner);
+//		super(owner); // FIXME PORT
 	}
 
 	public FlapData setPosition(BlockPos pos) {

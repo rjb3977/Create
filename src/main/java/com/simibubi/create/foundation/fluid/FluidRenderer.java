@@ -128,9 +128,9 @@ public class FluidRenderer {
 				ms.pushPose();
 
 				if (side.getAxisDirection() == AxisDirection.NEGATIVE)
-					msr.translate(VecHelper.toVec3d(center))
+					msr.translate(center)
 						.rotateY(180)
-						.translateBack(VecHelper.toVec3d(center));
+						.translateBack(center);
 
 				boolean X = side.getAxis() == Axis.X;
 				int darkColor = Color.mixColors(color, 0xff000011, 1 / 4f);

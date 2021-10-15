@@ -1,7 +1,10 @@
 package com.simibubi.create.content.contraptions.components.structureMovement;
 
+import com.jozufozu.flywheel.light.BasicProvider;
 import com.jozufozu.flywheel.light.GridAlignedBB;
 import com.jozufozu.flywheel.light.ILightUpdateListener;
+import com.jozufozu.flywheel.light.ImmutableBox;
+import com.jozufozu.flywheel.light.LightProvider;
 import com.jozufozu.flywheel.light.LightUpdater;
 import com.jozufozu.flywheel.light.LightVolume;
 import com.simibubi.create.content.contraptions.components.structureMovement.render.RenderedContraption;
@@ -23,7 +26,7 @@ public abstract class ContraptionLighter<C extends Contraption> implements ILigh
 
         lightVolume = new LightVolume(contraptionBoundsToVolume(bounds.copy()));
 
-        lightVolume.initialize(contraption.entity.level);
+        lightVolume.initialize(BasicProvider.get(contraption.entity.level));
         scheduleRebuild = true;
 
         startListening();
@@ -31,27 +34,30 @@ public abstract class ContraptionLighter<C extends Contraption> implements ILigh
 
     public void tick(RenderedContraption owner) {
         if (scheduleRebuild) {
-            lightVolume.initialize(owner.contraption.entity.level);
+            lightVolume.initialize(BasicProvider.get(contraption.entity.level));
             scheduleRebuild = false;
         }
     }
 
     public abstract GridAlignedBB getContraptionBounds();
 
-    @Override
-    public boolean onLightUpdate(BlockAndTintGetter world, LightLayer type, GridAlignedBB changed) {
-        lightVolume.notifyLightUpdate(world, type, changed);
-        return false;
-    }
+	@Override
+	public ImmutableBox getVolume() { // FIXME PORT
+		return getContraptionBounds();
+	}
 
-    @Override
-    public boolean onLightPacket(BlockAndTintGetter world, int chunkX, int chunkZ) {
-        lightVolume.notifyLightPacket(world, chunkX, chunkZ);
-        return false;
-    }
+	@Override
+	public void onLightUpdate(LightProvider world, LightLayer type, ImmutableBox changed) {
+		lightVolume.onLightUpdate(world, type, changed);
+	}
+
+	@Override
+	public void onLightPacket(LightProvider world, int chunkX, int chunkZ) {
+		lightVolume.onLightPacket(world, chunkX, chunkZ);
+	}
 
     protected void startListening() {
-        LightUpdater.getInstance().startListening(bounds, this);
+		LightUpdater.get(contraption.entity.level).addListener(this);
     }
 
     protected GridAlignedBB contraptionBoundsToVolume(GridAlignedBB bounds) {

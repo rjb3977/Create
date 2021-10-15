@@ -15,7 +15,10 @@ import java.util.function.Function;
 import com.jozufozu.flywheel.backend.instancing.InstancedRenderDispatcher;
 import com.jozufozu.flywheel.light.GridAlignedBB;
 import com.jozufozu.flywheel.light.ILightUpdateListener;
+import com.jozufozu.flywheel.light.ImmutableBox;
+import com.jozufozu.flywheel.light.LightProvider;
 import com.jozufozu.flywheel.light.LightUpdater;
+import com.jozufozu.flywheel.light.ListenerStatus;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.base.IRotate;
 import com.simibubi.create.content.contraptions.base.KineticTileEntity;
@@ -123,8 +126,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 
 		if (light == null && level.isClientSide) {
 			initializeLight();
-			LightUpdater.getInstance()
-				.startListening(getBeltVolume(), this);
+			LightUpdater.get(level).addListener(this);
 		}
 
 		getInventory().tick();
@@ -535,11 +537,21 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 	}
 
 	@Override
-	public boolean onLightUpdate(BlockAndTintGetter world, LightLayer type, GridAlignedBB changed) {
+	public ImmutableBox getVolume() { // FIXME PORT
+		return GridAlignedBB.from(getRenderBoundingBox());
+	}
+
+	@Override
+	public ListenerStatus status() { // FIXME PORT
+		return ListenerStatus.OKAY;
+	}
+
+	@Override
+	public void onLightUpdate(LightProvider world, LightLayer type, ImmutableBox changed) {
 		if (this.remove)
-			return true;
+			return;
 		if (this.level == null || this.light == null)
-			return false;
+			return;
 
 		GridAlignedBB beltVolume = getBeltVolume();
 
@@ -550,8 +562,6 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 			if (type == LightLayer.SKY)
 				updateSkyLight();
 		}
-
-		return false;
 	}
 
 	private GridAlignedBB getBeltVolume() {

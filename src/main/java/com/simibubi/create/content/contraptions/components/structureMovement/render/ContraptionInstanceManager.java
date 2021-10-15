@@ -4,6 +4,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import javax.annotation.Nullable;
+
+import com.jozufozu.flywheel.backend.material.MaterialManagerImpl;
+
 import net.minecraft.client.Camera;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -22,7 +25,7 @@ public class ContraptionInstanceManager extends TileInstanceManager {
     private final WeakReference<RenderedContraption> contraption;
 
     ContraptionInstanceManager(RenderedContraption contraption, MaterialManager materialManager) {
-		super(materialManager);
+		super((MaterialManagerImpl<?>) materialManager);
 		this.contraption = new WeakReference<>(contraption);
 	}
 

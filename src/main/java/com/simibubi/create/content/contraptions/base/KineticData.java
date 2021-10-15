@@ -16,7 +16,7 @@ public class KineticData extends BasicData {
     private float rotationOffset;
 
     protected KineticData(Instancer<?> owner) {
-        super(owner);
+//        super(owner); // FIXME PORT
     }
 
     public KineticData setPosition(BlockPos pos) {

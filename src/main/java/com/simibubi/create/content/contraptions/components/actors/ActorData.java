@@ -29,7 +29,7 @@ public class ActorData extends InstanceData {
     private float speed;
 
     public ActorData(Instancer<?> owner) {
-		super(owner);
+//		super(owner); // FIXME PORT
 	}
 
 

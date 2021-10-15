@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.piston;
 
 import com.jozufozu.flywheel.light.GridAlignedBB;
+import com.jozufozu.flywheel.light.ImmutableBox;
+import com.jozufozu.flywheel.light.ListenerStatus;
 import com.simibubi.create.content.contraptions.components.structureMovement.ContraptionLighter;
 import net.minecraft.core.Vec3i;
 
@@ -31,4 +33,9 @@ public class PistonLighter extends ContraptionLighter<PistonContraption> {
 
         return bounds;
     }
+
+	@Override
+	public ListenerStatus status() { // FIXME PORT
+		return ListenerStatus.OKAY;
+	}
 }
