@@ -90,19 +90,19 @@ public class VoxelShaper {
 
 		shape.forAllBoxes((x1, y1, z1, x2, y2, z2) -> {
 			Vec3 v1 = new Vec3(x1, y1, z1).scale(16)
-				.subtract(center);
+					.subtract(center);
 			Vec3 v2 = new Vec3(x2, y2, z2).scale(16)
-				.subtract(center);
+					.subtract(center);
 
 			v1 = VecHelper.rotate(v1, (float) rotation.x, Axis.X);
 			v1 = VecHelper.rotate(v1, (float) rotation.y, Axis.Y);
 			v1 = VecHelper.rotate(v1, (float) rotation.z, Axis.Z)
-				.add(center);
-
+					.add(center);
+			
 			v2 = VecHelper.rotate(v2, (float) rotation.x, Axis.X);
 			v2 = VecHelper.rotate(v2, (float) rotation.y, Axis.Y);
 			v2 = VecHelper.rotate(v2, (float) rotation.z, Axis.Z)
-				.add(center);
+					.add(center);
 
 			VoxelShape rotated = Block.box(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 			result.setValue(Shapes.or(result.getValue(), rotated));

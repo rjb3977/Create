@@ -136,14 +136,15 @@ public class CreateClient implements ClientModInitializer {
 		ModelsBakedCallback.EVENT.register(CreateClient::onModelBake);
 		OnModelRegistryCallback.EVENT.register(CreateClient::onModelRegistry);
 		OnTextureStitchCallback.EVENT.register(CreateClient::onTextureStitch);
-		ParticleManagerRegistrationCallback.EVENT.register(AllParticleTypes::registerFactories);
+		ParticleManagerRegistrationCallback.EVENT.register(() -> {
+			AllParticleTypes.registerFactories();
+			registerLayerRenderers(Minecraft.getInstance().getEntityRenderDispatcher()); // multi-purpose!
+		});
 		addClientListeners();
 		ClientEvents.register();
 		InputEvents.register();
 		AllPackets.clientInit();
 
-			registerLayerRenderers(Minecraft.getInstance()
-				.getEntityRenderDispatcher());
 //		});
 		// Replaces ArmorItem#getArmorTexture from a Forge patch
 //		ArmorRenderingRegistry.registerSimpleTexture(new ResourceLocation(Create.ID, "copper"),

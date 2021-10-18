@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.event.EventFactory;
 
 @Environment(EnvType.CLIENT)
 public interface ParticleManagerRegistrationCallback {
-	public static final Event<ParticleManagerRegistrationCallback> EVENT = EventFactory.createArrayBacked(ParticleManagerRegistrationCallback.class, callbacks -> () -> {
+	Event<ParticleManagerRegistrationCallback> EVENT = EventFactory.createArrayBacked(ParticleManagerRegistrationCallback.class, callbacks -> () -> {
 		for (ParticleManagerRegistrationCallback callback : callbacks) {
 			callback.onParticleManagerRegistration();
 		}

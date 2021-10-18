@@ -55,11 +55,11 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomDura
 
 	public PotatoCannonItem(Properties properties) {
 		super(properties);
-		EnchantmentUtil.addCompat(this, Enchantments.POWER_ARROWS,
-				Enchantments.PUNCH_ARROWS,
-				Enchantments.FLAMING_ARROWS,
-				Enchantments.MOB_LOOTING,
-				AllEnchantments.POTATO_RECOVERY.get());
+		EnchantmentUtil.addCompat(this, () -> Enchantments.POWER_ARROWS,
+				() -> Enchantments.PUNCH_ARROWS,
+				() -> Enchantments.FLAMING_ARROWS,
+				() -> Enchantments.MOB_LOOTING,
+				AllEnchantments.POTATO_RECOVERY::get);
 	}
 
 	@Override

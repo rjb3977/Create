@@ -12,15 +12,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 @Mixin(Enchantment.class)
 public abstract class EnchantmentMixin {
 	@Inject(at = @At("HEAD"), method = "canEnchant", cancellable = true)
 	private void canEnchant(ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
-		Set<Item> compatibleItems = EnchantmentUtil.getMap().get(this);
-		if (compatibleItems != null) {
-			if (compatibleItems.contains(itemStack.getItem())) {
-				cir.setReturnValue(true);
+		Set<Supplier<Enchantment>> enchants = EnchantmentUtil.ITEMS_TO_ENCHANTS.get(itemStack.getItem());
+		if (enchants != null) {
+			for (Supplier<Enchantment> enchant : enchants) {
+				if (enchant.get() == (Object) this) {
+					cir.setReturnValue(true);
+				}
 			}
 		}
 	}
