@@ -706,6 +706,10 @@ public class AllTileEntities {
 		.register();
 
 	public static void register() {
+		// load the class
+	}
+
+	public static void registerStorages() {
 		TransferUtil.registerStorages(true,
 				BASIN.get(),
 				FLUID_TANK.get(),

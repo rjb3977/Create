@@ -26,6 +26,7 @@ public class ConfigDrivenFeatureEntry extends ConfigBase {
 									float frequency) {
 		this.id = id;
 		this.block = block;
+		group(0, id, "");
 		this.clusterSize = i(clusterSize, 0, id + "_clusterSize");
 		this.minHeight = i(0, 0, id + "_minHeight");
 		this.maxHeight = i(256, 0, id + "_maxHeight");

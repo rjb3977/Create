@@ -105,6 +105,7 @@ public class Create implements ModInitializer {
 		CommonEvents.register();
 
 		REGISTRATE.get().register();
+		AllTileEntities.registerStorages();
 
 		BiomeLoadingCallback.EVENT.register(Create::onBiomeLoad);
 		// jank

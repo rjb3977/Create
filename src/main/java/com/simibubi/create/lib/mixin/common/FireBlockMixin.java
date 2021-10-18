@@ -49,6 +49,7 @@ public abstract class FireBlockMixin extends BaseFireBlock implements FireBlockE
 
 	/**
 	 * Even though this is an overwrite it's 100x cleaner than the alternatives I tried
+	 * @reason fire mojank
 	 * @author Tropheus Jay
 	 */
 	@Overwrite

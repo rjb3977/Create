@@ -2,6 +2,9 @@ package com.simibubi.create.foundation.worldgen;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.simibubi.create.foundation.config.ConfigBase;
+
 import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -21,24 +24,24 @@ public class AllWorldFeatures {
 
 	static Map<String, ConfigDrivenFeatureEntry> entries = new HashMap<>();
 
-	static final ConfigDrivenFeatureEntry
-
-	COPPER = register("copper_ore", AllBlocks.COPPER_ORE, 18, 2).between(40, 85),
-
-		ZINC = register("zinc_ore", AllBlocks.ZINC_ORE, 14, 4).between(15, 70),
-
-		LIMESTONE = register("limestone", AllPaletteBlocks.LIMESTONE, 128, 1 / 64f).between(30, 70),
-
-		WEATHERED_LIMESTONE =
-			register("weathered_limestone", AllPaletteBlocks.WEATHERED_LIMESTONE, 128, 1 / 64f).between(10, 30),
-
-		DOLOMITE = register("dolomite", AllPaletteBlocks.DOLOMITE, 128, 1 / 64f).between(20, 70),
-
-		GABBRO = register("gabbro", AllPaletteBlocks.GABBRO, 128, 1 / 64f).between(20, 70),
-
-		SCORIA = register("scoria", AllPaletteBlocks.NATURAL_SCORIA, 128, 1 / 32f).between(0, 10)
-
-	;
+//	static final ConfigDrivenFeatureEntry
+//
+//	COPPER = register("copper_ore", AllBlocks.COPPER_ORE, 18, 2).between(40, 85),
+//
+//		ZINC = register("zinc_ore", AllBlocks.ZINC_ORE, 14, 4).between(15, 70),
+//
+//		LIMESTONE = register("limestone", AllPaletteBlocks.LIMESTONE, 128, 1 / 64f).between(30, 70),
+//
+//		WEATHERED_LIMESTONE =
+//			register("weathered_limestone", AllPaletteBlocks.WEATHERED_LIMESTONE, 128, 1 / 64f).between(10, 30),
+//
+//		DOLOMITE = register("dolomite", AllPaletteBlocks.DOLOMITE, 128, 1 / 64f).between(20, 70),
+//
+//		GABBRO = register("gabbro", AllPaletteBlocks.GABBRO, 128, 1 / 64f).between(20, 70),
+//
+//		SCORIA = register("scoria", AllPaletteBlocks.NATURAL_SCORIA, 128, 1 / 32f).between(0, 10)
+//
+//	;
 
 	private static ConfigDrivenFeatureEntry register(String id, NonNullSupplier<? extends Block> block, int clusterSize,
 		float frequency) {
