@@ -39,9 +39,11 @@ public class WrappedServerWorld extends ServerLevel {
 
 	protected Level world;
 
-	public WrappedServerWorld(Level world) {
-		// Replace null with world.getChunkProvider().chunkManager.field_219266_t ? We had null in 1.15
-		super(world.getServer(), Util.backgroundExecutor(), getLevelSaveFromWorld(world), (ServerLevelData) world.getLevelData(), world.dimension(), world.dimensionType(), null, ((ServerChunkCache) world.getChunkSource()).getGenerator(), world.isDebug(), BiomeManagerHelper.getSeed(world.getBiomeManager()), Collections.EMPTY_LIST, false); //, world.field_25143);
+	public WrappedServerWorld(World world) {
+		super(world.getServer(), Util.backgroundExecutor(), getLevelSaveFromWorld(world),
+			(IServerWorldInfo) world.getLevelData(), world.dimension(), world.dimensionType(),
+			new DummyStatusListener(), ((ServerChunkProvider) world.getChunkSource()).getGenerator(), world.isDebug(),
+			world.getBiomeManager().biomeZoomSeed, Collections.emptyList(), false);
 		this.world = world;
 	}
 

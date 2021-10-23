@@ -26,12 +26,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.foundation.block.ITE;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import com.simibubi.create.foundation.utility.Iterate;
 
 import com.simibubi.create.lib.block.CanConnectRedstoneBlock;
 
-public class RedstoneLinkBlock extends ProperDirectionalBlock implements ITE<RedstoneLinkTileEntity>, CanConnectRedstoneBlock, EntityBlock {
+public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements ITE<RedstoneLinkTileEntity>, CanConnectRedstoneBlock, EntityBlock {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	public static final BooleanProperty RECEIVER = BooleanProperty.create("receiver");

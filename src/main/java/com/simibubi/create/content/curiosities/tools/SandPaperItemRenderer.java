@@ -3,6 +3,8 @@ package com.simibubi.create.content.curiosities.tools;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import com.simibubi.create.foundation.item.render.CreateCustomRenderedItemModel;
+import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
+import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry.DynamicItemRenderer;
@@ -16,23 +18,22 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
-public class SandPaperItemRenderer implements DynamicItemRenderer {
+public class SandPaperItemRenderer extends CustomRenderedItemModelRenderer<SandPaperItemRenderer.SandPaperModel> {
 
 	@Override
-	public void render(ItemStack stack, TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+	protected void render(ItemStack stack, SandPaperModel model, PartialItemModelRenderer renderer,
+		TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-		LocalPlayer player = Minecraft.getInstance().player;
-		SandPaperModel mainModel = (SandPaperModel) itemRenderer.getModel(stack, Minecraft.getInstance().level, null, 0);
+		ClientPlayerEntity player = Minecraft.getInstance().player;
 		float partialTicks = AnimationTickHolder.getPartialTicks();
 
 		boolean leftHand = transformType == TransformType.FIRST_PERSON_LEFT_HAND;
 		boolean firstPerson = leftHand || transformType == TransformType.FIRST_PERSON_RIGHT_HAND;
 
-		ms.pushPose();
-		ms.translate(.5f, .5f, .5f);
-
-		CompoundTag tag = stack.getOrCreateTag();
+		CompoundNBT tag = stack.getOrCreateTag();
 		boolean jeiMode = tag.contains("JEI");
+
+		ms.pushPose();
 
 		if (tag.contains("Polishing")) {
 			ms.pushPose();
@@ -74,20 +75,20 @@ public class SandPaperItemRenderer implements DynamicItemRenderer {
 			}
 		}
 
-		itemRenderer.render(stack, TransformType.NONE, false, ms, buffer, light, overlay, mainModel.getOriginalModel());
+		itemRenderer.render(stack, TransformType.NONE, false, ms, buffer, light, overlay, model.getOriginalModel());
 
 		ms.popPose();
+	}
+
+	@Override
+	public SandPaperModel createModel(IBakedModel originalModel) {
+		return new SandPaperModel(originalModel);
 	}
 
 	public static class SandPaperModel extends CreateCustomRenderedItemModel {
 
 		public SandPaperModel(BakedModel template) {
 			super(template, "");
-		}
-
-		@Override
-		public DynamicItemRenderer createRenderer() {
-			return new SandPaperItemRenderer();
 		}
 
 	}

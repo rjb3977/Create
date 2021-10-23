@@ -23,7 +23,6 @@ package com.simibubi.create.foundation.data.recipe;
 //import com.simibubi.create.Create;
 //import com.simibubi.create.content.AllSections;
 //import com.simibubi.create.content.palettes.AllPaletteBlocks;
-//import com.simibubi.create.foundation.data.recipe.CreateRecipeProvider.I;
 //import com.simibubi.create.foundation.utility.Lang;
 //import com.tterrag.registrate.util.entry.BlockEntry;
 //import com.tterrag.registrate.util.entry.ItemEntry;
@@ -40,18 +39,18 @@ package com.simibubi.create.foundation.data.recipe;
 //import net.minecraft.item.DyeColor;
 //import net.minecraft.item.Item;
 //import net.minecraft.item.Items;
-//import net.minecraft.item.Crafting.CookingRecipeSerializer;
-//import net.minecraft.item.Crafting.IRecipeSerializer;
-//import net.minecraft.item.Crafting.Ingredient;
+//import net.minecraft.item.crafting.CookingRecipeSerializer;
+//import net.minecraft.item.crafting.IRecipeSerializer;
+//import net.minecraft.item.crafting.Ingredient;
 //import net.minecraft.tags.ITag;
 //import net.minecraft.tags.ItemTags;
 //import net.minecraft.util.IItemProvider;
 //import net.minecraft.util.ResourceLocation;
 //import net.minecraftforge.common.Tags;
-//import net.minecraftforge.common.Crafting.CraftingHelper;
-//import net.minecraftforge.common.Crafting.conditions.ICondition;
-//import net.minecraftforge.common.Crafting.conditions.ModLoadedCondition;
-//import net.minecraftforge.common.Crafting.conditions.NotCondition;
+//import net.minecraftforge.common.crafting.CraftingHelper;
+//import net.minecraftforge.common.crafting.conditions.ICondition;
+//import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
+//import net.minecraftforge.common.crafting.conditions.NotCondition;
 //
 //@SuppressWarnings("unused")
 //public class StandardRecipeGen extends CreateRecipeProvider {
@@ -1236,7 +1235,7 @@ package com.simibubi.create.foundation.data.recipe;
 //				ShapedRecipeBuilder b = builder.apply(ShapedRecipeBuilder.shaped(result.get(), amount));
 //				if (unlockedBy != null)
 //					b.unlockedBy("has_item", inventoryTrigger(unlockedBy.get()));
-//				b.save(consumer, createLocation("Crafting"));
+//				b.save(consumer, createLocation("crafting"));
 //			});
 //		}
 //
@@ -1245,7 +1244,7 @@ package com.simibubi.create.foundation.data.recipe;
 //				ShapelessRecipeBuilder b = builder.apply(ShapelessRecipeBuilder.shapeless(result.get(), amount));
 //				if (unlockedBy != null)
 //					b.unlockedBy("has_item", inventoryTrigger(unlockedBy.get()));
-//				b.save(consumer, createLocation("Crafting"));
+//				b.save(consumer, createLocation("crafting"));
 //			});
 //		}
 //

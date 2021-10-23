@@ -27,7 +27,7 @@ public class CustomRenderedItems {
 		registered.add(Pair.of(entry, behaviour));
 	}
 
-	public void foreach(
+	public void forEach(
 		NonNullBiConsumer<Item, NonNullFunction<BakedModel, ? extends CustomRenderedItemModel>> consumer) {
 		loadEntriesIfMissing();
 		customModels.forEach(consumer);

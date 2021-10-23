@@ -12,9 +12,4 @@ public class SymmetryWandModel extends CreateCustomRenderedItemModel {
 		addPartials("bits", "core", "core_glow");
 	}
 
-	@Override
-	public DynamicItemRenderer createRenderer() {
-		return new SymmetryWandItemRenderer();
-	}
-
 }

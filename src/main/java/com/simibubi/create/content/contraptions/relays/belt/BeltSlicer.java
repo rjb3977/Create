@@ -161,26 +161,37 @@ public class BeltSlicer {
 				requiredShafts++;
 
 			int amountRetrieved = 0;
+			boolean beltFound = false;
 			Search: while (true) {
 				for (int i = 0; i < player.getInventory().getContainerSize(); ++i) {
-					if (amountRetrieved == requiredShafts)
+					if (amountRetrieved == requiredShafts && beltFound)
 						break Search;
 
 					ItemStack itemstack = player.getInventory().getItem(i);
 					if (itemstack.isEmpty())
 						continue;
 					int count = itemstack.getCount();
+
+					if (AllItems.BELT_CONNECTOR.isIn(itemstack)) {
+						if (!world.isClientSide)
+							itemstack.shrink(1);
+						beltFound = true;
+						continue;
+					}
+
 					if (AllBlocks.SHAFT.isIn(itemstack)) {
 						int taken = Math.min(count, requiredShafts - amountRetrieved);
-						if (taken == count)
-							player.getInventory().setItem(i, ItemStack.EMPTY);
-						else
-							itemstack.shrink(taken);
+						if (!world.isClientSide)
+							if (taken == count)
+								player.getInventory().setItem(i, ItemStack.EMPTY);
+							else
+								itemstack.shrink(taken);
 						amountRetrieved += taken;
 					}
 				}
 
-				player.getInventory().placeItemBackInInventory(AllBlocks.SHAFT.asStack(amountRetrieved));
+				if (!world.isClientSide)
+					player.getInventory().placeItemBackInInventory(AllBlocks.SHAFT.asStack(amountRetrieved));
 				return InteractionResult.FAIL;
 			}
 		}
@@ -334,8 +345,10 @@ public class BeltSlicer {
 					state.setValue(BeltBlock.CASING, segmentTE != null && segmentTE.casing != CasingType.NONE)
 						.setValue(BeltBlock.PART, BeltPart.MIDDLE));
 
-				if (!creative)
+				if (!creative) {
 					player.getInventory().placeItemBackInInventory(AllBlocks.SHAFT.asStack(2));
+					player.inventory.placeItemBackInInventory(world, AllItems.BELT_CONNECTOR.asStack());
+				}
 
 				// Transfer items to other controller
 				BlockPos search = controllerTE.getBlockPos();

@@ -12,9 +12,4 @@ public class WorldshaperModel extends CreateCustomRenderedItemModel {
 		addPartials("core", "core_glow", "accelerator");
 	}
 
-	@Override
-	public DynamicItemRenderer createRenderer() {
-		return new WorldshaperItemRenderer();
-	}
-
 }

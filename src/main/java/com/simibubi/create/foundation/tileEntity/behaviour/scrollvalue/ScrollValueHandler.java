@@ -81,9 +81,12 @@ public class ScrollValueHandler {
 
 	@Environment(EnvType.CLIENT)
 	public static void tick() {
-		lastPassiveScroll = passiveScroll;
-		wrenchCog.tick();
-		passiveScroll += passiveScrollDirection * 0.5;
+		if (!Minecraft.getInstance()
+			.isPaused()) {
+			lastPassiveScroll = passiveScroll;
+			wrenchCog.tick();
+			passiveScroll += passiveScrollDirection * 0.5;
+		}
 	}
 
 	protected static void applyTo(double delta, ScrollValueBehaviour scrolling) {

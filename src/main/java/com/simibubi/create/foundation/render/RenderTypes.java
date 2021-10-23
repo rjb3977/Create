@@ -1,4 +1,4 @@
-package com.simibubi.create.foundation.renderState;
+package com.simibubi.create.foundation.render;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
 

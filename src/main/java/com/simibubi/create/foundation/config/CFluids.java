@@ -5,15 +5,17 @@ import com.simibubi.create.lib.config.ConfigGroup;
 
 public class CFluids extends ConfigBase {
 	public ConfigGroup fluids = group(0, "fluids", CServer.Comments.fluids);
-	public ConfigInt fluidTankCapacity = i(8, 1, "fluidTankCapacity", Comments.buckets, Comments.fluidTankCapacity);
-	public ConfigInt fluidTankMaxHeight = i(32, 1, "fluidTankMaxHeight", Comments.blocks, Comments.fluidTankMaxHeight);
-	public ConfigInt mechanicalPumpRange =
+	public final ConfigInt fluidTankCapacity = i(8, 1, "fluidTankCapacity", Comments.buckets, Comments.fluidTankCapacity);
+	public final ConfigInt fluidTankMaxHeight = i(32, 1, "fluidTankMaxHeight", Comments.blocks, Comments.fluidTankMaxHeight);
+	public final ConfigInt mechanicalPumpRange =
 		i(16, 1, "mechanicalPumpRange", Comments.blocks, Comments.mechanicalPumpRange);
 
-	public ConfigInt hosePulleyBlockThreshold = i(10000, -1, "hosePulleyBlockThreshold", Comments.blocks,
+	public final ConfigInt hosePulleyBlockThreshold = i(10000, -1, "hosePulleyBlockThreshold", Comments.blocks,
 		Comments.toDisable, Comments.hosePulleyBlockThreshold);
-	public ConfigBool fillInfinite = b(false, "fillInfinite", Comments.fillInfinite);
-	public ConfigInt hosePulleyRange = i(128, 1, "hosePulleyRange", Comments.blocks, Comments.hosePulleyRange);
+	public final ConfigBool fillInfinite = b(false, "fillInfinite", Comments.fillInfinite);
+	public final ConfigInt hosePulleyRange = i(128, 1, "hosePulleyRange", Comments.blocks, Comments.hosePulleyRange);
+
+	public ConfigBool placeFluidSourceBlocks = b(true, "placeFluidSourceBlocks", Comments.placeFluidSourceBlocks);
 
 	public Config config = new Config(getName());
 	@Override
@@ -39,6 +41,7 @@ public class CFluids extends ConfigBase {
 		static String hosePulleyBlockThreshold =
 			"The minimum amount of fluid blocks the hose pulley needs to find before deeming it an infinite source.";
 		static String fillInfinite = "Whether hose pulleys should continue filling up above-threshold sources";
+		static String placeFluidSourceBlocks = "Whether open-ended pipes and hose pulleys should be allowed to place fluid sources";
 	}
 
 }

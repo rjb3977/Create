@@ -12,7 +12,7 @@ public class CWorldGen extends ConfigBase {
 		return config;
 	}
 
-	public ConfigBool disable = b(false, "disableWorldGen", Comments.disable);
+	public final ConfigBool disable = b(false, "disableWorldGen", Comments.disable);
 
 	@Override
 	protected void registerAll() {

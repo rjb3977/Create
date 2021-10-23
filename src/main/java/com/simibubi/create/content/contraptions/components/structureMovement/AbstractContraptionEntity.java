@@ -170,7 +170,8 @@ public abstract class AbstractContraptionEntity extends Entity implements ExtraS
 		int indexOfSeat = contraption.getSeats()
 			.indexOf(localPos);
 		if (indexOfSeat == -1)
-			return false;
+			return contraption.interactors.containsKey(localPos)
+				&& contraption.interactors.get(localPos).handlePlayerInteraction(player, interactionHand, localPos, this);
 
 		// Eject potential existing passenger
 		Entity toDismount = null;

@@ -67,7 +67,7 @@ public abstract class FlowSource {
 		}
 
 		public void manageSource(Level world) {
-			if (fluidHandler!= null)
+			if (fluidHandler.isPresent() && world.getGameTime() % 20 != 0)
 				return;
 			BlockEntity tileEntity = world.getBlockEntity(location.getConnectedPos());
 			if (tileEntity != null)

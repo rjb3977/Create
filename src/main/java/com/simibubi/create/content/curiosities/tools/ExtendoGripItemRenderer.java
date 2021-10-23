@@ -9,6 +9,7 @@ import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -106,6 +107,11 @@ public class ExtendoGripItemRenderer extends CustomRenderedItemModelRenderer<Ext
 			.translateBack(cogRotationOffset);
 		renderer.renderSolid(model.getPartial("cog"), light);
 		ms.popPose();
+	}
+
+	@Override
+	public ExtendoGripModel createModel(IBakedModel originalModel) {
+		return new ExtendoGripModel(originalModel);
 	}
 
 }

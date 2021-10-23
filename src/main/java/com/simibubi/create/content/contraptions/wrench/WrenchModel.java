@@ -12,9 +12,4 @@ public class WrenchModel extends CreateCustomRenderedItemModel {
 		addPartials("gear");
 	}
 
-	@Override
-	public DynamicItemRenderer createRenderer() {
-		return new WrenchItemRenderer();
-	}
-
 }

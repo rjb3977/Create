@@ -167,7 +167,7 @@ public class FluidNetwork {
 			return;
 		for (Pair<BlockFace, IFluidHandler> pair : targets) {
 			if (pair.getSecond()
-				!= null)
+				.isPresent() && world.getGameTime() % 40 != 0)
 				continue;
 			PipeConnection pipeConnection = get(pair.getFirst());
 			if (pipeConnection == null)

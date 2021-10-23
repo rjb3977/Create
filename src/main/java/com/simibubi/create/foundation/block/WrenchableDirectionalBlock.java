@@ -11,9 +11,9 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 
-public class ProperDirectionalBlock extends DirectionalBlock implements IWrenchable {
+public class WrenchableDirectionalBlock extends DirectionalBlock implements IWrenchable {
 
-	public ProperDirectionalBlock(Properties p_i48415_1_) {
+	public WrenchableDirectionalBlock(Properties p_i48415_1_) {
 		super(p_i48415_1_);
 	}
 

@@ -14,10 +14,10 @@ import com.simibubi.create.content.contraptions.base.RotatedPillarKineticBlock;
 import com.simibubi.create.content.contraptions.fluids.FluidPropagator;
 import com.simibubi.create.content.contraptions.relays.elementary.AbstractShaftBlock;
 import com.simibubi.create.content.contraptions.relays.elementary.CogWheelBlock;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import com.simibubi.create.foundation.utility.Lang;
 
-public class BracketBlock extends ProperDirectionalBlock {
+public class BracketBlock extends WrenchableDirectionalBlock {
 
 	public static final BooleanProperty AXIS_ALONG_FIRST_COORDINATE =
 		DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE;

@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.simibubi.create.api.behaviour.BlockSpoutingBehaviour;
 import com.simibubi.create.content.CreateItemGroup;
 import com.simibubi.create.content.contraptions.TorquePropagator;
+import com.simibubi.create.content.contraptions.components.flywheel.engine.FurnaceEngineModifiers;
 import com.simibubi.create.content.contraptions.components.structureMovement.train.capability.CapabilityMinecartController;
 import com.simibubi.create.content.curiosities.weapons.BuiltinPotatoProjectileTypes;
 import com.simibubi.create.content.logistics.RedstoneLinkNetworkHandler;
@@ -40,7 +41,7 @@ public class Create implements ModInitializer {
 
 	public static final String ID = "create";
 	public static final String NAME = "Create";
-	public static final String VERSION = "0.3.2e";
+	public static final String VERSION = "0.3.2f";
 
 	public static final Logger LOGGER = LogManager.getLogger();
 
@@ -75,8 +76,10 @@ public class Create implements ModInitializer {
 		AllEntityTypes.register();
 		AllTileEntities.register();
 		AllMovementBehaviours.register();
+		AllInteractionBehaviours.register();
 		AllWorldFeatures.register();
 		AllEnchantments.register();
+		FurnaceEngineModifiers.register();
 		AllConfigs.register();
 		BlockSpoutingBehaviour.register();
 
@@ -127,7 +130,7 @@ public class Create implements ModInitializer {
 //		}
 	}
 
-//	public void gatherData(GatherDataEvent event) {
+//	public static void gatherData(GatherDataEvent event) {
 //		DataGenerator gen = event.getGenerator();
 //		gen.addProvider(new AllAdvancements(gen));
 //		gen.addProvider(new LangMerger(gen));

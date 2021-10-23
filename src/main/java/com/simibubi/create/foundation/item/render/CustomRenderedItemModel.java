@@ -19,13 +19,11 @@ public abstract class CustomRenderedItemModel extends ForwardingBakedModel {
 	protected String namespace;
 	protected String basePath;
 	protected Map<String, BakedModel> partials = new HashMap<>();
-	protected DynamicItemRenderer renderer;
 
 	public CustomRenderedItemModel(BakedModel template, String namespace, String basePath) {
 		wrapped = template;
 		this.namespace = namespace;
 		this.basePath = basePath;
-		this.renderer = createRenderer();
 	}
 
 	@Override
@@ -33,42 +31,44 @@ public abstract class CustomRenderedItemModel extends ForwardingBakedModel {
 		return true;
 	}
 
-	public final BakedModel getOriginalModel() {
-		return wrapped;
+	@Override
+	public IBakedModel handlePerspective(ItemCameraTransforms.TransformType cameraTransformType, MatrixStack mat) {
+		// Super call returns originalModel, but we want to return this, else ISTER
+		// won't be used.
+		super.handlePerspective(cameraTransformType, mat);
+		return this;
 	}
 
-	public DynamicItemRenderer getRenderer() {
-		return renderer;
+	public final IBakedModel getOriginalModel() {
+		return originalModel;
 	}
 
-	public abstract DynamicItemRenderer createRenderer();
+	public IBakedModel getPartial(String name) {
+		return partials.get(name);
+	}
 
 	public final List<ResourceLocation> getModelLocations() {
 		return partials.keySet().stream().map(this::getPartialModelLocation).collect(Collectors.toList());
 	}
 
 	protected void addPartials(String... partials) {
-		this.partials.clear();
 		for (String name : partials)
 			this.partials.put(name, null);
 	}
 
-	public CustomRenderedItemModel loadPartials(ModelBakery bakery) {
+	public void loadPartials(ModelBakery bakery) {
+		ModelLoader modelLoader = event.getModelLoader();
 		for (String name : partials.keySet())
-			partials.put(name, loadModel(bakery, name));
-		return this;
+			partials.put(name, loadPartial(modelLoader, name));
 	}
 
-	private BakedModel loadModel(ModelBakery bakery, String name) {
-		return bakery.bake(getPartialModelLocation(name), BlockModelRotation.X0_Y0);
+	@SuppressWarnings("deprecation")
+	protected IBakedModel loadPartial(ModelLoader modelLoader, String name) {
+		return modelLoader.bake(getPartialModelLocation(name), ModelRotation.X0_Y0);
 	}
 
-	private ResourceLocation getPartialModelLocation(String name) {
+	protected ResourceLocation getPartialModelLocation(String name) {
 		return new ResourceLocation(namespace, "item/" + basePath + "/" + name);
-	}
-
-	public BakedModel getPartial(String name) {
-		return partials.get(name);
 	}
 
 }

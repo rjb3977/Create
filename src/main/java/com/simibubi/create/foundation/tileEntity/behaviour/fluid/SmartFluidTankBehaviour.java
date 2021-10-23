@@ -92,7 +92,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 		super.initialize();
 		if (getWorld().isClientSide)
 			return;
-		foreach(ts -> {
+		forEach(ts -> {
 			ts.fluidLevel.forceNextSync();
 			ts.onFluidStackChanged();
 		});
@@ -108,7 +108,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 				updateFluids();
 		}
 
-		foreach(te -> {
+		forEach(te -> {
 			LerpedFloat fluidLevel = te.getFluidLevel();
 			if (fluidLevel != null)
 				fluidLevel.tickChaser();
@@ -162,7 +162,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 		return true;
 	}
 
-	public void foreach(Consumer<TankSegment> action) {
+	public void forEach(Consumer<TankSegment> action) {
 		for (TankSegment tankSegment : tanks)
 			action.accept(tankSegment);
 	}
@@ -175,7 +175,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 	public void write(CompoundTag nbt, boolean clientPacket) {
 		super.write(nbt, clientPacket);
 		ListTag tanksNBT = new ListTag();
-		foreach(ts -> tanksNBT.add(ts.writeNBT()));
+		forEach(ts -> tanksNBT.add(ts.writeNBT()));
 		nbt.put(getType().getName() + "Tanks", tanksNBT);
 	}
 

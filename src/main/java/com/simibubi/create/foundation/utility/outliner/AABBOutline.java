@@ -2,8 +2,8 @@ package com.simibubi.create.foundation.utility.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.simibubi.create.foundation.renderState.RenderTypes;
-import com.simibubi.create.foundation.renderState.SuperRenderTypeBuffer;
+import com.simibubi.create.foundation.render.RenderTypes;
+import com.simibubi.create.foundation.render.SuperRenderTypeBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;

@@ -5,7 +5,7 @@ import static com.simibubi.create.content.contraptions.components.structureMovem
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.contraptions.components.structureMovement.piston.MechanicalPistonBlock.PistonState;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.core.BlockPos;
@@ -31,7 +31,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class MechanicalPistonHeadBlock extends ProperDirectionalBlock implements SimpleWaterloggedBlock, BlockPickInteractionAware {
+public class MechanicalPistonHeadBlock extends WrenchableDirectionalBlock implements SimpleWaterloggedBlock, BlockPickInteractionAware {
 
     public static final EnumProperty<PistonType> TYPE = BlockStateProperties.PISTON_TYPE;
 

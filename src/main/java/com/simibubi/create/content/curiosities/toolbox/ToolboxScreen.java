@@ -58,7 +58,8 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 		widgets.add(disposeButton);
 		color = menu.contentHolder.getColor();
 
-		extraAreas = ImmutableList.of(new Rect2i(118, 155, 80, 100), new Rect2i(308, 125, 100, 70));
+		extraAreas = ImmutableList.of(new Rect2i(getGuiLeft() + -28, getGuiTop() + 141, 80, 100),
+			new Rect2i(getGuiLeft() + 162, getGuiTop() + 111, 100, 70));
 	}
 
 	@Override
@@ -120,7 +121,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 
 	private void renderToolbox(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
 		ms.pushPose();
-		ms.translate(397, 190, 100);
+		ms.translate(leftPos + 247, topPos + 180, 100);
 		MatrixTransformStack.of(ms)
 			.scale(50)
 			.rotateX(-22)

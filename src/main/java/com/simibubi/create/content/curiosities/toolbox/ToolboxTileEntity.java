@@ -362,9 +362,9 @@ public class ToolboxTileEntity extends SmartTileEntity implements MenuProvider, 
 	@Override
 	public Component getDisplayName() {
 		return customName != null ? customName
-			: AllBlocks.TOOLBOXES.get(getColor())
+			: new TranslationTextComponent(AllBlocks.TOOLBOXES.get(getColor())
 				.get()
-				.getName();
+				.getDescriptionId());
 	}
 
 	@Override

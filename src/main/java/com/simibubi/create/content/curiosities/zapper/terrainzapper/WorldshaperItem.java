@@ -87,8 +87,8 @@ public class WorldshaperItem extends ZapperItem {
 		CompoundTag nbt = stack.getOrCreateTag();
 		NBTHelper.writeEnum(nbt, "Brush", brush);
 		nbt.put("BrushParams", NbtUtils.writeBlockPos(new BlockPos(brushParamX, brushParamY, brushParamZ)));
-		nbt.putString("Tool", tool.name());
-		nbt.putString("Placement", placement.name());
+		NBTHelper.writeEnum(nbt, "Tool", tool);
+		NBTHelper.writeEnum(nbt, "Placement", placement);
 	}
 
 }

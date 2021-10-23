@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraft.world.phys.Vec3;
 
 public class PipeScenes {
@@ -481,6 +482,10 @@ public class PipeScenes {
 		Selection pump = util.select.position(1, 1, 2);
 		Selection basin = util.select.position(basinPos);
 		BlockPos smartPos = util.grid.at(3, 1, 1);
+
+		scene.world.modifyTileEntity(basinPos, BasinTileEntity.class,
+			te -> te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+				.ifPresent(ifh -> ifh.fill(new FluidStack(ForgeMod.MILK.get(), 1000), FluidAction.EXECUTE)));
 
 		scene.world.setBlock(util.grid.at(3, 1, 3), AllBlocks.FLUID_PIPE.get()
 			.getAxisState(Axis.X), false);

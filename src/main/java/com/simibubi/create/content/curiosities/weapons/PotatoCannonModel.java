@@ -13,9 +13,4 @@ public class PotatoCannonModel extends CreateCustomRenderedItemModel {
 		addPartials("cog");
 	}
 
-	@Override
-	public BuiltinItemRendererRegistry.DynamicItemRenderer createRenderer() {
-		return new PotatoCannonItemRenderer();
-	}
-
 }

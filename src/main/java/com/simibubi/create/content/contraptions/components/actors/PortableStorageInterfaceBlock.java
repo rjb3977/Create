@@ -14,13 +14,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.foundation.block.ITE;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class PortableStorageInterfaceBlock extends ProperDirectionalBlock
+public class PortableStorageInterfaceBlock extends WrenchableDirectionalBlock
 	implements ITE<PortableStorageInterfaceTileEntity>, EntityBlock {
 
 	boolean fluids;

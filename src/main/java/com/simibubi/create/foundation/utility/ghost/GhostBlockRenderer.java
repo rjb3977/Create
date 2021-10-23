@@ -18,7 +18,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
-import com.simibubi.create.foundation.renderState.SuperRenderTypeBuffer;
+import com.simibubi.create.foundation.render.SuperRenderTypeBuffer;
 import com.simibubi.create.foundation.utility.placement.PlacementHelpers;
 import com.simibubi.create.lib.render.VirtualRenderingStateManager;
 import com.simibubi.create.lib.utility.VertexBuilderUtil;

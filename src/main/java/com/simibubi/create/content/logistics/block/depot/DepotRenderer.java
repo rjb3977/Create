@@ -117,8 +117,8 @@ public class DepotRenderer extends SafeTileEntityRenderer<DepotTileEntity> {
 				Vec3 positionVec = renderViewEntity.position();
 				Vec3 vectorForOffset = itemPosition;
 				Vec3 diff = vectorForOffset.subtract(positionVec);
-				float yRot = (float) Mth.atan2(diff.z, -diff.x);
-				ms.mulPose(Vector3f.YP.rotation((float) (yRot - Math.PI / 2)));
+				float yRot = (float) (Mth.atan2(diff.x, diff.z) + Math.PI);
+				ms.mulPose(Vector3f.YP.rotation(yRot));
 			}
 			ms.translate(0, 3 / 32d, -1 / 16f);
 		}

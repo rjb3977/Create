@@ -27,7 +27,7 @@ public class CustomItemModels {
 		registered.add(Pair.of(entry, behaviour));
 	}
 
-	public void foreach(NonNullBiConsumer<Item, NonNullFunction<BakedModel, ? extends BakedModel>> consumer) {
+	public void forEach(NonNullBiConsumer<Item, NonNullFunction<BakedModel, ? extends BakedModel>> consumer) {
 		loadEntriesIfMissing();
 		customModels.forEach(consumer);
 	}

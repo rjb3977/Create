@@ -18,7 +18,7 @@ import com.simibubi.create.foundation.block.connected.CTModel;
 import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
 import com.simibubi.create.foundation.block.render.ColoredVertexModel;
 import com.simibubi.create.foundation.block.render.IBlockVertexColor;
-import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
+import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.lib.helper.ItemSupplierHelper;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.BlockBuilder;
@@ -42,6 +42,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -125,11 +126,13 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	}
 
 	@Override
-	public <T extends Entity> CreateEntityBuilder<T, FabricEntityTypeBuilder<T>,  CreateRegistrate> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
+	public <T extends Entity> CreateEntityBuilder<T, FabricEntityTypeBuilder<T>,  CreateRegistrate> entity(String name,
+		EntityType.EntityFactory<T> factory, MobCategory classification) {
 		return this.entity(self(), name, factory, classification);
 	}
 
-	public <T extends Entity, P> CreateEntityBuilder<T, FabricEntityTypeBuilder<T>, P> entity(P parent, String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
+	public <T extends Entity, P> CreateEntityBuilder<T, FabricEntityTypeBuilder<T>, P> entity(P parent, String name, EntityType.EntityFactory<T> factory,
+		MobCategory classification) {
 		return (CreateEntityBuilder<T, FabricEntityTypeBuilder<T>, P>) this.entry(name, (callback) -> {
 			return CreateEntityBuilder.create(this, parent, name, callback, factory, classification);
 		});
@@ -155,8 +158,8 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 		return builder;
 	}
 
-	public BlockBuilder<Block, CreateRegistrate> paletteStoneBlock(String name,
-			NonNullSupplier<Block> propertiesFrom, boolean worldGenStone) {
+	public BlockBuilder<Block, CreateRegistrate> paletteStoneBlock(String name, NonNullSupplier<Block> propertiesFrom,
+		boolean worldGenStone) {
 		return paletteStoneBlock(name, Block::new, propertiesFrom, worldGenStone);
 	}
 
@@ -200,7 +203,7 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	}
 
 	public static <T extends Block> NonNullConsumer<? super T> casingConnectivity(
-			BiConsumer<T, CasingConnectivity> consumer) {
+		BiConsumer<T, CasingConnectivity> consumer) {
 		return entry -> onClient(() -> () -> registerCasingConnectivity(entry, consumer));
 	}
 
@@ -209,19 +212,21 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	}
 
 	public static <T extends Block> NonNullConsumer<? super T> blockModel(
-			Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
 		return entry -> onClient(() -> () -> registerBlockModel(entry, func));
 	}
 
 	public static <T extends Item> NonNullConsumer<? super T> itemModel(
-			Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
 		return entry -> onClient(() -> () -> registerItemModel(entry, func));
 	}
 
 	public static <T extends Item, P> NonNullUnaryOperator<ItemBuilder<T, P>> customRenderedItem(
-			Supplier<NonNullFunction<BakedModel, ? extends CustomRenderedItemModel>> func) {
-		return b -> b
-				.onRegister(entry -> onClient(() -> () -> registerCustomRenderedItem(entry, func)));
+		Supplier<Supplier<CustomRenderedItemModelRenderer<?>>> supplier) {
+		return b -> {
+			onClient(() -> () -> customRenderedItem(b, supplier));
+			return b;
+		};
 	}
 
 	protected static void onClient(Supplier<Runnable> toRun) {
@@ -229,42 +234,51 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	}
 
 	@Environment(EnvType.CLIENT)
+	private static <T extends Item, P> void customRenderedItem(ItemBuilder<T, P> b,
+		Supplier<Supplier<CustomRenderedItemModelRenderer<?>>> supplier) {
+		b.properties(p -> p.setISTER(() -> supplier.get()::get))
+			.onRegister(entry -> {
+				ItemStackTileEntityRenderer ister = entry.getItemStackTileEntityRenderer();
+				if (ister instanceof CustomRenderedItemModelRenderer)
+					registerCustomRenderedItem(entry, (CustomRenderedItemModelRenderer<?>) ister);
+			});
+	}
+
+	@OnlyIn(Dist.CLIENT)
 	private static void registerCTBehviour(Block entry, ConnectedTextureBehaviour behavior) {
-		CreateClient.getCustomBlockModels()
-				.register(() -> entry, model -> new CTModel(model, behavior));
+		CreateClient.MODEL_SWAPPER.getCustomBlockModels()
+			.register(() -> entry, model -> new CTModel(model, behavior));
 	}
 
 	@Environment(EnvType.CLIENT)
 	private static <T extends Block> void registerCasingConnectivity(T entry,
-																	 BiConsumer<T, CasingConnectivity> consumer) {
-		consumer.accept(entry, CreateClient.getCasingConnectivity());
+		BiConsumer<T, CasingConnectivity> consumer) {
+		consumer.accept(entry, CreateClient.CASING_CONNECTIVITY);
 	}
 
 	@Environment(EnvType.CLIENT)
 	private static void registerBlockVertexColor(Block entry, IBlockVertexColor colorFunc) {
-		CreateClient.getCustomBlockModels()
-				.register(() -> entry, model -> new ColoredVertexModel(model, colorFunc));
+		CreateClient.MODEL_SWAPPER.getCustomBlockModels()
+			.register(() -> entry, model -> new ColoredVertexModel(model, colorFunc));
 	}
 
 	@Environment(EnvType.CLIENT)
 	private static void registerBlockModel(Block entry,
-										   Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
-		CreateClient.getCustomBlockModels()
-				.register(() -> entry, func.get());
+		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		CreateClient.MODEL_SWAPPER.getCustomBlockModels()
+			.register(() -> entry, func.get());
 	}
 
 	@Environment(EnvType.CLIENT)
 	private static void registerItemModel(Item entry,
 										  Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
-		CreateClient.getCustomItemModels()
+		CreateClient.MODEL_SWAPPER.getCustomItemModels()
 				.register(() -> entry, func.get());
 	}
 
 	@Environment(EnvType.CLIENT)
-	private static void registerCustomRenderedItem(Item entry,
-												   Supplier<NonNullFunction<BakedModel, ? extends CustomRenderedItemModel>> func) {
-		BuiltinItemRendererRegistry.INSTANCE.register(entry, func.get().apply(null).createRenderer());
-		CreateClient.getCustomRenderedItems()
-				.register(ItemSupplierHelper.getSupplier(entry), func.get());
+	private static void registerCustomRenderedItem(Item entry, CustomRenderedItemModelRenderer<?> renderer) {
+		CreateClient.MODEL_SWAPPER.getCustomRenderedItems()
+			.register(entry.delegate, renderer::createModel);
 	}
 }

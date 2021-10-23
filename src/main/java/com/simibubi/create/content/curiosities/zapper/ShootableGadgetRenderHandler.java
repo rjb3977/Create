@@ -64,7 +64,7 @@ public abstract class ShootableGadgetRenderHandler {
 
 	protected abstract void transformHand(PoseStack ms, float flip, float equipProgress, float recoil, float pt);
 
-	public void register() {
+	public void registerListeners() {
 		RenderHandCallback.EVENT.register(this::onRenderPlayerHand);
 	}
 

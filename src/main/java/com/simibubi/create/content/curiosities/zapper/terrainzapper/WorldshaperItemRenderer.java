@@ -12,6 +12,7 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.util.Mth;
@@ -57,6 +58,11 @@ public class WorldshaperItemRenderer extends ZapperItemRenderer<WorldshaperModel
 		ms.mulPose(Vector3f.ZP.rotationDegrees(angle));
 		ms.translate(0, -offset, 0);
 		renderer.render(model.getPartial("accelerator"), light);
+	}
+
+	@Override
+	public WorldshaperModel createModel(IBakedModel originalModel) {
+		return new WorldshaperModel(originalModel);
 	}
 
 }

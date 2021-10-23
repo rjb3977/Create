@@ -7,6 +7,7 @@ import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueHandler;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.item.ItemStack;
 
@@ -23,6 +24,11 @@ public class WrenchItemRenderer extends CustomRenderedItemModelRenderer<WrenchMo
 		ms.translate(xOffset, 0, 0);
 
 		renderer.render(model.getPartial("gear"), light);
+	}
+
+	@Override
+	public WrenchModel createModel(IBakedModel originalModel) {
+		return new WrenchModel(originalModel);
 	}
 
 }

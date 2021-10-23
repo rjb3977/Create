@@ -3,7 +3,7 @@ package com.simibubi.create.foundation.item.render;
 import java.util.Random;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.simibubi.create.foundation.renderState.RenderTypes;
+import com.simibubi.create.foundation.render.RenderTypes;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.lib.helper.ItemRendererHelper;
 
@@ -19,27 +19,23 @@ import net.minecraft.world.item.ItemStack;
 
 public class PartialItemModelRenderer {
 
-	static PartialItemModelRenderer instance;
+	private static final PartialItemModelRenderer INSTANCE = new PartialItemModelRenderer();
 
-	ItemStack stack;
-	int overlay;
-	PoseStack ms;
-	ItemTransforms.TransformType transformType;
-	MultiBufferSource buffer;
+	private final Random random = new Random();
 
-	static PartialItemModelRenderer get() {
-		if (instance == null)
-			instance = new PartialItemModelRenderer();
-		return instance;
-	}
+	private ItemStack stack;
+	private ItemCameraTransforms.TransformType transformType;
+	private MatrixStack ms;
+	private IRenderTypeBuffer buffer;
+	private int overlay;
 
 	public static PartialItemModelRenderer of(ItemStack stack, ItemTransforms.TransformType transformType,
 		PoseStack ms, MultiBufferSource buffer, int overlay) {
-		PartialItemModelRenderer instance = get();
+		PartialItemModelRenderer instance = INSTANCE;
 		instance.stack = stack;
-		instance.buffer = buffer;
-		instance.ms = ms;
 		instance.transformType = transformType;
+		instance.ms = ms;
+		instance.buffer = buffer;
 		instance.overlay = overlay;
 		return instance;
 	}
@@ -84,16 +80,16 @@ public class PartialItemModelRenderer {
 	private void renderBakedItemModel(BakedModel model, int light, PoseStack ms, VertexConsumer p_229114_6_) {
 		ItemRenderer ir = Minecraft.getInstance()
 			.getItemRenderer();
-		Random random = new Random();
+		IModelData data = EmptyModelData.INSTANCE;
 
 		for (Direction direction : Iterate.directions) {
 			random.setSeed(42L);
-			ItemRendererHelper.renderQuadList(ir, ms, p_229114_6_, model.getQuads(null, direction, random), stack, light,
+			ItemRendererHelper.renderQuadList(ir, ms, buffer, model.getQuads(null, direction, random), stack, light,
 				overlay);
 		}
 
 		random.setSeed(42L);
-		ItemRendererHelper.renderQuadList(ir, ms, p_229114_6_, model.getQuads(null, null, random), stack, light, overlay);
+		ItemRendererHelper.renderQuadList(ir, ms, buffer, model.getQuads(null, null, random), stack, light, overlay);
 	}
 
 }

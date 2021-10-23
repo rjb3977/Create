@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import com.simibubi.create.foundation.utility.DyeHelper;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.placement.IPlacementHelper;
@@ -42,7 +42,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class SailBlock extends ProperDirectionalBlock implements BlockPickInteractionAware {
+public class SailBlock extends WrenchableDirectionalBlock implements BlockPickInteractionAware {
 
 	public static SailBlock frame(Properties properties) {
 		return new SailBlock(properties, true);

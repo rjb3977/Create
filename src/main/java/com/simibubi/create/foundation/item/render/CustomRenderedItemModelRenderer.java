@@ -2,6 +2,7 @@ package com.simibubi.create.foundation.item.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,9 +13,9 @@ public abstract class CustomRenderedItemModelRenderer<M extends CustomRenderedIt
 	@Override
 	@SuppressWarnings("unchecked")
 	public void render(ItemStack stack, ItemTransforms.TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		M mainModel = ((M) Minecraft.getInstance()
+		M mainModel = (M) Minecraft.getInstance()
 			.getItemRenderer()
-			.getModel(stack, null, null, 0));
+			.getModel(stack, null, null, 0);
 		PartialItemModelRenderer renderer = PartialItemModelRenderer.of(stack, transformType, ms, buffer, overlay);
 
 		ms.pushPose();
@@ -25,5 +26,7 @@ public abstract class CustomRenderedItemModelRenderer<M extends CustomRenderedIt
 
 	protected abstract void render(ItemStack stack, M model, PartialItemModelRenderer renderer, ItemTransforms.TransformType transformType,
 		PoseStack ms, MultiBufferSource buffer, int light, int overlay);
+
+	public abstract M createModel(IBakedModel originalModel);
 
 }

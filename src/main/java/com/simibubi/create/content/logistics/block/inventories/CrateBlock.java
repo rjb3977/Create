@@ -2,7 +2,7 @@ package com.simibubi.create.content.logistics.block.inventories;
 
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.contraptions.wrench.IWrenchable;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import com.simibubi.create.foundation.utility.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class CrateBlock extends ProperDirectionalBlock implements IWrenchable {
+public class CrateBlock extends WrenchableDirectionalBlock implements IWrenchable {
 
 	public static final BooleanProperty DOUBLE = BooleanProperty.create("double");
 

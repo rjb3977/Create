@@ -27,7 +27,7 @@ public class CustomBlockModels {
 		registered.add(Pair.of(entry, behaviour));
 	}
 
-	public void foreach(NonNullBiConsumer<Block, NonNullFunction<BakedModel, ? extends BakedModel>> consumer) {
+	public void forEach(NonNullBiConsumer<Block, NonNullFunction<BakedModel, ? extends BakedModel>> consumer) {
 		loadEntriesIfMissing();
 		customModels.forEach(consumer);
 	}
@@ -42,14 +42,14 @@ public class CustomBlockModels {
 		registered.forEach(p -> {
 			Block key = p.getKey()
 				.get();
-			
+
 			NonNullFunction<BakedModel, ? extends BakedModel> existingModel = customModels.get(key);
 			if (existingModel != null) {
 				customModels.put(key, p.getValue()
 					.andThen(existingModel));
 				return;
 			}
-			
+
 			customModels.put(key, p.getValue());
 		});
 	}

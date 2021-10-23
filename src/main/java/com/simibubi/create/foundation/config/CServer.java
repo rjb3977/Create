@@ -6,8 +6,8 @@ import com.simibubi.create.lib.config.Configs;
 
 public class CServer extends ConfigBase {
 
-	public ConfigGroup infrastructure = group(0, "infrastructure", Comments.infrastructure);
-	public ConfigInt tickrateSyncTimer =
+	public final ConfigGroup infrastructure = group(0, "infrastructure", Comments.infrastructure);
+	public final ConfigInt tickrateSyncTimer =
 		i(20, 5, "tickrateSyncTimer", "[in Ticks]", Comments.tickrateSyncTimer, Comments.tickrateSyncTimer2);
 
 	public static CRecipes recipes;

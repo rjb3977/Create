@@ -15,6 +15,9 @@ public class ShootableGadgetItemMethods {
 
 	public static void applyCooldown(Player player, ItemStack item, InteractionHand hand, Predicate<ItemStack> predicate,
 		int cooldown) {
+		if (cooldown <= 0)
+			return;
+
 		boolean gunInOtherHand =
 			predicate.test(player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND));
 		player.getCooldowns()

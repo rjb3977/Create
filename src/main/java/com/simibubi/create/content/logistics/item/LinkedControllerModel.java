@@ -12,9 +12,4 @@ public class LinkedControllerModel extends CreateCustomRenderedItemModel {
 		addPartials("powered", "button");
 	}
 
-	@Override
-	public BuiltinItemRendererRegistry.DynamicItemRenderer createRenderer() {
-		return new LinkedControllerItemRenderer();
-	}
-
 }

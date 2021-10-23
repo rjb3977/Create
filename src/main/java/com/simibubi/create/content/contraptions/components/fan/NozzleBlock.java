@@ -18,13 +18,13 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.AllTileEntities;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class NozzleBlock extends ProperDirectionalBlock implements EntityBlock {
+public class NozzleBlock extends WrenchableDirectionalBlock implements EntityBlock {
 
 	public NozzleBlock(Properties p_i48415_1_) {
 		super(p_i48415_1_);

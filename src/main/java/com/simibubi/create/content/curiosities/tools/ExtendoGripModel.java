@@ -12,9 +12,4 @@ public class ExtendoGripModel extends CreateCustomRenderedItemModel {
 		addPartials("cog", "thin_short", "wide_short", "thin_long", "wide_long");
 	}
 
-	@Override
-	public DynamicItemRenderer createRenderer() {
-		return new ExtendoGripItemRenderer();
-	}
-
 }

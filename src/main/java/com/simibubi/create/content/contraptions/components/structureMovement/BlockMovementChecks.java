@@ -73,8 +73,8 @@ import com.simibubi.create.content.contraptions.components.structureMovement.pul
 import com.simibubi.create.content.contraptions.fluids.tank.FluidTankBlock;
 import com.simibubi.create.content.contraptions.fluids.tank.FluidTankConnectivityHandler;
 import com.simibubi.create.content.logistics.block.redstone.RedstoneLinkBlock;
-import com.simibubi.create.foundation.config.AllConfigs;
-import com.simibubi.create.foundation.config.CKinetics;
+
+import com.simibubi.create.foundation.config.ContraptionMovementSetting;
 
 public class BlockMovementChecks {
 
@@ -205,8 +205,7 @@ public class BlockMovementChecks {
 
 		if (TagUtil.NON_MOVABLE.contains(state.getBlock()))
 			return false;
-		if (AllConfigs.SERVER.kinetics.spawnerMovement.get() == CKinetics.SpawnerMovementSetting.UNMOVABLE
-			&& block instanceof SpawnerBlock)
+		if (ContraptionMovementSetting.get(state.getBlock()) == ContraptionMovementSetting.UNMOVABLE)
 			return false;
 
 		// Move controllers only when they aren't moving

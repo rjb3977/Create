@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class PipeConnection {
 
-	Direction side;
+	public Direction side;
 
 	// Layer I
 	Couple<Float> pressure; // [inbound, outward]

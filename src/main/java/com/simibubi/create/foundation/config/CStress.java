@@ -25,8 +25,8 @@ public class CStress extends ConfigBase implements IStressValueProvider {
 
 	public ConfigGroup stress = group(0, "stress", CKinetics.Comments.stress);
 
-	private Map<ResourceLocation, ConfigValue<Double>> capacities = new HashMap<>();
-	private Map<ResourceLocation, ConfigValue<Double>> impacts = new HashMap<>();
+	private final Map<ResourceLocation, ConfigValue<Double>> capacities = new HashMap<>();
+	private final Map<ResourceLocation, ConfigValue<Double>> impacts = new HashMap<>();
 
 	@Override
 	protected void registerAll() {
@@ -84,12 +84,14 @@ public class CStress extends ConfigBase implements IStressValueProvider {
 		return 0;
 	}
 
+	@Override
 	public boolean hasImpact(Block block) {
 		block = redirectValues(block);
 		ResourceLocation key = Registry.BLOCK.getKey(block);
 		return getImpacts().containsKey(key);
 	}
 
+	@Override
 	public boolean hasCapacity(Block block) {
 		block = redirectValues(block);
 		ResourceLocation key = Registry.BLOCK.getKey(block);

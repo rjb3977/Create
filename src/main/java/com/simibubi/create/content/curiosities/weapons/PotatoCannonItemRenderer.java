@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
@@ -60,6 +61,11 @@ public class PotatoCannonItemRenderer extends CustomRenderedItemModelRenderer<Po
 				});
 		}
 
+	}
+
+	@Override
+	public PotatoCannonModel createModel(IBakedModel originalModel) {
+		return new PotatoCannonModel(originalModel);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -183,7 +184,24 @@ public class ConnectedInputHandler {
 				return input.getItemHandler(world, controllerPos);
 			}
 
+			Direction facing = Direction.SOUTH;
+			BlockState blockState = world.getBlockState(pos);
+			if (blockState.hasProperty(MechanicalCrafterBlock.HORIZONTAL_FACING))
+				facing = blockState.getValue(MechanicalCrafterBlock.HORIZONTAL_FACING);
+			AxisDirection axisDirection = facing.getAxisDirection();
+			Axis compareAxis = facing.getClockWise()
+				.getAxis();
+
+			Comparator<BlockPos> invOrdering = (p1, p2) -> {
+				int compareY = -Integer.compare(p1.getY(), p2.getY());
+				int modifier = axisDirection.getStep() * (compareAxis == Axis.Z ? -1 : 1);
+				int c1 = compareAxis.choose(p1.getX(), p1.getY(), p1.getZ());
+				int c2 = compareAxis.choose(p2.getX(), p2.getY(), p2.getZ());
+				return compareY != 0 ? compareY : modifier * Integer.compare(c1, c2);
+			};
+
 			List<IItemHandlerModifiable> list = data.stream()
+				.sorted(invOrdering)
 				.map(l -> CrafterHelper.getCrafter(world, pos.offset(l)))
 				.filter(Objects::nonNull)
 				.map(crafter -> crafter.getInventory())

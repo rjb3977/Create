@@ -137,6 +137,7 @@ public abstract class Contraption {
 	protected Map<BlockPos, MountedStorage> storage;
 	protected Map<BlockPos, MountedFluidStorage> fluidStorage;
 	protected List<MutablePair<StructureBlockInfo, MovementContext>> actors;
+	protected Map<BlockPos, MovingInteractionBehaviour> interactors;
 	protected Set<Pair<BlockPos, Direction>> superglue;
 	protected List<BlockPos> seats;
 	protected Map<UUID, Integer> seatMapping;
@@ -160,6 +161,7 @@ public abstract class Contraption {
 		storage = new HashMap<>();
 		seats = new ArrayList<>();
 		actors = new ArrayList<>();
+		interactors = new HashMap<>();
 		superglue = new HashSet<>();
 		seatMapping = new HashMap<>();
 		fluidStorage = new HashMap<>();
@@ -258,7 +260,8 @@ public abstract class Contraption {
 			.stream()
 			.map(MountedStorage::getItemHandler)
 			.collect(Collectors.toList());
-		inventory = new ContraptionInvWrapper(Arrays.copyOf(list.toArray(), list.size(), IItemHandlerModifiable[].class));
+		inventory =
+			new ContraptionInvWrapper(Arrays.copyOf(list.toArray(), list.size(), IItemHandlerModifiable[].class));
 
 		List<IFluidHandler> fluidHandlers = fluidStorage.values()
 			.stream()
@@ -321,7 +324,7 @@ public abstract class Contraption {
 		if (!movementAllowed(state, world, pos))
 			throw AssemblyException.unmovableBlock(pos, state);
 		if (state.getBlock() instanceof AbstractChassisBlock
-				&& !moveChassis(world, pos, forcedDirection, frontier, visited))
+			&& !moveChassis(world, pos, forcedDirection, frontier, visited))
 			return false;
 
 		if (AllBlocks.ADJUSTABLE_CRATE.has(state))
@@ -340,7 +343,7 @@ public abstract class Contraption {
 			Direction offset = state.getValue(StickerBlock.FACING);
 			BlockPos attached = pos.relative(offset);
 			if (!visited.contains(attached)
-					&& !BlockMovementChecks.isNotSupportive(world.getBlockState(attached), offset.getOpposite()))
+				&& !BlockMovementChecks.isNotSupportive(world.getBlockState(attached), offset.getOpposite()))
 				frontier.add(attached);
 		}
 
@@ -392,12 +395,12 @@ public abstract class Contraption {
 			boolean wasVisited = visited.contains(offsetPos);
 			boolean faceHasGlue = superglue.containsKey(offset);
 			boolean blockAttachedTowardsFace =
-					BlockMovementChecks.isBlockAttachedTowards(blockState, world, offsetPos, offset.getOpposite());
+				BlockMovementChecks.isBlockAttachedTowards(blockState, world, offsetPos, offset.getOpposite());
 			boolean brittle = BlockMovementChecks.isBrittle(blockState);
 			boolean canStick = !brittle && StickinessUtil.canStickTo(state, blockState) && StickinessUtil.canStickTo(blockState, state);
 			if (canStick) {
 				if (state.getPistonPushReaction() == PushReaction.PUSH_ONLY
-						|| blockState.getPistonPushReaction() == PushReaction.PUSH_ONLY) {
+					|| blockState.getPistonPushReaction() == PushReaction.PUSH_ONLY) {
 					canStick = false;
 				}
 				if (BlockMovementChecks.isNotSupportive(state, offset)) {
@@ -409,7 +412,7 @@ public abstract class Contraption {
 			}
 
 			if (!wasVisited && (canStick || blockAttachedTowardsFace || faceHasGlue
-					|| (offset == forcedDirection && !BlockMovementChecks.isNotSupportive(state, forcedDirection))))
+				|| (offset == forcedDirection && !BlockMovementChecks.isNotSupportive(state, forcedDirection))))
 				frontier.add(offsetPos);
 			if (faceHasGlue)
 				addGlue(superglue.get(offset));
@@ -433,7 +436,8 @@ public abstract class Contraption {
 				frontier.add(offset);
 			if (blockState.getBlock() instanceof MechanicalPistonBlock) {
 				Direction pistonFacing = blockState.getValue(MechanicalPistonBlock.FACING);
-				if (pistonFacing == direction && blockState.getValue(MechanicalPistonBlock.STATE) == PistonState.EXTENDED)
+				if (pistonFacing == direction
+					&& blockState.getValue(MechanicalPistonBlock.STATE) == PistonState.EXTENDED)
 					frontier.add(offset);
 			}
 		}
@@ -493,7 +497,8 @@ public abstract class Contraption {
 				if (d.getAxis() == facing.getAxis() && AllBlocks.GANTRY_SHAFT.has(offsetState)
 					&& offsetState.getValue(GantryShaftBlock.FACING) == facing)
 					frontier.add(offset);
-				else if (AllBlocks.GANTRY_CARRIAGE.has(offsetState) && offsetState.getValue(GantryCarriageBlock.FACING) == d)
+				else if (AllBlocks.GANTRY_CARRIAGE.has(offsetState)
+					&& offsetState.getValue(GantryCarriageBlock.FACING) == d)
 					frontier.add(offset);
 			}
 		}
@@ -635,6 +640,8 @@ public abstract class Contraption {
 			fluidStorage.put(localPos, new MountedFluidStorage(te));
 		if (AllMovementBehaviours.contains(captured.state.getBlock()))
 			actors.add(MutablePair.of(blockInfo, null));
+		if (AllInteractionBehaviours.contains(captured.state.getBlock()))
+			interactors.put(localPos, AllInteractionBehaviours.of(captured.state.getBlock()));
 		if (te instanceof CreativeCrateTileEntity
 			&& ((CreativeCrateTileEntity) te).getBehaviour(FilteringBehaviour.TYPE)
 				.getFilter()
@@ -699,8 +706,8 @@ public abstract class Contraption {
 			});
 
 		superglue.clear();
-		NBTHelper.iterateCompoundList(nbt.getList("Superglue", NBT.TAG_COMPOUND), c -> superglue
-			.add(Pair.of(NbtUtils.readBlockPos(c.getCompound("Pos")), Direction.from3DDataValue(c.getByte("Direction")))));
+		NBTHelper.iterateCompoundList(nbt.getList("Superglue", NBT.TAG_COMPOUND), c -> superglue.add(
+			Pair.of(NbtUtils.readBlockPos(c.getCompound("Pos")), Direction.from3DDataValue(c.getByte("Direction")))));
 
 		seats.clear();
 		NBTHelper.iterateCompoundList(nbt.getList("Seats", NBT.TAG_COMPOUND), c -> seats.add(NbtUtils.readBlockPos(c)));
@@ -720,6 +727,14 @@ public abstract class Contraption {
 		fluidStorage.clear();
 		NBTHelper.iterateCompoundList(nbt.getList("FluidStorage", NBT.TAG_COMPOUND), c -> fluidStorage
 			.put(NbtUtils.readBlockPos(c.getCompound("Pos")), MountedFluidStorage.deserialize(c.getCompound("Data"))));
+
+		interactors.clear();
+		NBTHelper.iterateCompoundList(nbt.getList("Interactors", NBT.TAG_COMPOUND), c -> {
+			BlockPos pos = NBTUtil.readBlockPos(c.getCompound("Pos"));
+			MovingInteractionBehaviour behaviour = AllInteractionBehaviours.of(getBlocks().get(pos).state.getBlock());
+			if (behaviour != null)
+				interactors.put(pos, behaviour);
+		});
 
 		if (spawnData)
 			fluidStorage.forEach((pos, mfs) -> {
@@ -805,6 +820,13 @@ public abstract class Contraption {
 			fluidStorageNBT.add(c);
 		}
 
+		ListNBT interactorNBT = new ListNBT();
+		for (BlockPos pos : interactors.keySet()) {
+			CompoundNBT c = new CompoundNBT();
+			c.put("Pos", NBTUtil.writeBlockPos(pos));
+			interactorNBT.add(c);
+		}
+
 		nbt.put("Seats", NBTHelper.writeCompoundList(getSeats(), NbtUtils::writeBlockPos));
 		nbt.put("Passengers", NBTHelper.writeCompoundList(getSeatMapping().entrySet(), e -> {
 			CompoundTag tag = new CompoundTag();
@@ -823,6 +845,7 @@ public abstract class Contraption {
 
 		nbt.put("Blocks", blocksNBT);
 		nbt.put("Actors", actorsNBT);
+		nbt.put("Interactors", interactorNBT);
 		nbt.put("Superglue", superglueNBT);
 		nbt.put("Storage", storageNBT);
 		nbt.put("FluidStorage", fluidStorageNBT);
@@ -945,7 +968,7 @@ public abstract class Contraption {
 					continue;
 
 				BlockPos add = block.pos.offset(anchor)
-						.offset(offset);
+					.offset(offset);
 				if (customBlockRemoval(world, add, block.state))
 					continue;
 				BlockState oldState = world.getBlockState(add);
@@ -976,14 +999,18 @@ public abstract class Contraption {
 			// remove it again, so to prevent an error from being logged by double-removal we add the POI data back now
 			// (code copied from ServerWorld.onBlockStateChange)
 			ServerLevel serverWorld = (ServerLevel) world;
-			PoiType.forState(block.state).ifPresent(poiType -> {
-				world.getServer().execute(() -> {
-					serverWorld.getPoiManager().add(add, poiType);
-					DebugPackets.sendPoiAddedPacket(serverWorld, add);
+			PoiType.forState(block.state)
+				.ifPresent(poiType -> {
+					world.getServer()
+						.execute(() -> {
+							serverWorld.getPoiManager()
+								.add(add, poiType);
+							DebugPackets.sendPoiAddedPacket(serverWorld, add);
+						});
 				});
-			});
 
-			world.setBlock(add, Blocks.AIR.defaultBlockState(), flags, 512);
+			world.setBlock(add, Blocks.AIR.defaultBlockState(), flags,
+				512);
 			block.state.updateIndirectNeighbourShapes(world, add, flags & -2);
 		}
 	}
@@ -1002,8 +1029,8 @@ public abstract class Contraption {
 
 				if (nonBrittles)
 					for (Direction face : Iterate.directions)
-						state = state.updateShape(face, world.getBlockState(targetPos.relative(face)), world,
-							targetPos, targetPos.relative(face));
+						state = state.updateShape(face, world.getBlockState(targetPos.relative(face)), world, targetPos,
+							targetPos.relative(face));
 
 				BlockState blockState = world.getBlockState(targetPos);
 				if (blockState.getDestroySpeed(world, targetPos) == -1 || (state.getCollisionShape(world, targetPos)
@@ -1200,6 +1227,10 @@ public abstract class Contraption {
 		return actors;
 	}
 
+	public Map<BlockPos, MovingInteractionBehaviour> getInteractors() {
+		return interactors;
+	}
+
 	public void updateContainedFluid(BlockPos localPos, FluidStack containedFluid) {
 		MountedFluidStorage mountedFluidStorage = fluidStorage.get(localPos);
 		if (mountedFluidStorage != null)
@@ -1209,6 +1240,11 @@ public abstract class Contraption {
 	@Environment(EnvType.CLIENT)
 	public ContraptionLighter<?> makeLighter() {
 		return new EmptyLighter(this);
+	}
+
+	public void invalidateColliders() {
+		simplifiedEntityColliders = Optional.empty();
+		gatherBBsOffThread();
 	}
 
 	private void gatherBBsOffThread() {
@@ -1237,10 +1273,10 @@ public abstract class Contraption {
 		switch (axis) {
 		case X:
 			return getMaxDistSqr(blocks, BlockPos::getY, BlockPos::getZ);
-			case Y:
-				return getMaxDistSqr(blocks, BlockPos::getX, BlockPos::getZ);
-			case Z:
-				return getMaxDistSqr(blocks, BlockPos::getX, BlockPos::getY);
+		case Y:
+			return getMaxDistSqr(blocks, BlockPos::getX, BlockPos::getZ);
+		case Z:
+			return getMaxDistSqr(blocks, BlockPos::getX, BlockPos::getY);
 		}
 
 		throw new IllegalStateException("Impossible axis");

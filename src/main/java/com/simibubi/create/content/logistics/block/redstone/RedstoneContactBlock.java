@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import com.simibubi.create.AllBlocks;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
 import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 
@@ -25,7 +25,7 @@ import com.simibubi.create.lib.block.CanConnectRedstoneBlock;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class RedstoneContactBlock extends ProperDirectionalBlock implements CanConnectRedstoneBlock {
+public class RedstoneContactBlock extends WrenchableDirectionalBlock implements CanConnectRedstoneBlock {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 

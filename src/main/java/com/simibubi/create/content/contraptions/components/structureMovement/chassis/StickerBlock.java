@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.components.structureMovement.ch
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllTileEntities;
 import com.simibubi.create.foundation.block.ITE;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
 import com.simibubi.create.lib.block.WeakPowerCheckingBlock;
 
@@ -32,7 +32,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 
-public class StickerBlock extends ProperDirectionalBlock implements ITE<StickerTileEntity>, WeakPowerCheckingBlock, EntityBlock, BlockExtensions {
+public class StickerBlock extends WrenchableDirectionalBlock implements ITE<StickerTileEntity>, WeakPowerCheckingBlock, EntityBlock, BlockExtensions {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	public static final BooleanProperty EXTENDED = BlockStateProperties.EXTENDED;

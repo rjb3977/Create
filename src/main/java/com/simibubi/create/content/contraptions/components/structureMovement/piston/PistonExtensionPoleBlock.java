@@ -38,7 +38,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.contraptions.components.structureMovement.piston.MechanicalPistonBlock.PistonState;
 import com.simibubi.create.content.contraptions.wrench.IWrenchable;
-import com.simibubi.create.foundation.block.ProperDirectionalBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import com.simibubi.create.foundation.utility.placement.IPlacementHelper;
 import com.simibubi.create.foundation.utility.placement.PlacementHelpers;
 import com.simibubi.create.foundation.utility.placement.util.PoleHelper;
@@ -47,7 +47,7 @@ import com.simibubi.create.lib.annotation.MethodsReturnNonnullByDefault;
 
 import com.simibubi.create.lib.block.HarvestableBlock;
 
-public class PistonExtensionPoleBlock extends ProperDirectionalBlock implements IWrenchable, SimpleWaterloggedBlock, HarvestableBlock {
+public class PistonExtensionPoleBlock extends WrenchableDirectionalBlock implements IWrenchable, SimpleWaterloggedBlock, HarvestableBlock {
 
     private static final int placementHelperId = PlacementHelpers.register(PlacementHelper.get());
 
