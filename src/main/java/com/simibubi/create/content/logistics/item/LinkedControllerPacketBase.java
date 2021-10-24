@@ -16,6 +16,8 @@ public abstract class LinkedControllerPacketBase implements C2SPacket {
 
 	private BlockPos lecternPos;
 
+	public LinkedControllerPacketBase() {}
+
 	public LinkedControllerPacketBase(BlockPos lecternPos) {
 		this.lecternPos = lecternPos;
 	}

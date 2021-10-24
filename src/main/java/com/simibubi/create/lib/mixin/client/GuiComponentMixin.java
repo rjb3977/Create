@@ -35,10 +35,12 @@ public class GuiComponentMixin {
 	}
 
 	private static int getColor(int original) {
-		if (original == ScreenHelper.DEFAULT_BORDER_COLOR_START) {
-			return ScreenHelper.CURRENT_COLOR.getBorderColorStart();
-		} else if (original == ScreenHelper.DEFAULT_BORDER_COLOR_END) {
-			return ScreenHelper.CURRENT_COLOR.getBorderColorEnd();
+		if (ScreenHelper.CURRENT_COLOR != null) {
+			if (original == ScreenHelper.DEFAULT_BORDER_COLOR_START) {
+				return ScreenHelper.CURRENT_COLOR.getBorderColorStart();
+			} else if (original == ScreenHelper.DEFAULT_BORDER_COLOR_END) {
+				return ScreenHelper.CURRENT_COLOR.getBorderColorEnd();
+			}
 		}
 		return original;
 	}

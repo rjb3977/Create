@@ -46,6 +46,7 @@ import com.simibubi.create.lib.helper.AbstractMinecartEntityHelper;
 @MethodsReturnNonnullByDefault
 public class ControllerRailBlock extends BaseRailBlock implements IWrenchable, MinecartPassHandlerBlock {
 
+	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	public static final EnumProperty<RailShape> SHAPE = BlockStateProperties.RAIL_SHAPE_STRAIGHT;
 	public static final BooleanProperty BACKWARDS = BooleanProperty.create("backwards");
 	public static final IntegerProperty POWER = BlockStateProperties.POWER;
@@ -139,7 +140,7 @@ public class ControllerRailBlock extends BaseRailBlock implements IWrenchable, M
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_206840_1_) {
-		p_206840_1_.add(SHAPE, POWER, BACKWARDS);
+		p_206840_1_.add(SHAPE, POWER, BACKWARDS, WATERLOGGED);
 	}
 
 	@Override

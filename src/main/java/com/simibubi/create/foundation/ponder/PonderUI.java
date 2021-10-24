@@ -6,10 +6,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import com.simibubi.create.Create;
+
+import net.minecraft.network.chat.FormattedText;
 
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.ClipboardManager;
@@ -615,7 +619,7 @@ public class PonderUI extends NavigatableSimiScreen {
 
 					//renderOrderedTooltip(ms, textRenderer.wrapLines(text, width / 3), 0, 0);
 //					renderWrappedToolTip(ms, font.getSplitter().splitLines(text, width / 3, Style.EMPTY), 0, 0, font);
-					renderTooltip(ms, (Component) font.getSplitter().splitLines(text, width / 3, Style.EMPTY), 0, 0/*, textRenderer*/); // fixme
+					renderTooltip(ms, font.getSplitter().splitLines(text, width / 3, Style.EMPTY).stream().map(formatted -> (Component) new TextComponent(formatted.getString())).toList(), Optional.empty(),0, 0/*, textRenderer*/); // fixme
 					/*String tooltip = Lang
 						.createTranslationTextComponent(IDENTIFY_MODE, client.gameSettings.keyBindDrop.getBoundKeyLocalizedText().applyTextStyle(ChatFormatting.WHITE))
 						.applyTextStyle(ChatFormatting.GRAY)

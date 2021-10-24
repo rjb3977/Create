@@ -34,34 +34,34 @@ import org.jetbrains.annotations.Nullable;
 public class TransferUtil {
 	public static LazyOptional<IItemHandler> getItemHandler(BlockEntity be) {
 		Storage<ItemVariant> itemStorage = ItemStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, Direction.UP);
-		return handleInstanceOfChecks(itemStorage).cast();
+		return handleTypeChecks(itemStorage).cast();
 	}
 
 	public static LazyOptional<IItemHandler> getItemHandler(BlockEntity be, Direction side) {
 		Storage<ItemVariant> itemStorage = ItemStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, side);
-		return handleInstanceOfChecks(itemStorage).cast();
+		return handleTypeChecks(itemStorage).cast();
 	}
 
 	public static LazyOptional<IItemHandler> getItemHandler(Level level, BlockPos pos) {
 		Storage<ItemVariant> itemStorage = ItemStorage.SIDED.find(level, pos, Direction.UP);
-		return handleInstanceOfChecks(itemStorage).cast();
+		return handleTypeChecks(itemStorage).cast();
 	}
 
 	public static LazyOptional<IItemHandler> getItemHandler(Level level, BlockPos pos, Direction direction) {
 		Storage<ItemVariant> itemStorage = ItemStorage.SIDED.find(level, pos, direction);
-		return handleInstanceOfChecks(itemStorage).cast();
+		return handleTypeChecks(itemStorage).cast();
 	}
 
 	// Fluids
 
 	public static LazyOptional<IFluidHandler> getFluidHandler(BlockEntity be) {
 		Storage<FluidVariant> fluidStorage = FluidStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, Direction.UP);
-		return handleInstanceOfChecks(fluidStorage).cast();
+		return handleTypeChecks(fluidStorage).cast();
 	}
 
 	public static LazyOptional<IFluidHandler> getFluidHandler(BlockEntity be, Direction side) {
 		Storage<FluidVariant> fluidStorage = FluidStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, side);
-		return handleInstanceOfChecks(fluidStorage).cast();
+		return handleTypeChecks(fluidStorage).cast();
 	}
 
 	// Fluid-containing items
@@ -84,7 +84,8 @@ public class TransferUtil {
 	/**
 	 * Returns either an IFluidHandler or an IItemHandler, wrapped in a LazyOptional.
 	 */
-	public static LazyOptional<?> handleInstanceOfChecks(Storage<?> storage) {
+	public static LazyOptional<?> handleTypeChecks(Storage<?> storage) {
+		if (storage == null) return LazyOptional.empty();
 		if (storage instanceof StorageItemHandler handler) {
 			return LazyOptional.ofObject(handler.getHandler());
 		} else if (storage instanceof StorageFluidHandler handler) {

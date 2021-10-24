@@ -294,6 +294,7 @@ public class WorldSectionElement extends AnimatedSceneElement {
 			BlockEntity tileEntity = world.getBlockEntity(pos);
 			if (tileEntity == null)
 				return;
+			tileEntity.setLevel(world);
 			tickableTileEntities.add(tileEntity);
 			renderedTileEntities.add(tileEntity);
 		});

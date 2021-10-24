@@ -75,6 +75,7 @@ public class CartAssemblerBlock extends BaseRailBlock
 	implements ITE<CartAssemblerTileEntity>, IWrenchable, ISpecialBlockItemRequirement, EntityBlock, MinecartPassHandlerBlock, SlopeCreationCheckingRail {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	public static final BooleanProperty BACKWARDS = BooleanProperty.create("backwards");
 	public static final Property<RailShape> RAIL_SHAPE =
 		EnumProperty.create("shape", RailShape.class, RailShape.EAST_WEST, RailShape.NORTH_SOUTH);
@@ -111,7 +112,7 @@ public class CartAssemblerBlock extends BaseRailBlock
 
 	@Override
 	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-		builder.add(RAIL_SHAPE, POWERED, RAIL_TYPE, BACKWARDS);
+		builder.add(RAIL_SHAPE, POWERED, RAIL_TYPE, BACKWARDS, WATERLOGGED);
 		super.createBlockStateDefinition(builder);
 	}
 

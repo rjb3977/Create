@@ -17,6 +17,8 @@ public abstract class ShootGadgetPacket implements S2CPacket {
 	public InteractionHand hand;
 	public boolean self;
 
+	public ShootGadgetPacket() {}
+
 	public ShootGadgetPacket(Vec3 location, InteractionHand hand, boolean self) {
 		this.location = location;
 		this.hand = hand;

@@ -14,6 +14,8 @@ public abstract class ConfigureZapperPacket implements C2SPacket {
 	protected InteractionHand hand;
 	protected PlacementPatterns pattern;
 
+	public ConfigureZapperPacket() {}
+
 	public ConfigureZapperPacket(InteractionHand hand, PlacementPatterns pattern) {
 		this.hand = hand;
 		this.pattern = pattern;

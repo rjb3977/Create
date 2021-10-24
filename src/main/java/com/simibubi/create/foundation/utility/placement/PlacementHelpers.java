@@ -204,7 +204,7 @@ public class PlacementHelpers {
 	}
 
 	private static void fadedArrow(PoseStack ms, float centerX, float centerY, float r, float g, float b, float a, float length, float snappedAngle) {
-		throw new RuntimeException("//PORT: No.");
+//		throw new RuntimeException("//PORT: No.");
 //		ms.pushPose();
 //		RenderSystem.disableTexture();
 //		RenderSystem.enableBlend();
@@ -243,7 +243,7 @@ public class PlacementHelpers {
 	}
 
 	private static void textured(PoseStack ms, float centerX, float centerY, float alpha, float snappedAngle) {
-		throw new RuntimeException("//PORT: No.");
+//		throw new RuntimeException("//PORT: No.");
 //		ms.pushPose();
 //		RenderSystem.enableTexture();
 //		AllGuiTextures.PLACEMENT_INDICATOR_SHEET.bind();

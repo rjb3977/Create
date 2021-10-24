@@ -17,6 +17,8 @@ public class LinkedControllerBindPacket extends LinkedControllerPacketBase {
 	private int button;
 	private BlockPos linkLocation;
 
+	public LinkedControllerBindPacket() {}
+
 	public LinkedControllerBindPacket(int button, BlockPos linkLocation) {
 		super(null);
 		this.button = button;

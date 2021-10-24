@@ -80,9 +80,7 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 
-//		RenderSystem.enableAlphaTest(); // alphaTest has vanished off the face of the earth lets hope it Just Works:tm:
 		RenderSystem.enableBlend();
-//		RenderSystem.disableRescaleNormal(); // same for rescaleNormal :WHY:
 		Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
 		RenderSystem.disableDepthTest();
 		renderWindowForeground(matrixStack, mouseX, mouseY, partialTicks);

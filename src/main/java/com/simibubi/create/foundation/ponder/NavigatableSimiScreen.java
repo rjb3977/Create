@@ -1,6 +1,7 @@
 package com.simibubi.create.foundation.ponder;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -101,6 +102,7 @@ public abstract class NavigatableSimiScreen extends AbstractSimiScreen {
 
 		ms.pushPose();
 		ms.translate(0, 0, 500);
+
 		if (backTrack.isHovered()) {
 			TranslatableComponent translate = Lang.translate(backTrackingLangKey());
 			font.draw(ms, translate, 41 - font.width(translate) / 2, height - 16,

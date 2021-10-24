@@ -16,6 +16,8 @@ public class PotatoCannonPacket extends ShootGadgetPacket {
 	private Vec3 motion;
 	private ItemStack item;
 
+	public PotatoCannonPacket() {}
+
 	public PotatoCannonPacket(Vec3 location, Vec3 motion, ItemStack item, InteractionHand hand, float pitch, boolean self) {
 		super(location, hand, self);
 		this.motion = motion;

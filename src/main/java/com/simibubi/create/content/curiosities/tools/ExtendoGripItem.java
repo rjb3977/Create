@@ -235,8 +235,8 @@ public class ExtendoGripItem extends Item implements CustomDurabilityBarItem {
 //	}
 
 	public static double attacksByExtendoGripHaveMoreKnockback(double strength, Player player) {
-//		if (lastActiveDamageSource == null)
-//			return strength;
+		if (lastActiveDamageSource == null)
+			return strength;
 		Entity entity = lastActiveDamageSource.getDirectEntity();
 		if (!(entity instanceof Player))
 			return strength;

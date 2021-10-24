@@ -16,6 +16,8 @@ public class ConfigureWorldshaperPacket extends ConfigureZapperPacket {
 	protected TerrainTools tool;
 	protected PlacementOptions placement;
 
+	public ConfigureWorldshaperPacket() {}
+
 	public ConfigureWorldshaperPacket(InteractionHand hand, PlacementPatterns pattern, TerrainBrushes brush, int brushParamX, int brushParamY, int brushParamZ, TerrainTools tool, PlacementOptions placement) {
 		super(hand, pattern);
 		this.brush = brush;

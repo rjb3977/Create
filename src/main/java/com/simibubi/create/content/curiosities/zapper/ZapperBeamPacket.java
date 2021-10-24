@@ -13,6 +13,8 @@ public class ZapperBeamPacket extends ShootGadgetPacket {
 
 	public Vec3 target;
 
+	public ZapperBeamPacket() {}
+
 	public ZapperBeamPacket(Vec3 start, Vec3 target, InteractionHand hand, boolean self) {
 		super(start, hand, self);
 		this.target = target;

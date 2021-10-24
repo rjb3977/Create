@@ -22,6 +22,8 @@ public class ToolboxEquipPacket implements C2SPacket {
 	private int slot;
 	private int hotbarSlot;
 
+	public ToolboxEquipPacket() {}
+
 	public ToolboxEquipPacket(BlockPos toolboxPos, int slot, int hotbarSlot) {
 		this.toolboxPos = toolboxPos;
 		this.slot = slot;

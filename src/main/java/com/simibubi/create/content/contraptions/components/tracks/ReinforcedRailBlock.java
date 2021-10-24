@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -29,6 +30,7 @@ import com.simibubi.create.lib.helper.EntitySelectionContextHelper;
 
 public class ReinforcedRailBlock extends BaseRailBlock implements SlopeCreationCheckingRail {
 
+	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static Property<RailShape> RAIL_SHAPE =
             EnumProperty.create("shape", RailShape.class, RailShape.EAST_WEST, RailShape.NORTH_SOUTH);
 
@@ -52,7 +54,7 @@ public class ReinforcedRailBlock extends BaseRailBlock implements SlopeCreationC
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(RAIL_SHAPE, CONNECTS_N, CONNECTS_S);
+        builder.add(RAIL_SHAPE, CONNECTS_N, CONNECTS_S, WATERLOGGED);
         super.createBlockStateDefinition(builder);
     }
 

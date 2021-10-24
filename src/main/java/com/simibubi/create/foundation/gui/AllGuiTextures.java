@@ -19,7 +19,7 @@ public enum AllGuiTextures implements IScreenRenderable {
 	TERRAINZAPPER("curiosities.png", 234, 103),
 	TERRAINZAPPER_INACTIVE_PARAM("curiosities.png", 238, 0, 18, 18),
 
-	LOGO("assets/create/icon.png", 256, 256),
+	LOGO("logo.png", 256, 256),
 
 	SCHEMATIC("schematics.png", 192, 121),
 	SCHEMATIC_SLOT("widgets.png", 54, 0, 16, 16),
@@ -58,7 +58,7 @@ public enum AllGuiTextures implements IScreenRenderable {
 	TOOLBELT_MAIN_SLOT("widgets.png", 0, 97, 24, 24),
 	TOOLBELT_EMPTY_SLOT("widgets.png", 27, 98, 22, 22),
 	TOOLBELT_INACTIVE_SLOT("widgets.png", 52, 98, 22, 22),
-	
+
 	TOOLBELT_HOTBAR_OFF("widgets.png", 0, 130, 20, 24),
 	TOOLBELT_HOTBAR_ON("widgets.png", 20, 130, 20, 24),
 	TOOLBELT_SELECTED_OFF("widgets.png", 0, 155, 22, 22),

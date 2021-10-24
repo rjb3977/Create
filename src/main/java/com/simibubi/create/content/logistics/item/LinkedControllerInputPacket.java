@@ -15,6 +15,8 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 	private Collection<Integer> activatedButtons;
 	private boolean press;
 
+	public LinkedControllerInputPacket() {}
+
 	public LinkedControllerInputPacket(Collection<Integer> activatedButtons, boolean press) {
 		this(activatedButtons, press, null);
 	}

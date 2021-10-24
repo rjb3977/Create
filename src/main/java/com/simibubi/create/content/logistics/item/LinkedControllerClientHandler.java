@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
+import net.minecraft.network.chat.TextComponent;
+
 import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -233,7 +235,7 @@ public class LinkedControllerClientHandler {
 		Minecraft mc = Minecraft.getInstance();
 
 		ms.pushPose();
-		Screen tooltipScreen = new TooltipScreen(null);
+		Screen tooltipScreen = new TooltipScreen(new TextComponent("FIXME")); //FIXME
 		tooltipScreen.init(mc, mc.getWindow()
 			.getGuiScaledWidth(),
 			mc.getWindow()
