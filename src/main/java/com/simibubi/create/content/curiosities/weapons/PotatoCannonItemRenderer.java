@@ -12,9 +12,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
@@ -64,7 +64,7 @@ public class PotatoCannonItemRenderer extends CustomRenderedItemModelRenderer<Po
 	}
 
 	@Override
-	public PotatoCannonModel createModel(IBakedModel originalModel) {
+	public PotatoCannonModel createModel(BakedModel originalModel) {
 		return new PotatoCannonModel(originalModel);
 	}
 

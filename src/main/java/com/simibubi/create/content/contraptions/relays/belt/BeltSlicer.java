@@ -347,7 +347,7 @@ public class BeltSlicer {
 
 				if (!creative) {
 					player.getInventory().placeItemBackInInventory(AllBlocks.SHAFT.asStack(2));
-					player.inventory.placeItemBackInInventory(world, AllItems.BELT_CONNECTOR.asStack());
+					player.getInventory().placeItemBackInInventory(AllItems.BELT_CONNECTOR.asStack());
 				}
 
 				// Transfer items to other controller

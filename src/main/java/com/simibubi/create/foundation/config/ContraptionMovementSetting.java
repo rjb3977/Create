@@ -1,16 +1,19 @@
 package com.simibubi.create.foundation.config;
 
+import com.jozufozu.flywheel.backend.pipeline.Template;
+
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.gen.feature.template.Template;
-import net.minecraftforge.common.extensions.IForgeBlock;
 
 public enum ContraptionMovementSetting {
 	MOVABLE, NO_PICKUP, UNMOVABLE;
@@ -22,16 +25,16 @@ public enum ContraptionMovementSetting {
 	}
 
 	static {
-		register(Blocks.SPAWNER.getRegistryName(), () -> AllConfigs.SERVER.kinetics.spawnerMovement.get());
-		register(Blocks.OBSIDIAN.getRegistryName(), () -> AllConfigs.SERVER.kinetics.obsidianMovement.get());
-		register(Blocks.CRYING_OBSIDIAN.getRegistryName(), () -> AllConfigs.SERVER.kinetics.obsidianMovement.get());
+		register(Registry.BLOCK.getKey(Blocks.SPAWNER), () -> AllConfigs.SERVER.kinetics.spawnerMovement.get());
+		register(Registry.BLOCK.getKey(Blocks.OBSIDIAN), () -> AllConfigs.SERVER.kinetics.obsidianMovement.get());
+		register(Registry.BLOCK.getKey(Blocks.CRYING_OBSIDIAN), () -> AllConfigs.SERVER.kinetics.obsidianMovement.get());
 	}
 
 	@Nullable
 	public static ContraptionMovementSetting get(Block block) {
 		if (block instanceof IMovementSettingProvider)
 			return ((IMovementSettingProvider) block).getContraptionMovementSetting();
-		return get(block.getRegistryName());
+		return get(Registry.BLOCK.getKey(block));
 	}
 
 	@Nullable
@@ -40,15 +43,15 @@ public enum ContraptionMovementSetting {
 		return supplier == null ? null : supplier.get();
 	}
 
-	protected static boolean allAre(Collection<Template.BlockInfo> blocks, ContraptionMovementSetting are) {
+	protected static boolean allAre(Collection<StructureTemplate.StructureBlockInfo> blocks, ContraptionMovementSetting are) {
 		return blocks.stream().anyMatch(b -> get(b.state.getBlock()) == are);
 	}
 
-	public static boolean isNoPickup(Collection<Template.BlockInfo> blocks) {
+	public static boolean isNoPickup(Collection<StructureTemplate.StructureBlockInfo> blocks) {
 		return allAre(blocks, ContraptionMovementSetting.NO_PICKUP);
 	}
 
-	public interface IMovementSettingProvider extends IForgeBlock {
+	public interface IMovementSettingProvider /* extends Block */ {
 		ContraptionMovementSetting getContraptionMovementSetting();
 	}
 }

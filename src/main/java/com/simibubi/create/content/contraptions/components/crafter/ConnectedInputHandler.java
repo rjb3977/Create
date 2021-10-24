@@ -188,13 +188,13 @@ public class ConnectedInputHandler {
 			BlockState blockState = world.getBlockState(pos);
 			if (blockState.hasProperty(MechanicalCrafterBlock.HORIZONTAL_FACING))
 				facing = blockState.getValue(MechanicalCrafterBlock.HORIZONTAL_FACING);
-			AxisDirection axisDirection = facing.getAxisDirection();
-			Axis compareAxis = facing.getClockWise()
+			Direction.AxisDirection axisDirection = facing.getAxisDirection();
+			Direction.Axis compareAxis = facing.getClockWise()
 				.getAxis();
 
 			Comparator<BlockPos> invOrdering = (p1, p2) -> {
 				int compareY = -Integer.compare(p1.getY(), p2.getY());
-				int modifier = axisDirection.getStep() * (compareAxis == Axis.Z ? -1 : 1);
+				int modifier = axisDirection.getStep() * (compareAxis == Direction.Axis.Z ? -1 : 1);
 				int c1 = compareAxis.choose(p1.getX(), p1.getY(), p1.getZ());
 				int c2 = compareAxis.choose(p2.getX(), p2.getY(), p2.getZ());
 				return compareY != 0 ? compareY : modifier * Integer.compare(c1, c2);

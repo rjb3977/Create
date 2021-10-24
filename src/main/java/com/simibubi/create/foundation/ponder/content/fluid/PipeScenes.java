@@ -33,11 +33,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraft.world.phys.Vec3;
 
 public class PipeScenes {
@@ -483,9 +483,9 @@ public class PipeScenes {
 		Selection basin = util.select.position(basinPos);
 		BlockPos smartPos = util.grid.at(3, 1, 1);
 
-		scene.world.modifyTileEntity(basinPos, BasinTileEntity.class,
-			te -> te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-				.ifPresent(ifh -> ifh.fill(new FluidStack(ForgeMod.MILK.get(), 1000), FluidAction.EXECUTE)));
+//		scene.world.modifyTileEntity(basinPos, BasinTileEntity.class,
+//			te -> TransferUtil.getFluidHandler(te)
+//				.ifPresent(ifh -> ifh.fill(new FluidStack(ForgeMod.MILK.get(), FluidConstants.BUCKET), FluidAction.EXECUTE))); // FIXME: MILK
 
 		scene.world.setBlock(util.grid.at(3, 1, 3), AllBlocks.FLUID_PIPE.get()
 			.getAxisState(Axis.X), false);

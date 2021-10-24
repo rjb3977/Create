@@ -24,9 +24,9 @@ public class PartialItemModelRenderer {
 	private final Random random = new Random();
 
 	private ItemStack stack;
-	private ItemCameraTransforms.TransformType transformType;
-	private MatrixStack ms;
-	private IRenderTypeBuffer buffer;
+	private ItemTransforms.TransformType transformType;
+	private PoseStack ms;
+	private MultiBufferSource buffer;
 	private int overlay;
 
 	public static PartialItemModelRenderer of(ItemStack stack, ItemTransforms.TransformType transformType,
@@ -80,16 +80,15 @@ public class PartialItemModelRenderer {
 	private void renderBakedItemModel(BakedModel model, int light, PoseStack ms, VertexConsumer p_229114_6_) {
 		ItemRenderer ir = Minecraft.getInstance()
 			.getItemRenderer();
-		IModelData data = EmptyModelData.INSTANCE;
 
 		for (Direction direction : Iterate.directions) {
 			random.setSeed(42L);
-			ItemRendererHelper.renderQuadList(ir, ms, buffer, model.getQuads(null, direction, random), stack, light,
+			ItemRendererHelper.renderQuadList(ir, ms, p_229114_6_, model.getQuads(null, direction, random), stack, light,
 				overlay);
 		}
 
 		random.setSeed(42L);
-		ItemRendererHelper.renderQuadList(ir, ms, buffer, model.getQuads(null, null, random), stack, light, overlay);
+		ItemRendererHelper.renderQuadList(ir, ms, p_229114_6_, model.getQuads(null, null, random), stack, light, overlay);
 	}
 
 }

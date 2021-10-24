@@ -25,6 +25,7 @@ import com.simibubi.create.lib.utility.LazyOptional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -362,7 +363,7 @@ public class ToolboxTileEntity extends SmartTileEntity implements MenuProvider, 
 	@Override
 	public Component getDisplayName() {
 		return customName != null ? customName
-			: new TranslationTextComponent(AllBlocks.TOOLBOXES.get(getColor())
+			: new TranslatableComponent(AllBlocks.TOOLBOXES.get(getColor())
 				.get()
 				.getDescriptionId());
 	}

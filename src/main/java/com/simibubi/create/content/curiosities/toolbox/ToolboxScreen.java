@@ -58,8 +58,9 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxContainer>
 		widgets.add(disposeButton);
 		color = menu.contentHolder.getColor();
 
-		extraAreas = ImmutableList.of(new Rect2i(getGuiLeft() + -28, getGuiTop() + 141, 80, 100),
-			new Rect2i(getGuiLeft() + 162, getGuiTop() + 111, 100, 70));
+		AbstractContainerScreenAccessor self = ((AbstractContainerScreenAccessor) this);
+		extraAreas = ImmutableList.of(new Rect2i(self.getGuiLeft() + -28, self.getGuiTop() + 141, 80, 100),
+			new Rect2i(self.getGuiLeft() + 162, self.getGuiTop() + 111, 100, 70));
 	}
 
 	@Override

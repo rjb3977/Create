@@ -44,7 +44,8 @@ import com.simibubi.create.lib.utility.SpecialModelUtil;
 import com.simibubi.create.lib.utility.TextureStitchUtil;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GraphicsStatus;
@@ -107,7 +108,7 @@ public class CreateClient implements ClientModInitializer {
 //		modEventBus.addListener(ContraptionRenderDispatcher::gatherContext);
 		FlywheelEvents.GATHER_CONTEXT.register(ContraptionRenderDispatcher::gatherContext);
 
-		MODEL_SWAPPER.registerListeners(modEventBus);
+		MODEL_SWAPPER.registerListeners();
 
 		ZAPPER_RENDER_HANDLER.registerListeners();
 		POTATO_CANNON_RENDER_HANDLER.registerListeners();
@@ -117,9 +118,9 @@ public class CreateClient implements ClientModInitializer {
 		// null during datagen
 		if (mc == null) return;
 
-		IResourceManager resourceManager = mc.getResourceManager();
-		if (resourceManager instanceof IReloadableResourceManager)
-			((IReloadableResourceManager) resourceManager).registerReloadListener(RESOURCE_RELOAD_LISTENER);
+		ResourceManager resourceManager = mc.getResourceManager();
+		if (resourceManager instanceof ReloadableResourceManager reloadable)
+			reloadable.registerReloadListener(RESOURCE_RELOAD_LISTENER);
 	}
 
 	@Override
@@ -141,25 +142,17 @@ public class CreateClient implements ClientModInitializer {
 		ResourceManager resourceManager = Minecraft.getInstance()
 				.getResourceManager();
 		if (resourceManager instanceof ReloadableResourceManager)
-			((ReloadableResourceManager) resourceManager).registerReloadListener(new ResourceReloadHandler());
+			((ReloadableResourceManager) resourceManager).registerReloadListener(RESOURCE_RELOAD_LISTENER);
 
 		// fabric events
-		ModelsBakedCallback.EVENT.register(CreateClient::onModelBake);
-		OnModelRegistryCallback.EVENT.register(CreateClient::onModelRegistry);
-		OnTextureStitchCallback.EVENT.register(CreateClient::onTextureStitch);
 		ParticleManagerRegistrationCallback.EVENT.register(() -> {
 			AllParticleTypes.registerFactories();
 			registerLayerRenderers(Minecraft.getInstance().getEntityRenderDispatcher()); // multi-purpose!
 		});
-		addClientListeners();
+		onCtorClient();
 		ClientEvents.register();
 		InputEvents.register();
 		AllPackets.clientInit();
-
-//		});
-		// Replaces ArmorItem#getArmorTexture from a Forge patch
-//		ArmorRenderingRegistry.registerSimpleTexture(new ResourceLocation(Create.ID, "copper"),
-//				AllItems.COPPER_BACKTANK.get(), AllItems.DIVING_HELMET.get(), AllItems.DIVING_BOOTS.get());
 
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityRenderer == null)
@@ -168,7 +161,7 @@ public class CreateClient implements ClientModInitializer {
 		});
 	}
 
-	protected static void registerLayerRenderers(EntityRendererManager renderManager) {
+	protected static void registerLayerRenderers(EntityRenderDispatcher renderManager) {
 		CopperBacktankArmorLayer.registerOnAll(renderManager);
 	}
 

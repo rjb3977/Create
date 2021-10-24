@@ -12,9 +12,10 @@ import com.simibubi.create.content.contraptions.components.structureMovement.int
 import com.simibubi.create.content.contraptions.components.structureMovement.interaction.LeverMovingInteraction;
 import com.simibubi.create.content.contraptions.components.structureMovement.interaction.TrapdoorMovingInteraction;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 public class AllInteractionBehaviours {
 	private static final HashMap<ResourceLocation, Supplier<MovingInteractionBehaviour>> INTERACT_BEHAVIOURS =
@@ -27,7 +28,7 @@ public class AllInteractionBehaviours {
 	}
 
 	public static void addInteractionBehaviour(Block block, Supplier<MovingInteractionBehaviour> behaviour) {
-		addInteractionBehaviour(block.getRegistryName(), behaviour);
+		addInteractionBehaviour(Registry.BLOCK.getKey(block), behaviour);
 	}
 
 	@Nullable
@@ -39,28 +40,28 @@ public class AllInteractionBehaviours {
 
 	@Nullable
 	public static MovingInteractionBehaviour of(Block block) {
-		return of(block.getRegistryName());
+		return of(Registry.BLOCK.getKey(block));
 	}
 
 	public static boolean contains(Block block) {
-		return INTERACT_BEHAVIOURS.containsKey(block.getRegistryName());
+		return INTERACT_BEHAVIOURS.containsKey(Registry.BLOCK.getKey(block));
 	}
 
 	static void register() {
-		addInteractionBehaviour(Blocks.LEVER.getRegistryName(), LeverMovingInteraction::new);
+		addInteractionBehaviour(Registry.BLOCK.getKey(Blocks.LEVER), LeverMovingInteraction::new);
 		addInteractionBehaviour(AllBlocks.DEPLOYER.getId(), DeployerMovingInteraction::new);
 
 		// TODO: Scan registry for instanceof (-> modded door support)
-		
+
 		for (Block trapdoor : ImmutableList.of(Blocks.ACACIA_TRAPDOOR, Blocks.OAK_TRAPDOOR, Blocks.DARK_OAK_TRAPDOOR,
 			Blocks.SPRUCE_TRAPDOOR, Blocks.JUNGLE_TRAPDOOR, Blocks.BIRCH_TRAPDOOR, Blocks.WARPED_TRAPDOOR,
 			Blocks.CRIMSON_TRAPDOOR)) {
-			addInteractionBehaviour(trapdoor.getRegistryName(), TrapdoorMovingInteraction::new);
+			addInteractionBehaviour(Registry.BLOCK.getKey(trapdoor), TrapdoorMovingInteraction::new);
 		}
 
 		for (Block door : ImmutableList.of(Blocks.ACACIA_DOOR, Blocks.OAK_DOOR, Blocks.DARK_OAK_DOOR,
 			Blocks.SPRUCE_DOOR, Blocks.JUNGLE_DOOR, Blocks.BIRCH_DOOR, Blocks.WARPED_DOOR, Blocks.CRIMSON_DOOR)) {
-			addInteractionBehaviour(door.getRegistryName(), DoorMovingInteraction::new);
+			addInteractionBehaviour(Registry.BLOCK.getKey(door), DoorMovingInteraction::new);
 		}
 	}
 }

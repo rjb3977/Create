@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 @Environment(EnvType.CLIENT)
 public interface ModelsBakedCallback {
-	public static final Event<ModelsBakedCallback> EVENT = EventFactory.createArrayBacked(ModelsBakedCallback.class, callbacks -> (manager, models, loader) -> {
+	Event<ModelsBakedCallback> EVENT = EventFactory.createArrayBacked(ModelsBakedCallback.class, callbacks -> (manager, models, loader) -> {
 		for (ModelsBakedCallback callback : callbacks) {
 			callback.onModelsBaked(manager, models, loader);
 		}

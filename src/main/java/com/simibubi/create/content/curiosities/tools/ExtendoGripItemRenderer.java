@@ -9,8 +9,8 @@ import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -110,7 +110,7 @@ public class ExtendoGripItemRenderer extends CustomRenderedItemModelRenderer<Ext
 	}
 
 	@Override
-	public ExtendoGripModel createModel(IBakedModel originalModel) {
+	public ExtendoGripModel createModel(BakedModel originalModel) {
 		return new ExtendoGripModel(originalModel);
 	}
 

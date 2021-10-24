@@ -2,8 +2,8 @@ package com.simibubi.create.foundation.item.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry.DynamicItemRenderer;
@@ -27,6 +27,6 @@ public abstract class CustomRenderedItemModelRenderer<M extends CustomRenderedIt
 	protected abstract void render(ItemStack stack, M model, PartialItemModelRenderer renderer, ItemTransforms.TransformType transformType,
 		PoseStack ms, MultiBufferSource buffer, int light, int overlay);
 
-	public abstract M createModel(IBakedModel originalModel);
+	public abstract M createModel(BakedModel originalModel);
 
 }

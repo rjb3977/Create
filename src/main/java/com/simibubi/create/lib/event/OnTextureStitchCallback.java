@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.event.EventFactory;
 
 @Environment(EnvType.CLIENT)
 public interface OnTextureStitchCallback {
-	public static final Event<OnTextureStitchCallback> EVENT = EventFactory.createArrayBacked(OnTextureStitchCallback.class, callbacks -> (util) -> {
+	Event<OnTextureStitchCallback> EVENT = EventFactory.createArrayBacked(OnTextureStitchCallback.class, callbacks -> (util) -> {
 		for (OnTextureStitchCallback callback : callbacks) {
 			callback.onModelRegistry(util);
 		}

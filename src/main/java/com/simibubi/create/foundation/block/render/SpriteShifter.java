@@ -4,8 +4,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.simibubi.create.lib.event.OnTextureStitchCallback;
+
+import com.simibubi.create.lib.utility.TextureStitchUtil;
+
+import dev.architectury.event.events.client.ClientTextureStitchEvent;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import com.simibubi.create.Create;
+
+import net.minecraft.world.inventory.InventoryMenu;
 
 public class SpriteShifter {
 
@@ -30,23 +39,23 @@ public class SpriteShifter {
 		return ENTRY_CACHE.values().stream().map(SpriteShiftEntry::getTargetResourceLocation).collect(Collectors.toList());
 	}
 
-	public static void onTextureStitchPre(TextureStitchEvent.Pre event) {
-		if (!event.getMap()
+	public static void onTextureStitchPre(TextureStitchUtil event) {
+		if (!event.map
 			.location()
-			.equals(PlayerContainer.BLOCK_ATLAS))
+			.equals(InventoryMenu.BLOCK_ATLAS))
 			return;
 
 		getAllTargetSprites()
 			.forEach(event::addSprite);
 	}
 
-	public static void onTextureStitchPost(TextureStitchEvent.Post event) {
-		if (!event.getMap()
+	public static void onTextureStitchPost(TextureStitchUtil event) {
+		if (!event.map
 			.location()
-			.equals(PlayerContainer.BLOCK_ATLAS))
+			.equals(InventoryMenu.BLOCK_ATLAS))
 			return;
 
-		AtlasTexture atlas = event.getMap();
+		TextureAtlas atlas = event.map;
 		for (SpriteShiftEntry entry : ENTRY_CACHE.values()) {
 			entry.loadTextures(atlas);
 		}

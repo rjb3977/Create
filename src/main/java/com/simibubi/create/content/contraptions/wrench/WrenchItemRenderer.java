@@ -7,8 +7,8 @@ import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 import com.simibubi.create.foundation.tileEntity.behaviour.scrollvalue.ScrollValueHandler;
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemStack;
 
 public class WrenchItemRenderer extends CustomRenderedItemModelRenderer<WrenchModel> {
@@ -27,7 +27,7 @@ public class WrenchItemRenderer extends CustomRenderedItemModelRenderer<WrenchMo
 	}
 
 	@Override
-	public WrenchModel createModel(IBakedModel originalModel) {
+	public WrenchModel createModel(BakedModel originalModel) {
 		return new WrenchModel(originalModel);
 	}
 

@@ -10,16 +10,21 @@ import com.simibubi.create.foundation.item.render.CustomItemModels;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.CustomRenderedItems;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.BlockModelShapes;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.eventbus.api.IEventBus;
+import com.simibubi.create.lib.event.ModelsBakedCallback;
+
+import com.simibubi.create.lib.event.OnModelRegistryCallback;
+
+import com.simibubi.create.lib.utility.SpecialModelUtil;
+
+import net.minecraft.client.renderer.block.BlockModelShaper;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 
 public class ModelSwapper {
 
@@ -39,56 +44,54 @@ public class ModelSwapper {
 		return customRenderedItems;
 	}
 
-	public void onModelRegistry(ModelRegistryEvent event) {
+	public void onModelRegistry() {
 		customRenderedItems.forEach((item, modelFunc) -> modelFunc.apply(null)
 			.getModelLocations()
-			.forEach(ModelLoader::addSpecialModel));
+			.forEach(SpecialModelUtil::addSpecialModel));
 	}
 
-	public void onModelBake(ModelBakeEvent event) {
-		Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
-
-		customBlockModels.forEach((block, modelFunc) -> swapModels(modelRegistry, getAllBlockStateModelLocations(block), modelFunc));
-		customItemModels.forEach((item, modelFunc) -> swapModels(modelRegistry, getItemModelLocation(item), modelFunc));
+	public void onModelBake(ModelManager manager, Map<ResourceLocation, BakedModel> models, ModelBakery loader) {
+		customBlockModels.forEach((block, modelFunc) -> swapModels(models, getAllBlockStateModelLocations(block), modelFunc));
+		customItemModels.forEach((item, modelFunc) -> swapModels(models, getItemModelLocation(item), modelFunc));
 		customRenderedItems.forEach((item, modelFunc) -> {
-			swapModels(modelRegistry, getItemModelLocation(item), m -> {
+			swapModels(models, getItemModelLocation(item), m -> {
 				CustomRenderedItemModel swapped = modelFunc.apply(m);
-				swapped.loadPartials(event);
+				swapped.loadPartials(loader);
 				return swapped;
 			});
 		});
 	}
 
-	public void registerListeners(IEventBus modEventBus) {
-		modEventBus.addListener(this::onModelRegistry);
-		modEventBus.addListener(this::onModelBake);
+	public void registerListeners() {
+		OnModelRegistryCallback.EVENT.register(this::onModelRegistry);
+		ModelsBakedCallback.EVENT.register(this::onModelBake);
 	}
 
-	public static <T extends IBakedModel> void swapModels(Map<ResourceLocation, IBakedModel> modelRegistry,
-		List<ModelResourceLocation> locations, Function<IBakedModel, T> factory) {
+	public static <T extends BakedModel> void swapModels(Map<ResourceLocation, BakedModel> modelRegistry,
+														  List<ModelResourceLocation> locations, Function<BakedModel, T> factory) {
 		locations.forEach(location -> {
 			swapModels(modelRegistry, location, factory);
 		});
 	}
 
-	public static <T extends IBakedModel> void swapModels(Map<ResourceLocation, IBakedModel> modelRegistry,
-		ModelResourceLocation location, Function<IBakedModel, T> factory) {
+	public static <T extends BakedModel> void swapModels(Map<ResourceLocation, BakedModel> modelRegistry,
+		ModelResourceLocation location, Function<BakedModel, T> factory) {
 		modelRegistry.put(location, factory.apply(modelRegistry.get(location)));
 	}
 
 	public static List<ModelResourceLocation> getAllBlockStateModelLocations(Block block) {
 		List<ModelResourceLocation> models = new ArrayList<>();
-		ResourceLocation blockRl = block.getRegistryName();
+		ResourceLocation blockRl = Registry.BLOCK.getKey(block);
 		block.getStateDefinition()
 			.getPossibleStates()
 			.forEach(state -> {
-				models.add(BlockModelShapes.stateToModelLocation(blockRl, state));
+				models.add(BlockModelShaper.stateToModelLocation(blockRl, state));
 			});
 		return models;
 	}
 
 	public static ModelResourceLocation getItemModelLocation(Item item) {
-		return new ModelResourceLocation(item.getRegistryName(), "inventory");
+		return new ModelResourceLocation(Registry.ITEM.getKey(item), "inventory");
 	}
 
 }

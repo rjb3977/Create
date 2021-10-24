@@ -1,42 +1,46 @@
 package com.simibubi.create.content.contraptions.components.structureMovement;
 
+import com.tterrag.registrate.fabric.EnvExecutor;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.core.BlockPos;
+
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+
 import org.apache.commons.lang3.tuple.MutablePair;
 
 import com.simibubi.create.content.contraptions.components.structureMovement.render.ContraptionRenderDispatcher;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.template.Template.BlockInfo;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.DistExecutor;
 
 public abstract class MovingInteractionBehaviour {
 
 	public MovingInteractionBehaviour() {}
 
-	protected void setContraptionActorData(AbstractContraptionEntity contraptionEntity, int index, BlockInfo info,
+	protected void setContraptionActorData(AbstractContraptionEntity contraptionEntity, int index, StructureTemplate.StructureBlockInfo info,
 		MovementContext ctx) {
 		contraptionEntity.contraption.actors.remove(index);
 		contraptionEntity.contraption.actors.add(index, MutablePair.of(info, ctx));
 		if (contraptionEntity.level.isClientSide)
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> invalidate(contraptionEntity.contraption));
+			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> invalidate(contraptionEntity.contraption));
 	}
 
-	protected void setContraptionBlockData(AbstractContraptionEntity contraptionEntity, BlockPos pos, BlockInfo info) {
+	protected void setContraptionBlockData(AbstractContraptionEntity contraptionEntity, BlockPos pos, StructureTemplate.StructureBlockInfo info) {
 		contraptionEntity.contraption.blocks.put(pos, info);
 		if (contraptionEntity.level.isClientSide)
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> invalidate(contraptionEntity.contraption));
+			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> invalidate(contraptionEntity.contraption));
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	protected void invalidate(Contraption contraption) {
 		ContraptionRenderDispatcher.invalidate(contraption);
 	}
 
-	public boolean handlePlayerInteraction(PlayerEntity player, Hand activeHand, BlockPos localPos,
-		AbstractContraptionEntity contraptionEntity) {
+	public boolean handlePlayerInteraction(Player player, InteractionHand activeHand, BlockPos localPos,
+										   AbstractContraptionEntity contraptionEntity) {
 		return true;
 	}
 

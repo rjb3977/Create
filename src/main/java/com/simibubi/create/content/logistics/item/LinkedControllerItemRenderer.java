@@ -168,7 +168,7 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 	}
 
 	@Override
-	public LinkedControllerModel createModel(IBakedModel originalModel) {
+	public LinkedControllerModel createModel(BakedModel originalModel) {
 		return new LinkedControllerModel(originalModel);
 	}
 

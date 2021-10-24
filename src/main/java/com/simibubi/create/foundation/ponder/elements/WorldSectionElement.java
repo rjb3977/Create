@@ -424,7 +424,7 @@ public class WorldSectionElement extends AnimatedSceneElement {
 
 		world.clearMask();
 		builder.end();
-		ForgeHooksClient.setRenderLayer(null);
+//		ForgeHooksClient.setRenderLayer(null);
 		return new SuperByteBuffer(builder);
 	}
 

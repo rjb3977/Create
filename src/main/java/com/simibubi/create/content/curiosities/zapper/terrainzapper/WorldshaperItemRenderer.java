@@ -12,9 +12,9 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
@@ -61,7 +61,7 @@ public class WorldshaperItemRenderer extends ZapperItemRenderer<WorldshaperModel
 	}
 
 	@Override
-	public WorldshaperModel createModel(IBakedModel originalModel) {
+	public WorldshaperModel createModel(BakedModel originalModel) {
 		return new WorldshaperModel(originalModel);
 	}
 

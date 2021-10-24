@@ -1,9 +1,8 @@
 package com.simibubi.create.foundation.block.render;
 
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
 
 public class SpriteShiftEntry {
 	protected ResourceLocation originalTextureLocation;
@@ -32,7 +31,7 @@ public class SpriteShiftEntry {
 		return target;
 	}
 
-	protected void loadTextures(AtlasTexture atlas) {
+	protected void loadTextures(TextureAtlas atlas) {
 		original = atlas.getSprite(originalTextureLocation);
 		target = atlas.getSprite(targetTextureLocation);
 	}

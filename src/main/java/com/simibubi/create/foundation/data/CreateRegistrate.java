@@ -41,8 +41,8 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -236,15 +236,17 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	@Environment(EnvType.CLIENT)
 	private static <T extends Item, P> void customRenderedItem(ItemBuilder<T, P> b,
 		Supplier<Supplier<CustomRenderedItemModelRenderer<?>>> supplier) {
-		b.properties(p -> p.setISTER(() -> supplier.get()::get))
+		b//.properties(p -> p.setISTER(() -> supplier.get()::get))
 			.onRegister(entry -> {
-				ItemStackTileEntityRenderer ister = entry.getItemStackTileEntityRenderer();
+				BuiltinItemRendererRegistry.DynamicItemRenderer ister = supplier.get().get();
+				BuiltinItemRendererRegistry.INSTANCE.register(entry, ister);
+
 				if (ister instanceof CustomRenderedItemModelRenderer)
 					registerCustomRenderedItem(entry, (CustomRenderedItemModelRenderer<?>) ister);
 			});
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	private static void registerCTBehviour(Block entry, ConnectedTextureBehaviour behavior) {
 		CreateClient.MODEL_SWAPPER.getCustomBlockModels()
 			.register(() -> entry, model -> new CTModel(model, behavior));
@@ -279,6 +281,6 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	@Environment(EnvType.CLIENT)
 	private static void registerCustomRenderedItem(Item entry, CustomRenderedItemModelRenderer<?> renderer) {
 		CreateClient.MODEL_SWAPPER.getCustomRenderedItems()
-			.register(entry.delegate, renderer::createModel);
+			.register(() -> entry, renderer::createModel);
 	}
 }

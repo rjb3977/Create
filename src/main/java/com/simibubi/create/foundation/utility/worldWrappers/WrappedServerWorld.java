@@ -39,11 +39,11 @@ public class WrappedServerWorld extends ServerLevel {
 
 	protected Level world;
 
-	public WrappedServerWorld(World world) {
+	public WrappedServerWorld(Level world) {
 		super(world.getServer(), Util.backgroundExecutor(), getLevelSaveFromWorld(world),
-			(IServerWorldInfo) world.getLevelData(), world.dimension(), world.dimensionType(),
-			new DummyStatusListener(), ((ServerChunkProvider) world.getChunkSource()).getGenerator(), world.isDebug(),
-			world.getBiomeManager().biomeZoomSeed, Collections.emptyList(), false);
+			(ServerLevelData) world.getLevelData(), world.dimension(), world.dimensionType(),
+			new DummyStatusListener(), ((ServerChunkCache) world.getChunkSource()).getGenerator(), world.isDebug(),
+				BiomeManagerHelper.getSeed(world.getBiomeManager()), Collections.emptyList(), false);
 		this.world = world;
 	}
 

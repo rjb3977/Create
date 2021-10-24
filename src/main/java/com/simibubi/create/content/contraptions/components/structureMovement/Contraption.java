@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.AllInteractionBehaviours;
 import com.simibubi.create.lib.transfer.fluid.FluidStack;
 
 import com.simibubi.create.lib.transfer.fluid.FluidTank;
@@ -730,7 +731,7 @@ public abstract class Contraption {
 
 		interactors.clear();
 		NBTHelper.iterateCompoundList(nbt.getList("Interactors", NBT.TAG_COMPOUND), c -> {
-			BlockPos pos = NBTUtil.readBlockPos(c.getCompound("Pos"));
+			BlockPos pos = NbtUtils.readBlockPos(c.getCompound("Pos"));
 			MovingInteractionBehaviour behaviour = AllInteractionBehaviours.of(getBlocks().get(pos).state.getBlock());
 			if (behaviour != null)
 				interactors.put(pos, behaviour);
@@ -820,10 +821,10 @@ public abstract class Contraption {
 			fluidStorageNBT.add(c);
 		}
 
-		ListNBT interactorNBT = new ListNBT();
+		ListTag interactorNBT = new ListTag();
 		for (BlockPos pos : interactors.keySet()) {
-			CompoundNBT c = new CompoundNBT();
-			c.put("Pos", NBTUtil.writeBlockPos(pos));
+			CompoundTag c = new CompoundTag();
+			c.put("Pos", NbtUtils.writeBlockPos(pos));
 			interactorNBT.add(c);
 		}
 

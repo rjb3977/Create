@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class SandPaperItemRenderer extends CustomRenderedItemModelRenderer<SandPaperItemRenderer.SandPaperModel> {
@@ -24,13 +25,13 @@ public class SandPaperItemRenderer extends CustomRenderedItemModelRenderer<SandP
 	protected void render(ItemStack stack, SandPaperModel model, PartialItemModelRenderer renderer,
 		TransformType transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-		ClientPlayerEntity player = Minecraft.getInstance().player;
+		LocalPlayer player = Minecraft.getInstance().player;
 		float partialTicks = AnimationTickHolder.getPartialTicks();
 
 		boolean leftHand = transformType == TransformType.FIRST_PERSON_LEFT_HAND;
 		boolean firstPerson = leftHand || transformType == TransformType.FIRST_PERSON_RIGHT_HAND;
 
-		CompoundNBT tag = stack.getOrCreateTag();
+		CompoundTag tag = stack.getOrCreateTag();
 		boolean jeiMode = tag.contains("JEI");
 
 		ms.pushPose();
@@ -81,7 +82,7 @@ public class SandPaperItemRenderer extends CustomRenderedItemModelRenderer<SandP
 	}
 
 	@Override
-	public SandPaperModel createModel(IBakedModel originalModel) {
+	public SandPaperModel createModel(BakedModel originalModel) {
 		return new SandPaperModel(originalModel);
 	}
 

@@ -43,6 +43,7 @@ import com.simibubi.create.content.logistics.block.depot.EjectorTargetHandler;
 import com.simibubi.create.content.logistics.block.mechanicalArm.ArmInteractionPointHandler;
 import com.simibubi.create.content.logistics.item.LinkedControllerClientHandler;
 import com.simibubi.create.foundation.block.ItemUseOverrides;
+import com.simibubi.create.foundation.block.render.SpriteShifter;
 import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.item.ItemDescription;
@@ -67,6 +68,7 @@ import com.simibubi.create.foundation.utility.worldWrappers.WrappedClientWorld;
 import com.simibubi.create.lib.event.ClientWorldEvents;
 import com.simibubi.create.lib.event.FogEvents;
 import com.simibubi.create.lib.event.LeftClickAirCallback;
+import com.simibubi.create.lib.event.OnTextureStitchCallback;
 import com.simibubi.create.lib.event.OverlayRenderCallback;
 import com.simibubi.create.lib.event.PlayerTickEndCallback;
 import com.simibubi.create.lib.event.RenderHandCallback;
@@ -374,6 +376,8 @@ public class ClientEvents {
 		PlayerTickEndCallback.EVENT.register(ContraptionHandlerClient::preventRemotePlayersWalkingAnimations);
 		UseBlockCallback.EVENT.register(ContraptionHandlerClient::rightClickingOnContraptionsGetsHandledLocally);
 		OverlayRenderCallback.EVENT.register(PlacementHelpers::onRender);
+		OnTextureStitchCallback.EVENT.register(SpriteShifter::onTextureStitchPre);
+		OnTextureStitchCallback.EVENT.register(SpriteShifter::onTextureStitchPost);
 
 		// Flywheel Events
 
