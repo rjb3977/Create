@@ -45,6 +45,7 @@
     "common.BlockStateMixin",
     "common.BoatMixin",
     "common.ClientboundAddEntityPacketMixin",
+    "common.ClipContextMixin",
     "common.EnchantmentHelperMixin",
     "common.EnchantmentMixin",
     "common.EntityCollisionContextMixin",
