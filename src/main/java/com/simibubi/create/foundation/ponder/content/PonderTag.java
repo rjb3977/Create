@@ -1,6 +1,7 @@
 package com.simibubi.create.foundation.ponder.content;
 
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -151,9 +152,7 @@ public class PonderTag implements IScreenRenderable {
 		ms.pushPose();
 		ms.translate(x, y, 0);
 		if (icon != null) {
-			Minecraft.getInstance()
-				.getTextureManager()
-				.bindForSetup(icon);
+			RenderSystem.setShaderTexture(0, icon);
 			ms.scale(0.25f, 0.25f, 1);
 			// x and y offset, blit z offset, tex x and y, tex width and height, entire tex
 			// sheet width and height

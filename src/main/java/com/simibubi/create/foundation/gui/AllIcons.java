@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -162,9 +163,7 @@ public class AllIcons implements IScreenRenderable {
 
 	@Environment(EnvType.CLIENT)
 	public void bind() {
-		Minecraft.getInstance()
-			.getTextureManager()
-			.bindForSetup(ICON_ATLAS);
+		RenderSystem.setShaderTexture(0, ICON_ATLAS);
 	}
 
 	@Override

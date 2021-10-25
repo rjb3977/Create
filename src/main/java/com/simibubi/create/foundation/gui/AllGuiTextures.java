@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.utility.Color;
@@ -145,9 +146,7 @@ public enum AllGuiTextures implements IScreenRenderable {
 
 	@Environment(EnvType.CLIENT)
 	public void bind() {
-		Minecraft.getInstance()
-			.getTextureManager()
-			.bindForSetup(location);
+		RenderSystem.setShaderTexture(0, location);
 	}
 
 	@Override
