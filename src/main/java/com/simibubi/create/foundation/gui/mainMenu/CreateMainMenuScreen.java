@@ -137,25 +137,25 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		int bShortWidth = 98;
 		int bLongWidth = 200;
 
-		addWidget(
+		widgets.add(
 			new Button(center - 100, yStart + 92, bLongWidth, bHeight, Lang.translate("menu.return"), $ -> onClose()));
-		addWidget(new Button(center - 100, yStart + 24 + -16, bLongWidth, bHeight, Lang.translate("menu.configure"),
+		widgets.add(new Button(center - 100, yStart + 24 + -16, bLongWidth, bHeight, Lang.translate("menu.configure"),
 			$ -> linkTo(BaseConfigScreen.forCreate(this))));
 
 		gettingStarted = new Button(center + 2, yStart + 48 + -16, bShortWidth, bHeight,
 			Lang.translate("menu.ponder_index"), $ -> linkTo(new PonderTagIndexScreen()));
 		gettingStarted.active = !(parent instanceof TitleScreen);
-		addRenderableWidget(gettingStarted);
+		widgets.add(gettingStarted);
 
 		String projectLink = "https://www.curseforge.com/minecraft/mc-mods/create";
 		String issueTrackerLink = "https://github.com/Creators-of-Create/Create/issues";
 		String supportLink = "https://github.com/Creators-of-Create/Create/wiki/Supporting-the-Project";
 
-		addRenderableWidget(new Button(center - 100, yStart + 48 + -16, bShortWidth, bHeight, Lang.translate("menu.project_page"),
+		widgets.add(new Button(center - 100, yStart + 48 + -16, bShortWidth, bHeight, Lang.translate("menu.project_page"),
 			$ -> linkTo(projectLink)));
-		addRenderableWidget(new Button(center + 2, yStart + 68, bShortWidth, bHeight, Lang.translate("menu.report_bugs"),
+		widgets.add(new Button(center + 2, yStart + 68, bShortWidth, bHeight, Lang.translate("menu.report_bugs"),
 			$ -> linkTo(issueTrackerLink)));
-		addRenderableWidget(new Button(center - 100, yStart + 68, bShortWidth, bHeight, Lang.translate("menu.support"),
+		widgets.add(new Button(center - 100, yStart + 68, bShortWidth, bHeight, Lang.translate("menu.support"),
 			$ -> linkTo(supportLink)));
 	}
 
