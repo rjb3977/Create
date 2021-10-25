@@ -49,11 +49,11 @@ public class ControlledContraptionEntity extends AbstractContraptionEntity {
 	}
 
 	@Override
-		public Vec3 getContactPointMotion(Vec3 globalContactPoint) {
-			if (contraption instanceof TranslatingContraption)
-				return getDeltaMovement();
-			return super.getContactPointMotion(globalContactPoint);
-		}
+	public Vec3 getContactPointMotion(Vec3 globalContactPoint) {
+		if (contraption instanceof TranslatingContraption)
+			return getDeltaMovement();
+		return super.getContactPointMotion(globalContactPoint);
+	}
 
 	@Override
 	protected void setContraption(Contraption contraption) {

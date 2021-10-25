@@ -5,8 +5,8 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 
 public interface CreateBlockEntity {
 	BlockEntityTicker<?> CREATE_TICKER = (BlockEntityTicker<BlockEntity>) (level, blockPos, blockState, blockEntity) -> {
-		if (!level.isClientSide())
-			((CreateBlockEntity) blockEntity).tick();
+		if (!level.isClientSide() && blockEntity instanceof CreateBlockEntity be)
+			be.tick();
 	};
 
 	default void tick() {}

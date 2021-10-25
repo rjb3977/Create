@@ -4,6 +4,7 @@ import com.simibubi.create.foundation.gui.IInteractionChecker;
 import com.simibubi.create.foundation.tileEntity.SyncedTileEntity;
 import com.simibubi.create.foundation.utility.Lang;
 
+import com.simibubi.create.lib.block.CreateBlockEntity;
 import com.simibubi.create.lib.transfer.item.ItemStackHandler;
 
 import net.minecraft.core.BlockPos;
@@ -18,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class SchematicTableTileEntity extends SyncedTileEntity implements MenuProvider, IInteractionChecker {
+public class SchematicTableTileEntity extends SyncedTileEntity implements MenuProvider, IInteractionChecker, CreateBlockEntity {
 
 	public SchematicTableInventory inventory;
 	public boolean isUploading;

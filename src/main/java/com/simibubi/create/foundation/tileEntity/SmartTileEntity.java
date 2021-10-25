@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 
 import com.simibubi.create.api.event.TileEntityBehaviourEvent;
 
+import com.simibubi.create.lib.block.CreateBlockEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,7 +23,7 @@ import com.simibubi.create.foundation.gui.IInteractionChecker;
 import com.simibubi.create.foundation.tileEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.utility.IPartialSafeNBT;
 
-public abstract class SmartTileEntity extends SyncedTileEntity implements IPartialSafeNBT, IInteractionChecker {
+public abstract class SmartTileEntity extends SyncedTileEntity implements IPartialSafeNBT, IInteractionChecker, CreateBlockEntity {
 
 	private final Map<BehaviourType<?>, TileEntityBehaviour> behaviours;
 	// Internally maintained to be identical to behaviorMap.values() in order to improve iteration performance.

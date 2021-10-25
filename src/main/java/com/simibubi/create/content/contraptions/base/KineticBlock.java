@@ -136,4 +136,10 @@ public abstract class KineticBlock extends BaseEntityBlock implements IRotate, H
 	public RenderShape getRenderShape(BlockState blockState) {
 		return RenderShape.MODEL;
 	}
+
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
+		return (BlockEntityTicker<T>) CreateBlockEntity.CREATE_TICKER;
+	}
 }

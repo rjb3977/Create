@@ -1,6 +1,9 @@
 package com.simibubi.create.content.contraptions.components.structureMovement.piston;
 
 import java.util.Random;
+
+import com.simibubi.create.lib.utility.TagUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -66,9 +69,7 @@ public class MechanicalPistonBlock extends DirectionalAxisKineticBlock implement
 			return InteractionResult.PASS;
 		if (player.isShiftKeyDown())
 			return InteractionResult.PASS;
-		if (!(player.getItemInHand(handIn)
-			.getItem()
-			/*.is(TagUtil.SLIMEBALLS)*/== Items.SLIME_BALL)) {
+		if (!(TagUtil.SLIMEBALLS.contains(player.getItemInHand(handIn).getItem()))) {
 			if (player.getItemInHand(handIn)
 				.isEmpty()) {
 				withTileEntityDo(worldIn, pos, te -> te.assembleNextTick = true);
