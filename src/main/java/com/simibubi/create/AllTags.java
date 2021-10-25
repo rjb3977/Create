@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.utility.Lang;
+import com.simibubi.create.lib.mixin.accessor.ItemTagsAccessor;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.builders.ItemBuilder;
 
@@ -33,12 +34,12 @@ public class AllTags {
 	private static final CreateRegistrate REGISTRATE = Create.registrate()
 		.itemGroup(() -> Create.BASE_CREATIVE_TAB);
 
-	public static <T> Tag.Named<T> tag(Function<ResourceLocation, Tag.Named<T>> wrapperFactory, String namespace,
+	public static <T> Tag.Named<T> tag(Function<String, Tag.Named<T>> wrapperFactory, String namespace,
 									   String path) {
-		return wrapperFactory.apply(new ResourceLocation(namespace, path));
+		return wrapperFactory.apply(new ResourceLocation(namespace, path).toString());
 	}
 
-	public static <T> Tag.Named<T> forgeTag(Function<ResourceLocation, Tag.Named<T>> wrapperFactory, String path) {
+	public static <T> Tag.Named<T> forgeTag(Function<String, Tag.Named<T>> wrapperFactory, String path) {
 		return tag(wrapperFactory, "c", path);
 	}
 
@@ -47,7 +48,8 @@ public class AllTags {
 	}
 
 	public static Tag.Named<Item> forgeItemTag(String path) {
-		return null;//forgeTag(ItemTags::createOptional, path);
+		String[] tag = path.split("/");
+		return forgeTag(ItemTagsAccessor::callBind, tag[1] + "_" + tag[0]);
 	}
 
 	public static Tag.Named<Fluid> forgeFluidTag(String path) {
