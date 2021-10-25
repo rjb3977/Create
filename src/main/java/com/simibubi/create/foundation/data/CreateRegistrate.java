@@ -142,16 +142,16 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 
 	public <T extends Block> BlockBuilder<T, CreateRegistrate> paletteStoneBlock(String name,
 																				 NonNullFunction<FabricBlockSettings, T> factory, NonNullSupplier<Block> propertiesFrom, boolean worldGenStone) {
-		BlockBuilder<T, CreateRegistrate> builder = super.block(name, factory).initialProperties(propertiesFrom);
+		BlockBuilder<T, CreateRegistrate> builder = super.block(name, factory).initialProperties(propertiesFrom)
 //			.blockstate((c, p) -> {
 //				final String location = "block/palettes/" + c.getName() + "/plain";
 //				p.simpleBlock(c.get(), p.models()
 //					.cubeAll(c.getName(), p.modLoc(location)));
 //			})
 //			.tag(Tags.Blocks.STONE)
-//			.item()
+			.item()
 //			.tag(Tags.Items.STONE)
-//			.build();
+			.build();
 //		if (worldGenStone) {
 //			builder.tag(BlockTags.BASE_STONE_OVERWORLD, AllTags.AllBlockTags.WG_STONE.tag);
 //		}
