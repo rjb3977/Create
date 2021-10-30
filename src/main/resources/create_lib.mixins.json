@@ -21,6 +21,7 @@
     "accessor.DamageSourceAccessor",
     "accessor.EntityAccessor",
     "accessor.IngredientAccessor",
+    "accessor.ItemTagsAccessor",
     "accessor.LivingEntityAccessor",
     "accessor.MinecraftServerAccessor",
     "accessor.PlayerAccessor",

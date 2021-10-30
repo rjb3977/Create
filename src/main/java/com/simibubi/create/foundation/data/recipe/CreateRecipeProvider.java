@@ -8,6 +8,8 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.foundation.data.recipe.CreateRecipeProvider.GeneratedRecipe;
+import com.simibubi.create.lib.data.Tags;
+
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
@@ -45,9 +47,9 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 
 	protected static class I {
 
-//		static Tag.Named<Item> redstone() {
-//			return Tags.Items.DUSTS_REDSTONE;
-//		}
+		static Tag.Named<Item> redstone() {
+			return Tags.Items.DUSTS_REDSTONE;
+		}
 
 		static Tag.Named<Item> planks() {
 			return ItemTags.PLANKS;
@@ -65,9 +67,9 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 			return AllTags.forgeItemTag("plates/gold");
 		}
 
-//		static Tag.Named<Item> stone() {
-//			return Tags.Items.STONE;
-//		}
+		static Tag.Named<Item> stone() {
+			return Tags.Items.STONE;
+		}
 
 		static ItemLike andesite() {
 			return AllItems.ANDESITE_ALLOY.get();
@@ -97,9 +99,9 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 			return AllTags.forgeItemTag("plates/brass");
 		}
 
-//		static Tag.Named<Item> iron() {
-//			return Tags.Items.INGOTS_IRON;
-//		}
+		static Tag.Named<Item> iron() {
+			return Tags.Items.INGOTS_IRON;
+		}
 
 		static Tag.Named<Item> ironNugget() {
 			return AllTags.forgeItemTag("nuggets/iron");

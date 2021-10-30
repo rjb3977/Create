@@ -1,16 +1,16 @@
 package com.simibubi.create.foundation.data.recipe;
-/*
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.content.contraptions.processing.HeatCondition;
+import com.simibubi.create.lib.data.Tags;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.items.Items;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
 
 public class MixingRecipeGen extends ProcessingRecipeGen {
 
@@ -84,4 +84,3 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 	}
 
 }
-*/
