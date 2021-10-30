@@ -15,6 +15,8 @@ public class SoulPulseEffectPacket implements S2CPacket {
 	public int distance;
 	public boolean canOverlap;
 
+	public SoulPulseEffectPacket() {}
+
 	public SoulPulseEffectPacket(BlockPos pos, int distance, boolean overlaps) {
 		this.pos = pos;
 		this.distance = distance;

@@ -81,7 +81,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 	@Override
 	public IItemHandler getItemHandler(Direction direction) {
 		if (direction == Direction.UP || BeltBlock.canAccessFromSide(direction, getBlockState())) {
-			return itemHandler.getValueUnsafer();
+			return itemHandler.orElse(null);
 		}
 		return null;
 	}
@@ -93,7 +93,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 	public BeltTileEntity(BlockEntityType<? extends BeltTileEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		controller = BlockPos.ZERO;
-		itemHandler = null;
+		itemHandler = LazyOptional.empty();
 		casing = CasingType.NONE;
 		color = Optional.empty();
 	}
@@ -170,7 +170,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 //	}
 
 	protected void initializeItemHandler() {
-		if (level.isClientSide || itemHandler != null)
+		if (level.isClientSide || itemHandler.isPresent())
 			return;
 		if (!level.isLoaded(controller))
 			return;
@@ -196,7 +196,7 @@ public class BeltTileEntity extends KineticTileEntity implements ILightUpdateLis
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		itemHandler = null;
+		itemHandler = LazyOptional.empty();
 	}
 
 	@Override

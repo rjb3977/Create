@@ -671,7 +671,7 @@ public class BasinTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	@Override
 	@Nullable
 	public IFluidHandler getFluidHandler(@Nullable Direction direction) {
-		return fluidCapability.getValueUnsafer();
+		return fluidCapability.orElse(null);
 	}
 
 	@Override

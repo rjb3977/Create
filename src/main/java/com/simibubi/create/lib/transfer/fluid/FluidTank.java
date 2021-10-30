@@ -78,11 +78,18 @@ public class FluidTank implements IFluidHandler {
 
 	@Override
 	public FluidStack drain(FluidStack stack, boolean sim) {
-		return null;
+		return drain(stack.getAmount(), sim);
 	}
 
 	@Override
 	public FluidStack drain(long amount, boolean sim) {
-		return null;
+		long canRemove = fluid.getAmount();
+		if (amount > canRemove) amount = canRemove;
+		FluidStack out = fluid.copy().setAmount(amount);
+		if (!sim) {
+			fluid.setAmount(amount);
+		}
+
+		return out;
 	}
 }

@@ -1,6 +1,7 @@
 package me.pepperbell.simplenetworking;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.logging.log4j.LogManager;
@@ -149,7 +150,7 @@ public class SimpleChannel {
 	}
 
 	public void sendToClientsTrackingAndSelf(S2CPacket packet, Entity entity) {
-		Collection<ServerPlayer> clients = PlayerLookup.tracking(entity);
+		Collection<ServerPlayer> clients = new ArrayList<>(PlayerLookup.tracking(entity));
 		if (entity instanceof ServerPlayer && !clients.contains(entity)) {
 			clients.add((ServerPlayer) entity);
 		}

@@ -97,6 +97,7 @@ public class SchematicWorld extends WrappedWorld implements ServerLevelAccessor 
 			try {
 				BlockEntity tileEntity = ((EntityBlock) blockState.getBlock()).newBlockEntity(pos, blockState);
 				if (tileEntity != null) {
+					tileEntity.setLevel(world);
 					onTEadded(tileEntity, pos);
 					tileEntities.put(pos, tileEntity);
 					renderedTileEntities.add(tileEntity);

@@ -571,7 +571,6 @@ public class ChuteTileEntity extends SmartTileEntity implements IHaveGoggleInfor
 	}
 
 	public void onAdded() {
-		this.setBlockState(null);
 		updatePull();
 		ChuteTileEntity targetChute = getTargetChute(getBlockState());
 		if (targetChute != null)

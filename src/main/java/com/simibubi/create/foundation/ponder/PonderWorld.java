@@ -251,6 +251,7 @@ public class PonderWorld extends SchematicWorld {
 
 	@Override
 	protected void onTEadded(BlockEntity tileEntity, BlockPos pos) {
+		tileEntity.setLevel(world);
 		super.onTEadded(tileEntity, pos);
 		if (!(tileEntity instanceof SmartTileEntity))
 			return;

@@ -2,6 +2,7 @@ package com.simibubi.create.foundation.data;
 
 import javax.annotation.Nullable;
 
+import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
 import com.simibubi.create.lib.event.InstanceRegistrationCallback;
 import com.jozufozu.flywheel.backend.instancing.tile.ITileInstanceFactory;
 import com.tterrag.registrate.AbstractRegistrate;
@@ -12,8 +13,13 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import net.fabricmc.api.EnvType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+
+import java.util.function.Function;
 
 public class CreateTileEntityBuilder<T extends BlockEntity, P> extends TileEntityBuilder<T, P> {
 
@@ -28,26 +34,19 @@ public class CreateTileEntityBuilder<T extends BlockEntity, P> extends TileEntit
 	protected CreateTileEntityBuilder(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback,
 									  TileEntityBuilder.BlockEntityFactory<T> factory) {
 		super(owner, parent, name, callback, factory);
-		InstanceRegistrationCallback.EVENT.register(this::registerInstance);
+
 	}
 
 	public CreateTileEntityBuilder<T, P> instance(NonNullSupplier<ITileInstanceFactory<? super T>> instanceFactory) {
-		if (this.instanceFactory == null) { // fixme this is likely to be broken
-			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> this::registerInstance);
-		}
-
 		this.instanceFactory = instanceFactory;
-
+		EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> InstanceRegistrationCallback.EVENT.register(this::registerInstance));
 		return this;
 	}
 
 	protected void registerInstance() {
-//		OneTimeEventReceiver.addModListener(FMLClientSetupEvent.class, $ -> {
-			NonNullSupplier<ITileInstanceFactory<? super T>> instanceFactory = this.instanceFactory;
-			if (instanceFactory != null) {
-//				InstancedRenderRegistry.getInstance().register(getEntry(), instanceFactory.get());
-			}
-
-//		});
+		if (instanceFactory != null) {
+			InstancedRenderRegistry.getInstance().tile(getEntry())
+					.factory(instanceFactory.get());
+		}
 	}
 }

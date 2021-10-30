@@ -19,6 +19,8 @@ public class ConfigureSymmetryWandPacket implements C2SPacket {
 	protected InteractionHand hand;
 	protected SymmetryMirror mirror;
 
+	public ConfigureSymmetryWandPacket() {}
+
 	public ConfigureSymmetryWandPacket(InteractionHand hand, SymmetryMirror mirror) {
 		this.hand = hand;
 		this.mirror = mirror;

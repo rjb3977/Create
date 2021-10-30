@@ -23,6 +23,9 @@ public class ItemStackHandler implements IItemHandlerModifiable, NBTSerializable
 
 	public void setSize(int size) {
 		stacks = new ItemStack[size];
+		if (size == 0) {
+			System.out.println();
+		}
 		Arrays.fill(stacks, ItemStack.EMPTY);
 	}
 

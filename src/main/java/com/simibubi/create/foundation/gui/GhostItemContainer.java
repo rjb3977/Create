@@ -53,8 +53,10 @@ public abstract class GhostItemContainer<T> extends ContainerBase<T> implements 
 	@Override
 	public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
 		ItemStack held = playerInventory.getSelected();
-		if (slotId < 36)
+		if (slotId < 36) {
 			super.clicked(slotId, dragType, clickTypeIn, player);
+			return;
+		}
 		else if (clickTypeIn == ClickType.THROW)
 			return;
 

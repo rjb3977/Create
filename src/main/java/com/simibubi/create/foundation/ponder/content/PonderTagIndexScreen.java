@@ -204,21 +204,21 @@ public class PonderTagIndexScreen extends NavigatableSimiScreen {
 
 	@Override
 	protected void renderWindowForeground(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
-		throw new RuntimeException("// PORT: rendersystem + legacy gl = 0 sanity");
-//		ms.pushPose();
+//		throw new RuntimeException("// PORT: rendersystem + legacy gl = 0 sanity");
+		ms.pushPose();
 //		RenderSystem.disableRescaleNormal();
 //		RenderSystem.disableDepthTest();
 //
-//		ms.translate(0, 0, 200);
-//		if (hoveredItem != null) {
-//			List<Component> list = TooltipHelper.cutStringTextComponent(hoveredItem.getDescription(),
-//				ChatFormatting.GRAY, ChatFormatting.GRAY);
-//			list.add(0, new TextComponent(hoveredItem.getTitle()));
-//			renderComponentTooltip(ms, list, mouseX, mouseY);
-//		}
+		ms.translate(0, 0, 200);
+		if (hoveredItem != null) {
+			List<Component> list = TooltipHelper.cutStringTextComponent(hoveredItem.getDescription(),
+				ChatFormatting.GRAY, ChatFormatting.GRAY);
+			list.add(0, new TextComponent(hoveredItem.getTitle()));
+			renderComponentTooltip(ms, list, mouseX, mouseY);
+		}
 //		RenderSystem.enableDepthTest();
 //		RenderSystem.enableRescaleNormal();
-//		ms.popPose();
+		ms.popPose();
 	}
 
 	@Override

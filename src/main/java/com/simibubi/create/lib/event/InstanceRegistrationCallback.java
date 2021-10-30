@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.event.EventFactory;
 
 @Environment(EnvType.CLIENT)
 public interface InstanceRegistrationCallback {
-	public static final Event<InstanceRegistrationCallback> EVENT = EventFactory.createArrayBacked(InstanceRegistrationCallback.class, callbacks -> () -> {
+	Event<InstanceRegistrationCallback> EVENT = EventFactory.createArrayBacked(InstanceRegistrationCallback.class, callbacks -> () -> {
 		for (InstanceRegistrationCallback callback : callbacks) {
 			callback.registerInstance();
 		}

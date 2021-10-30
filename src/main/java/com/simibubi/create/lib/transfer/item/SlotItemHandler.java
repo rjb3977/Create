@@ -29,6 +29,7 @@ public class SlotItemHandler extends Slot {
 	@Override
 	@Nonnull
 	public ItemStack getItem() {
+		if (getItemHandler().getSlots() <= index) return ItemStack.EMPTY;
 		return this.getItemHandler().getStackInSlot(index);
 	}
 

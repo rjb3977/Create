@@ -55,7 +55,7 @@ public class SmartFluidTankBehaviour extends TileEntityBehaviour {
 		for (int i = 0; i < tanks; i++) {
 			TankSegment tankSegment = new TankSegment(tankCapacity);
 			this.tanks[i] = tankSegment;
-//			handlers[i] = tankSegment.tank;
+			handlers[i] = tankSegment.tank;
 		}
 		capability = LazyOptional.of(() -> new InternalFluidHandler(handlers, enforceVariety));
 		fluidUpdateCallback = () -> {

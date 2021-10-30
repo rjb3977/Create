@@ -68,7 +68,7 @@ public class TransferUtil {
 
 	public static LazyOptional<IFluidHandlerItem> getFluidHandlerItem(ItemStack stack, Level level) {
 		Storage<FluidVariant> fluidStorage = FluidStorage.ITEM.find(stack, new SingleItemStackContext(stack, level));
-		return LazyOptional.ofObject(new FluidStorageHandlerItem(stack, fluidStorage));
+		return fluidStorage == null ? LazyOptional.empty() : LazyOptional.ofObject(new FluidStorageHandlerItem(stack, fluidStorage));
 	}
 
 	// Helpers
@@ -108,7 +108,8 @@ public class TransferUtil {
 	@Nullable
 	public static Storage<FluidVariant> getFluidStorageForBE(BlockEntity be, Direction side) {
 		if (be instanceof FluidTransferable transferable) {
-			return new StorageFluidHandler(transferable.getFluidHandler(side));
+			IFluidHandler handler = transferable.getFluidHandler(side);
+			return handler == null ? null : new StorageFluidHandler(handler);
 		}
 		return null;
 	}
@@ -116,7 +117,8 @@ public class TransferUtil {
 	@Nullable
 	public static Storage<ItemVariant> getItemStorageForBE(BlockEntity be, Direction side) {
 		if (be instanceof ItemTransferable transferable) {
-			return new StorageItemHandler(transferable.getItemHandler(side));
+			IItemHandler handler = transferable.getItemHandler(side);
+			return handler == null ? null : new StorageItemHandler(handler);
 		}
 		return null;
 	}

@@ -142,9 +142,6 @@ public class BaseConfigScreen extends ConfigScreen {
 
 	@Override
 	protected void init() {
-		clientSpec = AllConfigs.CLIENT.getConfig();
-		commonSpec = AllConfigs.COMMON.getConfig();
-		serverSpec = AllConfigs.SERVER.getConfig();
 		widgets.clear();
 		super.init();
 		returnOnClose = true;
@@ -153,7 +150,7 @@ public class BaseConfigScreen extends ConfigScreen {
 		widgets.add(clientConfigWidget = new BoxWidget(width / 2 - 100, height / 2 - 15 - 30, 200, 16).showingElement(clientText));
 
 		if (clientSpec != null) {
-			clientConfigWidget.withCallback(() -> linkTo(new SubMenuConfigScreen(this, "client", clientSpec)));
+			clientConfigWidget.withCallback(() -> linkTo(new SubMenuConfigScreen(this, AllConfigs.CLIENT.getName(), clientSpec)));
 			clientText.withElementRenderer(BoxWidget.gradientFactory.apply(clientConfigWidget));
 		} else {
 			clientConfigWidget.active = false;
@@ -165,7 +162,7 @@ public class BaseConfigScreen extends ConfigScreen {
 		widgets.add(commonConfigWidget = new BoxWidget(width / 2 - 100, height / 2 - 15, 200, 16).showingElement(commonText));
 
 		if (commonSpec != null) {
-			commonConfigWidget.withCallback(() -> linkTo(new SubMenuConfigScreen(this, "common", commonSpec)));
+			commonConfigWidget.withCallback(() -> linkTo(new SubMenuConfigScreen(this, AllConfigs.COMMON.getName(), commonSpec)));
 			commonText.withElementRenderer(BoxWidget.gradientFactory.apply(commonConfigWidget));
 		} else {
 			commonConfigWidget.active = false;
@@ -227,9 +224,8 @@ public class BaseConfigScreen extends ConfigScreen {
 		TextStencilElement othersText = new TextStencilElement(minecraft.font, new TextComponent("Access Configs of other Mods")).centered(true, true);
 		others = new BoxWidget(width / 2 - 100, height / 2 - 15 + 90, 200, 16).showingElement(othersText);
 		othersText.withElementRenderer(BoxWidget.gradientFactory.apply(others));
-//		others.withCallback(() -> linkTo(new ConfigModListScreen(this)));
+		others.withCallback(() -> linkTo(new ConfigModListScreen(this)));
 		widgets.add(others);
-
 	}
 
 	@Override
