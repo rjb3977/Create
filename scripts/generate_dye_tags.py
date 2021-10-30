@@ -14,7 +14,6 @@ for color in colors:
     if not os.path.exists(tagsPath):
         os.makedirs(tagsPath)
     with open(tagName, "w") as tagFile:
-        # create parent directories
         tagFile.write(tagTemplate % color)
         tagFile.close()
     print(tagName)
