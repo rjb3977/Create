@@ -6,7 +6,7 @@
   ],
   "key": {
     "#": {
-      "tag": "forge:dyes/white"
+      "tag": "c:dyes/white"
     },
     "-": {
       "item": "create:brown_toolbox"

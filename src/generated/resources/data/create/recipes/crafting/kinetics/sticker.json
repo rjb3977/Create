@@ -9,7 +9,7 @@
       "item": "create:andesite_alloy"
     },
     "C": {
-      "tag": "forge:cobblestone"
+      "tag": "c:cobblestone"
     },
     "R": {
       "tag": "c:redstone_dusts"

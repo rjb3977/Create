@@ -6,7 +6,7 @@
   ],
   "key": {
     "#": {
-      "tag": "forge:dyes/light_gray"
+      "tag": "c:dyes/light_gray"
     },
     "-": {
       "tag": "create:valve_handles"
