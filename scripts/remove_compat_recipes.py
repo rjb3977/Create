@@ -6,12 +6,15 @@ toMove = []
 
 def iterateDir(dir):
     for fileName in os.listdir(dir):
-        if os.path.isdir(dir + fileName):
-            iterateDir(dir + fileName + "/")
+        fullName = dir + fileName
+        if os.path.isdir(fullName):
+            iterateDir(fullName + "/")
         else:
             for modName in mods:
-               if fileName.endswith("compat_" + modName + ".json"):
-                   toMove.append(dir + fileName)
+                if modName in fullName:
+                    print(modName + " in " + fullName)
+                    toMove.append(fullName)
+
 
 iterateDir(dataDir)
 for fileName in toMove:

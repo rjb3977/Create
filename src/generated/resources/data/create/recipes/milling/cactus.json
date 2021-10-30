@@ -15,14 +15,5 @@
       "chance": 0.1
     }
   ],
-  "processingTime": 50,
-  "conditions": [
-    {
-      "value": {
-        "modid": "quark",
-        "type": "forge:mod_loaded"
-      },
-      "type": "forge:not"
-    }
-  ]
+  "processingTime": 50
 }
