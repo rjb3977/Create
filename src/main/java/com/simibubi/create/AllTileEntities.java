@@ -171,6 +171,7 @@ import com.tterrag.registrate.util.entry.TileEntityEntry;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 
 public class AllTileEntities {
 
@@ -179,7 +180,7 @@ public class AllTileEntities {
 		.tileEntity("schematicannon", SchematicannonTileEntity::new)
 		.instance(() -> SchematicannonInstance::new)
 		.validBlocks(AllBlocks.SCHEMATICANNON)
-		.renderer(() -> ctx -> new SchematicannonRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SchematicannonRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<SchematicTableTileEntity> SCHEMATIC_TABLE = Create.registrate()
@@ -192,42 +193,42 @@ public class AllTileEntities {
 		.tileEntity("simple_kinetic", SimpleKineticTileEntity::new)
 		.instance(() -> SingleRotatingInstance::new)
 		.validBlocks(AllBlocks.SHAFT, AllBlocks.COGWHEEL, AllBlocks.LARGE_COGWHEEL)
-		.renderer(() -> ctx -> new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<CreativeMotorTileEntity> MOTOR = Create.registrate()
 		.tileEntity("motor", CreativeMotorTileEntity::new)
 		.instance(() -> HalfShaftInstance::new)
 		.validBlocks(AllBlocks.CREATIVE_MOTOR)
-		.renderer(() -> ctx -> new CreativeMotorRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new CreativeMotorRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<GearboxTileEntity> GEARBOX = Create.registrate()
 		.tileEntity("gearbox", GearboxTileEntity::new)
 		.instance(() -> GearboxInstance::new)
 		.validBlocks(AllBlocks.GEARBOX)
-		.renderer(() -> ctx -> new GearboxRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new GearboxRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<EncasedShaftTileEntity> ENCASED_SHAFT = Create.registrate()
 		.tileEntity("encased_shaft", EncasedShaftTileEntity::new)
 		.instance(() -> ShaftInstance::new)
 		.validBlocks(AllBlocks.ANDESITE_ENCASED_SHAFT, AllBlocks.BRASS_ENCASED_SHAFT, AllBlocks.ENCASED_CHAIN_DRIVE)
-		.renderer(() -> ctx -> new EncasedShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new EncasedShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<AdjustablePulleyTileEntity> ADJUSTABLE_PULLEY = Create.registrate()
 		.tileEntity("adjustable_pulley", AdjustablePulleyTileEntity::new)
 		.instance(() -> ShaftInstance::new)
 		.validBlocks(AllBlocks.ADJUSTABLE_CHAIN_GEARSHIFT)
-		.renderer(() -> ctx -> new EncasedShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new EncasedShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<EncasedFanTileEntity> ENCASED_FAN = Create.registrate()
 		.tileEntity("encased_fan", EncasedFanTileEntity::new)
 		.instance(() -> FanInstance::new)
 		.validBlocks(AllBlocks.ENCASED_FAN)
-		.renderer(() -> ctx -> new EncasedFanRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new EncasedFanRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<NozzleTileEntity> NOZZLE = Create.registrate()
@@ -240,21 +241,21 @@ public class AllTileEntities {
 		.tileEntity("clutch", ClutchTileEntity::new)
 		.instance(() -> SplitShaftInstance::new)
 		.validBlocks(AllBlocks.CLUTCH)
-		.renderer(() -> ctx -> new SplitShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SplitShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<GearshiftTileEntity> GEARSHIFT = Create.registrate()
 		.tileEntity("gearshift", GearshiftTileEntity::new)
 		.instance(() -> SplitShaftInstance::new)
 		.validBlocks(AllBlocks.GEARSHIFT)
-		.renderer(() -> ctx -> new SplitShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SplitShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<TurntableTileEntity> TURNTABLE = Create.registrate()
 		.tileEntity("turntable", TurntableTileEntity::new)
 		.instance(() -> SingleRotatingInstance::new)
 		.validBlocks(AllBlocks.TURNTABLE)
-		.renderer(() -> ctx -> new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	@SuppressWarnings("RedundantCast")
@@ -263,41 +264,41 @@ public class AllTileEntities {
 			.instance(() -> HandCrankInstance::new)
 			.validBlocks(AllBlocks.HAND_CRANK, AllBlocks.COPPER_VALVE_HANDLE)
 			.validBlocks(AllBlocks.DYED_VALVE_HANDLES.toArray())
-		.renderer(() -> ctx -> new HandCrankRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new HandCrankRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<CuckooClockTileEntity> CUCKOO_CLOCK = Create.registrate()
 		.tileEntity("cuckoo_clock", CuckooClockTileEntity::new)
 		.instance(() -> HorizontalHalfShaftInstance::new)
 		.validBlocks(AllBlocks.CUCKOO_CLOCK, AllBlocks.MYSTERIOUS_CUCKOO_CLOCK)
-		.renderer(() -> ctx -> new CuckooClockRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new CuckooClockRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<GantryShaftTileEntity> GANTRY_SHAFT = Create.registrate()
 		.tileEntity("gantry_shaft", GantryShaftTileEntity::new)
 		.instance(() -> SingleRotatingInstance::new)
 		.validBlocks(AllBlocks.GANTRY_SHAFT)
-		.renderer(() -> ctx -> new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<GantryCarriageTileEntity> GANTRY_PINION = Create.registrate()
 		.tileEntity("gantry_pinion", GantryCarriageTileEntity::new)
 		.instance(() -> GantryCarriageInstance::new)
 		.validBlocks(AllBlocks.GANTRY_CARRIAGE)
-		.renderer(() -> ctx -> new GantryCarriageRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new GantryCarriageRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<PumpTileEntity> MECHANICAL_PUMP = Create.registrate()
 		.tileEntity("mechanical_pump", PumpTileEntity::new)
 		.instance(() -> PumpCogInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_PUMP)
-		.renderer(() -> ctx -> new PumpRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new PumpRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<SmartFluidPipeTileEntity> SMART_FLUID_PIPE = Create.registrate()
 		.tileEntity("smart_fluid_pipe", SmartFluidPipeTileEntity::new)
 		.validBlocks(AllBlocks.SMART_FLUID_PIPE)
-		.renderer(() -> ctx -> new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<FluidPipeTileEntity> FLUID_PIPE = Create.registrate()
@@ -313,120 +314,120 @@ public class AllTileEntities {
 	public static final TileEntityEntry<StraightPipeTileEntity> GLASS_FLUID_PIPE = Create.registrate()
 		.tileEntity("glass_fluid_pipe", StraightPipeTileEntity::new)
 		.validBlocks(AllBlocks.GLASS_FLUID_PIPE)
-		.renderer(() -> ctx -> new TransparentStraightPipeRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new TransparentStraightPipeRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<FluidValveTileEntity> FLUID_VALVE = Create.registrate()
 		.tileEntity("fluid_valve", FluidValveTileEntity::new)
 		.instance(() -> FluidValveInstance::new)
 		.validBlocks(AllBlocks.FLUID_VALVE)
-		.renderer(() -> ctx -> new FluidValveRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new FluidValveRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<FluidTankTileEntity> FLUID_TANK = Create.registrate()
 		.tileEntity("fluid_tank", FluidTankTileEntity::new)
 		.validBlocks(AllBlocks.FLUID_TANK)
-		.renderer(() -> ctx -> new FluidTankRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new FluidTankRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<CreativeFluidTankTileEntity> CREATIVE_FLUID_TANK = Create.registrate()
 		.tileEntity("creative_fluid_tank", CreativeFluidTankTileEntity::new)
 		.validBlocks(AllBlocks.CREATIVE_FLUID_TANK)
-		.renderer(() -> ctx -> new FluidTankRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new FluidTankRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<HosePulleyTileEntity> HOSE_PULLEY = Create.registrate()
 		.tileEntity("hose_pulley", HosePulleyTileEntity::new)
 		.instance(() -> HosePulleyInstance::new)
 		.validBlocks(AllBlocks.HOSE_PULLEY)
-		.renderer(() -> ctx -> new HosePulleyRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new HosePulleyRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<SpoutTileEntity> SPOUT = Create.registrate()
 		.tileEntity("spout", SpoutTileEntity::new)
 		.validBlocks(AllBlocks.SPOUT)
-		.renderer(() -> ctx -> new SpoutRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SpoutRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<ItemDrainTileEntity> ITEM_DRAIN = Create.registrate()
 		.tileEntity("item_drain", ItemDrainTileEntity::new)
 		.validBlocks(AllBlocks.ITEM_DRAIN)
-		.renderer(() -> ctx -> new ItemDrainRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new ItemDrainRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<BeltTileEntity> BELT = Create.registrate()
 		.tileEntity("belt", BeltTileEntity::new)
 		.instance(() -> BeltInstance::new)
 		.validBlocks(AllBlocks.BELT)
-		.renderer(() -> ctx -> new BeltRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BeltRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<ChuteTileEntity> CHUTE = Create.registrate()
 		.tileEntity("chute", ChuteTileEntity::new)
 		.validBlocks(AllBlocks.CHUTE)
-		.renderer(() -> ctx -> new ChuteRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new ChuteRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<SmartChuteTileEntity> SMART_CHUTE = Create.registrate()
 		.tileEntity("smart_chute", SmartChuteTileEntity::new)
 		.validBlocks(AllBlocks.SMART_CHUTE)
-		.renderer(() -> ctx -> new SmartChuteRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SmartChuteRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<BeltTunnelTileEntity> ANDESITE_TUNNEL = Create.registrate()
 		.tileEntity("andesite_tunnel", BeltTunnelTileEntity::new)
 		.instance(() -> BeltTunnelInstance::new)
 		.validBlocks(AllBlocks.ANDESITE_TUNNEL)
-		.renderer(() -> ctx -> new BeltTunnelRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BeltTunnelRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<BrassTunnelTileEntity> BRASS_TUNNEL = Create.registrate()
 		.tileEntity("brass_tunnel", BrassTunnelTileEntity::new)
 		.instance(() -> BeltTunnelInstance::new)
 		.validBlocks(AllBlocks.BRASS_TUNNEL)
-		.renderer(() -> ctx -> new BeltTunnelRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BeltTunnelRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<ArmTileEntity> MECHANICAL_ARM = Create.registrate()
 		.tileEntity("mechanical_arm", ArmTileEntity::new)
 		.instance(() -> ArmInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_ARM)
-		.renderer(() -> ctx -> new ArmRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new ArmRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<MechanicalPistonTileEntity> MECHANICAL_PISTON = Create.registrate()
 		.tileEntity("mechanical_piston", MechanicalPistonTileEntity::new)
 		.instance(() -> ShaftInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_PISTON, AllBlocks.STICKY_MECHANICAL_PISTON)
-		.renderer(() -> ctx -> new MechanicalPistonRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new MechanicalPistonRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<WindmillBearingTileEntity> WINDMILL_BEARING = Create.registrate()
 		.tileEntity("windmill_bearing", WindmillBearingTileEntity::new)
 		.instance(() -> BearingInstance::new)
 		.validBlocks(AllBlocks.WINDMILL_BEARING)
-		.renderer(() -> ctx -> new BearingRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BearingRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<MechanicalBearingTileEntity> MECHANICAL_BEARING = Create.registrate()
 		.tileEntity("mechanical_bearing", MechanicalBearingTileEntity::new)
 		.instance(() -> BearingInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_BEARING)
-		.renderer(() -> ctx -> new BearingRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BearingRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<ClockworkBearingTileEntity> CLOCKWORK_BEARING = Create.registrate()
 		.tileEntity("clockwork_bearing", ClockworkBearingTileEntity::new)
 		.instance(() -> BearingInstance::new)
 		.validBlocks(AllBlocks.CLOCKWORK_BEARING)
-		.renderer(() -> ctx -> new BearingRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BearingRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<PulleyTileEntity> ROPE_PULLEY = Create.registrate()
 		.tileEntity("rope_pulley", PulleyTileEntity::new)
 		.instance(() -> RopePulleyInstance::new)
 		.validBlocks(AllBlocks.ROPE_PULLEY)
-		.renderer(() -> ctx -> new PulleyRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new PulleyRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<ChassisTileEntity> CHASSIS = Create.registrate()
@@ -439,68 +440,68 @@ public class AllTileEntities {
 		.tileEntity("sticker", StickerTileEntity::new)
 		.instance(() -> StickerInstance::new)
 		.validBlocks(AllBlocks.STICKER)
-		.renderer(() -> ctx -> new StickerRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new StickerRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<DrillTileEntity> DRILL = Create.registrate()
 		.tileEntity("drill", DrillTileEntity::new)
 		.instance(() -> DrillInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_DRILL)
-		.renderer(() -> ctx -> new DrillRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new DrillRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<SawTileEntity> SAW = Create.registrate()
 		.tileEntity("saw", SawTileEntity::new)
 		.instance(() -> SawInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_SAW)
-		.renderer(() -> ctx -> new SawRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SawRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<HarvesterTileEntity> HARVESTER = Create.registrate()
 		.tileEntity("harvester", HarvesterTileEntity::new)
 		.validBlocks(AllBlocks.MECHANICAL_HARVESTER)
-		.renderer(() -> ctx -> new HarvesterRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new HarvesterRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<PortableItemInterfaceTileEntity> PORTABLE_STORAGE_INTERFACE =
 		Create.registrate()
 			.tileEntity("portable_storage_interface", PortableItemInterfaceTileEntity::new)
 			.validBlocks(AllBlocks.PORTABLE_STORAGE_INTERFACE)
-			.renderer(() -> ctx -> new PortableStorageInterfaceRenderer(ctx.getBlockEntityRenderDispatcher()))
+			.renderer(() -> ctx -> (BlockEntityRenderer) new PortableStorageInterfaceRenderer(ctx.getBlockEntityRenderDispatcher()))
 			.register();
 
 	public static final TileEntityEntry<PortableFluidInterfaceTileEntity> PORTABLE_FLUID_INTERFACE = Create.registrate()
 		.tileEntity("portable_fluid_interface", PortableFluidInterfaceTileEntity::new)
 		.validBlocks(AllBlocks.PORTABLE_FLUID_INTERFACE)
-		.renderer(() -> ctx -> new PortableStorageInterfaceRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new PortableStorageInterfaceRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<FlywheelTileEntity> FLYWHEEL = Create.registrate()
 		.tileEntity("flywheel", FlywheelTileEntity::new)
 		.instance(() -> FlyWheelInstance::new)
 		.validBlocks(AllBlocks.FLYWHEEL)
-		.renderer(() -> ctx -> new FlywheelRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new FlywheelRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<FurnaceEngineTileEntity> FURNACE_ENGINE = Create.registrate()
 		.tileEntity("furnace_engine", FurnaceEngineTileEntity::new)
 		.instance(() -> EngineInstance::new)
 		.validBlocks(AllBlocks.FURNACE_ENGINE)
-		.renderer(() -> ctx -> new EngineRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new EngineRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<MillstoneTileEntity> MILLSTONE = Create.registrate()
 		.tileEntity("millstone", MillstoneTileEntity::new)
 		.instance(() -> MillStoneCogInstance::new)
 		.validBlocks(AllBlocks.MILLSTONE)
-		.renderer(() -> ctx -> new MillstoneRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new MillstoneRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<CrushingWheelTileEntity> CRUSHING_WHEEL = Create.registrate()
 		.tileEntity("crushing_wheel", CrushingWheelTileEntity::new)
 		.instance(() -> CutoutRotatingInstance::new)
 		.validBlocks(AllBlocks.CRUSHING_WHEEL)
-		.renderer(() -> ctx -> new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<CrushingWheelControllerTileEntity> CRUSHING_WHEEL_CONTROLLER =
@@ -514,82 +515,82 @@ public class AllTileEntities {
 		.tileEntity("water_wheel", WaterWheelTileEntity::new)
 		.instance(() -> CutoutRotatingInstance::new)
 		.validBlocks(AllBlocks.WATER_WHEEL)
-		.renderer(() -> ctx -> new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new KineticTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<MechanicalPressTileEntity> MECHANICAL_PRESS = Create.registrate()
 		.tileEntity("mechanical_press", MechanicalPressTileEntity::new)
 		.instance(() -> PressInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_PRESS)
-		.renderer(() -> ctx -> new MechanicalPressRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new MechanicalPressRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<MechanicalMixerTileEntity> MECHANICAL_MIXER = Create.registrate()
 		.tileEntity("mechanical_mixer", MechanicalMixerTileEntity::new)
 		.instance(() -> MixerInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_MIXER)
-		.renderer(() -> ctx -> new MechanicalMixerRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new MechanicalMixerRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<DeployerTileEntity> DEPLOYER = Create.registrate()
 		.tileEntity("deployer", DeployerTileEntity::new)
 		.instance(() -> DeployerInstance::new)
 		.validBlocks(AllBlocks.DEPLOYER)
-		.renderer(() -> ctx -> new DeployerRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new DeployerRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<BasinTileEntity> BASIN = Create.registrate()
 		.tileEntity("basin", BasinTileEntity::new)
 		.validBlocks(AllBlocks.BASIN)
-		.renderer(() -> ctx -> new BasinRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BasinRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<BlazeBurnerTileEntity> HEATER = Create.registrate()
 		.tileEntity("blaze_heater", BlazeBurnerTileEntity::new)
 		.validBlocks(AllBlocks.BLAZE_BURNER)
-		.renderer(() -> ctx -> new BlazeBurnerRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BlazeBurnerRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<MechanicalCrafterTileEntity> MECHANICAL_CRAFTER = Create.registrate()
 		.tileEntity("mechanical_crafter", MechanicalCrafterTileEntity::new)
 		.instance(() -> MechanicalCrafterInstance::new)
 		.validBlocks(AllBlocks.MECHANICAL_CRAFTER)
-		.renderer(() -> ctx -> new MechanicalCrafterRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new MechanicalCrafterRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<SequencedGearshiftTileEntity> SEQUENCED_GEARSHIFT = Create.registrate()
 		.tileEntity("sequenced_gearshift", SequencedGearshiftTileEntity::new)
 		.instance(() -> SplitShaftInstance::new)
 		.validBlocks(AllBlocks.SEQUENCED_GEARSHIFT)
-		.renderer(() -> ctx -> new SplitShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SplitShaftRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<SpeedControllerTileEntity> ROTATION_SPEED_CONTROLLER = Create.registrate()
 		.tileEntity("rotation_speed_controller", SpeedControllerTileEntity::new)
 		.instance(() -> ShaftInstance::new)
 		.validBlocks(AllBlocks.ROTATION_SPEED_CONTROLLER)
-		.renderer(() -> ctx -> new SpeedControllerRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SpeedControllerRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<SpeedGaugeTileEntity> SPEEDOMETER = Create.registrate()
 		.tileEntity("speedometer", SpeedGaugeTileEntity::new)
 		.instance(() -> GaugeInstance.Speed::new)
 		.validBlocks(AllBlocks.SPEEDOMETER)
-		.renderer(() -> ctx -> new GaugeRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) GaugeRenderer.speed(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<StressGaugeTileEntity> STRESSOMETER = Create.registrate()
 		.tileEntity("stressometer", StressGaugeTileEntity::new)
 		.instance(() -> GaugeInstance.Stress::new)
 		.validBlocks(AllBlocks.STRESSOMETER)
-		.renderer(() -> ctx -> new GaugeRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) GaugeRenderer.stress(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<AnalogLeverTileEntity> ANALOG_LEVER = Create.registrate()
 		.tileEntity("analog_lever", AnalogLeverTileEntity::new)
 		.instance(() -> AnalogLeverInstance::new)
 		.validBlocks(AllBlocks.ANALOG_LEVER)
-		.renderer(() -> ctx -> new AnalogLeverRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new AnalogLeverRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<CartAssemblerTileEntity> CART_ASSEMBLER = Create.registrate()
@@ -602,20 +603,20 @@ public class AllTileEntities {
 	public static final TileEntityEntry<RedstoneLinkTileEntity> REDSTONE_LINK = Create.registrate()
 		.tileEntity("redstone_link", RedstoneLinkTileEntity::new)
 		.validBlocks(AllBlocks.REDSTONE_LINK)
-		.renderer(() -> ctx -> new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<NixieTubeTileEntity> NIXIE_TUBE = Create.registrate()
 		.tileEntity("nixie_tube", NixieTubeTileEntity::new)
 		.validBlocks(AllBlocks.ORANGE_NIXIE_TUBE)
 		.validBlocks(AllBlocks.NIXIE_TUBES.toArray())
-		.renderer(() -> ctx -> new NixieTubeRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new NixieTubeRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<StockpileSwitchTileEntity> STOCKPILE_SWITCH = Create.registrate()
 		.tileEntity("stockpile_switch", StockpileSwitchTileEntity::new)
 		.validBlocks(AllBlocks.STOCKPILE_SWITCH)
-		.renderer(() -> ctx -> new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<AdjustableCrateTileEntity> ADJUSTABLE_CRATE = Create.registrate()
@@ -627,20 +628,20 @@ public class AllTileEntities {
 	public static final TileEntityEntry<CreativeCrateTileEntity> CREATIVE_CRATE = Create.registrate()
 		.tileEntity("creative_crate", CreativeCrateTileEntity::new)
 		.validBlocks(AllBlocks.CREATIVE_CRATE)
-		.renderer(() -> ctx -> new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<DepotTileEntity> DEPOT = Create.registrate()
 		.tileEntity("depot", DepotTileEntity::new)
 		.validBlocks(AllBlocks.DEPOT)
-		.renderer(() -> ctx -> new DepotRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new DepotRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<EjectorTileEntity> WEIGHTED_EJECTOR = Create.registrate()
 		.tileEntity("weighted_ejector", EjectorTileEntity::new)
 		.instance(() -> EjectorInstance::new)
 		.validBlocks(AllBlocks.WEIGHTED_EJECTOR)
-		.renderer(() -> ctx -> new EjectorRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new EjectorRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<FunnelTileEntity> FUNNEL = Create.registrate()
@@ -648,20 +649,20 @@ public class AllTileEntities {
 		.instance(() -> FunnelInstance::new)
 		.validBlocks(AllBlocks.BRASS_FUNNEL, AllBlocks.BRASS_BELT_FUNNEL, AllBlocks.ANDESITE_FUNNEL,
 			AllBlocks.ANDESITE_BELT_FUNNEL)
-		.renderer(() -> ctx -> new FunnelRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new FunnelRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<ContentObserverTileEntity> CONTENT_OBSERVER = Create.registrate()
 		.tileEntity("content_observer", ContentObserverTileEntity::new)
 		.validBlocks(AllBlocks.CONTENT_OBSERVER)
-		.renderer(() -> ctx -> new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new SmartTileEntityRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<AdjustableRepeaterTileEntity> ADJUSTABLE_REPEATER = Create.registrate()
 		.tileEntity("adjustable_repeater", AdjustableRepeaterTileEntity::new)
 		.instance(() -> AdjustableRepeaterInstance::new)
 		.validBlocks(AllBlocks.ADJUSTABLE_REPEATER)
-		.renderer(() -> ctx -> new AdjustableRepeaterRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new AdjustableRepeaterRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<AdjustablePulseRepeaterTileEntity> ADJUSTABLE_PULSE_REPEATER =
@@ -669,14 +670,14 @@ public class AllTileEntities {
 			.tileEntity("adjustable_pulse_repeater", AdjustablePulseRepeaterTileEntity::new)
 			.instance(() -> AdjustableRepeaterInstance::new)
 			.validBlocks(AllBlocks.ADJUSTABLE_PULSE_REPEATER)
-			.renderer(() -> ctx -> new AdjustableRepeaterRenderer(ctx.getBlockEntityRenderDispatcher()))
+			.renderer(() -> ctx -> (BlockEntityRenderer) new AdjustableRepeaterRenderer(ctx.getBlockEntityRenderDispatcher()))
 			.register();
 
 	public static final TileEntityEntry<LecternControllerTileEntity> LECTERN_CONTROLLER =
 		Create.registrate()
 			.tileEntity("lectern_controller", LecternControllerTileEntity::new)
 			.validBlocks(AllBlocks.LECTERN_CONTROLLER)
-			.renderer(() -> ctx -> new LecternControllerRenderer(ctx.getBlockEntityRenderDispatcher()))
+			.renderer(() -> ctx -> (BlockEntityRenderer) new LecternControllerRenderer(ctx.getBlockEntityRenderDispatcher()))
 			.register();
 
 	// Curiosities
@@ -684,25 +685,25 @@ public class AllTileEntities {
 		.tileEntity("copper_backtank", CopperBacktankTileEntity::new)
 		.instance(() -> CopperBacktankInstance::new)
 		.validBlocks(AllBlocks.COPPER_BACKTANK)
-		.renderer(() -> ctx -> new CopperBacktankRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new CopperBacktankRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<PeculiarBellTileEntity> PECULIAR_BELL = Create.registrate()
 		.tileEntity("peculiar_bell", PeculiarBellTileEntity::new)
 		.validBlocks(AllBlocks.PECULIAR_BELL)
-		.renderer(() -> ctx -> new BellRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BellRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<HauntedBellTileEntity> HAUNTED_BELL = Create.registrate()
 		.tileEntity("cursed_bell", HauntedBellTileEntity::new)
 		.validBlocks(AllBlocks.HAUNTED_BELL)
-		.renderer(() -> ctx -> new BellRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new BellRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static final TileEntityEntry<ToolboxTileEntity> TOOLBOX = Create.registrate()
 		.tileEntity("toolbox", ToolboxTileEntity::new)
 		.validBlocks(AllBlocks.TOOLBOXES.toArray())
-		.renderer(() -> ctx -> new ToolboxRenderer(ctx.getBlockEntityRenderDispatcher()))
+		.renderer(() -> ctx -> (BlockEntityRenderer) new ToolboxRenderer(ctx.getBlockEntityRenderDispatcher()))
 		.register();
 
 	public static void register() {
