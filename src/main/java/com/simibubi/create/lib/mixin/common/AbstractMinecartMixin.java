@@ -1,5 +1,7 @@
 package com.simibubi.create.lib.mixin.common;
 
+import com.simibubi.create.content.contraptions.components.structureMovement.train.capability.MinecartController;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -8,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.simibubi.create.lib.block.MinecartPassHandlerBlock;
 import com.simibubi.create.lib.extensions.AbstractMinecartExtensions;
-import com.simibubi.create.lib.utility.MinecartController;
 import com.simibubi.create.lib.utility.MixinHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -40,12 +41,12 @@ public abstract class AbstractMinecartMixin extends Entity implements AbstractMi
 
 	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V")
 	public void create$abstractMinecartEntity(EntityType<?> entityType, Level world, CallbackInfo ci) {
-		create$controller = MinecartController.InitController.initController.create(MixinHelper.cast(this));
+		create$controller = new MinecartController(MixinHelper.cast(this));
 	}
 
 	@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;DDD)V")
 	public void create$abstractMinecartEntity(EntityType<?> entityType, Level world, double d, double e, double f, CallbackInfo ci) {
-		create$controller = MinecartController.InitController.initController.create(MixinHelper.cast(this));
+		create$controller = new MinecartController(MixinHelper.cast(this));
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 4),

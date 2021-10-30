@@ -45,16 +45,11 @@ import net.minecraft.world.phys.Vec3;
  * Extended code for Minecarts, this allows for handling stalled carts and
  * coupled trains
  */
-public class MinecartController implements NBTSerializable, ListenerProvider, com.simibubi.create.lib.utility.MinecartController {
+public class MinecartController implements NBTSerializable, ListenerProvider {
 	public Set<NonNullConsumer> listeners = new HashSet<>();
 	@Override
 	public Set<NonNullConsumer> getListeners() {
 		return listeners;
-	}
-
-	@Override
-	public com.simibubi.create.lib.utility.MinecartController create(AbstractMinecart cart) {
-		return new MinecartController(cart);
 	}
 
 	public static MinecartController EMPTY;
@@ -74,9 +69,6 @@ public class MinecartController implements NBTSerializable, ListenerProvider, co
 	private Couple<Optional<CouplingData>> couplings;
 
 	public MinecartController(AbstractMinecart minecart) {
-		if (minecart == null) { // this should never be null, is only used for the InitController initialization in the MinecartController interface
-			return;
-		}
 		weakRef = new WeakReference<>(minecart);
 		stallData = Couple.create(Optional::empty);
 		couplings = Couple.create(Optional::empty);
