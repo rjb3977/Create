@@ -3,6 +3,7 @@ package com.simibubi.create.lib.utility;
 import java.util.Arrays;
 import java.util.Locale;
 
+import net.fabricmc.fabric.api.tag.TagFactory;
 import net.fabricmc.fabric.impl.tag.extension.TagDelegate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -44,6 +45,22 @@ public class TagUtil {
 	public static final Tag.Named<Item> NUGGETS = new TagDelegate<>(new ResourceLocation(COMMON, "nuggets"), ItemTags::getAllTags);
 	public static final Tag.Named<Item> PLATES = new TagDelegate<>(new ResourceLocation(COMMON, "plates"), ItemTags::getAllTags);
 	public static final Tag.Named<Item> COBBLESTONE = new TagDelegate<>(new ResourceLocation(COMMON, "cobblestone"), ItemTags::getAllTags);
+
+	// datagen tags
+
+	public static final Tag.Named<Item> INGOTS_IRON = TagFactory.ITEM.create(new ResourceLocation("c:iron_ingots"));
+	public static final Tag.Named<Item> DUSTS_GLOWSTONE = TagFactory.ITEM.create(new ResourceLocation("c:glowstone_dusts"));
+	public static final Tag.Named<Item> COBBLESTONES = TagFactory.ITEM.create(new ResourceLocation("c:cobblestones"));
+	public static final Tag.Named<Item> RODS_WOODEN = TagFactory.ITEM.create(new ResourceLocation("c:wood_sticks"));
+	public static final Tag.Named<Item> DUSTS_REDSTONE = TagFactory.ITEM.create(new ResourceLocation("c:redstone_dusts"));
+	public static final Tag.Named<Item> STONE = TagFactory.ITEM.create(new ResourceLocation("c:stone"));
+	public static final Tag.Named<Item> STAINED_GLASS = TagFactory.ITEM.create(new ResourceLocation("c:stained_glass"));
+	public static final Tag.Named<Item> STAINED_GLASS_PANES = TagFactory.ITEM.create(new ResourceLocation("c:stained_glass_panes"));
+	public static final Tag.Named<Item> EGGS = TagFactory.ITEM.create(new ResourceLocation("c:eggs"));
+
+	// Don't use these tags as they are here since more than one of common tags exists for them
+//	public static final Tag.Named<Item> STICK_OTHER = TagFactory.ITEM.create(new ResourceLocation("c:wooden_rods"));
+//	public static final Tag.Named<Item> STONE_OTHER = TagFactory.ITEM.create(new ResourceLocation("c:stones"));
 
 	// TIC compat
 	public static final Tag.Named<Block> SLIMY_LOGS = new TagDelegate<>(new ResourceLocation(TIC, "slimy_logs"), BlockTags::getAllTags);

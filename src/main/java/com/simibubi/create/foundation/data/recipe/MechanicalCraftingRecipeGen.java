@@ -6,7 +6,8 @@ import com.google.common.base.Supplier;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
-import com.simibubi.create.lib.data.Tags;
+
+import com.simibubi.create.lib.utility.TagUtil;
 
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
@@ -35,7 +36,7 @@ public class MechanicalCraftingRecipeGen extends CreateRecipeProvider {
 			.recipe(b -> b.key('L', Ingredient.of(I.brass()))
 				.key('R', I.precisionMechanism())
 				.key('H', AllItems.BRASS_HAND.get())
-				.key('S', Ingredient.of(Tags.Items.RODS_WOODEN))
+				.key('S', Ingredient.of(TagUtil.RODS_WOODEN))
 				.patternLine(" L ")
 				.patternLine(" R ")
 				.patternLine("SSS")

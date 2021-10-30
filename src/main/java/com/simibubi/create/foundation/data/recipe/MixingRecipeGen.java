@@ -1,10 +1,12 @@
 package com.simibubi.create.foundation.data.recipe;
+
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.content.contraptions.processing.HeatCondition;
-import com.simibubi.create.lib.data.Tags;
+
+import com.simibubi.create.lib.utility.TagUtil;
 
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tags.ItemTags;
@@ -16,17 +18,17 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 
 	GeneratedRecipe
 
-	TEMP_LAVA = create("lava_from_cobble", b -> b.require(Tags.Items.COBBLESTONE)
+	TEMP_LAVA = create("lava_from_cobble", b -> b.require(TagUtil.COBBLESTONE)
 		.output(Fluids.LAVA, 50)
 		.requiresHeat(HeatCondition.SUPERHEATED)),
 
 		TEA = create("tea", b -> b.require(Fluids.WATER, 250)
-			.require(Tags.Fluids.MILK, 250)
+			.require(TagUtil.MILK, 250)
 			.require(ItemTags.LEAVES)
 			.output(AllFluids.TEA.get(), 500)
 			.requiresHeat(HeatCondition.HEATED)),
 
-		CHOCOLATE = create("chocolate", b -> b.require(Tags.Fluids.MILK, 250)
+		CHOCOLATE = create("chocolate", b -> b.require(TagUtil.MILK, 250)
 			.require(Items.SUGAR)
 			.require(Items.COCOA_BEANS)
 			.output(AllFluids.CHOCOLATE.get(), 250)
@@ -54,9 +56,9 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 			.output(AllItems.CRUSHED_BRASS.get(), 2)
 			.requiresHeat(HeatCondition.HEATED)),
 
-		CHROMATIC_COMPOUND = create("chromatic_compound", b -> b.require(Tags.Items.DUSTS_GLOWSTONE)
-			.require(Tags.Items.DUSTS_GLOWSTONE)
-			.require(Tags.Items.DUSTS_GLOWSTONE)
+		CHROMATIC_COMPOUND = create("chromatic_compound", b -> b.require(TagUtil.DUSTS_GLOWSTONE)
+			.require(TagUtil.DUSTS_GLOWSTONE)
+			.require(TagUtil.DUSTS_GLOWSTONE)
 			.require(AllItems.POWDERED_OBSIDIAN.get())
 			.require(AllItems.POWDERED_OBSIDIAN.get())
 			.require(AllItems.POWDERED_OBSIDIAN.get())

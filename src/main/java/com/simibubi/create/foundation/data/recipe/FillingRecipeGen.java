@@ -5,7 +5,8 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllTags.AllFluidTags;
 import com.simibubi.create.content.contraptions.fluids.potion.PotionFluidHandler;
-import com.simibubi.create.lib.data.Tags;
+
+import com.simibubi.create.lib.utility.TagUtil;
 
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Items;
@@ -32,7 +33,7 @@ public class FillingRecipeGen extends ProcessingRecipeGen {
 			.require(Items.APPLE)
 			.output(AllItems.HONEYED_APPLE.get())),
 
-		SWEET_ROLL = create("sweet_roll", b -> b.require(Tags.Fluids.MILK, 250)
+		SWEET_ROLL = create("sweet_roll", b -> b.require(TagUtil.MILK, 250)
 			.require(Items.BREAD)
 			.output(AllItems.SWEET_ROLL.get())),
 

@@ -15,6 +15,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ServerPlayerConnection;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagContainer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BasePressurePlateBlock;
@@ -83,7 +84,7 @@ public class BlockMovementChecks {
 	private static final List<BrittleCheck> BRITTLE_CHECKS = new ArrayList<>();
 	private static final List<AttachedCheck> ATTACHED_CHECKS = new ArrayList<>();
 	private static final List<NotSupportiveCheck> NOT_SUPPORTIVE_CHECKS = new ArrayList<>();
-	public static final ResourceLocation NON_MOVABLE = Create.asResource("non_movable");
+	public static final Tag<Block> NON_MOVABLE = TagUtil.NON_MOVABLE;
 
 	// Registration
 	// Add new checks to the front instead of the end
@@ -203,7 +204,7 @@ public class BlockMovementChecks {
 		if (state.getDestroySpeed(world, pos) == -1)
 			return false;
 
-		if (TagUtil.NON_MOVABLE.contains(state.getBlock()))
+		if (NON_MOVABLE.contains(state.getBlock()))
 			return false;
 		if (ContraptionMovementSetting.get(state.getBlock()) == ContraptionMovementSetting.UNMOVABLE)
 			return false;

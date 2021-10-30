@@ -48,8 +48,8 @@ public class AllTags {
 	}
 
 	public static Tag.Named<Item> forgeItemTag(String path) {
-		String[] tag = path.split("/");
-		return forgeTag(ItemTagsAccessor::callBind, tag[1] + "_" + tag[0]);
+//		String[] tag = path.split("/");
+		return forgeTag(ItemTagsAccessor::callBind, /*tag[1] + "_" + tag[0]*/path);
 	}
 
 	public static Tag.Named<Fluid> forgeFluidTag(String path) {

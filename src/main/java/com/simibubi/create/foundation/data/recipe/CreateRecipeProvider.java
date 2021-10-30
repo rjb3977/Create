@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags;
-import com.simibubi.create.foundation.data.recipe.CreateRecipeProvider.GeneratedRecipe;
-import com.simibubi.create.lib.data.Tags;
+
+import com.simibubi.create.lib.utility.TagUtil;
 
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -48,7 +48,7 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 	protected static class I {
 
 		static Tag.Named<Item> redstone() {
-			return Tags.Items.DUSTS_REDSTONE;
+			return TagUtil.DUSTS_REDSTONE;
 		}
 
 		static Tag.Named<Item> planks() {
@@ -68,7 +68,7 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 		}
 
 		static Tag.Named<Item> stone() {
-			return Tags.Items.STONE;
+			return TagUtil.STONE;
 		}
 
 		static ItemLike andesite() {
@@ -100,7 +100,7 @@ public abstract class CreateRecipeProvider extends RecipeProvider {
 		}
 
 		static Tag.Named<Item> iron() {
-			return Tags.Items.INGOTS_IRON;
+			return TagUtil.INGOTS_IRON;
 		}
 
 		static Tag.Named<Item> ironNugget() {

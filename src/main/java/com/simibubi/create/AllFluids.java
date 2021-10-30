@@ -30,7 +30,7 @@ public class AllFluids {
 
 	public static final FluidEntry<VirtualFluid> TEA = REGISTRATE.virtualFluid("tea")
 			.lang(f -> "fluid.create.tea", "Builder's Tea")
-//			.tag(AllTags.forgeFluidTag("tea"))
+			.tag(AllTags.forgeFluidTag("tea"))
 			.register();
 
 	public static final FluidEntry<VirtualFluid> HONEY =
@@ -42,16 +42,13 @@ public class AllFluids {
 							.tickRate(25)
 							.levelDecreasePerBlock(3)
 							.blastResistance(100f))
-//					.tag(AllFluidTags.HONEY.tag)
-					.bucket()
-					.tag(AllTags.forgeItemTag("buckets/honey"))
-					.build()
+					.tag(AllFluidTags.HONEY.tag)
 					.register();
 
 	public static final FluidEntry<SimpleFlowableFluid.Flowing> CHOCOLATE =
 			REGISTRATE.standardFluid("chocolate"/*, NoColorFluidAttributes::new*/)
 					.lang(f -> "fluid.create.chocolate", "Chocolate")
-//					.tag(AllTags.forgeFluidTag("chocolate"))
+					.tag(AllTags.forgeFluidTag("chocolate"))
 //					.attributes(b -> b.viscosity(1500)
 //							.density(1400))
 					.properties(p -> p.levelDecreasePerBlock(2)

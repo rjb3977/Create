@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.palettes.AllPaletteBlocks;
-import com.simibubi.create.lib.data.Tags;
+import com.simibubi.create.lib.utility.TagUtil;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.data.DataGenerator;
@@ -33,9 +33,9 @@ public class WashingRecipeGen extends ProcessingRecipeGen {
 	WOOL = create("wool", b -> b.require(ItemTags.WOOL)
 		.output(Items.WHITE_WOOL)),
 
-		STAINED_GLASS = create("stained_glass", b -> b.require(Tags.Items.STAINED_GLASS)
+		STAINED_GLASS = create("stained_glass", b -> b.require(TagUtil.STAINED_GLASS)
 			.output(Items.GLASS)),
-		STAINED_GLASS_PANE = create("stained_glass_pane", b -> b.require(Tags.Items.STAINED_GLASS_PANES)
+		STAINED_GLASS_PANE = create("stained_glass_pane", b -> b.require(TagUtil.STAINED_GLASS_PANES)
 			.output(Items.GLASS_PANE)),
 
 		GRAVEL = create(() -> Blocks.GRAVEL, b -> b.output(.25f, Items.FLINT)

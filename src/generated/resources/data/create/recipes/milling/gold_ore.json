@@ -1,0 +1,23 @@
+{
+  "type": "create:milling",
+  "ingredients": [
+    {
+      "tag": "c:ores/gold"
+    }
+  ],
+  "results": [
+    {
+      "item": "create:crushed_gold_ore"
+    }
+  ],
+  "processingTime": 300,
+  "conditions": [
+    {
+      "value": {
+        "tag": "c:ores/gold",
+        "type": "forge:tag_empty"
+      },
+      "type": "forge:not"
+    }
+  ]
+}
