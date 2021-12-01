@@ -86,13 +86,13 @@ public class SoulPulseEffect {
 		return world != null
 			&& NaturalSpawner
 				.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, world, at, dummy)
-			&& (ignoreLight || isDark(world, at))
-			&& world
+			&& (ignoreLight || isDark(world, at)) // todo: 1.18
+			/*&& world
 				.getBlockCollisions(null,
 					new AABB(at.getX() + 0.5 - w2, at.getY(), at.getZ() + 0.5 - w2, at.getX() + 0.5 + w2,
 						at.getY() + dummyHeight, at.getZ() + 0.5 + w2),
 					(a, b) -> true)
-				.allMatch(VoxelShape::isEmpty);
+				.allMatch(VoxelShape::isEmpty)*/;
 	}
 
 	public void spawnParticles(Level world, BlockPos at) {

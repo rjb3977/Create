@@ -83,13 +83,14 @@ public abstract class SmartTileEntity extends SyncedTileEntity implements IParti
 	}
 
 	@Override
-	public final CompoundTag save(CompoundTag compound) {
+	public final void saveAdditional(CompoundTag compound) {
 		write(compound, false);
-		return compound;
 	}
 
 	@Override
-	public final CompoundTag writeToClient(CompoundTag compound) {
+	public final CompoundTag writeToClient() {
+		// todo: 1.18 (refine this)
+		CompoundTag compound = new CompoundTag();
 		write(compound, true);
 		return compound;
 	}

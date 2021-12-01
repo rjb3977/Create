@@ -192,21 +192,22 @@ public class FluidFillingBehaviour extends FluidManipulationBehaviour {
 					}
 
 					LevelTickAccess<Fluid> pendingFluidTicks = world.getFluidTicks();
-					if (pendingFluidTicks instanceof ServerTickList) {
-						ServerTickListAccessor<Fluid> accessor = (ServerTickListAccessor<Fluid>) pendingFluidTicks;
-						TickNextTickData<Fluid> removedEntry = null;
-						for (TickNextTickData<Fluid> nextTickListEntry : accessor.getTickNextTickSet()) {
-							if (nextTickListEntry.pos.equals(currentPos)) {
-								removedEntry = nextTickListEntry;
-								break;
-							}
-						}
-
-						if (removedEntry != null) {
-							accessor.getTickNextTickSet().remove(removedEntry);
-							accessor.getTickNextTickSet().remove(removedEntry);
-						}
-					}
+					// todo: 1.18
+//					if (pendingFluidTicks instanceof ServerTickList) {
+//						ServerTickListAccessor<Fluid> accessor = (ServerTickListAccessor<Fluid>) pendingFluidTicks;
+//						TickNextTickData<Fluid> removedEntry = null;
+//						for (TickNextTickData<Fluid> nextTickListEntry : accessor.getTickNextTickSet()) {
+//							if (nextTickListEntry.pos.equals(currentPos)) {
+//								removedEntry = nextTickListEntry;
+//								break;
+//							}
+//						}
+//
+//						if (removedEntry != null) {
+//							accessor.getTickNextTickSet().remove(removedEntry);
+//							accessor.getTickNextTickSet().remove(removedEntry);
+//						}
+//					}
 
 					affectedArea.encapsulate(BoundingBox.fromCorners(currentPos, currentPos));
 				}

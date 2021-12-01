@@ -197,12 +197,13 @@ public class BlockHelper {
 		int k = target.getZ() & 15;
 		LevelChunk chunk = world.getChunkAt(target);
 		LevelChunkSection chunksection = chunk.getSections()[j >> 4];
-		if (chunksection == LevelChunk.EMPTY_SECTION) {
-			chunksection = new LevelChunkSection(j >> 4 << 4);
-			chunk.getSections()[j >> 4] = chunksection;
-		}
-		BlockState old = chunksection.setBlockState(i, j & 15, k, state);
-		chunk.markUnsaved();
+		// todo: 1.18
+//		if (chunksection == LevelChunk.EMPTY_SECTION) {
+//			chunksection = new LevelChunkSection(j >> 4 << 4);
+//			chunk.getSections()[j >> 4] = chunksection;
+//		}
+//		BlockState old = chunksection.setBlockState(i, j & 15, k, state);
+//		chunk.markUnsaved();
 //		world.markAndNotifyBlock(target, chunk, old, state, 82, 512);
 
 		world.setBlock(target, state, 82);

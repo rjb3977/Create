@@ -39,7 +39,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RewindableStream;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -126,11 +125,12 @@ public class ContraptionCollider {
 
 				// Else find 'nearby' individual block shapes to collide with
 				List<AABB> bbs = new ArrayList<>();
-				RewindableStream<VoxelShape> potentialHits =
-					getPotentiallyCollidedShapes(world, contraption, localBB.expandTowards(motionCopy));
-				potentialHits.getStream()
-					.forEach(shape -> shape.toAabbs()
-						.forEach(bbs::add));
+				// todo: 1.18
+//				RewindableStream<VoxelShape> potentialHits =
+//					getPotentiallyCollidedShapes(world, contraption, localBB.expandTowards(motionCopy));
+//				potentialHits.getStream()
+//					.forEach(shape -> shape.toAabbs()
+//						.forEach(bbs::add));
 				return bbs;
 
 			});
@@ -455,19 +455,20 @@ public class ContraptionCollider {
 		BlockPos min = new BlockPos(blockScanBB.minX, blockScanBB.minY, blockScanBB.minZ);
 		BlockPos max = new BlockPos(blockScanBB.maxX, blockScanBB.maxY, blockScanBB.maxZ);
 
-		RewindableStream<VoxelShape> potentialHits = new RewindableStream<>(BlockPos.betweenClosedStream(min, max)
-			.filter(contraption.getBlocks()::containsKey)
-			.map(p -> {
-				BlockState blockState = contraption.getBlocks()
-					.get(p).state;
-				BlockPos pos = contraption.getBlocks()
-					.get(p).pos;
-				VoxelShape collisionShape = blockState.getCollisionShape(world, p);
-				return collisionShape.move(pos.getX(), pos.getY(), pos.getZ());
-			})
-			.filter(Predicates.not(VoxelShape::isEmpty)));
+		// todo: 1.18
+//		RewindableStream<VoxelShape> potentialHits = new RewindableStream<>(BlockPos.betweenClosedStream(min, max)
+//			.filter(contraption.getBlocks()::containsKey)
+//			.map(p -> {
+//				BlockState blockState = contraption.getBlocks()
+//					.get(p).state;
+//				BlockPos pos = contraption.getBlocks()
+//					.get(p).pos;
+//				VoxelShape collisionShape = blockState.getCollisionShape(world, p);
+//				return collisionShape.move(pos.getX(), pos.getY(), pos.getZ());
+//			})
+//			.filter(Predicates.not(VoxelShape::isEmpty)));
 
-		return potentialHits;
+		return new ArrayList<>();
 	}
 
 	public static boolean collideBlocks(AbstractContraptionEntity contraptionEntity) {

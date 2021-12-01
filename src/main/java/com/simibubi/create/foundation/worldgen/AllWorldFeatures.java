@@ -58,12 +58,13 @@ public class AllWorldFeatures {
 	public static void registerFeatures() {
 		// ForgeRegistries.FEATURES.register(ConfigDrivenOreFeature.INSTANCE);
 		// ForgeRegistries.DECORATORS.register(ConfigDrivenDecorator.INSTANCE);
-		entries.entrySet()
-			.forEach(entry -> {
-				Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, Create.ID + "_" + entry.getKey(),
-					entry.getValue()
-						.getFeature());
-			});
+		// todo: 1.18
+//		entries.entrySet()
+//			.forEach(entry -> {
+//				Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, Create.ID + "_" + entry.getKey(),
+//					entry.getValue()
+//						.getFeature());
+//			});
 	}
 
 	public static BiomeGenerationSettings.Builder reload(ResourceLocation key, Biome.BiomeCategory category, BiomeGenerationSettings.Builder generation) {
@@ -73,8 +74,9 @@ public class AllWorldFeatures {
 					return;
 				if (category == BiomeCategory.NETHER)
 					return;
-				generation
-					.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, entry.getFeature());
+				// todo: 1.18
+//				generation
+//					.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, entry.getFeature());
 			});
 		return generation;
 	}
@@ -95,6 +97,7 @@ public class AllWorldFeatures {
 	}
 
 	public static void registerDecoratorFeatures() {
-		Registry.register(Registry.DECORATOR, ConfigDrivenDecorator.ID, ConfigDrivenDecorator.INSTANCE);
+		// todo: 1.18
+		//Registry.register(Registry.DECORATOR, ConfigDrivenDecorator.ID, ConfigDrivenDecorator.INSTANCE);
 	}
 }

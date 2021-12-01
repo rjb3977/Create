@@ -31,7 +31,6 @@
     "accessor.ServerGamePacketListenerImplAccessor",
     "accessor.ServerPlayerAccessor",
     "accessor.ServerPlayerGameModeAccessor",
-    "accessor.ServerTickListAccessor",
     "accessor.SlotAccessor",
     "accessor.StairBlockAccessor",
     "accessor.StructureTemplateAccessor",

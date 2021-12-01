@@ -208,12 +208,12 @@ public class SchematicWorld extends WrappedWorld implements ServerLevelAccessor 
 
 	@Override
 	public LevelTickAccess<Block> getBlockTicks() {
-		return new LevelChunkTicks<Block>();
+		return null;
 	}
 
 	@Override
 	public LevelTickAccess<Fluid> getFluidTicks() {
-		return EmptyTickList.empty();
+		return null;
 	}
 
 	public BoundingBox getBounds() {

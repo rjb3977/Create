@@ -38,19 +38,20 @@ public class ChunkUtil {
 	}
 
 	public void init() {
-		ChunkStatusAccessor.create$setFull(ChunkStatusAccessor.newChunkStatus("full", ChunkStatus.HEIGHTMAPS, 0, POST_FEATURES, ChunkStatus.ChunkType.LEVELCHUNK,
-				(_0, _1, _2, _3, _4, _5, future, _7, chunk) -> future.apply(chunk), (_0, _1, _2, _3, future, chunk) -> {
-					if (markedChunks.contains(chunk.getPos()
-							.toLong())) {
-						LOGGER.debug("trying to load unforced chunk " + chunk.getPos()
-								.toString() + ", returning chunk loading error");
-						// this.reloadChunk(world.getChunkProvider(), chunk.getPos());
-						return ChunkHolder.UNLOADED_CHUNK_FUTURE;
-					} else {
-						// LOGGER.debug("regular, chunkStatus: " + chunk.getStatus().toString());
-						return future.apply(chunk);
-					}
-				}));
+		// todo: 1.18
+//		ChunkStatusAccessor.create$setFull(ChunkStatusAccessor.newChunkStatus("full", ChunkStatus.HEIGHTMAPS, 0, POST_FEATURES, ChunkStatus.ChunkType.LEVELCHUNK,
+//				(_0, _1, _2, _3, _4, _5, future, chunk) -> future.apply(chunk), (_0, _1, _2, _3, future, chunk) -> {
+//					if (markedChunks.contains(chunk.getPos()
+//							.toLong())) {
+//						LOGGER.debug("trying to load unforced chunk " + chunk.getPos()
+//								.toString() + ", returning chunk loading error");
+//						// this.reloadChunk(world.getChunkProvider(), chunk.getPos());
+//						return ChunkHolder.UNLOADED_CHUNK_FUTURE;
+//					} else {
+//						// LOGGER.debug("regular, chunkStatus: " + chunk.getStatus().toString());
+//						return future.apply(chunk);
+//					}
+//				}));
 	}
 
 	public void fabricInitEvents() {

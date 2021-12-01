@@ -23,7 +23,7 @@ public abstract class BiomeMixin {
 	private BiomeGenerationSettings generationSettings;
 
 	@Inject(at = @At("TAIL"), method = "<init>")
-	public void create$biomeInit(Biome.ClimateSettings climate, Biome.BiomeCategory category, float f, float g, BiomeSpecialEffects biomeAmbience, BiomeGenerationSettings biomeGenerationSettings, MobSpawnSettings mobSpawnInfo, CallbackInfo ci) {
+	public void create$biomeInit(Biome.ClimateSettings climateSettings, Biome.BiomeCategory biomeCategory, BiomeSpecialEffects biomeSpecialEffects, BiomeGenerationSettings biomeGenerationSettings, MobSpawnSettings mobSpawnSettings, CallbackInfo ci) {
 		ResourceLocation key = BuiltinRegistries.BIOME.getKey((Biome) (Object) this); // dunno
 //		this.generationSettings = BiomeLoadingCallback.EVENT.invoker().onBiomeLoad(key, category, BiomeUtil.settingsToBuilder(biomeGenerationSettings)).build();
 	}

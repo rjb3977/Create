@@ -41,7 +41,7 @@ public class WrappedClientWorld extends ClientLevel {
 	protected Level world;
 
 	private WrappedClientWorld(Level world) {
-		super(mc.getConnection(), mc.level.getLevelData(), world.dimension(), world.dimensionType(), ((ClientPacketListenerAccessor) mc.getConnection()).create$serverChunkRadius(), world.getProfilerSupplier(), mc.levelRenderer, world.isDebug(), ((BiomeManagerAccessor) world.getBiomeManager()).create$biomeZoomSeed());
+		super(mc.getConnection(), mc.level.getLevelData(), world.dimension(), world.dimensionType(), ((ClientPacketListenerAccessor) mc.getConnection()).create$serverChunkRadius(), 12, world.getProfilerSupplier(), mc.levelRenderer, world.isDebug(), ((BiomeManagerAccessor) world.getBiomeManager()).create$biomeZoomSeed());
 		this.world = world;
 	}
 
@@ -60,14 +60,15 @@ public class WrappedClientWorld extends ClientLevel {
 	}
 
 	@Override
-	public Stream<VoxelShape> getBlockCollisions(@Nullable Entity entity, AABB AABB) {
+	public Iterable<VoxelShape> getBlockCollisions(@Nullable Entity entity, AABB AABB) {
 		return world.getBlockCollisions(entity, AABB);
 	}
 
-	@Override
-	public Stream<VoxelShape> getBlockCollisions(@Nullable Entity entity, AABB AABB, BiPredicate<BlockState, BlockPos> blockStateBlockPosBiPredicate) {
-		return world.getBlockCollisions(entity, AABB, blockStateBlockPosBiPredicate);
-	}
+	// todo: 1.18
+//	@Override
+//	public Stream<VoxelShape> getBlockCollisions(@Nullable Entity entity, AABB AABB, BiPredicate<BlockState, BlockPos> blockStateBlockPosBiPredicate) {
+//		return world.getBlockCollisions(entity, AABB, blockStateBlockPosBiPredicate);
+//	}
 
 	@Override
 	public BlockState getBlockState(BlockPos pos) {

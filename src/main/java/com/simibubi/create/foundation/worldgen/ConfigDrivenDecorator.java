@@ -9,38 +9,37 @@ import com.simibubi.create.Create;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.placement.DecorationContext;
-import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
 
-public class ConfigDrivenDecorator extends FeatureDecorator<ConfigDrivenOreFeatureConfig> {
+// todo: 1.18 crab
+public class ConfigDrivenDecorator /*extends FeatureDecorator<ConfigDrivenOreFeatureConfig>*/ {
 
 	public static final ConfigDrivenDecorator INSTANCE = new ConfigDrivenDecorator();
 	public static final ResourceLocation ID = new ResourceLocation(Create.ID, "config_driven_decorator");
 
 	public ConfigDrivenDecorator() {
-		super(ConfigDrivenOreFeatureConfig.CODEC);
+//		super(ConfigDrivenOreFeatureConfig.CODEC);
 	}
 
-	@Override
-	public Stream<BlockPos> getPositions(DecorationContext context, Random random, ConfigDrivenOreFeatureConfig config, BlockPos pos) {
-		float frequency = config.getFrequency();
-
-		int floored = Mth.floor(frequency);
-		int count = floored + (random.nextFloat() < frequency - floored ? 1 : 0);
-		if (count == 0)
-			return Stream.empty();
-
-		int maxY = config.getMaxY();
-		int minY = config.getMinY();
-
-		return IntStream.range(0, count)
-			.mapToObj($ -> pos)
-			.map(p -> {
-				int i = p.getX();
-				int j = p.getZ();
-				int k = random.nextInt(maxY - minY) + minY;
-				return new BlockPos(i, k, j);
-			});
-	}
+//	@Override
+//	public Stream<BlockPos> getPositions(DecorationContext context, Random random, ConfigDrivenOreFeatureConfig config, BlockPos pos) {
+//		float frequency = config.getFrequency();
+//
+//		int floored = Mth.floor(frequency);
+//		int count = floored + (random.nextFloat() < frequency - floored ? 1 : 0);
+//		if (count == 0)
+//			return Stream.empty();
+//
+//		int maxY = config.getMaxY();
+//		int minY = config.getMinY();
+//
+//		return IntStream.range(0, count)
+//			.mapToObj($ -> pos)
+//			.map(p -> {
+//				int i = p.getX();
+//				int j = p.getZ();
+//				int k = random.nextInt(maxY - minY) + minY;
+//				return new BlockPos(i, k, j);
+//			});
+//	}
 
 }

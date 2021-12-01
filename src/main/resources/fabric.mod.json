@@ -39,7 +39,7 @@
       "com.simibubi.create.foundation.config.CWorldGen"
     ],
     "rei": [
-      "com.simibubi.create.compat.jei.CreateJEI"
+
     ]
   },
 
@@ -50,9 +50,9 @@
   "accessWidener": "create.accesswidener",
 
   "depends": {
-    "fabricloader": ">=0.7.4",
+    "fabricloader": ">=0.12.0",
     "fabric": "*",
-    "minecraft": "1.17.x",
+    "minecraft": "1.18.x",
     "registrate": "*"
   }
 }

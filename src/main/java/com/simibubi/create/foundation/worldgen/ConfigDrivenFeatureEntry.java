@@ -41,19 +41,21 @@ public class ConfigDrivenFeatureEntry extends ConfigBase {
 	}
 
 	public ConfiguredFeature<?, ?> getFeature() {
-		if (!feature.isPresent())
-			feature = Optional.of(createFeature());
+		// todo: 1.18
+//		if (!feature.isPresent())
+//			feature = Optional.of(createFeature());
 		return feature.get();
 	}
 
-	private ConfiguredFeature<?, ?> createFeature() {
-		ConfigDrivenOreFeatureConfig config =
-			new ConfigDrivenOreFeatureConfig(Predicates.NATURAL_STONE, block.get()
-				.defaultBlockState(), id);
-
-		return ConfigDrivenOreFeature.INSTANCE.configured(config)
-			.decorated(ConfigDrivenDecorator.INSTANCE.configured(config));
-	}
+	// todo: 1.18
+//	private ConfiguredFeature<?, ?> createFeature() {
+//		ConfigDrivenOreFeatureConfig config =
+//			new ConfigDrivenOreFeatureConfig(Predicates.NATURAL_STONE, block.get()
+//				.defaultBlockState(), id);
+//
+//		return ConfigDrivenOreFeature.INSTANCE.configured(config)
+//			.decorated(ConfigDrivenDecorator.INSTANCE.configured(config));
+//	}
 
 	public void addToConfig(ConfigSpec builder) {
 		registerAll(builder);

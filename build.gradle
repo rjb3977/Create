@@ -65,10 +65,10 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${project.loader_version}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
-    modImplementation(include("com.tterrag:registrate-fabric:${project.registrate_version}"))
+    modImplementation(include("com.tterrag:Registrate-Fabric:${project.registrate_version}"))
     modImplementation(include("com.jozufozu.flywheel:Flywheel:${project.flywheel_version}"))
     modImplementation(include("com.jamieswhiteshirt:reach-entity-attributes:${project.reach_entity_attributes_version}"))
-    modImplementation(include("net.devtech:arrp:${project.arrp_version}"))
+    //modImplementation(include("net.devtech:arrp:${project.arrp_version}"))
     implementation(include("com.electronwill.night-config:core:3.6.5"))
     implementation(include("com.electronwill.night-config:toml:3.6.5"))
 

@@ -47,7 +47,7 @@ public abstract class SyncedTileEntity extends BlockEntity implements BlockEntit
 
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
-		return new ClientboundBlockEntityDataPacket(getBlockPos(), 0, writeToClient(new CompoundTag()));
+		return new ClientboundBlockEntityDataPacket(getBlockPos(), getType(), writeToClient());
 	}
 
 	@Override
@@ -61,8 +61,8 @@ public abstract class SyncedTileEntity extends BlockEntity implements BlockEntit
 	}
 
 	// Special handling for client update packets
-	public CompoundTag writeToClient(CompoundTag tag) {
-		return save(tag);
+	public CompoundTag writeToClient() {
+		return saveWithFullMetadata();
 	}
 
 	public void notifyUpdate() {

@@ -861,25 +861,26 @@ public abstract class Contraption {
 
 	private CompoundTag writeBlocksCompound() {
 		CompoundTag compound = new CompoundTag();
-		HashMapPalette<BlockState> palette = new HashMapPalette<>(new IdMapper<>(), 16, (i, s) -> { // fixme, this is very deeply
-			throw new IllegalStateException("Palette Map index exceeded maximum");								// integrated into forge and
-		}, NbtUtils::readBlockState, NbtUtils::writeBlockState);													// probably broken
-		ListTag blockList = new ListTag();
-
-		for (StructureBlockInfo block : this.blocks.values()) {
-			int id = palette.idFor(block.state);
-			CompoundTag c = new CompoundTag();
-			c.putLong("Pos", block.pos.asLong());
-			c.putInt("State", id);
-			if (block.nbt != null)
-				c.put("Data", block.nbt);
-			blockList.add(c);
-		}
-
-		ListTag paletteNBT = new ListTag();
-		palette.write(paletteNBT);
-		compound.put("Palette", paletteNBT);
-		compound.put("BlockList", blockList);
+		// todo: 1.18
+//		HashMapPalette<BlockState> palette = new HashMapPalette<>(new IdMapper<>(), 16, (i, s) -> { // fixme, this is very deeply
+//			throw new IllegalStateException("Palette Map index exceeded maximum");								// integrated into forge and
+//		}, NbtUtils::readBlockState, NbtUtils::writeBlockState);													// probably broken
+//		ListTag blockList = new ListTag();
+//
+//		for (StructureBlockInfo block : this.blocks.values()) {
+//			int id = palette.idFor(block.state);
+//			CompoundTag c = new CompoundTag();
+//			c.putLong("Pos", block.pos.asLong());
+//			c.putInt("State", id);
+//			if (block.nbt != null)
+//				c.put("Data", block.nbt);
+//			blockList.add(c);
+//		}
+//
+//		ListTag paletteNBT = new ListTag();
+//		palette.write(paletteNBT);
+//		compound.put("Palette", paletteNBT);
+//		compound.put("BlockList", blockList);
 
 		return compound;
 	}
@@ -889,10 +890,11 @@ public abstract class Contraption {
 		ListTag blockList;
 		if (usePalettedDeserialization) {
 			CompoundTag c = ((CompoundTag) compound);
-			palette = new HashMapPalette<>(new IdMapper<>(), 16, (i, s) -> { // see above comment
-				throw new IllegalStateException("Palette Map index exceeded maximum");
-			}, NbtUtils::readBlockState, NbtUtils::writeBlockState);
-			palette.read(c.getList("Palette", 10));
+//			palette = new HashMapPalette<>(new IdMapper<>(), 16, (i, s) -> { // see above comment
+//				throw new IllegalStateException("Palette Map index exceeded maximum");
+//			}, NbtUtils::readBlockState, NbtUtils::writeBlockState);
+			// todo: 1.18 ^ \/
+			//palette.read(c.getList("Palette", 10));
 
 			blockList = c.getList("BlockList", 10);
 		} else {
