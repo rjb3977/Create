@@ -7,6 +7,8 @@ import com.simibubi.create.lib.condition.NotCondition;
 import com.simibubi.create.lib.condition.TagEmptyCondition;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
@@ -144,7 +146,7 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 			.output(.125f, Blocks.COBBLESTONE));
 	}
 
-	public CrushingRecipeGen(DataGenerator p_i48262_1_) {
+	public CrushingRecipeGen(FabricDataGenerator p_i48262_1_) {
 		super(p_i48262_1_);
 	}
 

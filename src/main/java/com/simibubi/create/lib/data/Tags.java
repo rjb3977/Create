@@ -18,7 +18,7 @@ import net.minecraft.world.level.material.Fluid;
 //TODO: IMPLEMENT ALL THESE TAGS WITH COMMON ONES
 public class Tags {
 	public static class Items {
-        public static Tag.Named<Item> tag(String id) {
+		public static Tag.Named<Item> tag(String id) {
 			return TagFactory.ITEM.create(new ResourceLocation("c", id));
 		}
 		public static final Tag.Named<Item> STONE = tag("stone");
@@ -42,7 +42,19 @@ public class Tags {
 		public static final Tag.Named<Item> COPPER_PLATES = tag("copper_plates");
 		public static final Tag.Named<Item> OBSIDIAN = tag("");
 		public static final Tag.Named<Item> STORAGE_BLOCKS = tag("");
-
+		public static final Tag.Named<Item> LEATHER = tag("");
+		public static final Tag.Named<Item> CHESTS_WOODEN = tag("");
+		public static final Tag.Named<Item> GLASS = tag("");
+		public static final Tag.Named<Item> STRING = tag("");
+		public static final Tag.Named<Item> GEMS_QUARTZ = tag("");
+		public static final Tag.Named<Item> SAND_COLORLESS = tag("");
+		public static final Tag.Named<Item> SAND_RED = tag("");
+		public static final Tag.Named<Item> GLASS_PANES_WHITE = tag("");
+		public static final Tag.Named<Item> DYES_LIME = tag("");
+		public static final Tag.Named<Item> DYES_BLACK = tag("");
+		public static final Tag.Named<Item> DYES_LIGHT_BLUE = tag("");
+		public static final Tag.Named<Item> FEATHERS = tag("");
+		public static final Tag.Named<Item> GUNPOWDER = tag("");
 	}
 	public static class Blocks {
 		public static Tag.Named<Block> tag(String id) {

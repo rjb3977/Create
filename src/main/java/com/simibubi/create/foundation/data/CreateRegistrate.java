@@ -39,7 +39,6 @@ import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -212,13 +211,15 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 		return entry -> onClient(() -> () -> registerBlockVertexColor(entry, colorFunc));
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static <T extends Block> NonNullConsumer<? super T> blockModel(
-		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		Supplier<NonNullFunction<net.minecraft.client.resources.model.BakedModel, ? extends net.minecraft.client.resources.model.BakedModel>> func) {
 		return entry -> onClient(() -> () -> registerBlockModel(entry, func));
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static <T extends Item> NonNullConsumer<? super T> itemModel(
-		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		Supplier<NonNullFunction<net.minecraft.client.resources.model.BakedModel, ? extends net.minecraft.client.resources.model.BakedModel>> func) {
 		return entry -> onClient(() -> () -> registerItemModel(entry, func));
 	}
 
@@ -267,14 +268,14 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 
 	@Environment(EnvType.CLIENT)
 	private static void registerBlockModel(Block entry,
-		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		Supplier<NonNullFunction<net.minecraft.client.resources.model.BakedModel, ? extends net.minecraft.client.resources.model.BakedModel>> func) {
 		CreateClient.MODEL_SWAPPER.getCustomBlockModels()
 			.register(() -> entry/*.delegate*/, func.get());
 	}
 
 	@Environment(EnvType.CLIENT)
 	private static void registerItemModel(Item entry,
-		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		Supplier<NonNullFunction<net.minecraft.client.resources.model.BakedModel, ? extends net.minecraft.client.resources.model.BakedModel>> func) {
 		CreateClient.MODEL_SWAPPER.getCustomItemModels()
 			.register(() -> entry/*.delegate*/, func.get());
 	}

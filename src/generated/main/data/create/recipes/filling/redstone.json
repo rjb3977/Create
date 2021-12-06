@@ -1,0 +1,18 @@
+{
+  "type": "create:filling",
+  "ingredients": [
+    {
+      "item": "create:cinder_flour"
+    },
+    {
+      "fluid": "minecraft:empty",
+      "nbt": {},
+      "amount": 0
+    }
+  ],
+  "results": [
+    {
+      "item": "minecraft:redstone"
+    }
+  ]
+}

@@ -25,6 +25,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import com.simibubi.create.lib.data.Tags;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+
 public class WashingRecipeGen extends ProcessingRecipeGen {
 
 	GeneratedRecipe
@@ -106,7 +108,7 @@ public class WashingRecipeGen extends ProcessingRecipeGen {
 		return null;
 	}
 
-	public WashingRecipeGen(DataGenerator p_i48262_1_) {
+	public WashingRecipeGen(FabricDataGenerator p_i48262_1_) {
 		super(p_i48262_1_);
 	}
 

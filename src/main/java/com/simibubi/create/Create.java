@@ -4,6 +4,8 @@ import java.util.Random;
 
 import com.jozufozu.flywheel.event.GatherContextEvent;
 import com.simibubi.create.events.CommonEvents;
+import com.simibubi.create.foundation.data.recipe.StandardRecipeGen;
+import com.simibubi.create.lib.data.DataGenerators;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
 import net.fabricmc.api.EnvType;
@@ -11,6 +13,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.core.Registry;
+
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +57,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
 
-public class Create implements ModInitializer {
+public class Create implements ModInitializer, DataGeneratorEntrypoint {
 
 	public static final String ID = "create";
 	public static final String NAME = "Create";
@@ -146,16 +152,19 @@ public class Create implements ModInitializer {
 //		});
 	}
 
-//	public static void gatherData(GatherDataEvent event) { // datagen
-//		DataGenerator gen = event.getGenerator();
+	@Override
+	public void onInitializeDataGenerator(FabricDataGenerator gen) { // datagen
 //		gen.addProvider(new AllAdvancements(gen));
 //		gen.addProvider(new LangMerger(gen));
 //		gen.addProvider(AllSoundEvents.provider(gen));
 //		gen.addProvider(new StandardRecipeGen(gen));
 //		gen.addProvider(new MechanicalCraftingRecipeGen(gen));
 //		gen.addProvider(new SequencedAssemblyRecipeGen(gen));
-//		ProcessingRecipeGen.registerAll(gen);
-//	}
+		ProcessingRecipeGen.registerAll(gen);
+
+		// Let's add the lib providers here
+		DataGenerators.gatherData(gen);
+	}
 
 	public static CreateRegistrate registrate() {
 		return REGISTRATE.get();

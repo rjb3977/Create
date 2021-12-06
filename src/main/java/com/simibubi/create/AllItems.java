@@ -143,7 +143,7 @@ public class AllItems {
 
 	public static final ItemEntry<BuildersTeaItem> BUILDERS_TEA = REGISTRATE.item("builders_tea", BuildersTeaItem::new)
 		.tag(AllItemTags.UPRIGHT_ON_BELT.tag)
-		.properties(p -> (FabricItemSettings) p.stacksTo(16))
+		.properties(p -> p.stacksTo(16))
 		.lang("Builder's Tea")
 		.register();
 

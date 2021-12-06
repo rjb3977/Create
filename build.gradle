@@ -31,6 +31,7 @@ static boolean pingUrl(String address) {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven { url = "https://api.modrinth.com/maven" }
     maven { url = "https://cursemaven.com" }
     maven { url = "https://maven.parchmentmc.org" }
@@ -76,10 +77,9 @@ dependencies {
     modImplementation(include("curse.maven:forge-config-api-port-fabric-547434:${project.config_api_version}"))
     implementation(include('com.electronwill.night-config:core:3.6.0'))
     implementation(include('com.electronwill.night-config:toml:3.6.0'))
-    modImplementation(include("com.tterrag:registrate-fabric:${project.registrate_version}"))
+    modImplementation(include("com.tterrag:Registrate-Fabric:${project.registrate_version}"))
     modImplementation(include("com.jozufozu.flywheel:Flywheel:${project.flywheel_version}"))
     modImplementation(include("com.jamieswhiteshirt:reach-entity-attributes:${project.reach_entity_attributes_version}"))
-    modImplementation(include("net.devtech:arrp:${project.arrp_version}"))
     implementation(include("com.google.code.findbugs:jsr305:${project.jsr305_version}"))
 }
 
@@ -94,6 +94,22 @@ loom {
         }
     }
 }
+
+loom {
+    runs {
+        datagen {
+            client()
+
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/generated/main")}"
+            vmArg "-Dfabric-api.datagen.strict-validation"
+
+            runDir "build/datagen"
+        }
+    }
+}
+assemble.dependsOn runDatagen
 
 processResources {
     inputs.property "version", project.version

@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -48,6 +49,11 @@ public class FluidStack {
 	}
 
 	public FluidStack(Fluid type, long amount) {
+		// TODO: virtual fluids don't work because they don't have a source block (fix this?)
+		if (!type.isSource(type.defaultFluidState()) && type != Fluids.EMPTY) {
+			this.type = FluidVariant.blank();
+			return;
+		}
 		this.type = FluidVariant.of(type);
 		this.amount = amount;
 	}

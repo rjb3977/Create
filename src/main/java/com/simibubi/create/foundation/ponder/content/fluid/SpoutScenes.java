@@ -108,7 +108,7 @@ public class SpoutScenes {
 		scene.world.removeItemsFromBelt(depotPos);
 		ItemStack potion = new ItemStack(Items.HONEY_BOTTLE);
 		scene.world.createItemOnBeltLike(depotPos, Direction.UP, potion);
-		ParticleOptions fluidParticle = FluidFX.getFluidParticle(new FluidStack(AllFluids.HONEY.get(), 1000));
+		ParticleOptions fluidParticle = FluidFX.getFluidParticle(new FluidStack(AllFluids.HONEY.get().getSource(), 1000));
 		for (int i = 0; i < 10; i++) {
 			scene.effects.emitParticles(util.vector.topOf(depotPos.south())
 				.add(0, 1 / 16f, 0),

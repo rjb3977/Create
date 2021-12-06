@@ -1,6 +1,6 @@
-
-package com.simibubi.create.foundation.data;
-
+//
+//package com.simibubi.create.foundation.data;
+//
 //import java.util.HashMap;
 //import java.util.IdentityHashMap;
 //import java.util.List;

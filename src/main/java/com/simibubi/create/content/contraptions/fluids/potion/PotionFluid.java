@@ -34,8 +34,7 @@ public class PotionFluid extends VirtualFluid {
 	}
 
 	public static FluidStack withEffects(int amount, Potion potion, List<MobEffectInstance> customEffects) {
-		FluidStack fluidStack = new FluidStack(AllFluids.POTION.get()
-				.getSource(), amount);
+		FluidStack fluidStack = new FluidStack(AllFluids.POTION.get(), amount);
 		addPotionToFluidStack(fluidStack, potion);
 		appendEffects(fluidStack, customEffects);
 		return fluidStack;

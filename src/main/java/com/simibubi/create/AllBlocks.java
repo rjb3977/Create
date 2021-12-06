@@ -156,6 +156,8 @@ import com.simibubi.create.foundation.utility.Couple;
 import com.simibubi.create.foundation.utility.DyeHelper;
 import com.simibubi.create.foundation.worldgen.OxidizingBlock;
 import com.simibubi.create.lib.data.Tags;
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.entry.BlockEntry;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -203,17 +205,17 @@ public class AllBlocks {
 					.initialProperties(() -> Blocks.DISPENSER)
 					.transform(pickaxeOnly())
 //					.blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(), AssetLookup.partialBaseModel(ctx, prov)))
-//					.loot((lt, block) -> {
-//						LootTable.Builder builder = LootTable.lootTable();
-//						LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
-//						lt.add(block, builder.withPool(LootPool.lootPool()
-//								.when(survivesExplosion)
-//								.setRolls(ConstantValue.exactly(1))
-//								.add(LootItem.lootTableItem(AllBlocks.SCHEMATICANNON.get()
-//												.asItem())
-//										.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-//												.copy("Options", "BlockEntityTag.Options")))));
-//					})
+					.loot((lt, block) -> {
+						LootTable.Builder builder = LootTable.lootTable();
+						LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
+						lt.add(block, builder.withPool(LootPool.lootPool()
+								.when(survivesExplosion)
+								.setRolls(ConstantValue.exactly(1))
+								.add(LootItem.lootTableItem(AllBlocks.SCHEMATICANNON.get()
+												.asItem())
+										.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+												.copy("Options", "BlockEntityTag.Options")))));
+					})
 					.item()
 					.transform(customItemModel())
 					.register();
@@ -527,7 +529,7 @@ public class AllBlocks {
 					.transform(pickaxeOnly())
 					.addLayer(() -> RenderType::cutoutMipped)
 					.tag(AllBlockTags.FAN_TRANSPARENT.tag, AllBlockTags.FAN_HEATERS.tag)
-//					.loot((lt, block) -> lt.add(block, BlazeBurnerBlock.buildLootTable()))
+					.loot((lt, block) -> lt.add(block, BlazeBurnerBlock.buildLootTable()))
 //					.blockstate((c, p) -> p.simpleBlock(c.getEntry(), AssetLookup.partialBaseModel(c, p)))
 					.item(BlazeBurnerBlockItem::withBlaze)
 //					.model(AssetLookup.<BlazeBurnerBlockItem>customBlockItemModel("blaze_burner", "block_with_blaze"))
@@ -541,7 +543,7 @@ public class AllBlocks {
 					.transform(pickaxeOnly())
 					.addLayer(() -> RenderType::cutoutMipped)
 					.tag(AllBlockTags.FAN_TRANSPARENT.tag, AllBlockTags.FAN_HEATERS.tag)
-//					.loot((lt, block) -> lt.dropOther(block, AllItems.EMPTY_BLAZE_BURNER.get()))
+					.loot((lt, block) -> lt.dropOther(block, AllItems.EMPTY_BLAZE_BURNER.get()))
 //					.blockstate((c, p) -> p.getVariantBuilder(c.get())
 //							.forAllStates(state -> ConfiguredModel.builder()
 //									.modelFile(p.models()
@@ -643,7 +645,7 @@ public class AllBlocks {
 					.onRegister(CreateRegistrate.casingConnectivity((block, cc) -> cc.make(block, AllSpriteShifts.COPPER_CASING,
 							(s, f) -> !s.getValue(EncasedPipeBlock.FACING_TO_PROPERTY_MAP.get(f)))))
 					.onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::new))
-//					.loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
+					.loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
 					.register();
 
 	public static final BlockEntry<GlassFluidPipeBlock> GLASS_FLUID_PIPE =
@@ -655,7 +657,7 @@ public class AllBlocks {
 //							.getExistingFile(
 //									p.modLoc("block/fluid_pipe/window" + (s.getValue(GlassFluidPipeBlock.ALT) ? "_alt" : "")))))
 					.onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::new))
-//					.loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
+					.loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
 					.register();
 
 	public static final BlockEntry<PumpBlock> MECHANICAL_PUMP = REGISTRATE.block("mechanical_pump", PumpBlock::new)
@@ -700,6 +702,7 @@ public class AllBlocks {
 		return REGISTRATE.block(colourName + "_valve_handle", p -> ValveHandleBlock.dyed(p, colour))
 			.transform(pickaxeOnly())
 			.transform(BuilderTransformers.valveHandle(colour))
+				// todo: port getTag does not exist
 //			.recipe((c, p) -> ShapelessRecipeBuilder.shapeless(c.get())
 //				.requires(colour.getTag())
 //				.requires(AllItemTags.VALVE_HANDLES.tag)
@@ -802,7 +805,7 @@ public class AllBlocks {
 			REGISTRATE.block("mechanical_piston_head", MechanicalPistonHeadBlock::new)
 					.initialProperties(() -> Blocks.PISTON_HEAD)
 					.transform(axeOrPickaxe())
-//					.loot((p, b) -> p.dropOther(b, PISTON_EXTENSION_POLE.get()))
+					.loot((p, b) -> p.dropOther(b, PISTON_EXTENSION_POLE.get()))
 //					.blockstate((c, p) -> BlockStateGen.directionalBlockIgnoresWaterlogged(c, p, state -> p.models()
 //							.getExistingFile(p.modLoc("block/mechanical_piston/" + state.getValue(MechanicalPistonHeadBlock.TYPE)
 //									.getSerializedName() + "/head"))))
@@ -1055,18 +1058,18 @@ public class AllBlocks {
 //					.texture("1", p.modLoc("block/seat/top_" + colourName))
 //					.texture("2", p.modLoc("block/seat/side_" + colourName)));
 //			})
-//			.recipe((c, p) -> {
-//				ShapelessRecipeBuilder.shapeless(c.get())
-//					.requires(DyeHelper.getWoolOfDye(colour))
-//					.requires(ItemTags.WOODEN_SLABS)
-//					.unlockedBy("has_wool", RegistrateRecipeProvider.has(ItemTags.WOOL))
-//					.save(p, Create.asResource("crafting/kinetics/" + c.getName()));
+			.recipe((c, p) -> {
+				ShapelessRecipeBuilder.shapeless(c.get())
+					.requires(DyeHelper.getWoolOfDye(colour))
+					.requires(ItemTags.WOODEN_SLABS)
+					.unlockedBy("has_wool", RegistrateRecipeProvider.has(ItemTags.WOOL))
+					.save(p, Create.asResource("crafting/kinetics/" + c.getName()));
 //				ShapelessRecipeBuilder.shapeless(c.get())
 //					.requires(colour.getTag())
 //					.requires(AllItemTags.SEATS.tag)
 //					.unlockedBy("has_seat", RegistrateRecipeProvider.has(AllItemTags.SEATS.tag))
 //					.save(p, Create.asResource("crafting/kinetics/" + c.getName() + "_from_other_seat"));
-//			})
+			})
 			.onRegisterAfter(Item.class, v -> TooltipHelper.referTo(v, "block.create.brown_seat"))
 			.tag(AllBlockTags.SEATS.tag)
 			.item()
@@ -1109,7 +1112,7 @@ public class AllBlocks {
 //						.texture("0", p.modLoc("block/sail/canvas_" + colourName))))
 				.tag(AllBlockTags.WINDMILL_SAILS.tag)
 				.tag(AllBlockTags.SAILS.tag)
-//				.loot((p, b) -> p.dropOther(b, SAIL.get()))
+				.loot((p, b) -> p.dropOther(b, SAIL.get()))
 				.register();
 	});
 
@@ -1245,7 +1248,7 @@ public class AllBlocks {
 					.transform(pickaxeOnly())
 					.tag(AllBlockTags.SAFE_NBT.tag)
 //					.blockstate(new BeltFunnelGenerator("andesite", new ResourceLocation("block/polished_andesite"))::generate)
-//					.loot((p, b) -> p.dropOther(b, ANDESITE_FUNNEL.get()))
+					.loot((p, b) -> p.dropOther(b, ANDESITE_FUNNEL.get()))
 					.register();
 
 	public static final BlockEntry<BrassFunnelBlock> BRASS_FUNNEL =
@@ -1266,7 +1269,7 @@ public class AllBlocks {
 					.transform(pickaxeOnly())
 					.tag(AllBlockTags.SAFE_NBT.tag)
 //					.blockstate(new BeltFunnelGenerator("brass", Create.asResource("block/brass_block"))::generate)
-//					.loot((p, b) -> p.dropOther(b, BRASS_FUNNEL.get()))
+					.loot((p, b) -> p.dropOther(b, BRASS_FUNNEL.get()))
 					.register();
 
 	public static final BlockEntry<BeltTunnelBlock> ANDESITE_TUNNEL =
@@ -1329,7 +1332,7 @@ public class AllBlocks {
 				.properties(p -> p.lightLevel($ -> 5))
 				.transform(axeOrPickaxe())
 //				.blockstate(new NixieTubeGenerator()::generate)
-//				.loot((p, b) -> p.dropOther(b, ORANGE_NIXIE_TUBE.get()))
+				.loot((p, b) -> p.dropOther(b, ORANGE_NIXIE_TUBE.get()))
 				.addLayer(() -> RenderType::translucent)
 				.register();
 	});
@@ -1401,7 +1404,7 @@ public class AllBlocks {
 					.transform(axeOnly())
 //					.blockstate((c, p) -> p.horizontalBlock(c.get(), p.models()
 //							.getExistingFile(p.mcLoc("block/lectern"))))
-//					.loot((lt, block) -> lt.dropOther(block, Blocks.LECTERN))
+					.loot((lt, block) -> lt.dropOther(block, Blocks.LECTERN))
 					.register();
 
 	// Curiosities
@@ -1417,19 +1420,19 @@ public class AllBlocks {
 					.transform(pickaxeOnly())
 					.addLayer(() -> RenderType::cutoutMipped)
 					.transform(BlockStressDefaults.setImpact(4.0))
-//					.loot((lt, block) -> {
-//						LootTable.Builder builder = LootTable.lootTable();
-//						LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
-//						lt.add(block, builder.withPool(LootPool.lootPool()
-//								.when(survivesExplosion)
-//								.setRolls(ConstantValue.exactly(1))
-//								.add(LootItem.lootTableItem(AllItems.COPPER_BACKTANK.get())
-//										.apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
-//										.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-//												.copy("Air", "Air"))
-//										.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-//												.copy("Enchantments", "Enchantments")))));
-//					})
+					.loot((lt, block) -> {
+						LootTable.Builder builder = LootTable.lootTable();
+						LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
+						lt.add(block, builder.withPool(LootPool.lootPool()
+								.when(survivesExplosion)
+								.setRolls(ConstantValue.exactly(1))
+								.add(LootItem.lootTableItem(AllItems.COPPER_BACKTANK.get())
+										.apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
+										.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+												.copy("Air", "Air"))
+										.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+												.copy("Enchantments", "Enchantments")))));
+					})
 					.register();
 
 	public static final BlockEntry<PeculiarBellBlock> PECULIAR_BELL =
@@ -1450,19 +1453,19 @@ public class AllBlocks {
 				.initialProperties(SharedProperties::wooden)
 				.properties(p -> p.sound(SoundType.WOOD))
 				.addLayer(() -> RenderType::cutoutMipped)
-//				.loot((lt, block) -> {
-//					LootTable.Builder builder = LootTable.lootTable();
-//					LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
-//					lt.add(block, builder.withPool(LootPool.lootPool()
-//							.when(survivesExplosion)
-//							.setRolls(ConstantValue.exactly(1))
-//							.add(LootItem.lootTableItem(block)
-//									.apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
-//									.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-//											.copy("UniqueId", "UniqueId"))
-//						.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-//							.copy("Inventory", "Inventory")))));
-//				})
+				.loot((lt, block) -> {
+					LootTable.Builder builder = LootTable.lootTable();
+					LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
+					lt.add(block, builder.withPool(LootPool.lootPool()
+							.when(survivesExplosion)
+							.setRolls(ConstantValue.exactly(1))
+							.add(LootItem.lootTableItem(block)
+									.apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
+									.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+											.copy("UniqueId", "UniqueId"))
+						.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+							.copy("Inventory", "Inventory")))));
+				})
 ////				.blockstate((c, p) -> {
 //					p.horizontalBlock(c.get(), p.models()
 //							.withExistingParent(colourName + "_toolbox", p.modLoc("block/toolbox/block"))
@@ -1489,10 +1492,10 @@ public class AllBlocks {
 			.properties(p -> p.requiresCorrectToolForDrops()
 					.sound(SoundType.STONE))
 			.transform(pickaxeOnly())
-//		.loot((lt, b) -> lt.add(b,
-//			RegistrateBlockLootTables.createSilkTouchDispatchTable(b,
-//				RegistrateBlockLootTables.applyExplosionDecay(b, LootItem.lootTableItem(AllItems.RAW_ZINC.get())
-//					.apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))))))
+		.loot((lt, b) -> lt.add(b,
+			RegistrateBlockLootTables.createSilkTouchDispatchTable(b,
+				RegistrateBlockLootTables.applyExplosionDecay(b, LootItem.lootTableItem(AllItems.RAW_ZINC.get())
+					.apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))))))
 		.tag(BlockTags.NEEDS_IRON_TOOL)
 		.tag(Tags.Blocks.ORES)
 		.transform(tagBlockAndItem("ores/zinc"))
@@ -1505,10 +1508,10 @@ public class AllBlocks {
 		.properties(p -> p.requiresCorrectToolForDrops()
 			.sound(SoundType.DEEPSLATE))
 		.transform(pickaxeOnly())
-//		.loot((lt, b) -> lt.add(b,
-//			RegistrateBlockLootTables.createSilkTouchDispatchTable(b,
-//				RegistrateBlockLootTables.applyExplosionDecay(b, LootItem.lootTableItem(AllItems.RAW_ZINC.get())
-//					.apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))))))
+		.loot((lt, b) -> lt.add(b,
+			RegistrateBlockLootTables.createSilkTouchDispatchTable(b,
+				RegistrateBlockLootTables.applyExplosionDecay(b, LootItem.lootTableItem(AllItems.RAW_ZINC.get())
+					.apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))))))
 			.tag(BlockTags.NEEDS_IRON_TOOL)
 			.tag(Tags.Blocks.ORES)
 			.transform(tagBlockAndItem("ores/zinc"))

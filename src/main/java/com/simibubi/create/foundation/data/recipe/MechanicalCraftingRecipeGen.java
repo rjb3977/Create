@@ -16,6 +16,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import com.simibubi.create.lib.data.Tags;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+
 public class MechanicalCraftingRecipeGen extends CreateRecipeProvider {
 
 	GeneratedRecipe
@@ -69,7 +71,7 @@ public class MechanicalCraftingRecipeGen extends CreateRecipeProvider {
 
 	;
 
-	public MechanicalCraftingRecipeGen(DataGenerator p_i48262_1_) {
+	public MechanicalCraftingRecipeGen(FabricDataGenerator p_i48262_1_) {
 		super(p_i48262_1_);
 	}
 

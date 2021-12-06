@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import com.simibubi.create.lib.data.Tags;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+
 public class MixingRecipeGen extends ProcessingRecipeGen {
 
 	GeneratedRecipe
@@ -75,7 +77,7 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 
 	;
 
-	public MixingRecipeGen(DataGenerator p_i48262_1_) {
+	public MixingRecipeGen(FabricDataGenerator p_i48262_1_) {
 		super(p_i48262_1_);
 	}
 

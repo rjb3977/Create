@@ -12,6 +12,8 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.material.Fluids;
 import com.simibubi.create.lib.data.Tags;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+
 public class FillingRecipeGen extends ProcessingRecipeGen {
 
 	GeneratedRecipe
@@ -58,7 +60,7 @@ public class FillingRecipeGen extends ProcessingRecipeGen {
 
 	;
 
-	public FillingRecipeGen(DataGenerator p_i48262_1_) {
+	public FillingRecipeGen(FabricDataGenerator p_i48262_1_) {
 		super(p_i48262_1_);
 	}
 

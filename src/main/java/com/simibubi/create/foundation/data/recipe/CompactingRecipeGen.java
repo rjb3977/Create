@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import com.simibubi.create.lib.data.Tags;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+
 public class CompactingRecipeGen extends ProcessingRecipeGen {
 
 	GeneratedRecipe
@@ -48,7 +50,7 @@ public class CompactingRecipeGen extends ProcessingRecipeGen {
 
 	;
 
-	public CompactingRecipeGen(DataGenerator p_i48262_1_) {
+	public CompactingRecipeGen(FabricDataGenerator p_i48262_1_) {
 		super(p_i48262_1_);
 	}
 

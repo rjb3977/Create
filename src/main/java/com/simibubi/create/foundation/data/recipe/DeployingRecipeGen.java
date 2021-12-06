@@ -2,6 +2,8 @@ package com.simibubi.create.foundation.data.recipe;
 
 import com.simibubi.create.AllRecipeTypes;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+
 import net.minecraft.data.DataGenerator;
 
 public class DeployingRecipeGen extends ProcessingRecipeGen {
@@ -12,7 +14,7 @@ public class DeployingRecipeGen extends ProcessingRecipeGen {
 //		.output(AllItems.BRASS_NUGGET.get())),
 //	;
 
-	public DeployingRecipeGen(DataGenerator p_i48262_1_) {
+	public DeployingRecipeGen(FabricDataGenerator p_i48262_1_) {
 		super(p_i48262_1_);
 	}
 
