@@ -40,7 +40,7 @@ public abstract class FogRendererMixin {
 	}
 
 	@Inject(method = "setupFog", at = @At("HEAD"), cancellable = true)
-	private static void create$setupFog(Camera activeRenderInfo, FogRenderer.FogMode fogType, float f, boolean bl, CallbackInfo ci) {
+	private static void create$setupFog(Camera activeRenderInfo, FogRenderer.FogMode fogMode, float f, boolean bl, float g, CallbackInfo ci) {
 		float density = FogEvents.SET_DENSITY.invoker().setDensity(activeRenderInfo, 0.1f);
 		if (density != 0.1f) {
 			RenderSystem.setShaderFogStart(-8.0F);
