@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "overrides": {
+    "mavm": {
+      "depends": {
+        "minecraft": "1.19-Deep.Dark.Experimental.Snapshot.1"
+      }
+    },
+    "fabric": {
+      "depends": {
+        "minecraft": "1.19-Deep.Dark.Experimental.Snapshot.1"
+      }
+    },
+    "flywheel": {
+      "depends": {
+        "minecraft": "1.19-Deep.Dark.Experimental.Snapshot.1"
+      }
+    },
+    "architectury": {
+      "depends": {
+        "minecraft": "1.19-Deep.Dark.Experimental.Snapshot.1"
+      }
+    },
+    "roughlyenoughitems": {
+      "depends": {
+        "minecraft": "1.19-Deep.Dark.Experimental.Snapshot.1"
+      }
+    },
+    "physicsmod": {
+      "depends": {
+        "minecraft": "1.19-Deep.Dark.Experimental.Snapshot.1"
+      }
+    }
+  }
+}

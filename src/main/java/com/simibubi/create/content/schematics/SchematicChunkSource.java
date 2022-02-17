@@ -40,6 +40,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
@@ -83,7 +84,7 @@ public class SchematicChunkSource extends ChunkSource {
 	}
 
 	@Override
-	public void tick(BooleanSupplier pHasTimeLeft) {}
+	public void tick(BooleanSupplier pHasTimeLeft, boolean tickChunks) {}
 
 	@Override
 	public int getLoadedChunksCount() {
@@ -112,6 +113,9 @@ public class SchematicChunkSource extends ChunkSource {
 
 			@Override
 			public void levelEvent(Player pPlayer, int pType, BlockPos pPos, int pData) {}
+
+			@Override
+			public void gameEvent(@Nullable Entity entity, GameEvent gameEvent, Vec3 vec3) {}
 
 			@Override
 			public void gameEvent(Entity pEntity, GameEvent pEvent, BlockPos pPos) {}

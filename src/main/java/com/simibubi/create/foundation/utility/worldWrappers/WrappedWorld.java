@@ -28,6 +28,7 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
 
@@ -105,6 +106,9 @@ public class WrappedWorld extends Level {
 
 	@Override
 	public void levelEvent(@Nullable Player player, int type, BlockPos pos, int data) {}
+
+	@Override
+	public void gameEvent(@Nullable Entity entity, GameEvent gameEvent, Vec3 vec3) {}
 
 	@Override
 	public List<? extends Player> players() {

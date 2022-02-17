@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.simibubi.create.compat.rei.category.sequencedAssembly.SequencedAssemblySubCategory;
+//import com.simibubi.create.compat.rei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 
 import net.fabricmc.api.EnvType;
@@ -28,6 +28,6 @@ public interface IAssemblyRecipe {
 
 	default void addAssemblyFluidIngredients(List<FluidIngredient> list) {}
 
-	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory();
+//	public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory();
 
 }
