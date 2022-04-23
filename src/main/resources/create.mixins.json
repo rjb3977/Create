@@ -10,6 +10,8 @@
     "accessor.DispenserBlockAccessor",
     "accessor.FallingBlockEntityAccessor",
     "accessor.LivingEntityAccessor",
+    "canvas.CanvasBlockRenderContextMixin",
+    "canvas.CanvasImmediateAccessor",
     "fabric.AbstractMinecartMixin",
     "fabric.EntityMixin"
   ],

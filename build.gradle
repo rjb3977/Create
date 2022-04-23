@@ -35,6 +35,7 @@ repositories {
     maven { url = "https://maven.cafeteria.dev" }
     maven { url = "https://jitpack.io/" }
     maven { url = "https://maven.jamieswhiteshirt.com/libs-release" }
+    maven { url = "https://maven.vram.io/" }
 }
 
 dependencies {
@@ -73,6 +74,9 @@ dependencies {
     modImplementation(include("dev.cafeteria:fake-player-api:${project.fake_player_api_version}"))
     modImplementation(include("io.github.tropheusj:milk-lib:${project.milk_lib_version}"))
     implementation(include("com.google.code.findbugs:jsr305:${project.jsr305_version}"))
+
+//    modImplementation "io.vram:frex-fabric-mc118:6.0.+"
+    modCompileOnly "io.vram:canvas-fabric-mc118:1.0.+"
 }
 
 task buildOrPublish {

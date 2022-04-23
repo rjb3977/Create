@@ -13,6 +13,7 @@ import com.simibubi.create.foundation.tileEntity.renderer.SafeTileEntityRenderer
 import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Color;
 
+import grondag.canvas.buffer.input.CanvasImmediate;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -39,6 +40,7 @@ public class KineticTileEntityRenderer extends SafeTileEntityRenderer<KineticTil
 
 		BlockState state = getRenderedBlockState(te);
 		RenderType type = getRenderType(te, state);
+
 		if (type != null)
 			renderRotatingBuffer(te, getRotatedModel(te, state), ms, buffer.getBuffer(type), light);
 	}

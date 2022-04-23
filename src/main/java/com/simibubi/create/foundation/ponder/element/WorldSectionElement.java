@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.ponder.element;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import com.simibubi.create.foundation.utility.outliner.AABBOutline;
 
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -430,6 +433,20 @@ public class WorldSectionElement extends AnimatedSceneElement {
 		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
 		unshadedBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
 		shadeSeparatingWrapper.prepare(builder, unshadedBuilder);
+
+		if(FabricLoader.getInstance().isModLoaded("frex")) {
+			try {
+				Method hook = shadeSeparatingWrapper.getClass().getDeclaredMethod("setActiveConsumer", boolean.class);
+				hook.setAccessible(true);
+				hook.invoke(shadeSeparatingWrapper, true);
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
 
 		world.setMask(this.section);
 		ModelBlockRenderer.enableCaching();
