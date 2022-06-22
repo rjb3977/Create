@@ -7,9 +7,8 @@ import com.simibubi.create.foundation.config.AllConfigs;
 import com.simibubi.create.foundation.tileEntity.SmartTileEntity;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-import io.github.fabricators_of_create.porting_lib.block.CustomRenderBoundingBoxBlockEntity;
-
-import net.fabricmc.fabric.impl.lookup.block.ServerWorldCache;
+import com.simibubi.create.foundation.item.StorageWrapper;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -18,7 +17,52 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
-public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity implements CustomRenderBoundingBoxBlockEntity {
+public class PortableStorageInterfaceTileEntity<T> extends SmartTileEntity {
+
+	public class PortableStorage extends StorageWrapper<T> {
+		protected PortableStorage() {
+			super(Storage.empty());
+		}
+		
+		@Override
+		protected void setWrapped(Storage<T> wrapped) {
+			super.setWrapped(wrapped);
+		}
+		
+		public void keepAlive() {
+			onContentTransferred();
+		}
+
+		@Override
+		public boolean allowInsert(T resource) {
+			return canTransfer();
+		}
+
+		@Override
+		public boolean allowExtract(T resource) {
+			return canTransfer();
+		}
+
+		@Override
+		public void onInsert(T resource, long amount) {
+			keepAlive();
+		}
+
+		@Override
+		public void onExtract(T resource, long amount) {
+			keepAlive();
+		}
+
+		@Override
+		public boolean supportsInsertion() {
+			return true;
+		}
+
+		@Override
+		public boolean supportsExtraction() {
+			return true;
+		}
+	}
 
 	protected int transferTimer;
 	protected float distance;
@@ -26,12 +70,15 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 	protected boolean powered;
 	protected Entity connectedEntity;
 
+	protected PortableStorage storage;
+
 	public PortableStorageInterfaceTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		transferTimer = 0;
 		connectionAnimation = LerpedFloat.linear()
 			.startWithValue(0);
 		powered = false;
+		storage = new PortableStorage();
 	}
 
 	public void startTransferringTo(Contraption contraption, float distance) {
@@ -43,6 +90,7 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 
 	protected void stopTransferring() {
 		connectedEntity = null;
+		this.storage.setWrapped(Storage.empty());
 	}
 
 	public boolean canTransfer() {
@@ -50,8 +98,6 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 			stopTransferring();
 		return connectedEntity != null && isConnected();
 	}
-
-	protected abstract void invalidateCapability();
 
 	@Override
 	public void tick() {
@@ -82,7 +128,7 @@ public abstract class PortableStorageInterfaceTileEntity extends SmartTileEntity
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		invalidateCapability();
+		this.storage.setWrapped(Storage.empty());
 	}
 
 	@Override

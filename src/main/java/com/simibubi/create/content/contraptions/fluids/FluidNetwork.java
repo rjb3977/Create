@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.simibubi.create.content.contraptions.components.actors.PortableFluidInterfaceTileEntity.InterfaceFluidHandler;
+import com.simibubi.create.content.contraptions.components.actors.PortableStorageInterfaceTileEntity;
 import com.simibubi.create.content.contraptions.fluids.PipeConnection.Flow;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.tileEntity.TileEntityBehaviour;
@@ -260,12 +260,9 @@ public class FluidNetwork {
 //	}
 
 	private void keepPortableFluidInterfaceEngaged() {
-		Storage<FluidVariant> handler = source;
-		if (!(handler instanceof InterfaceFluidHandler))
-			return;
-		if (frontier.isEmpty())
-			return;
-		((InterfaceFluidHandler) handler).keepAlive();
+		if (!frontier.isEmpty() && source instanceof PortableStorageInterfaceTileEntity<?>.PortableStorage storage) {
+			storage.keepAlive();
+		}
 	}
 
 	public void reset() {
